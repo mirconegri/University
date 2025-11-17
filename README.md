@@ -6,7 +6,7 @@ Welcome to my university archive! Here I collect notes, projects, and study mate
 
 ## 📖 Main Contents
 
-- **Calculus 1** 
+- **Analisi 1** 
 
 ---
 
