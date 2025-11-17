@@ -1,44 +1,28 @@
 # 🎓 University Archive
 
-Benvenuto nel mio archivio universitario! Qui raccolgo appunti, progetti e materiali di studio per i vari corsi universitari.
+Welcome to my university archive! Here I collect notes, projects, and study materials for various university courses.
 
 ---
 
-## 📖 Contenuti principali
+## 📖 Main Contents
 
-- **Analisi 1** 
+- **Calculus 1** 
 
 ---
 
-## ⚡ Come usare questo repository
+## ⚡ How to use this repository
 
-1. Clona il repository:
+1. Clone the repository:
 
-```bash
+```
 git clone https://github.com/mirconegri/University.git
 ```
 
-2. Naviga nella cartella del corso che ti interessa.
-3. Apri i PDF, le immagini o i codici direttamente.
+2. Navigate to the folder of the course you are interested in.
+3. Open the PDFs, images, or code files directly.
 
 ---
 
-## 🛠️ Tecnologie e strumenti
+## 📌 Notes
 
-* Markdown per la documentazione
-* Typst per i cheatsheet in PDF
-* Git per il versionamento
-* GitHub Actions per aggiornamenti automatici dei PDF
-
----
-
-## 📌 Note
-
-Questo repository è **personale e didattico**, utile per rivedere argomenti, esercizi e appunti universitari.
-
-```
-
----
-
-Se vuoi, posso fare una **versione ancora più “grafica”**, con emoji, link diretti ai PDF e una piccola sezione per ogni corso senza usare la struttura ad albero, così sembra un vero portafoglio digitale universitario. Vuoi che lo faccia?
-```
+This repository is **personal and educational**, useful for reviewing topics, exercises, and university notes.
