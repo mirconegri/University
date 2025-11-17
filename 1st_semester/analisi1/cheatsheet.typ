@@ -450,113 +450,118 @@
 
 #section[integrali][
 
-// -------------------------------
-// DEFINIZIONI MANCANTI
-// -------------------------------
-
 #showybox(
-  title: "Massimo, minimo ed estremi",
+  title: "Massimo, minimo, estremi",
   body: [
-    *Massimo*: un punto `a` è un massimo per `f` se `f(a) ≥ f(x)` per ogni `x` nel dominio.
-
-    *Massimo locale*: `a` è massimo locale se esiste un intorno `I` di `a` tale che  
-    `f(a) ≥ f(x)` per ogni `x ∈ I`.
+    *Massimo*: `a` è massimo per `f` se `f(a) ≥ f(x)` per ogni `x` del dominio.  
+    *Massimo locale*: vale la stessa proprietà ma solo in un intorno di `a`.
 
     *Minimo* e *minimo locale*: analoghi.
 
-    *Estremo*: qualsiasi punto di massimo o minimo (anche locale).
+    *Estremi*: punti di massimo o minimo (anche locali).
   ]
 )
 
 #showybox(
   title: "Sup e Inf",
   body: [
-    `sup A`: il più piccolo maggiorante di `A`.  
-    Esiste sempre se `A` è limitato superiormente.
+    `sup A`: più piccolo maggiorante di `A`.  
+    `inf A`: più grande minorante di `A`.  
 
-    `inf A`: il più grande minorante di `A`.  
-    Esiste sempre se `A` è limitato inferiormente.
-
-    Possibile che `sup` e `inf` non siano elementi dell’insieme (es. intervalli aperti).
+    Possono NON appartenere ad `A`.  
+    Se `A` è limitato sopra o sotto, `sup` e `inf` esistono sempre (completezza di ℝ).
   ]
 )
 
 #showybox(
   title: "Funzioni Lipschitziane",
   body: [
-    Una funzione `f` è *Lipschitz* su un insieme `I` se:
-
+    `f` è *Lipschitz* su `I` se  
     ```typst
-    ∃ K > 0 : |f(x) - f(y)| ≤ K |x - y|
+    ∃K>0 : |f(x)-f(y)| ≤ K|x-y|
     ```
-
-    per ogni `x, y ∈ I`.
-
-    Tutte le funzioni Lipschitz sono uniformemente continue.
+    Le funzioni Lipschitz sono uniformemente continue.
   ]
 )
-
-
-// -------------------------------
-// INTEGRALI – CONTENUTO MANCANTE
-// -------------------------------
 
 #showybox(
   title: "Proprietà degli integrali",
   body: [
-    - *Linearità*:  
-      `∫ (af + bg) = a ∫ f + b ∫ g`
-    - *Monotonia*:  
-      `f ≤ g ⇒ ∫ f ≤ ∫ g`
-    - *Additività sugli intervalli*:  
-      `∫_a^c f = ∫_a^b f + ∫_b^c f`
-    - Se `f` è continua ⇒ è integrabile.
-    - Se `f` è limitata e ha un numero finito di discontinuità ⇒ integrabile.
+    - *Linearità*: `∫(af + bg) = a∫f + b∫g`
+    - *Monotonia*: `f ≤ g ⇒ ∫f ≤ ∫g`
+    - *Additività*: `∫_a^c f = ∫_a^b f + ∫_b^c f`
+    - Continuità ⇒ integrabilità  
+    - Limitata con un numero finito di discontinuità ⇒ integrabile
   ]
 )
 
 #showybox(
-  title: "Tecniche di integrazione",
+  title: "Tecniche principali",
   body: [
     *Integrazione per parti*  
     ```typst
-    ∫ u dv = uv - ∫ v du
+    ∫u dv = uv − ∫v du
     ```
 
     *Sostituzione*  
     ```typst
-    x = g(t),  dx = g'(t) dt
+    x = g(t), dx = g'(t) dt
     ```
 
     *Fratti razionali*  
-    Scomposizione in fratti semplici quando `f = P(x)/Q(x)` con `deg P < deg Q`.
+    Scomposizione in fratti semplici quando `deg P < deg Q`.
 
-    *Razionali in seno/coseno*  
-    Uso della sostituzione di Weierstrass:  
+    *Razionali in sin/cos*  
+    Sostituzione di Weierstrass:  
     ```typst
     t = tan(x/2)
     ```
   ]
 )
 
+#showybox(
+  title: "Integrali impropri",
+  body: [
+    *Tipo 1 — intervalli infiniti*  
+    ```typst
+    ∫_a^∞ f convergente ⇔ lim_{b→∞} ∫_a^b f esiste
+    ```
 
-  Da mettere:
-  - Proprietà degli integrali
-  - Tecniche di integrazione
-  - integrali circolari? (il grande ritorno)
-  - solidi per integrazione
-  - criteri di convergenza intregrali "impropri"
+    *Tipo 2 — discontinuità*  
+    ```typst
+    ∫_a^b f convergente ⇔ lim_{x→c^-} ∫_a^x f esiste
+    ```
+
+    *Criterio del confronto*  
+    - Se `0 ≤ f ≤ g` e `∫g` converge → `∫f` converge  
+    - Se `f ≥ g ≥ 0` e `∫g` diverge → `∫f` diverge
+  ]
+)
+
+#showybox(
+  title: "Integrali circolari",
+  body: [
+    Utili quando compaiono:  
+    `√(a² − x²)`, `√(a² + x²)`, `√(x² − a²)`.
+
+    - `x = a sin t` → `√(a² − x²)`  
+    - `x = a tan t` → `√(a² + x²)`  
+    - `x = a cosh t` → `√(x² − a²)`
+  ]
+)
+
+#showybox(
+  title: "Solidi per integrazione",
+  body: [
+    *Metodo dei dischi*  
+    ```typst
+    V = π ∫_a^b (f(x))² dx
+    ```
+
+    *Metodo dei gusci cilindrici*  
+    ```typst
+    V = 2π ∫_a^b x f(x) dx
+    ```
+  ]
+)
 ]
-
-#section[numeri complessi][Li dobbiamo ancora fare]
-#section[equazioni differenziali][Le dobbiamo ancora fare]
-
-#pagebreak()
-
-Grafici di funzione (insieme alle loro derivate?) da inserire con piene notazioni:
-- e^x
-- log(x)
-- sin, cos, tan, cot, sec, csc,
-- arcsin, arccos, arctan
-- sinh, cosh, tanh
-
