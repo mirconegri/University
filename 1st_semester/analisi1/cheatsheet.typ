@@ -449,6 +449,97 @@
 ]
 
 #section[integrali][
+
+// -------------------------------
+// DEFINIZIONI MANCANTI
+// -------------------------------
+
+#showybox(
+  title: "Massimo, minimo ed estremi",
+  body: [
+    *Massimo*: un punto `a` è un massimo per `f` se `f(a) ≥ f(x)` per ogni `x` nel dominio.
+
+    *Massimo locale*: `a` è massimo locale se esiste un intorno `I` di `a` tale che  
+    `f(a) ≥ f(x)` per ogni `x ∈ I`.
+
+    *Minimo* e *minimo locale*: analoghi.
+
+    *Estremo*: qualsiasi punto di massimo o minimo (anche locale).
+  ]
+)
+
+#showybox(
+  title: "Sup e Inf",
+  body: [
+    `sup A`: il più piccolo maggiorante di `A`.  
+    Esiste sempre se `A` è limitato superiormente.
+
+    `inf A`: il più grande minorante di `A`.  
+    Esiste sempre se `A` è limitato inferiormente.
+
+    Possibile che `sup` e `inf` non siano elementi dell’insieme (es. intervalli aperti).
+  ]
+)
+
+#showybox(
+  title: "Funzioni Lipschitziane",
+  body: [
+    Una funzione `f` è *Lipschitz* su un insieme `I` se:
+
+    ```typst
+    ∃ K > 0 : |f(x) - f(y)| ≤ K |x - y|
+    ```
+
+    per ogni `x, y ∈ I`.
+
+    Tutte le funzioni Lipschitz sono uniformemente continue.
+  ]
+)
+
+
+// -------------------------------
+// INTEGRALI – CONTENUTO MANCANTE
+// -------------------------------
+
+#showybox(
+  title: "Proprietà degli integrali",
+  body: [
+    - *Linearità*:  
+      `∫ (af + bg) = a ∫ f + b ∫ g`
+    - *Monotonia*:  
+      `f ≤ g ⇒ ∫ f ≤ ∫ g`
+    - *Additività sugli intervalli*:  
+      `∫_a^c f = ∫_a^b f + ∫_b^c f`
+    - Se `f` è continua ⇒ è integrabile.
+    - Se `f` è limitata e ha un numero finito di discontinuità ⇒ integrabile.
+  ]
+)
+
+#showybox(
+  title: "Tecniche di integrazione",
+  body: [
+    *Integrazione per parti*  
+    ```typst
+    ∫ u dv = uv - ∫ v du
+    ```
+
+    *Sostituzione*  
+    ```typst
+    x = g(t),  dx = g'(t) dt
+    ```
+
+    *Fratti razionali*  
+    Scomposizione in fratti semplici quando `f = P(x)/Q(x)` con `deg P < deg Q`.
+
+    *Razionali in seno/coseno*  
+    Uso della sostituzione di Weierstrass:  
+    ```typst
+    t = tan(x/2)
+    ```
+  ]
+)
+
+
   Da mettere:
   - Proprietà degli integrali
   - Tecniche di integrazione
