@@ -22,7 +22,7 @@ jobs:
         uses: lvignoli/typst-action@main
         with:
           source_file: cheatsheet.typ
-          options: "--font-path ./fonts"
+          options: "--font-path=./fonts"
 
       # 3️⃣ Sposta il PDF nella cartella desiderata
       - name: Move PDF to analysis folder
