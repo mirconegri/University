@@ -22,7 +22,7 @@ jobs:
     uses: lvignoli/typst-action@main
       with:
     source_file: cheatsheet.typ
-    options: "--font-path=./fonts/ -o 1st_semester/analisi1/cheatsheet.pdf"
+    options: "--font-path=./fonts/ -o 1st_semester/1st_semester/analisi1/cheatsheet.pdf"
 
 
       # 3️⃣ Carica il PDF come artefatto (opzionale)
