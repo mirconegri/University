@@ -19,12 +19,11 @@ jobs:
 
       # 2️⃣ Compila il file Typst in PDF
       - name: Build PDF with Typst
-  uses: lvignoli/typst-action@main
-  with:
-    source_file: cheatsheet.typ
-    options: "--font-path=./fonts"
-    output: "1st_semester/analisi1/cheatsheet.pdf"
-
+        uses: lvignoli/typst-action@main
+        with:
+          source_file: cheatsheet.typ
+          options: "--font-path=./fonts"
+          output: "1st_semester/analisi1/cheatsheet.pdf"
 
       # 3️⃣ Carica il PDF come artefatto (opzionale)
       - name: Upload PDF artifact
@@ -49,4 +48,3 @@ jobs:
           overwrite: true
           body: "Aggiornamento PDF"
           release_name: "PDF ${{ env.DATE }}"
-
