@@ -1,12 +1,15 @@
 #import "@preview/showybox:2.0.4"
-// #import "/typst/lib.typ": *
-#set text(size: 6pt, font: ("Atkinson Hyperlegible Next", "Atkinson Hyperlegible"))
 
+// FONT compatibile fallback
+#set text(size: 6pt, font: ("Atkinson Hyperlegible", "sans-serif"))
+
+// Rainbow macro
 #let rainbow(content) = {
   set text(fill: gradient.linear(..color.map.inferno.map(a => a.darken(30%))))
   box(content)
 }
 
+// Footer
 #let footer = [
   #pad(y: -2pt)[
     #h(1fr)
@@ -14,21 +17,20 @@
   ]
 ]
 
+// Impostazioni pagina
 #set page(columns: 5, margin: 5pt, flipped: true, footer: footer)
 #set columns(gutter: 0pt)
 #place(
   top + center,
   float: true,
   scope: "parent",
-  text(1.4em, weight: "bold")[
-    Analisi 1 Cheatsheet
-  ],
+  text(1.4em, weight: "bold")[Analisi 1 Cheatsheet]
 )
 
+// Sezione helper
 #let section(title, content, color: black, raw: false) = {
   set table(stroke: color)
-
-  showybox.showybox(
+  #showybox(
     title: [*#upper(title)*],
     frame: (
       radius: 1pt,
@@ -36,532 +38,136 @@
       inset: if raw { 0pt } else { 4pt },
       title-color: color,
       border-color: color,
-      // body-color: color.transparentize(90%),
     ),
     title-style: (
       weight: "medium",
       sep-thickness: 0pt,
     ),
     below: 0pt,
-  )[#content]
+  )[
+    #content
+  ]
 }
 
+// Freccia doppia
 #let iff = $arrow.double.l.r$
 
-#section(color: green.darken(30%))[serie matematiche][
-  === Serie notevoli
-  #table(columns: (1fr, 1fr))[
-    === Serie armonica
-    $ sum 1/n^lambda $
+// ==========================
+// SEZIONE INTEGRALI
+// ==========================
+#section[color: blue.darken(30%)][Integrali][
+  #showybox(
+    title: "Massimo, minimo, estremi",
+    body: [
+      *Massimo*: `a` è massimo per `f` se `f(a) ≥ f(x)` per ogni `x` del dominio.  
+      *Massimo locale*: vale la stessa proprietà ma solo in un intorno di `a`.
 
-    converge per $lambda > 1$
-  ][
-    === Serie armonica 2
-    $ sum 1/(n |log n|^lambda) "&" sum 1/(n log_lambda n) $
+      *Minimo* e *minimo locale*: analoghi.
 
-    converge per $lambda > 1$
-  ][
-    === Serie telescopica
-    $ sum b_(n+1) - b_n = lim_(n -> oo) b_(n+1 - b_n) $
-    converge $lim_(n->oo) b_n = L$
-  ]
-  === Criteri di convergenza $C(s_n) = s_n "converge"$
-  #table(columns: (1fr, 1fr), inset: 0pt)[
-    #table[
-      === Criterio del confronto
-      Date due serie $sum a_n "e" sum b_n$ tale che $L = lim_(n->oo) (a_n)/(b_n)$
-      - $L in RR =>$ $C(a_n)$ #iff $C(b_n)$
-      - $L = 0 =>$ $C(b_n)$ $=> C(a_n)$
-      - $L = oo =>$ $not(C(b_n))$ $=> not(C(a_n))$
+      *Estremi*: punti di massimo o minimo (anche locali).
     ]
-  ][
-    #table(columns: 1fr)[
-      Condizioni comuni:
-      - $L$ > 1 diverge
-      - $L$ < 1 converge
-    ][
-      === Criterio del rapporto
-      $L = lim_(n->oo) a_(n+1)/a_n$][
-      === Criterio della radice
-      $L = lim_(n->oo) root(n, a_n)$
-    ][
-      === Criterio di Sostituzione
-      $C(sum a_n) iff C(sum 2^n a_(2n))$
+  )
+
+  #showybox(
+    title: "Sup e Inf",
+    body: [
+      `sup A`: più piccolo maggiorante di `A`.  
+      `inf A`: più grande minorante di `A`.  
+
+      Possono NON appartenere ad `A`.  
+      Se `A` è limitato sopra o sotto, `sup` e `inf` esistono sempre (completezza di ℝ).
     ]
-  ]
+  )
 
-  === Criteri di convergenza x segno variabile
-  #table(columns: (1fr, 1fr), inset: 0pt)[
-    #table(columns: 1fr)[
-      === Criterio conv. assoluta
-      $C(sum |a_n|) => C(sum a_n)$
-    ][
-      === Criterio di Dirichet
-      $a_n, b_n$ #underline[successioni]:
-      - $sum a_n$ è limitata
-      - $b_n -> 0$
-      - $b_(n+1) <= b_n$
-      Allora $sum a_n b_n$ converge
+  #showybox(
+    title: "Funzioni Lipschitziane",
+    body: [
+      `f` è *Lipschitz* su `I` se  
+      ```typst
+      ∃K>0 : |f(x)-f(y)| ≤ K|x-y|
+      ```
+      Le funzioni Lipschitz sono uniformemente continue.
     ]
-  ][
-    #table(columns: 1fr)[
-      === Criterio di Leibnitz
-      #grid(columns: (1fr, 1.2fr))[$sum (-1)^n alpha_n$][
-        1. $alpha_n > 0$ definitivam.
-        2. $alpha_n -> 0$
-        3. $alpha_(n+1) <= alpha_n$
-      ]
-    ][
-      === Teorema dei carabinieri
-      $ a_n <= phi_n <= b_n $
-      $C(a_n) and C(b_n) => C(phi_n)$
+  )
+
+  #showybox(
+    title: "Proprietà degli integrali",
+    body: [
+      - *Linearità*: `∫(af + bg) = a∫f + b∫g`
+      - *Monotonia*: `f ≤ g ⇒ ∫f ≤ ∫g`
+      - *Additività*: `∫_a^c f = ∫_a^b f + ∫_b^c f`
+      - Continuità ⇒ integrabilità  
+      - Limitata con un numero finito di discontinuità ⇒ integrabile
     ]
-  ]
-]
+  )
 
-#section(color: purple.darken(50%))[definizioni][
-  Da mettere:
-  - definizione massimo minimo ecc ecc
-  - definizione SUP INF
-  - definizione funzione lipschizstiana o come cazzo si scrive
+  #showybox(
+    title: "Tecniche principali",
+    body: [
+      *Integrazione per parti*  
+      ```typst
+      ∫u dv = uv − ∫v du
+      ```
 
-  === Funzioni $f:A -> B$
+      *Sostituzione*  
+      ```typst
+      x = g(t), dx = g'(t) dt
+      ```
 
-  #table(columns: (1fr, 1fr))[
-    === Suriettiva
-    $ forall b in B exists a in A | f(a) = b \ "Im"(f) = B $
+      *Fratti razionali*  
+      Scomposizione in fratti semplici quando `deg P < deg Q`.
 
-    #set align(center)
-    #image("./assets/suriettiva.png", height: 30pt)
-  ][
-    === Iniettiva
-    $ forall a_1, a_2 in A | a_1 != a_2 \ => f(a_1) != f(a_2) $
+      *Razionali in sin/cos*  
+      Sostituzione di Weierstrass:  
+      ```typst
+      t = tan(x/2)
+      ```
+    ]
+  )
 
-    #set align(center)
-    #image("./assets/iniettiva.png", height: 30pt)
-  ]
+  #showybox(
+    title: "Integrali impropri",
+    body: [
+      *Tipo 1 — intervalli infiniti*  
+      ```typst
+      ∫_a^∞ f convergente ⇔ lim_{b→∞} ∫_a^b f esiste
+      ```
 
-  === Limiti
-  #table(columns: (1fr, 1fr, 3.5fr))[
-    $ x->c $
-  ][
-    $ L in RR $
-  ][
-    $forall epsilon > 0 exists delta > 0 | delta > |x-c| => |f(x) - L| < epsilon$
-  ][
-    $ x->c $
-  ][
-    $ L = plus.minus oo $
-  ][
-    $forall M > 0 exists delta > 0 | delta > |x-c| => plus.minus f(x) > M$
-  ][
-    $ x->plus.minus oo $
-  ][
-    $ L in RR $
-  ][
-    $forall epsilon > 0 exists M > 0 | |x| > M => |f(x) - L| < epsilon$
-  ][
-    $ x->plus.minus oo $
-  ][
-    $ L = plus.minus oo $
-  ][
-    $forall M > 0 exists R > 0 | |x| > R => plus.minus f(x) > M$
-  ]
-]
+      *Tipo 2 — discontinuità*  
+      ```typst
+      ∫_a^b f convergente ⇔ lim_{x→c^-} ∫_a^x f esiste
+      ```
 
-#section(color: red.darken(50%))[limiti notevoli][
-  #set text(size: 5pt)
-  #table(columns: (1fr, 1fr, 1fr))[
-    $ lim_(x->0) frac(sin x, x) = 1 $][
-    $ lim_(x->0) (log_a (1 + x))/ x = 1/(ln a) $][
-    $ lim_(x->oo) (1 + 1/x)^x = e $][
-    $ lim_(x->0) (overbrace(a^x, a>0) - 1)/(x) = ln a $][
-    $ lim_(x->0) (1 - cos x)/(x^2) = 1/2 $][
-    $ lim_(x->0) ((1+x)^k - 1)/x = k $][
-    $ lim_(x->0) (tan x)/x = 1 $][
-    $ lim_(x->0) arcsin(x)/x = 1 $][
-  ]
-]
+      *Criterio del confronto*  
+      - Se `0 ≤ f ≤ g` e `∫g` converge → `∫f` converge  
+      - Se `f ≥ g ≥ 0` e `∫g` diverge → `∫f` diverge
+    ]
+  )
 
-#section(color: aqua.darken(30%))[sviluppi di taylor][
-  #table(columns: (auto, 1fr))[
-    $sin(x)$
-  ][
-    $x - x^3/6 + x^5/120 - x^7/5040 + o(x^7)$
-  ][
-    $cos(x)$
-  ][
-    $1 - x^2/2 + x^4/24 - x^6/720 + x^8/40320 + o(x^8)$
-  ][
-    $tan(x)$
-  ][
-    $x + x^3/3 + 2/15x^5 + o(x^5)$
-  ][
-    $sec(x)$
-  ][
-    $1 + x^2/2 + 5/24x^4 + 61/720x^6 + 277/8064x^8 + o(x^8)$
-  ][
-    $arcsin(x)$
-  ][
-    $x + x^3/6 + 3/40x^5 + 5/112x^7 + 35/1152x^9 + o(x^9)$
-  ][
-    $arccos(x)$
-  ][
-    $pi/2 - x - x^3/6 - 3/40x^5 - 5/112x^7 = 35/1152x^9 + o(x^9)$
-  ][
-    $arctan(x)$
-  ][
-    $x - x^3/3 + x^5/5 - x^7/7 + x^9/9 + o(x^9)$
-  ][
-    $e^x$
-  ][
-    $1 + x + x^2/2! + x^3/3! + x^4/4! + x^5/5! + o(x^5)$
-  ][
-    $ln(1+x)$
-  ][
-    $x - x^2 + x^3/3 - x^4/4 + x^5/5 + o(x^5)$
-  ][
-    $(1+x)^alpha$
-  ][
-    $1 + alpha x + (alpha(alpha -1))/2!x^2 + (alpha(alpha-1)(alpha-2))/3! x^3 + o(x^3)$
-  ][
-    $1/(1-x)$
-  ][
-    $1 + x + x^2 + x^3 + ... + x^n + o(x^n)$
-  ][
-    $1/(1 + x^2)$
-  ][
-    $1 - x^2 + x^4 - x^6 + ... + o(x^n)$
-  ][
-    $sinh(x)$
-  ][
-    $x + x^3/6 + x^5/120 + x^7/5040 + o(x^7)$
-  ][
-    $cosh(x)$
-  ][
-    $1 + x^2/2 + x^4/24 + x^6/720 + o(x^6)$
-  ][
-    $tanh(x)$
-  ][
-    $x - x^3/3 + 2/15x^5 - 17/315x^7 + 62/2835x^9 + o(x^9)$
-  ]
-]
+  #showybox(
+    title: "Integrali circolari",
+    body: [
+      Utili quando compaiono:  
+      `√(a² − x²)`, `√(a² + x²)`, `√(x² − a²)`.
 
+      - `x = a sin t` → `√(a² − x²)`  
+      - `x = a tan t` → `√(a² + x²)`  
+      - `x = a cosh t` → `√(x² − a²)`
+    ]
+  )
 
-#section()[funzioni iperboliche][
-  TODO
-]
-#section[formule trigonometriche][sigh vanno messe anche queste]
+  #showybox(
+    title: "Solidi per integrazione",
+    body: [
+      *Metodo dei dischi*  
+      ```typst
+      V = π ∫_a^b (f(x))² dx
+      ```
 
-#section[derivate / primitive][
-
-  #let derivate = rgb("#78101c");
-  #let integrali = rgb("#0a0885");
-
-  #set text(5pt)
-  #table(
-    columns: (2fr, 1fr, 2fr),
-    inset: 4pt,
-    align: (horizon, horizon, horizon),
-
-    table.header(
-      align(center)[
-        #text(
-          fill: derivate,
-          [*$d/(d x) f(x)$*],
-        )],
-      align(center)[*$f(x)$*],
-      align(center)[
-        #text(
-          fill: integrali,
-          [*$F(x)$*],
-        )],
-    ),
-  )[
-    #text(
-      fill: derivate,
-      $ 0 $,
-    )
-  ][
-    $ a $
-  ][
-    #text(
-      fill: integrali,
-      $ a x $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ a $,
-    )
-  ][
-    $ a x $
-  ][
-    #text(
-      fill: integrali,
-      $ a x^2 / 2 $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ a x^(a-1) $,
-    )
-  ][
-    $ x^a $
-  ][
-    #text(
-      fill: integrali,
-      $ (x^(a+1))/(a+1) space #text(4pt)[con $ x != -1 $] $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ e^x $,
-    )
-  ][
-    $ e^x $
-  ][
-    #text(
-      fill: integrali,
-      $ e^x $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ 1/x $,
-    )
-  ][
-    $ ln x $
-  ][
-    #text(
-      fill: integrali,
-      $ x (ln x - 1) $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ -1/x^2 $,
-    )
-  ][
-    $ 1/x $
-  ][
-    #text(
-      fill: integrali,
-      $ ln abs(x) $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ cos x $,
-    )
-  ][
-    $ sin x $
-  ][
-    #text(
-      fill: integrali,
-      $ -cos x $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ -sin x $,
-    )
-  ][
-    $ cos x $
-  ][
-    #text(
-      fill: integrali,
-      $ sin x $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ 1/(cos^2 x) = 1 + tan^2 x $,
-    )
-  ][
-    $ tan x $
-  ][
-    #text(
-      fill: integrali,
-      $ -ln abs(cos x) $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ 1 / sqrt(1 - x^2) $,
-    )
-  ][
-    $ arcsin x $
-  ][
-    #text(
-      fill: integrali,
-      $ x arcsin x + sqrt(1 - x^2) $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ -1/sqrt(1-x^2) $,
-    )
-  ][
-    $ arccos x $
-  ][
-    #text(
-      fill: integrali,
-      $ x arccos x - sqrt(1- x^2) $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ 1/(1+x^2) $,
-    )
-  ][
-    $ arctan x $
-  ][
-    #text(
-      fill: integrali,
-      $ x arctan x - 1/2 ln(1+x^2) $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ cosh x $,
-    )
-  ][
-    $ sinh x $
-  ][
-    #text(
-      fill: integrali,
-      $ cosh x $,
-    )
-  ][
-    #text(
-      fill: derivate,
-      $ sinh x $,
-    )
-  ][
-    $ cosh x $
-  ][
-    #text(
-      fill: integrali,
-      $ sinh x $,
-    )
-  ]
-]
-
-#section[integrali][
-
-#showybox(
-  title: "Massimo, minimo, estremi",
-  body: [
-    *Massimo*: `a` è massimo per `f` se `f(a) ≥ f(x)` per ogni `x` del dominio.  
-    *Massimo locale*: vale la stessa proprietà ma solo in un intorno di `a`.
-
-    *Minimo* e *minimo locale*: analoghi.
-
-    *Estremi*: punti di massimo o minimo (anche locali).
-  ]
-)
-
-#showybox(
-  title: "Sup e Inf",
-  body: [
-    `sup A`: più piccolo maggiorante di `A`.  
-    `inf A`: più grande minorante di `A`.  
-
-    Possono NON appartenere ad `A`.  
-    Se `A` è limitato sopra o sotto, `sup` e `inf` esistono sempre (completezza di ℝ).
-  ]
-)
-
-#showybox(
-  title: "Funzioni Lipschitziane",
-  body: [
-    `f` è *Lipschitz* su `I` se  
-    ```typst
-    ∃K>0 : |f(x)-f(y)| ≤ K|x-y|
-    ```
-    Le funzioni Lipschitz sono uniformemente continue.
-  ]
-)
-
-#showybox(
-  title: "Proprietà degli integrali",
-  body: [
-    - *Linearità*: `∫(af + bg) = a∫f + b∫g`
-    - *Monotonia*: `f ≤ g ⇒ ∫f ≤ ∫g`
-    - *Additività*: `∫_a^c f = ∫_a^b f + ∫_b^c f`
-    - Continuità ⇒ integrabilità  
-    - Limitata con un numero finito di discontinuità ⇒ integrabile
-  ]
-)
-
-#showybox(
-  title: "Tecniche principali",
-  body: [
-    *Integrazione per parti*  
-    ```typst
-    ∫u dv = uv − ∫v du
-    ```
-
-    *Sostituzione*  
-    ```typst
-    x = g(t), dx = g'(t) dt
-    ```
-
-    *Fratti razionali*  
-    Scomposizione in fratti semplici quando `deg P < deg Q`.
-
-    *Razionali in sin/cos*  
-    Sostituzione di Weierstrass:  
-    ```typst
-    t = tan(x/2)
-    ```
-  ]
-)
-
-#showybox(
-  title: "Integrali impropri",
-  body: [
-    *Tipo 1 — intervalli infiniti*  
-    ```typst
-    ∫_a^∞ f convergente ⇔ lim_{b→∞} ∫_a^b f esiste
-    ```
-
-    *Tipo 2 — discontinuità*  
-    ```typst
-    ∫_a^b f convergente ⇔ lim_{x→c^-} ∫_a^x f esiste
-    ```
-
-    *Criterio del confronto*  
-    - Se `0 ≤ f ≤ g` e `∫g` converge → `∫f` converge  
-    - Se `f ≥ g ≥ 0` e `∫g` diverge → `∫f` diverge
-  ]
-)
-
-#showybox(
-  title: "Integrali circolari",
-  body: [
-    Utili quando compaiono:  
-    `√(a² − x²)`, `√(a² + x²)`, `√(x² − a²)`.
-
-    - `x = a sin t` → `√(a² − x²)`  
-    - `x = a tan t` → `√(a² + x²)`  
-    - `x = a cosh t` → `√(x² − a²)`
-  ]
-)
-
-#showybox(
-  title: "Solidi per integrazione",
-  body: [
-    *Metodo dei dischi*  
-    ```typst
-    V = π ∫_a^b (f(x))² dx
-    ```
-
-    *Metodo dei gusci cilindrici*  
-    ```typst
-    V = 2π ∫_a^b x f(x) dx
-    ```
-  ]
-)
+      *Metodo dei gusci cilindrici*  
+      ```typst
+      V = 2π ∫_a^b x f(x) dx
+      ```
+    ]
+  )
 ]
