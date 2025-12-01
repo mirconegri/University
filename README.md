@@ -1,5 +1,7 @@
 # 🎓 University Archive
 
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE) 
+
 Welcome to my university archive! Here I collect notes, projects, and study materials for various university courses.
 
 ---
