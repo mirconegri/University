@@ -15,7 +15,6 @@ Welcome to my university archive! Here I collect notes, projects, and study mate
 ## ⚡ How to use this repository
 
 1. Clone the repository:
-
 ```
 git clone https://github.com/mirconegri/University.git
 ```
