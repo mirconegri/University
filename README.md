@@ -10,8 +10,8 @@ Welcome to my university archive! Here I collect notes, projects, and study mate
 ## 📖 Main Contents
 
 - [**Analisi 1**](1st_semester/analisi1)
-- [**Prog 1**](1st_semester/prog1)
-- [**GAL**](1st_semester/analisi1) 
+- [**Prog 1**](1st_semester/prog_1)
+- [**GAL**](1st_semester/geom_algebra_lin) 
 
 ---
 
