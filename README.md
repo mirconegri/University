@@ -11,7 +11,7 @@ Welcome to my university archive! Here I collect notes, projects, and study mate
 
 - **Analisi 1** 
 - **Prog 1**
--
+- **Geometria**
 
 ---
 
