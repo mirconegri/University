@@ -30,3 +30,18 @@ git clone https://github.com/mirconegri/University.git
 ## 📌 Notes
 
 This repository is **personal and educational**, useful for reviewing topics, exercises, and university notes.
+
+---
+
+## 📜 License
+
+MIT License © 2025 `Mirco Negri`
+— see [LICENSE](LICENSE) file for details.
+
+---
+
+## 👤 Author
+
+`Mirco Negri`
+GitHub: https://github.com/mirconegri
+
