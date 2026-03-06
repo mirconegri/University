@@ -9,9 +9,9 @@ Welcome to my university archive! Here I collect notes, projects, and study mate
 
 ## 📖 Main Contents
 
-- [**Analisi 1**](1st_semester/analisi1)
+- [**Analisi 1**](1st_semester/analisi_1)
 - [**Prog 1**](1st_semester/prog_1)
-- [**GAL**](1st_semester/geom_algebra_lin) 
+- [**GAL**](1st_semester/GAL) 
 
 ---
 
@@ -44,4 +44,5 @@ MIT License © 2025 `Mirco Negri`
 
 `Mirco Negri`
 GitHub: https://github.com/mirconegri
+
 
