@@ -1,6 +1,4 @@
-# Appunti del Corso OOP
 
-> *Generato automaticamente dai commenti del codice sorgente.*
 
 # Indice
 
