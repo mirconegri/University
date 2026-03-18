@@ -9,9 +9,17 @@ Welcome to my university archive! Here I collect notes, projects, and study mate
 
 ## 📖 Main Contents
 
+### 1° Semestre
 - [**Analisi 1**](1st_semester/analisi_1)
 - [**Programmazione 1**](1st_semester/prog_1)
 - [**Geometria e algebra lineare**](1st_semester/GAL) 
+
+### 2° Semestre
+- [**Programmazione 2 (P2)**](2nd_semester/P2)
+- [**Calcolatori**](2nd_semester/calcolatori)
+- [**Fondamenti**](2nd_semester/fondamenti)
+- [**Programmazione Funzionale**](2nd_semester/funzionale)
+- [**Statistica**](2nd_semester/statistica)
 
 ---
 
