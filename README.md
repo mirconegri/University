@@ -15,11 +15,11 @@ Welcome to my university archive! Here I collect notes, projects, and study mate
 - [**Geometria e algebra lineare**](1st_semester/GAL) 
 
 ### 2° Semestre
-- [**Programmazione 2 (P2)**](2nd_semester/P2)
+- [**Programmazione 2**](2nd_semester/P2)
 - [**Calcolatori**](2nd_semester/calcolatori)
-- [**Fondamenti**](2nd_semester/fondamenti)
-- [**Programmazione Funzionale**](2nd_semester/funzionale)
-- [**Statistica**](2nd_semester/statistica)
+- [**Fondamenti matematici per l'informatica**](2nd_semester/fondamenti)
+- [**Programmazione funzionale**](2nd_semester/funzionale)
+- [**Probabilità e statistica**](2nd_semester/statistica)
 
 ---
 
