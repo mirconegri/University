@@ -6,22 +6,19 @@
 Welcome to my university archive! Here I collect notes, projects, and study materials for various university courses.
 
 ---
-
 ## 📖 Main Contents
 
 ### 1° Semestre
-- [**Analisi 1**](1st_semester/analisi_1)
-- [**Programmazione 1**](1st_semester/prog_1)
-- [**Geometria e algebra lineare**](1st_semester/GAL) 
+[![Analisi 1](https://img.shields.io/badge/Analisi_1-00599C?style=for-the-badge)](1st_semester/analisi_1)
+[![Programmazione 1](https://img.shields.io/badge/Programmazione_1-E34F26?style=for-the-badge)](1st_semester/prog_1)
+[![Geometria e algebra lineare](https://img.shields.io/badge/Geometria_e_algebra_lineare-1572B6?style=for-the-badge)](1st_semester/GAL) 
 
 ### 2° Semestre
-- [**Programmazione 2**](2nd_semester/P2)
-- [**Calcolatori**](2nd_semester/calcolatori)
-- [**Fondamenti matematici per l'informatica**](2nd_semester/fondamenti)
-- [**Programmazione funzionale**](2nd_semester/funzionale)
-- [**Probabilità e statistica**](2nd_semester/statistica)
-
----
+[![Programmazione 2](https://img.shields.io/badge/Programmazione_2-E34F26?style=for-the-badge)](2nd_semester/P2)
+[![Calcolatori](https://img.shields.io/badge/Calcolatori-F7DF1E?style=for-the-badge&logoColor=black)](2nd_semester/calcolatori)
+[![Fondamenti matematici](https://img.shields.io/badge/Fondamenti_matematici-00599C?style=for-the-badge)](2nd_semester/fondamenti)
+[![Programmazione funzionale](https://img.shields.io/badge/Programmazione_funzionale-61DAFB?style=for-the-badge&logoColor=black)](2nd_semester/funzionale)
+[![Probabilità e statistica](https://img.shields.io/badge/Probabilità_e_statistica-47A248?style=for-the-badge)](2nd_semester/statistica)
 
 ## ⚡ How to use this repository
 
