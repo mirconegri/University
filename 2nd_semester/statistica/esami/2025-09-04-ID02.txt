@@ -1,0 +1,94 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{fancyvrb}
+\usepackage{verbatim}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+\geometry{margin=2cm}
+
+\begin{document}
+
+\section*{Esame di probabilità e statistica}
+\subsection*{CdL in Informatica - A.A. 2024/2025 - Appello di settembre 2025}
+
+\textbf{Disclaimer.} Il documento è una ricostruzione estratta da una foto del compito d'esame. L'impaginazione ufficiale è leggermente diversa, ma i contenuti sono gli stessi.
+
+\begin{enumerate}
+    \item Una fabbrica produce sbarre d'acciaio cilindriche, il cui diametro nominale è di \(12\text{cm}\), ma che tuttavia sono accettabili se hanno un diametro compreso tra \( 10.96\text{cm}\) e \(13.92\text{cm}\).
+          Un controllo ha mostrato che il \(9\%\) delle sbarre prodotte sono di diametro inferiore al minimo tollerato ed il \(6\%\) di diametro superiore al massimo tollerato.
+
+          \begin{enumerate}[label=(\alph*)]
+              \item Determinare media e deviazione standard della lunghezza del diametro delle sbarre prodotte;
+              \item Mantenendo la media precedentemente calcolata, determinare per quali valori della deviazione standard la probabilità che le sbarre abbiano un diametro superiore al massimo tollerato è minore del \(10\%\);
+              \item Le barre vengono successivamente sottoposte ad un processo di allungamento che ne diminuisce il diametro. Il nuovo diametro può essere descritto dalla seguente relazione \(y = \sqrt{x}\) (\(x\) diametro prima, \(y\) diametro dopo).
+                    Mantenendo la media e la deviazione standard calcolati al primo punto per il diametro iniziale \(x\), calcolare la probabilità che il nuovo diametro sia minore di \(3.69\).
+          \end{enumerate}
+
+    \item Supponiamo che la funzione di ripartizione della variabile aleatoria \(X\) sia data da:
+
+          \begin{equation*}
+              F(x) =
+              \begin{cases}
+                  0                           & x < 0        \\
+                  \frac{x}{4}                 & 0 \leq x < 1 \\
+                  \frac{1}{2} + \frac{x-1}{4} & 1 \leq x < 2 \\
+                  \frac{11}{12}               & 2 \leq x < 3 \\
+                  1                           & x \geq 3
+              \end{cases}
+          \end{equation*}
+
+          \begin{enumerate}[label=(\alph*)]
+              \item Calcolare \(\text{Pr}(\{X = i\}), i = 1, 2, 3; \)
+              \item Calcolare \(\text{Pr}(\frac{1}{2} < X < \frac{3}{2})\);
+              \item Dire se esiste la funzione di densità di questa variabile aleatoria, e in caso affermativo calcolarla;
+              \item Dire se esiste la funzione di probabilità di questa variabile aleatoria, e in caso affermativo calcolarla;
+          \end{enumerate}
+
+          \vfill
+          \textit{(continua)}
+
+          \newpage
+
+    \item La ditta A viene rifornita dalla ditta B di materiale elettrico consegnato in lotti. Prima di accettare il lotto un esperto della ditta A compie una verifica sul materiale che compone il lotto e decide se questo è conforme al contratto di fornitura stabilito.
+          Nell'ultimo anno sono stati consegnati dalla ditta B \(14\) lotti così giudicati (\(1 = \text{conforme}\), \(2 = \text{non conforme}\)):
+
+          \begin{tabular}{*{7}{c}}
+              \toprule
+              1 & 0 & 1 & 1 & 1 & 0 & 0 \\
+              1 & 1 & 0 & 1 & 1 & 1 & 1 \\
+              \bottomrule
+          \end{tabular}
+
+          \begin{enumerate}[label=(\alph*)]
+              \item Si proponga una famiglia parametrica adatta a descrivere il fenomeno oggetto di studio;
+              \item Si calcoli la stima con il metodo dei momenti dei parametri coinvolti nella famiglia;
+              \item Si calcoli la stima della frazione di lotti non conformi.
+          \end{enumerate}
+
+    \item In un laghetto artificiale sono stati introdotti \(1000\) esemplari di pesci suddivisi in \(4\) specie A, B, C, D con le seguenti proporzioni: A \(0.167\); B \(0.342\); C \(0.438\); D \(0.053\).
+          \\
+          Un pescatore può usare una tra due tipi diversi di esche (\(E_1\), \(E_2\)) con caratteristiche diverse in modo che la probabilità di pescare un pesce di una certa specie è:
+
+          \begin{eqnarray*}
+              \text{Pr}(A | E_1) = 0.280 & \text{Pr}(A | E_2) = 0.033 \\
+              \text{Pr}(B | E_1) = 0.586 & \text{Pr}(B | E_2) = 0.053 \\
+              \text{Pr}(C | E_1) = 0.116 & \text{Pr}(C | E_2) = 0.821 \\
+              \text{Pr}(D | E_1) = 0.018 & \text{Pr}(D | E_2) = 0.093
+          \end{eqnarray*}
+
+          \begin{enumerate}[label=(\alph*)]
+              \item Calcolare la moda della variabile aleatoria condizionata \((\text{Pesce pescato} | \text{Esca} = E_1)\);
+              \item Qual è la probabilità che un pescatore usi un'esca di tipo \(E_2\)?
+              \item Determinare la tabella di probabilità congiunta tra tipo di pesce pescato ed esca usata;
+              \item Dire se le due variabili sono stocasticamente indipendenti;
+              \item Sapendo che un pescatore ha catturato un pesce A qual è la probabilità che abbia usato un'esca \(E_1\)?
+          \end{enumerate}
+\end{enumerate}
+
+\end{document}
