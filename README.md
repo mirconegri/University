@@ -14,7 +14,7 @@ Welcome to my university archive! Here I collect notes, projects, and study mate
 | 📐 [**Analisi 1**](1st_semester/analisi_1) | 💻 [**Programmazione 2**](2nd_semester/P2) |
 | 💻 [**Programmazione 1**](1st_semester/prog_1) | ⚙️ [**Calcolatori**](2nd_semester/calcolatori) |
 | 📏 [**Geometria e algebra lineare**](1st_semester/GAL) | 🧠 [**Fondamenti matematici per l'informatica**](2nd_semester/fondamenti) |
-| | ƛ [**Programmazione funzionale**](2nd_semester/funzionale) |
+| |  ƛ [**Programmazione funzionale**](2nd_semester/funzionale) |
 | | 📊 [**Probabilità e statistica**](2nd_semester/statistica) |
 
 ---
