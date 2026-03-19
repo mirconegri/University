@@ -39,7 +39,7 @@ This repository is **personal and educational**, useful for reviewing topics, ex
 
 ## 📜 License
 
-MIT License © 2025 `Mirco Negri`
+MIT License © 2026 `Mirco Negri`
 — see [LICENSE](LICENSE) file for details.
 
 ---
