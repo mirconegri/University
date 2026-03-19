@@ -3,7 +3,7 @@
 
 [![Java](https://img.shields.io/badge/Language-Java-b07219?style=for-the-badge)](https://www.java.com/)
 [![C++](https://img.shields.io/badge/Language-C%2B%2B-f34b7d?style=for-the-badge)](https://isocpp.org/)
-[![ML](https://img.shields.io/badge/Language-Standard_ML-dc566d?style=for-the-badge)](https://smlfamily.github.io/) [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE) 
+[![ML](https://img.shields.io/badge/Language-ML-dc566d?style=for-the-badge)](https://smlfamily.github.io/) [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE) 
 
 Welcome to my university archive! Here I collect notes, projects, and study materials for various university courses.
 
