@@ -1,0 +1,1634 @@
+\documentclass[12pt, a4paper]{article}
+
+% --- Caricamento pacchetti standard ---
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\geometry{margin=2.5cm}
+
+\title{Appunti di Calcolatori - Introduzione}
+\author{Trascrizione dalle fonti del corso}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+% --- Generazione dell'Indice ---
+\tableofcontents
+\newpage
+
+\section{Introduzione ai Calcolatori}
+
+\subsection{Descrizione del Corso}
+Il corso, noto anche come \textbf{Architettura degli elaboratori}, si concentra principalmente su lezioni teoriche integrate da esercitazioni pratiche riguardanti l'aritmetica dei calcolatori e il linguaggio \textbf{Assembly}. In totale, l'insegnamento prevede \textbf{48 ore} di didattica frontale distribuite in 12 settimane.
+
+\subsection{Struttura e Modalità d'Esame}
+Il programma è suddiviso in tre parti principali:
+\begin{enumerate}
+    \item \textbf{Prima parte}: Introduzione, aritmetica dei calcolatori e cenni sulle reti logiche.
+    \item \textbf{Seconda parte}: Linguaggio Assembly, con focus su architetture RISC-V, INTEL e ARM.
+    \item \textbf{Terza parte}: Elementi di architettura dei calcolatori, inclusi CPU, Pipeline e gerarchie di memoria.
+\end{enumerate}
+
+L'esame prevede una \textbf{prova scritta}, spesso svolta su piattaforma Moodle con quesiti a risposta multipla, e un \textbf{orale opzionale}. Quest'ultimo è obbligatorio per voti compresi tra 15 e 17 o per confermare voti alti come la lode. Il libro di riferimento è \textit{``Struttura e progetto dei calcolatori - Progettare con RISC-V''} di Patterson e Hennessy.
+
+\subsection{Evoluzione Storica: dall'ENIAC ad oggi}
+I calcolatori elettronici rappresentano oggi una tecnologia vitale che produce il 10\% del PIL degli Stati Uniti.
+\begin{itemize}
+    \item \textbf{ENIAC (1946)}: Considerato uno dei primi calcolatori, fu commissionato per calcolare le traiettorie dei proiettili; occupava una stanza di 9x30 metri e consumava enormi quantità di energia.
+    \item \textbf{La rivoluzione}: Attualmente i calcolatori pervadono ogni aspetto della vita, dalle automobili ai telefoni cellulari, fino alla robotica e alla mappatura del genoma.
+\end{itemize}
+
+\subsection{Perché studiare l'architettura?}
+È essenziale per un programmatore conoscere l'organizzazione del calcolatore per scrivere software efficiente, comprendendo come sfruttare la \textbf{gerarchia di memoria} e il \textbf{parallelismo}. Le prestazioni dipendono dall'interazione tra algoritmi, compilatore, hardware e l'\textbf{ISA} (Instruction Set Architecture), che definisce le istruzioni riconosciute dalla CPU.
+
+\subsection{Software di Sistema e Linguaggi}
+Il software di sistema agisce come intermediario tra l'utente e l'hardware:
+\begin{itemize}
+    \item \textbf{Sistema Operativo (SO)}: Gestisce l'input/output, la memoria e il multitasking.
+    \item \textbf{Compilatore}: Traduce il codice ad alto livello (come il C) in linguaggio macchina.
+\end{itemize}
+L'\textbf{Assembly} introduce codici mnemonici per rendere le istruzioni macchina gestibili dall'uomo prima della traduzione finale in bit.
+
+\subsection{Componenti del Calcolatore}
+Un calcolatore è composto da quattro elementi principali:
+\begin{enumerate}
+    \item \textbf{Input}: Dispositivi per inviare dati, come tastiera e mouse.
+    \item \textbf{Output}: Dispositivi per visualizzare i risultati, come schermi e stampanti.
+    \item \textbf{Processore}: Esegue le elaborazioni, diviso in \textbf{datapath} (parte operativa) e \textbf{unità di controllo}.
+    \item \textbf{Memoria}: Unità dove vengono memorizzati dati e programmi in esecuzione.
+\end{enumerate}
+\section{Aritmetica dei Calcolatori}
+
+\begin{itemize}
+    \item \textbf{Corso}: CALCOLATORI - Aritmetica dei Calcolatori. 
+    \item \textbf{Docente}: Giovanni Iacca (basato su materiale del Prof. Luca Abeni). 
+    \item \textbf{Istituto}: Università degli Studi di Trento, Dipartimento di Ingegneria e Scienza dell'Informazione. 
+\end{itemize}
+
+\subsection{Informazione nei Computer e Codifica}
+
+\begin{itemize}
+    \item Un computer è costituito da circuiti elettronici in cui la corrente può passare (valore 1) o non passare (valore 0). 
+    \item Tutti i tipi di informazione (numeri, testo, programmi, immagini, suoni) sono memorizzati e manipolati come sequenze di 0 e 1. 
+    \item Una singola cifra binaria è detta \textbf{bit}, mentre sequenze di 8 bit formano un \textbf{byte}. 
+    \item La \textbf{codifica} è la funzione che associa a un oggetto o simbolo una specifica sequenza di bit. 
+    \item Una codifica su $n$ bit permette di rappresentare $2^n$ entità o simboli distinti. 
+\end{itemize}
+
+\subsection{Basi di Numerazione e Conversioni}
+
+\begin{itemize}
+    \item In un sistema in base $B$, si usano $B$ cifre (da $0$ a $B-1$). 
+    \item Il valore di un numero in un sistema posizionale si ottiene moltiplicando ogni cifra per una potenza della base dipendente dalla sua posizione: $\sum_{k=0}^{i}c_{k}B^{k}$. 
+    \item \textbf{Basi comuni}: Base 2 (binario), Base 8 (ottale), e Base 16 (esadecimale, che usa le lettere da A ad F per i valori da 10 a 15). 
+    \item Un numero binario su $k$ cifre permette di esprimere valori da $0$ a $2^k - 1$. 
+    \item \textbf{Conversioni}:
+    \begin{itemize}
+        \item Da binario a esadecimale: ogni cifra esadecimale corrisponde esattamente a 4 cifre binarie. 
+        \item Da Base $B$ a Base 10: si moltiplica ogni cifra per $B^i$ in base alla sua posizione. 
+        \item Da Base 10 a Base $B$: si procede tramite divisione intera iterativa per $B$, dove il resto diventa la cifra da inserire e il quoziente viene riassegnato per l'iterazione successiva. 
+    \end{itemize}
+\end{itemize}
+
+\subsection{Aritmetica Binaria}
+
+\begin{itemize}
+    \item \textbf{Somma}: Si procede da destra a sinistra calcolando i riporti (Carry), in modo simile alla base 10. 
+    \item \textbf{Sottrazione}: È un'operazione con ``prestito''. Se necessario, si scorre a sinistra fino a trovare un 1, invertendo i bit incontrati (es. $10..0 \rightarrow 01..1$). 
+    \item \textbf{Moltiplicazione per potenze di 2}: Aggiungere uno 0 a destra in base 2 equivale a moltiplicare per 2 (\textit{shifting}), mentre eliminare la cifra più a destra equivale a dividere per 2. 
+    \item La moltiplicazione di due numeri naturali si esegue con l'applicazione di shifting multipli e somme. 
+\end{itemize}
+
+\subsection{Codifica dei Numeri Interi (con Segno)}
+
+Dovendo rappresentare numeri interi $z \in \mathcal{Z}$, si utilizzano diverse tecniche per indicare i numeri negativi: 
+
+\begin{enumerate}
+    \item \textbf{Modulo e Segno}: Si usa 1 bit per il segno (0 per positivo, 1 per negativo) e $k-1$ bit per il valore assoluto. Questo porta al problema di avere due diverse codifiche per lo zero ($+0$ e $-0$). 
+    \item \textbf{Complemento a 1}: I numeri positivi sono rappresentati in modulo; i negativi sono il complemento a 1 (inversione dei bit) del valore assoluto. Anch'esso presenta due rappresentazioni per lo zero. 
+    \item \textbf{Complemento a 2}: Per calcolare un numero negativo, si fa il complemento a 1 e si aggiunge 1. 
+    \begin{itemize}
+        \item In questo sistema la codifica dello zero è unica. 
+        \item Permette di codificare valori da $-2^{k-1}$ a $2^{k-1} - 1$. 
+        \item Rende l'operazione di somma molto più semplice. 
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection*{Overflow nell'Aritmetica Intera}
+\begin{itemize}
+    \item L'overflow si verifica quando il risultato di un'operazione non è rappresentabile sui $k$ bit disponibili. 
+    \item Avviene solo se si sommano o sottraggono due numeri con lo stesso segno. 
+    \item Più precisamente, c'è overflow se la somma $a+b > 2^{k-1} - 1$ (overflow positivo) oppure se $a+b < -2^{k-1}$ (overflow negativo). 
+    \item Questi comportamenti si basano sull'aritmetica modulare (classi di equivalenza modulo $2^k$), simile ai numeri sul quadrante di un orologio. 
+\end{itemize}
+
+\subsection{Rappresentazione dei Numeri Reali}
+
+Non essendo sempre possibile rappresentare un numero reale con un numero finito di bit (es. numeri irrazionali), si utilizzano delle approssimazioni. 
+
+\subsubsection*{Virgola Fissa (Fixed Point)}
+\begin{itemize}
+    \item Si dedicano $k-f$ cifre alla parte intera e $f$ cifre alla parte frazionaria. 
+    \item Vantaggio: permette di usare operazioni matematiche semplici come per i numeri interi, riscalando i risultati, semplificando così l'architettura della CPU. 
+    \item Svantaggio: diventa difficile trattare nella stessa applicazione numeri molto grandi e numeri molto piccoli. 
+\end{itemize}
+
+\subsubsection*{Virgola Mobile (Floating Point - IEEE 754)}
+\begin{itemize}
+    \item Un numero reale si esprime come $x = M \cdot B^E$ (in informatica la base $B=2$), dove $M$ è la mantissa e $E$ l'esponente. 
+    \item Lo standard IEEE 754 utilizza una codifica normalizzata in C per esponenti traslati $E' = E + 2^{e-1} - 1$. 
+    \item \textbf{Numeri Normalizzati}: Si usano quando $E' > 0$. La mantissa viene rappresentata con la forma $1.M$ e l'esponente vale $E = E' - (2^{e-1} - 1)$. 
+    \item \textbf{Numeri Denormalizzati}: Si usano quando $E' = 0$, per gestire l'underflow vicini allo zero. La mantissa assume forma $0.M$. 
+    \item \textbf{Casi Particolari}:
+    \begin{itemize}
+        \item \textbf{Zero}: Esponente 0 e mantissa 0. 
+        \item \textbf{Infinito}: Esponente tutto a 1 (es. 255 per float 32-bit) e mantissa 0. 
+        \item \textbf{NaN (Not a Number)}: Esponente tutto a 1 e mantissa diversa da zero. 
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{Tipi di Floating Point in C}
+\begin{itemize}
+    \item \textbf{float (Precisione Singola)}: Usa 32 bit (8 per l'esponente, 23 per la mantissa). 
+    \item \textbf{double (Precisione Doppia)}: Usa 64 bit (11 per l'esponente, 52 per la mantissa). 
+    \item \textbf{long double}: Può usare 80 o 128 bit. 
+\end{itemize}
+
+Per i \texttt{float} a singola precisione, il massimo valore normalizzato rappresentabile è di circa $3.4 \cdot 10^{38}$, mentre il minimo numero positivo denormalizzato rappresentabile è circa $1.4 \cdot 10^{-45}$. 
+\section{Esercizi di Aritmetica e Rappresentazione}
+
+% --- PAGINA 1 ---
+\subsection*{Domanda 30: Decimale in Binario}
+Indicare l'esatto corrispondente in binario di $728_{10}$
+\begin{itemize}
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] $000001101110_2$
+    \item[$\blacksquare$] $001011011000_2$
+    \item[$\square$] $000001101101_2$
+    \item[$\square$] $000111011000_2$
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{center}
+\begin{tabular}{r|c}
+728 & 0 \\
+364 & 0 \\
+182 & 0 \\
+91 & 1 \\
+45 & 1 \\
+22 & 0 \\
+11 & 1 \\
+5 & 1 \\
+2 & 0 \\
+1 & 1 
+\end{tabular}
+\end{center}
+\textbf{Risposta}: $728_{10} = 001011011000_2 \rightarrow$ Opzione \#3.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 2 ---
+\subsection*{Domanda 30: Binario in Decimale}
+Come si rappresenta in decimale il numero binario $00100110_2$?
+\begin{itemize}
+    \item[$\square$] $76_{10}$
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\blacksquare$] $38_{10}$
+    \item[$\square$] $100_{10}$
+    \item[$\square$] $25_{10}$
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{align*}
+00100110_2 &= 1\times2^{1} + 1\times2^{2} + 1\times2^{5} \\
+&= 2 + 4 + 32 \\
+&= 38
+\end{align*}
+\textbf{Risposta}: $=38_{10} \rightarrow$ Opzione \#3.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 3 ---
+\subsection*{Domanda 30: Decimale in Binario}
+Indicare l'esatto corrispondente in binario di $3429_{10}$
+\begin{itemize}
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] $101101101010_2$
+    \item[$\blacksquare$] $110101100101_2$
+    \item[$\square$] $101001101011_2$
+    \item[$\square$] $010101101101_2$
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{center}
+\begin{tabular}{r|c}
+3429 & 1 \\
+1714 & 0 \\
+857 & 1 \\
+428 & 0 \\
+214 & 0 \\
+107 & 1 \\
+53 & 1 \\
+26 & 0 \\
+13 & 1 \\
+6 & 0 \\
+3 & 1 \\
+1 & 1
+\end{tabular}
+\end{center}
+\textbf{Risposta}: $3429_{10} = 110101100101_2 \rightarrow$ Opzione \#3.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 4 ---
+\subsection*{Domanda 30: Binario in Decimale}
+Come si rappresenta in decimale il numero binario $101101101100_2$?
+\begin{itemize}
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] $5848_{10}$
+    \item[$\blacksquare$] $2924_{10}$
+    \item[$\square$] $877_{10}$
+    \item[$\square$] $731_{10}$
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{align*}
+101101101100_2 &= 1\times2^{2} + 1\times2^{3} + 1\times2^{5} + 1\times2^{6} + 1\times2^{8} + 1\times2^{9} + 1\times2^{11} \\
+&= 4 + 8 + 32 + 64 + 256 + 512 + 2048 \\
+&= 2924
+\end{align*}
+\textbf{Risposta}: $101101101100_2 = 2924_{10} \rightarrow$ Opzione \#3.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 5 ---
+\subsection*{Domanda 1: Somma Binaria}
+Usando la rappresentazione binaria, svolgere la somma $623+412$
+\begin{itemize}
+    \item[$\square$] $623_{10}+412_{10} = 00111111011_2$
+    \item[$\square$] $623_{10}+412_{10} = 10111110011_2$
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] $623_{10}+412_{10} = 101100000100_2$
+    \item[$\blacksquare$] $623_{10}+412_{10} = 01000001011_2$
+\end{itemize}
+
+\textbf{Svolgimento conversioni:}
+\begin{center}
+\begin{tabular}{r|c@{\hskip 1in}r|c}
+623 & 1 & 412 & 0 \\
+311 & 1 & 206 & 0 \\
+155 & 1 & 103 & 1 \\
+77  & 1 &  51 & 1 \\
+38  & 0 &  25 & 1 \\
+19  & 1 &  12 & 0 \\
+9   & 1 &   6 & 0 \\
+4   & 0 &   3 & 1 \\
+2   & 0 &   1 & 1 \\
+1   & 1 &     & 
+\end{tabular}
+\end{center}
+
+\textbf{Risposta}: $(623+412)_{10} = 010000001011_2 \rightarrow$ Opzione \#5.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 6 ---
+\subsection*{Domanda 1: Somma Binaria}
+Usando la rappresentazione binaria, svolgere la somma $8494+7726$
+\begin{itemize}
+    \item[$\square$] $8494_{10}+7726_{10} = 1100001111110101_2$
+    \item[$\square$] $8494_{10}+7726_{10} = 1111010111000011_2$
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] $8494_{10}+7726_{10} = 010111000011111_2$
+    \item[$\blacksquare$] $8494_{10}+7726_{10} = 001111101011100_2$
+\end{itemize}
+
+\textbf{Risposta}: $(8494+7726)_{10} = 0011111101011100_2 \rightarrow$ Opzione \#5.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 7 ---
+\subsection*{Domanda 1: Sottrazione Binaria}
+Usando la rappresentazione binaria, svolgere la sottrazione:
+\begin{verbatim}
+  101100111011000110010100 - 
+  010101010100101010100101
+\end{verbatim}
+
+\begin{itemize}
+    \item[$\square$] $10110001000100001000_2$
+    \item[$\square$] $10111001100000001000_2$
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] $01100001000010010100_2$
+    \item[$\blacksquare$] $01101001000010000100_2$
+\end{itemize}
+\textbf{Risposta}: $01101001000010000100_2 \rightarrow$ Opzione \#5.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 8 ---
+\subsection*{Domanda 21: Moltiplicazione Binaria}
+Svolgere in binario la moltiplicazione: $21 \times 11$
+\begin{itemize}
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\blacksquare$] $11100111_2$
+    \item[$\square$] $10010111_2$
+    \item[$\square$] $10011010_2$
+    \item[$\square$] $11110011_2$
+\end{itemize}
+
+\textbf{Svolgimento conversioni:}
+\begin{center}
+\begin{tabular}{r|c@{\hskip 1in}r|c}
+21 & 1 & 11 & 1 \\
+10 & 0 &  5 & 1 \\
+ 5 & 1 &  2 & 0 \\
+ 2 & 0 &  1 & 1 \\
+ 1 & 1 &    & 
+\end{tabular}
+\end{center}
+\textbf{Risposta}: $(21 \times 11)_{10} = 11100111_2 \rightarrow$ Opzione \#2.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 9 ---
+\subsection*{Domanda 21: Moltiplicazione Binaria}
+Svolgere in binario la moltiplicazione: $85 \times 19$
+\begin{itemize}
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\blacksquare$] $011001001111_2$
+    \item[$\square$] $100001001101_2$
+    \item[$\square$] $011100101101_2$
+    \item[$\square$] $010111001111_2$
+\end{itemize}
+
+\textbf{Risposta}: $(85 \times 19)_{10} = 011001001111_2 \rightarrow$ Opzione \#2.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 10 ---
+\subsection*{Domanda 5: Complemento a 2}
+Come è rappresentato -97 in complemento a 2 su 8 bit?
+\begin{itemize}
+    \item[$\square$] $01111010_2$
+    \item[$\blacksquare$] $10011111_2$
+    \item[$\square$] $01100001_2$
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] $11100001_2$
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{center}
+\begin{tabular}{r|c}
+97 & 1 \\
+48 & 0 \\
+24 & 0 \\
+12 & 0 \\
+6 & 0 \\
+3 & 1 \\
+1 & 1 
+\end{tabular}
+\end{center}
+$97_{10} = 01100001_2$ \\
+Invertendo i bit e sommando 1 otteniamo il complemento a 2.\\
+\textbf{Risposta}: $CA2(-97) = 10011111_2 \rightarrow$ Opzione \#2.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 11 ---
+\subsection*{Domanda 5: Operazione in Complemento a 2 (12 bit)}
+Svolgere in complemento a 2 su 12 bit l'operazione $1957 - 2016$
+\begin{itemize}
+    \item[$\square$] $111110000101_2$
+    \item[$\blacksquare$] $111111000101_2$
+    \item[$\square$] $111101011100_2$
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] $000000111011_2$
+\end{itemize}
+
+\textbf{Risposta}: $(1957 - 2016)_{10} = 111111000101_2 \rightarrow$ Opzione \#2.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 12 ---
+\subsection*{Domanda 5: Operazione in Complemento a 2 (8 bit)}
+Svolgere in complemento a 2 su 8 bit l'operazione $-34 - 53$
+\begin{itemize}
+    \item[$\square$] $11101101_2$
+    \item[$\blacksquare$] $10101001_2$
+    \item[$\square$] $00010011_2$
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] $01010111_2$
+\end{itemize}
+
+\textbf{Svolgimento conversioni:}
+\begin{center}
+\begin{tabular}{r|c@{\hskip 1in}r|c}
+34 & 0 & 53 & 1 \\
+17 & 1 & 26 & 0 \\
+ 8 & 0 & 13 & 1 \\
+ 4 & 0 &  6 & 0 \\
+ 2 & 0 &  3 & 1 \\
+ 1 & 1 &  1 & 1
+\end{tabular}
+\end{center}
+$34_{10} = 00100010_2$ \\
+$53_{10} = 00110101_2$ \\
+\textbf{Risposta}: $(-34 - 53)_{10} = 10101001_2 \rightarrow$ Opzione \#2.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 13 ---
+\subsection*{Domanda 58: Virgola Fissa a Decimale}
+Convertire in decimale il binario a virgola fissa $1001110.0011_2$
+\begin{itemize}
+    \item[$\square$] $1001110.0011_2 = 156.1875_{10}$
+    \item[$\square$] $1001110.0011_2 = 78.375_{10}$
+    \item[$\square$] $1001110.0011_2 = 156.375_{10}$
+    \item[$\blacksquare$] $1001110.0011_2 = 78.1875_{10}$
+    \item[$\square$] Nessuna delle altre risposte
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{align*}
+1001110.0011_2 &= 1\times2^{1} + 1\times2^{2} + 1\times2^{3} + 1\times2^{6} + 1\times2^{-3} + 1\times2^{-4} \\
+&= 2 + 4 + 8 + 64 + 0.125 + 0.0625 \\
+&= 78.1875
+\end{align*}
+\textbf{Risposta}: $1001110.0011_2 = 78.1875_{10} \rightarrow$ Opzione \#4.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 14 ---
+\subsection*{Domanda 58: Decimale a Virgola Fissa}
+Convertire in binario a virgola fissa il decimale $362.828125_{10}$
+\begin{itemize}
+    \item[$\square$] $362.828125_{10} = 010101101.110101_2$
+    \item[$\square$] $362.828125_{10} = 010101101.101011_2$
+    \item[$\square$] $362.828125_{10} = 101101010.101011_2$
+    \item[$\blacksquare$] $362.828125_{10} = 101101010.110101_2$
+    \item[$\square$] Nessuna delle altre risposte
+\end{itemize}
+
+\textbf{Svolgimento (Parte Intera e Frazionaria):}
+\begin{center}
+\begin{tabular}{r|c@{\hskip 1in}r|c}
+362 & 0 & 0.828125 & 1 \\
+181 & 1 & 0.65625  & 1 \\
+ 90 & 0 & 0.3125   & 0 \\
+ 45 & 1 & 0.625    & 1 \\
+ 22 & 0 & 0.25     & 0 \\
+ 11 & 1 & 0.5      & 1 \\
+  5 & 1 &          &   \\
+  2 & 0 &          &   \\
+  1 & 1 &          &   
+\end{tabular}
+\end{center}
+\textbf{Risposta}: $362.828125_{10} = 101101010.110101_2 \rightarrow$ Opzione \#4.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 15 ---
+\subsection*{Domanda 58: Somma in Virgola Fissa}
+Riportare in binario il risultato della somma $10.5625_{10} + 1100.1011_2$
+\begin{itemize}
+    \item[$\square$] $10.5625_{10} + 1100.1011_2 = 10110.01_2$
+    \item[$\square$] $10.5625_{10} + 1100.1011_2 = 11111.01_2$
+    \item[$\square$] $10.5625_{10} + 1100.1011_2 = 10010.01_2$
+    \item[$\blacksquare$] $10.5625_{10} + 1100.1011_2 = 10111.01_2$
+    \item[$\square$] Nessuna delle altre risposte
+\end{itemize}
+\textbf{Risposta}: $10.5625_{10} + 1100.1011_2 = 10111.01_2 \rightarrow$ Opzione \#4.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 16 ---
+\subsection*{Domanda 76: Conversione IEEE754}
+Rappresentare il decimale $-1313.3125$ secondo lo standard IEEE754.
+\begin{itemize}
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] 0100 0100 1010 0100 0010 1010 0000 0000
+    \item[$\square$] 1100 0100 1101 0010 0001 0101 0000 0000
+    \item[$\blacksquare$] 1100 0100 1010 0100 0010 1010 0000 0000
+    \item[$\square$] 0100 0100 1101 0010 0001 0101 0000 0000
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item \textbf{Rappresentazione binaria:} $10100100001.0101_2$
+    \item \textbf{Scorrere la virgola:}
+    $10100100001.0101 \rightarrow 1.01001000010101 \times 2^{10}$ ($p=10$)
+    \item \textbf{Bit di segno:} Numero negativo $\rightarrow 1$
+    \item \textbf{Esponente:}
+    \begin{align*}
+    E &= bias + p \\
+      &= 127_{10} + 10_{10} \\
+      &= 137_{10} \rightarrow 10001001_2
+    \end{align*}
+    \item \textbf{Mantissa:} 01001000010101000000000
+\end{enumerate}
+
+\textbf{Risposta}: 
+$S=1$ | $e=10001001$ | $m=01001000010101000000000$ \\
+$\rightarrow$ Opzione \#4.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 17 ---
+\subsection*{Domanda 76: Da IEEE754 Esadecimale a Decimale}
+A quale numero decimale corrisponde la cifra esadecimale \texttt{0xE7E80000} codificata secondo lo standard IEEE754?
+\begin{itemize}
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] Corrisponde al decimale $-1.5625000 \times 2^{16}$
+    \item[$\square$] Corrisponde al decimale $-1.5546875 \times 2^{18}$
+    \item[$\blacksquare$] Corrisponde al decimale $-1.8125000 \times 2^{80}$
+    \item[$\square$] Corrisponde al decimale $-1.8046875 \times 2^{82}$
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item \textbf{Rappresentazione binaria:} 1110 0111 1110 1000 0000 0000 0000 0000
+    \item \textbf{Scomposizione:} $S=1$ | $e=11001111$ | $m=11010000000000000000000$
+    \item \textbf{Bit di segno:} $1 \rightarrow$ Numero negativo.
+    \item \textbf{Esponente:} 
+    \begin{align*}
+    11001111_2 &= 127_{10} + p \\
+    207_{10} &= 127_{10} + p \rightarrow p = 80_{10}
+    \end{align*}
+    \item \textbf{Mantissa:} 
+    \begin{align*}
+    M &= 1.1101_2 = 1 + 1\times2^{-1} + 1\times2^{-2} + 1\times2^{-4} \\
+      &= 1 + 0.5 + 0.25 + 0.0625 = 1.8125_{10}
+    \end{align*}
+\end{enumerate}
+\textbf{Risposta}: $-1.8125 \times 2^{80} \rightarrow$ Opzione \#4.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 18 ---
+\subsection*{Domanda 76: Rappresentazioni Equivalenti}
+A quale delle seguente opzioni corrisponde la cifra decimale $3.5_{10}$?
+\begin{itemize}
+    \item[$\square$] Corrisponde al numero $1.11_2 \times 2^{1}$
+    \item[$\square$] Corrisponde al numero $11.1_2$
+    \item[$\square$] Corrisponde al numero $111_2 \times 2^{-1}$
+    \item[$\blacksquare$] Tutte le opzioni sono corrette
+    \item[$\square$] Corrisponde al numero $0.111_2 \times 2^{2}$
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{align*}
+1.11_2 \times 2^{1} &= (1 + 0.5 + 0.25) \times 2 = 1.75 \times 2 = 3.5_{10} \\
+11.1_2 &= 2 + 1 + 0.5 = 3.5_{10} \\
+111_2 \times 2^{-1} &= (4 + 2 + 1) \times 0.5 = 7 \times 0.5 = 3.5_{10} \\
+0.111_2 \times 2^{2} &= (0.5 + 0.25 + 0.125) \times 4 = 0.875 \times 4 = 3.5_{10}
+\end{align*}
+\textbf{Risposta}: Tutte le opzioni sono equivalenti $\rightarrow$ Opzione \#4.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 19 ---
+\subsection*{Domanda 76: Da IEEE754 Binario a Decimale}
+A quale numero decimale corrisponde la seguente cifra binaria codificata secondo lo standard IEEE754?\\
+$S=1$ | $e=10000101$ | $m=11101101010000000000000$
+\begin{itemize}
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] Corrisponde al decimale 118.625
+    \item[$\square$] Corrisponde al decimale $-1.926757813 \times 2^{139}$
+    \item[$\blacksquare$] Corrisponde al decimale $-123.3125$
+    \item[$\square$] Corrisponde al decimale $-118.625$
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item \textbf{Segno:} $1 \rightarrow$ Negativo.
+    \item \textbf{Esponente:} $10000101_2 = 133_{10}$. Quindi l'esponente reale è $133 - 127 = 6$.
+    \item \textbf{Mantissa:} Scostando la virgola di 6 posizioni $\rightarrow 111011.0101_2$
+    \begin{align*}
+    111011.0101_2 &= 32 + 16 + 8 + 2 + 1 + 0.25 + 0.0625 \\
+    &= 123.3125
+    \end{align*}
+\end{enumerate}
+\textbf{Risposta}: $-123.3125_{10} \rightarrow$ Opzione \#4.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% --- PAGINA 20 ---
+\subsection*{Domanda 76: Conversione IEEE754}
+Rappresentare il decimale $5462.875$ secondo lo standard IEEE754.
+\begin{itemize}
+    \item[$\square$] Nessuna delle altre risposte
+    \item[$\square$] 0100 0101 1101 0101 0101 1011 1000 0000
+    \item[$\square$] 0100 0101 0101 0101 0110 1110 0000 0000
+    \item[$\square$] 0100 0101 1010 1010 1011 0111 0000 0000
+    \item[$\blacksquare$] 0100 0101 0110 1010 1011 0111 0000 0000
+\end{itemize}
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item \textbf{Rappresentazione binaria:} $1010101010110.111_2$
+    \item \textbf{Scorrere la virgola:}
+    $1.010101010110111 \times 2^{12}$ ($p=12$)
+    \item \textbf{Bit di segno:} Numero positivo $\rightarrow 0$
+    \item \textbf{Esponente:}
+    \begin{align*}
+    E &= 127 + 12 = 139_{10} \\
+      &\rightarrow 10001011_2
+    \end{align*}
+    \item \textbf{Mantissa:} 01010101011011100000000
+\end{enumerate}
+\textbf{Risposta}: 
+$S=0$ | $e=10001011$ | $m=01010101011011100000000$ \\
+$\rightarrow$ Opzione \#4.
+
+\section{Cenni alle Reti Logiche}
+
+L'obiettivo principale di questo corso è mostrare come funziona, e come si progetta, un calcolatore. Per fare ciò, è necessaria una piccola digressione su come si progettano i circuiti logici.
+
+\subsection{Valori Logici ed Elettronica}
+I computer moderni sono realizzati tramite circuiti elettronici. Trattandosi di elementi digitali avremo due livelli fondamentali:
+\begin{itemize}
+    \item \textbf{Alto, asserito (1)}: Associato alla tensione di alimentazione $V_{dd}$.
+    \item \textbf{Basso, negato (0)}: Associato alla massa, ovvero a una tensione nulla.
+\end{itemize}
+Altri livelli di tensione sono considerati non significativi e vengono assunti solo in fase transitoria.
+
+\subsection{Tipologie di Reti Logiche}
+Le reti logiche sono circuiti che trasformano alcuni valori logici in ingresso in altri valori logici in uscita. Si dividono in due tipi principali:
+\begin{itemize}
+    \item \textbf{Reti Combinatorie}: Rappresentano una relazione funzionale tra ingresso e uscita. Non hanno memoria, poiché l'uscita dipende solo dal valore attuale dell'ingresso. Possono essere specificate tramite una \textit{tabella di verità}.
+    \item \textbf{Reti Sequenziali}: L'uscita dipende dalla storia degli ingressi passati e non solo dal valore attuale. Esse possiedono una memoria, definita anche come \textit{stato} della rete.
+\end{itemize}
+
+\subsection{Algebra di Boole e Porte Logiche}
+Le funzioni logiche combinatorie possono essere specificate in maniera compatta tramite espressioni algebriche definite con l'algebra di Boole. Esistono tre operatori di base, implementati fisicamente da \textbf{porte logiche}:
+\begin{itemize}
+    \item \textbf{AND ($\cdot$)}: Rappresentato tramite il simbolo di prodotto, produce 1 se entrambi gli operandi sono 1, e 0 negli altri casi.
+    \item \textbf{OR ($+$)}: Rappresentato tramite il simbolo della somma, produce 0 se entrambi gli operandi sono 0, e 1 negli altri casi.
+    \item \textbf{NOT ($\overline{A}$)}: Rappresentato da una barra (o da un cerchietto nei circuiti), inverte il valore logico dell'ingresso.
+\end{itemize}
+
+Esistono semplici regole che ci permettono di manipolare e semplificare le espressioni logiche:
+\begin{itemize}
+    \item \textbf{Identità}: $A+0=A$, $A\cdot 1=A$.
+    \item \textbf{Regola zero e uno}: $A+1=1$, $A\cdot 0=0$.
+    \item \textbf{Regola dell'inversa}: $A+\overline{A}=1$, $A\cdot \overline{A}=0$.
+    \item \textbf{Commutativa}: $A+B=B+A$, $A\cdot B=B\cdot A$.
+    \item \textbf{Associativa}: $A+(B+C)=(A+B)+C$, $A\cdot(B\cdot C)=(A\cdot B)\cdot C$.
+    \item \textbf{Distributiva}: $A\cdot(B+C)=(A\cdot B)+(A\cdot C)$, $A+(B\cdot C)=(A+B)\cdot(A+C)$.
+\end{itemize}
+
+Di grandissima importanza sono le \textbf{leggi di De Morgan}:
+\begin{align*}
+    \overline{A\cdot B} &= \overline{A}+\overline{B} \\
+    \overline{A+B} &= \overline{A}\cdot\overline{B}
+\end{align*}
+Queste regole dimostrano che, avendo a disposizione un elemento logico NAND o NOR, è possibile ricavare tutti gli altri operatori.
+
+\subsection{Circuiti Combinatori Fondamentali}
+Tra i blocchi logici più comuni troviamo:
+\begin{itemize}
+    \item \textbf{Decoder}: Un circuito che converte un codice binario in ingresso nelle singole uscite corrispondenti.
+    \item \textbf{Multiplexer (Mux)}: Un deviatore che, sulla base di un input di controllo, determina quale degli input debba passare in uscita.
+\end{itemize}
+Molto spesso si costruiscono array di questi elementi logici per operare su dati complessi (ad esempio multiplexer a 32 bit), trattando l'insieme di fili (BUS) come un singolo segnale logico.
+
+\subsection{Implementazioni Fisiche e Minimizzazione}
+L'espressione logica equivalente a una tabella di verità si può ricavare con la \textbf{forma canonica SP}: si prende ciascuna riga uguale a 1 e si scrive un termine di prodotto logico (AND), per poi fare la somma (OR) di tutti i prodotti individuati.
+\begin{itemize}
+    \item \textbf{PLA (Programmable Logic Array)}: Struttura logica hardware composta da due stadi: una barriera di AND (mintermini) e una barriera di OR.
+    \item \textbf{Costo}: Il \textit{costo} di una rete logica è definito come la somma del numero di porte e del numero di ingressi della rete.
+    \item \textbf{Sintesi e Minimizzazione}: Esistono metodi sistematici basati sull'applicazione iterativa delle regole algebriche, o grafici (mappe di Karnaugh), che consentono di semplificare l'espressione in modo "furbo" e ridurre il costo computazionale.
+\end{itemize}
+
+\subsection{Elementi di Memoria e Reti Sequenziali}
+In molte applicazioni è necessario introdurre una "memoria", la quale si ottiene tramite \textbf{reazione} (o retroazione): l'uscita di alcune porte viene reindirizzata in ingresso ad altre porte del medesimo stadio. Così facendo, gli ingressi "ricordano" il passato della rete.
+\begin{itemize}
+    \item \textbf{R-S Latch}: Elemento bistabile fondamentale (Set-Reset) per memorizzare un bit. Ha il difetto critico di assumere uno stato indecidibile quando entrambi gli ingressi sono a 1.
+    \item \textbf{Clock e Temporizzazione}: Dato che i segnali si propagano in tempo finito, gli elementi di memoria sono governati da un segnale speciale chiamato \textit{clock} (gated latch). Se il clock è a zero, la rete è forzata e non può cambiare stato.
+    \item \textbf{Latch D (Data)}: Risolve il problema dello stato indecidibile forzando gli ingressi al circuito base tramite un'unica variabile e il suo negato, garantendo il funzionamento senza ambiguità durante la fase positiva del clock.
+    \item \textbf{Flip-Flop Master-Slave}: Configurazioni più complesse che consentono all'uscita di commutare esattamente e unicamente al termine dell'impulso di clock (\textit{edge-triggered}).
+    \item \textbf{Registri}: Insiemi di latch edge-triggered impiegati per memorizzare \textit{word} (parole di dati) complesse; caricano l'input sul fronte in salita del clock operando come barriera.
+    \item \textbf{Macchine a Stati}: La metodologia edge-triggered previene situazioni di corsa indecidibili (\textit{race condition}). Porta alla realizzazione di macchine a stati in cui lo stato successivo dipende da quello presente e dagli ingressi (es. automi di Mealy o Moore).
+\end{itemize}
+
+\section{Il linguaggio Assembly}
+
+\subsection{Linguaggio macchina ed Assembly}
+\begin{itemize}
+    \item \textbf{CPU}: "capisce" (e riesce ad eseguire) solo il suo linguaggio macchina, ovvero una sequenza di 0 e 1.
+    \item Non è un linguaggio propriamente utilissimo per noi umani.
+    \item \textbf{Programmatore}: scrive programmi in linguaggi di alto livello (es. C, C++, Java, ecc.).
+    \item Questi linguaggi, però, non sono direttamente comprensibili dalla CPU.
+    \item Come riempire il gap?
+    \item Quali sono i compromessi fra le sequenze di 0 e 1 e i linguaggi ad alto livello?
+    \item \textbf{Assembly!}: Utilizza codici mnemonici invece di sequenze di 0 e 1, risultando molto più facile da usare.
+    \item Vi è una stretta corrispondenza fra istruzioni macchina ed Assembly, rimanendo sempre un linguaggio strettamente legato alla CPU.
+\end{itemize}
+
+\subsection{Programmare in Assembly}
+\begin{itemize}
+    \item Un \textbf{programma Assembly} è un file ASCII contenente la descrizione testuale delle istruzioni.
+    \item Deve essere compilato per essere eseguito dalla CPU.
+    \item \textbf{Assembler}: è il compilatore che traduce da Assembly a linguaggio macchina.
+    \item Ad ogni istruzione Assembly corrisponde un'istruzione in linguaggio macchina.
+    \item Salvo rare eccezioni (macro, label, riordinamento istruzioni), le istruzioni Assembly dipendono dalla CPU. Di conseguenza, i programmi \textbf{non sono portabili}.
+    \item Linguaggio intermedio o linguaggio di programmazione?
+\end{itemize}
+
+\subsection{Istruzioni Assembly e ISA}
+\begin{itemize}
+    \item L'insieme delle istruzioni (sequenze di bit) riconosciute da una CPU prende il nome di \textbf{Instruction Set Architecture (ISA)}.
+    \item Non si tratta di una semplice lista di istruzioni, in quanto possiede una propria \textbf{Sintassi e Semantica}.
+    \item Regola l'accesso ai dati definendo i \textbf{Registri} (tipo e numero) e le modalità di accesso alla memoria (indirizzamento).
+    \item L'ISA di una CPU ne definisce direttamente anche il linguaggio Assembly.
+    \item In alcuni casi vi sono più ISA per una singola CPU, portando a diversi linguaggi Assembly (es. Intel 32-bit vs. Intel 64-bit).
+\end{itemize}
+
+\subsection{Funzionamento di una CPU e Programmi Assembly}
+La struttura di un programma Assembly deriva direttamente dal meccanismo di funzionamento di una CPU:
+\begin{enumerate}
+    \item \textbf{Fetch}: preleva l'istruzione dalla memoria. L'indirizzo è memorizzato in un apposito registro chiamato \textbf{Program Counter (PC)} o \textbf{Instruction Pointer (IP)}.
+    \item \textbf{Decode}: decodifica l'istruzione per capire cosa fare.
+    \item \textbf{Execute}: esegue l'istruzione (operazione aritmetico/logica, accesso alla memoria, ecc.).
+\end{enumerate}
+\begin{itemize}
+    \item Un programma è sostanzialmente una lista di istruzioni macchina eseguite, prevalentemente, in ordine sequenziale.
+    \item Si tratta perlopiù di operazioni aritmetico/logiche o talvolta di movimento dati.
+    \item Ordine sequenziale: esistono operazioni di \textbf{controllo del flusso} (salti) per rompere l'esecuzione sequenziale modificando il valore di PC/IP.
+    \item Essendo un linguaggio di basso livello, si opera con salti, non esistono costrutti diretti per cicli o selezioni.
+    \item Le istruzioni operano su dati (operandi): possono essere operandi di operazioni aritmetiche, dati da muovere da/verso la memoria o nuovi valori per PC/IP.
+\end{itemize}
+
+\subsection{Registri}
+Le istruzioni Assembly operano su dati che possono essere:
+\begin{itemize}
+    \item \textbf{Immediati} (costanti).
+    \item Contenuti in \textbf{registri}.
+    \item Contenuti in memoria (sfruttando varie modalità di indirizzamento).
+\end{itemize}
+\begin{itemize}
+    \item Un \textbf{Registro a k bit} è fisicamente composto da una batteria di k flip-flop di tipo D. L'insieme forma un banco di registri utilizzabili dalle istruzioni Assembly.
+    \item Cambiano da CPU a CPU e sono definiti dall'ISA.
+    \item Si dividono in registri \textit{general-purpose} e registri specializzati.
+    \item In genere, il numero di registri varia da 4 a 64 e la sintassi cambia a seconda dell'Assembly (possono avere nomi simbolici o numeri).
+\end{itemize}
+
+\subsection{Tipi di Istruzioni Assembly}
+Ogni istruzione Assembly è formata da un codice mnemonico seguito da eventuali operandi (immediati, in registri o in memoria), con eventuali vincoli imposti dall'ISA. Le istruzioni si dividono in:
+\begin{itemize}
+    \item \textbf{Aritmetico / logiche}: implementate dalla ALU (Unità Logica Aritmetica). Specificano in genere due operandi ed una destinazione (talvolta implicita).
+    \item \textbf{Movimento dati}: spostano dati fra registri, caricano costanti in registri/memoria o muovono dati tra memoria e registri.
+    \item \textbf{Controllo del flusso (salti)}: manipolano il contenuto di PC/IP. Permettono l'esecuzione condizionale e la gestione di invocazioni/ritorni da subroutine (che richiedono il salvataggio preventivo del valore di PC/IP).
+\end{itemize}
+\begin{itemize}
+    \item \textbf{RISC}: semplifica l'implementazione della CPU.
+    \item \textbf{CISC}: semplifica la scrittura di programmi Assembly.
+\end{itemize}
+
+\subsection{Esecuzione condizionale e Predicati}
+\begin{itemize}
+    \item Alcune istruzioni vanno eseguite solo se si verificano determinate condizioni (necessario per implementare selezioni e cicli).
+    \item In alcune ISA (come ARM), tutte le istruzioni possono avere esecuzione condizionale.
+    \item Come esprimere queste condizioni?
+    \begin{itemize}
+        \item Confronto fra valori di registri \textit{general-purpose}. In alcune ISA si usa un'istruzione come \textit{set if less than} per settare un terzo registro in base al risultato del confronto.
+        \item Valutazione di \textbf{flag} contenuti in uno speciale registro. I flag sono settati da istruzioni aritmetiche, logiche o di confronto (es. \texttt{cmp}, che esegue una sottrazione scartando il risultato ma aggiornando i flag) per indicare risultati pari a 0, negativi, overflow, ecc.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Operandi, Destinazioni e Architetture (RISC vs CISC)}
+Sulla gestione degli operandi e della destinazione, esistono due "filosofie" di design delle ISA:
+\begin{enumerate}
+    \item \textbf{Tutto nei registri} (o operandi immediati): rende l'implementazione della CPU più semplice ed elegante. Porta ad architetture \textbf{RISC}.
+    \item \textbf{Possibilità di avere operandi o destinazione in memoria}: rende il linguaggio Assembly più potente e semplice da usare. Porta ad architetture \textbf{CISC}.
+\end{enumerate}
+
+\subsubsection{RISC (Reduced Instruction Set Computer)}
+\begin{itemize}
+    \item \textbf{Obiettivo}: semplificare al massimo la struttura della CPU. Offre un'ISA più "semplice" e regolare.
+    \item Le istruzioni aritmetico/logiche operano solo sui registri (nessun operando in memoria): \texttt{<opcode> <dst>, <arg1>, <arg2>}.
+    \item L'accesso alla memoria è delegato esclusivamente a due istruzioni: \texttt{load} e \texttt{store}.
+    \item Conseguenze: servono più registri e la codifica delle istruzioni avviene su un numero fisso di bit.
+\end{itemize}
+
+\subsubsection{CISC (Complex Instruction Set Computer)}
+\begin{itemize}
+    \item \textbf{Obiettivo}: fornire istruzioni Assembly più potenti, flessibili e performanti.
+    \item Tutte le istruzioni possono avere operandi e/o destinazione in memoria (spesso con vincoli, es. in Intel al massimo un operando può essere in memoria).
+    \item Maggior numero di istruzioni con comportamenti complessi, sintassi meno regolare e codifica su un numero variabile di bit.
+    \item Esempio: per "salvare" alcuni bit di codifica, le istruzioni Intel hanno destinazione implicita.
+\end{itemize}
+
+\textbf{Meglio CISC o RISC?} Come in ogni cosa, gli estremismi non sono l'ideale: le soluzioni di maggior successo mescolano i due approcci. Intel è tipicamente CISC ma integra concetti RISC; ARM è una RISC "pragmatica" con alcune peculiarità avanzate.
+
+\subsection{Accessi alla memoria e Indirizzamento}
+Le istruzioni che accedono alla memoria (\texttt{load}/\texttt{store} per RISC, istruzioni generiche per CISC) richiedono l'argomento \texttt{<memory location>}. Le \textbf{modalità di indirizzamento} permettono di esprimere questa locazione in vari modi:
+\begin{itemize}
+    \item \textbf{Assoluto}: indirizzo costante codificato direttamente nell'istruzione (risulta problematico in RISC per il numero fisso di bit della codifica).
+    \item \textbf{Indiretto}: registro che contiene l'indirizzo codificato nell'istruzione (utile per implementare puntatori).
+    \item \textbf{Base + Spiazzamento (2+1)}: indirizzo ottenuto sommando un registro ad un valore immediato.
+    \item \textbf{Base + Indice (2+3)}: indirizzo ottenuto sommando un registro ad un registro scalato/shiftato (utile per implementare array).
+    \item \textbf{Base + Indice + Spiazzamento (1+2+3)}: indirizzo ottenuto sommando un registro, un registro scalato e un valore immediato.
+\end{itemize}
+Tradizionalmente le ISA RISC offrono modalità di indirizzamento più semplici, mentre ISA CISC (e ARM) permettono logiche di shift e pre/post-incremento utili per iterare nativamente sugli array.
+
+\subsection{ISA, ABI e Convenzioni di chiamata}
+\begin{itemize}
+    \item L'\textbf{ISA} si limita a definire le istruzioni riconosciute, il numero e il tipo di registri. Non forza, a livello hardware, come usare tali registri.
+    \item \textbf{ABI (Application Binary Interface)}: è un insieme di convenzioni software, fondamentale per far comunicare correttamente compilatori, librerie e Sistema Operativo.
+    \item Le \textbf{convenzioni di chiamata} (specificate dall'ABI e non dall'ISA) definiscono ad esempio se passare i parametri tramite stack o registri, e quali registri debbano rimanere inalterati al ritorno da una subroutine.
+\end{itemize}
+\section{Elenco Operandi e Istruzioni RISC-V}
+L'architettura RISC-V si basa su uno specifico set di operandi e istruzioni che permettono l'interazione tra processore e memoria, l'esecuzione di calcoli aritmetico-logici e il controllo del flusso del programma.
+
+\subsection{Operandi RISC-V}
+\begin{table}[htbp]
+\centering
+\begin{tabular}{l l p{10cm}}
+\toprule
+\textbf{Nome} & \textbf{Esempio} & \textbf{Commenti} \\
+\midrule
+32 registri & \texttt{x0-x31} & Accesso veloce ai dati. Nel RISC-V gli operandi devono essere contenuti nei registri per potere eseguire delle operazioni. Il registro \texttt{x0} contiene sempre il valore 0. \\
+\addlinespace
+Memoria & \texttt{Memoria[0]}, & Alla memoria si accede solamente attraverso istruzioni di trasferimento dati. Il RISC-V utilizza l'indirizzamento al byte, perciò due variabili ampie due parole (double word) hanno indirizzi in memoria a distanza 8. La memoria consente di memorizzare strutture dati, vettori, o il contenuto dei registri. \\
+& \texttt{Memoria[8]...} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Istruzioni Aritmetiche e di Trasferimento Dati}
+\begin{table}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l l l p{6cm}}
+\toprule
+\textbf{Tipo di istruzioni} & \textbf{Istruzioni (Esempio)} & \textbf{Significato} & \textbf{Commenti} \\
+\midrule
+Aritmetiche & \texttt{add x5, x6, x7} & $x5=x6+x7$ & Operandi in tre registri. \\
+Aritmetiche & \texttt{sub x5, x6, x7} & $x5=x6-x7$ & Operandi in tre registri. \\
+Aritmetiche & \texttt{addi x5, x6, 20} & $x5=x6+20$ & Utilizzata per sommare delle costanti. \\
+\addlinespace
+Trasferimento dati & \texttt{ld x5, 40(x6)} & $x5 = \text{Memoria}[x6+40]$ & Spostamento di una parola doppia da memoria a registro. \\
+Trasferimento dati & \texttt{sd x5, 40(x6)} & $\text{Memoria}[x6+40] = x5$ & Spostamento di una parola doppia da registro a memoria. \\
+Trasferimento dati & \texttt{lw x5, 40(x6)} & $x5 = \text{Memoria}[x6+40]$ & Spostamento di una parola da memoria a registro. \\
+Trasferimento dati & \texttt{lwu x5, 40(x6)} & $x5 = \text{Memoria}[x6+40]$ & Spostamento di una parola senza segno da memoria a registro. \\
+Trasferimento dati & \texttt{sw x5, 40(x6)} & $\text{Memoria}[x6+40] = x5$ & Spostamento di una parola da registro a memoria. \\
+Trasferimento dati & \texttt{lh x5, 40(x6)} & $x5 = \text{Memoria}[x6+40]$ & Spostamento di una mezza parola da memoria a registro. \\
+Trasferimento dati & \texttt{lhu x5, 40(x6)} & $x5 = \text{Memoria}[x6+40]$ & Spostamento di una mezza parola senza segno da memoria a registro. \\
+Trasferimento dati & \texttt{sh x5, 40(x6)} & $\text{Memoria}[x6+40] = x5$ & Spostamento di una mezza parola da registro a memoria. \\
+Trasferimento dati & \texttt{lb x5, 40(x6)} & $x5 = \text{Memoria}[x6+40]$ & Spostamento di un byte da memoria a registro. \\
+Trasferimento dati & \texttt{lbu x5, 40(x6)} & $x5 = \text{Memoria}[x6+40]$ & Spostamento di un byte senza segno da memoria a registro. \\
+Trasferimento dati & \texttt{sb x5, 40(x6)} & $\text{Memoria}[x6+40] = x5$ & Spostamento di un byte da registro a memoria. \\
+\addlinespace
+Trasferimento dati & \texttt{lr.d x5, (x6)} & $x5 = \text{Memoria}[x6]$ & Caricamento di una parola come prima fase di un'operazione atomica sulla memoria. \\
+Trasferimento dati & \texttt{sc.d x7, x5, (x6)} & $\text{Memoria}[x6] = x5$; $x7=0/1$ & Memorizzazione di una parola come seconda fase di un'operazione atomica sulla memoria. \\
+Trasferimento dati & \texttt{lui x5, 0x12345} & $x5 = 0x12345000$ & Caricamento di una costante su 20 bit nei 12 bit più significativi di una parola. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Linguaggio Assembler: Istruzioni Logiche, Scorrimento e Salti}
+\begin{table}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l l l p{5.5cm}}
+\toprule
+\textbf{Tipo di istruzioni} & \textbf{Istruzioni (Esempio)} & \textbf{Significato} & \textbf{Commenti} \\
+\midrule
+Logiche & \texttt{and x5, x6, x7} & $x5 = x6 \ \& \ x7$ & Operandi in tre registri; AND bit a bit. \\
+Logiche & \texttt{or x5, x6, x8} & $x5 = x6 \mid x8$ & Operandi in tre registri; OR bit a bit. \\
+Logiche & \texttt{xor x5, x6, x9} & $x5 = x6 \wedge x9$ & Operandi in tre registri; XOR bit a bit. \\
+Logiche & \texttt{andi x5, x6, 20} & $x5 = x6 \ \& \ 20$ & AND bit a bit tra operando in registro e costante. \\
+Logiche & \texttt{ori x5, x6, 20} & $x5 = x6 \mid 20$ & OR bit a bit tra operando in registro e costante. \\
+Logiche & \texttt{xori x5, x6, 20} & $x5 = x6 \wedge 20$ & XOR bit a bit tra operando in registro e costante. \\
+\addlinespace
+Scorrimento & \texttt{sll x5, x6, x7} & $x5 = x6 \ll x7$ & Scorrimento a sinistra mediante registro. \\
+Scorrimento & \texttt{srl x5, x6, x7} & $x5 = x6 \gg x7$ & Scorrimento a destra mediante registro. \\
+Scorrimento & \texttt{sra x5, x6, x7} & $x5 = x6 \gg x7$ & Scorrimento a destra aritmetico mediante registro. \\
+Scorrimento & \texttt{slli x5, x6, 3} & $x5 = x6 \ll 3$ & Scorrimento a sinistra mediante costante. \\
+Scorrimento & \texttt{srli x5, x6, 3} & $x5 = x6 \gg 3$ & Scorrimento a destra mediante costante. \\
+Scorrimento & \texttt{srai x5, x6, 3} & $x5 = x6 \gg 3$ & Scorrimento a destra aritmetico mediante costante. \\
+\addlinespace
+Salti condiz. & \texttt{beq x5, x6, 100} & Se $(x5 == x6)$ vai a $PC+100$ & Test di uguaglianza; salto relativo al PC. \\
+Salti condiz. & \texttt{bne x5, x6, 100} & Se $(x5 \neq x6)$ vai a $PC+100$ & Test di disuguaglianza; salto relativo al PC. \\
+Salti condiz. & \texttt{blt x5, x6, 100} & Se $(x5 < x6)$ vai a $PC+100$ & Comparazione di minoranza; salto relativo al PC. \\
+Salti condiz. & \texttt{bge x5, x6, 100} & Se $(x5 \ge x6)$ vai a $PC+100$ & Comparazione di maggioranza o uguaglianza. \\
+Salti condiz. & \texttt{bltu x5, x6, 100} & Se $(x5 < x6)$ vai a $PC+100$ & Comparazione di minoranza senza segno. \\
+Salti condiz. & \texttt{bgeu x5, x6, 100} & Se $(x5 \ge x6)$ vai a $PC+100$ & Comparazione di maggioranza o ug. senza segno. \\
+\addlinespace
+Salti incondiz. & \texttt{jal x1, 100} & $x1 = PC+4$; vai a $PC+100$ & Chiamata a procedura con indirizzo rel. al PC. \\
+Salti incondiz. & \texttt{jalr x1, 100(x5)} & $x1 = PC+4$; vai a $x5+100$ & Ritorno da procedura; chiamata indiretta. \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Dettaglio sulle Operazioni Logiche e di Scorrimento}
+I calcolatori moderni operano anche a livello di bit per ottimizzare i calcoli e gestire maschere di dati.
+
+\textbf{Shift sinistro (slli):}
+Sposta i bit a sinistra inserendo degli 0 nelle posizioni libere. Equivale alla moltiplicazione:
+\[
+x11 = x19 \cdot 2^k
+\]
+Esempio: $9 \cdot 2^4 = 144$. Attenzione alla gestione dell'overflow.
+
+\textbf{Shift destro logico (srli):}
+Sposta i bit a destra inserendo 0. Equivale alla divisione intera per $2^k$.
+
+\textbf{Shift destro aritmetico (srai):}
+Sposta i bit a destra mantenendo il bit di segno (estensione del segno).
+
+\textbf{Operatori Bit-a-bit:}
+\begin{itemize}
+\item \textbf{AND:} Utilizzato per azzerare bit specifici tramite una maschera.
+\item \textbf{OR:} Utilizzato per impostare bit specifici a 1.
+\item \textbf{XOR:} Risulta 1 se i bit sono diversi.
+\end{itemize}
+
+\textbf{Trucchi comuni:}
+\begin{itemize}
+    \item Azzerare un registro: \texttt{xor x9, x9, x9} $\Rightarrow x9 = 0$.
+    \item Operazione NOT: $NOT(A) = A \oplus 1$ (eseguito bit a bit).
+\end{itemize}
+
+\subsection{Istruzioni per il Controllo del Flusso (Decisioni)}
+Il RISC-V utilizza salti condizionati e incondizionati per implementare strutture di controllo come \texttt{if}, \texttt{loops} e \texttt{switch}.
+
+\textbf{Traduzione di una clausola If-Else:}
+Codice C:
+\begin{verbatim}
+if (i == j)
+  f = g + h;
+else
+  f = g - h;
+\end{verbatim}
+
+Codice RISC-V corrispondente (assumendo i in x22, j in x23, f in x19, g in x20, h in x21):
+\begin{verbatim}
+bne x22, x23, ELSE    # Se i != j salta a ELSE
+add x19, x20, x21     # f = g + h
+beq x0, x0, END       # Salto incondizionato a END
+ELSE: sub x19, x20, x21 # f = g - h
+END:
+\end{verbatim}
+
+\textbf{Cicli e Blocchi di Base:}
+I cicli vengono implementati tornando indietro a un'etichetta tramite salti. Un \textbf{blocco di base} è una sequenza di istruzioni senza salti (tranne alla fine) e senza etichette di destinazione (tranne all'inizio).
+
+\textbf{Switch/Case:}
+Queste strutture vengono spesso implementate tramite \textbf{tabelle di indirizzi} (jump tables) e l'istruzione di salto indiretto \texttt{jalr}, che permette di saltare a un indirizzo calcolato dinamicamente.
+
+\section{Gestione delle Procedure e della Memoria in RISC-V}
+
+\subsection{Procedure e Protocollo}
+\begin{itemize}
+    \item L'utilità di un computer sarebbe molto limitata se non si potessero chiamare procedure (o funzioni).
+    \item Possiamo pensare a una procedura come a una ``scatola nera'' che esegue un certo task, senza che ne conosciamo necessariamente i dettagli.
+    \item La cosa importante è definire chiaramente un protocollo (o convenzione) di chiamata alle procedure.
+    \item Le fasi del protocollo prevedono di:
+    \begin{enumerate}
+        \item Caricare i parametri di input della procedura in posti noti a priori.
+        \item Trasferire il controllo alla procedura, il che include acquisire le risorse necessarie, eseguire il compito, caricare i valori di ritorno in posti noti e restituire il controllo al chiamante.
+        \item Prendere il valore di ritorno della procedura e ``cancellare'' le tracce (pulire registri, ecc.).
+    \end{enumerate}
+    \item Il modo in cui questo protocollo viene messo in pratica dipende dall'architettura e dalle convenzioni di chiamata del compilatore. Nel nostro caso, ci limitiamo a cenni sull'architettura RISC-V.
+\end{itemize}
+
+\subsection{Protocollo di chiamata RISC-V}
+\begin{itemize}
+    \item L'idea di base è di cercare di usare laddove possibile i registri, perché sono il meccanismo più veloce per effettuare il passaggio dei parametri.
+    \item Convenzioni del RISC-V:
+    \begin{itemize}
+        \item I registri \texttt{x10-x17} sono usati per i parametri in ingresso e per i valori di ritorno.
+        \item Il registro \texttt{x1} viene utilizzato come indirizzo di ritorno per tornare al punto di partenza (chiamato anche \texttt{ra}, ovvero ``return address'').
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Le Istruzioni di Salto}
+\begin{itemize}
+    \item L'indirizzo \texttt{x1} viene usato in particolare nelle istruzioni di ``jump and link'' (\texttt{jal}) e ``jump and link register'' (\texttt{jalr}). Queste istruzioni effettuano il salto e contemporaneamente memorizzano in \texttt{x1} l'indirizzo di ritorno.
+    \item L'indirizzo salvato in \texttt{x1} è pari a PC (program counter) + 4, che corrisponde all'istruzione successiva alla \texttt{jal}/\texttt{jalr}.
+    \item Esempi di istruzioni:
+    \begin{itemize}
+        \item \texttt{jal x1, 100} (Salta e collega): memorizza \texttt{x1 = PC+4} e va a \texttt{PC+100}.
+        \item \texttt{jalr x1, 100(x5)} (Salta e collega mediante registro): memorizza \texttt{x1 = PC+4} e va a \texttt{x5+100}.
+        \item Alla fine della procedura sarà sufficiente fare un salto del tipo: \texttt{jalr x0, 0(x1)}.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Uso dello Stack e Chiamate a Procedura in C}
+\begin{itemize}
+    \item In certi casi i registri non bastano perché la procedura ha più parametri di quanti sono i registri a disposizione.
+    \item In tal caso si usa uno stack (pila). Questa è una struttura dati gestita in modalità LIFO in cui è possibile caricare i parametri in più a partire da una posizione nota alla procedura (puntata dal registro \texttt{x2}, chiamato anche \texttt{sp}, o stack pointer).
+    \item Lo stack si può usare anche per caricare variabili locali tramite un'operazione di push e per salvare dei valori di registri che dovranno essere ripristinati in seguito.
+    \item Alla fine della procedura si può ripulire lo stack (operazione pop) riportandolo alla situazione precedente.
+\end{itemize}
+
+\subsubsection{Esempio e Fasi di Compilazione}
+Consideriamo il seguente codice in C:
+\begin{verbatim}
+long long int esempio_foglia(long long int g, long long int h, 
+                             long long int i, long long int j) {
+    long long int f;
+    f = (g+h) - (i+j);
+    return f;
+}
+\end{verbatim}
+Come viene tradotta questa procedura?
+\begin{itemize}
+    \item \textbf{Parametri di input e variabili}: $g = \texttt{x10}$; $h = \texttt{x11}$; $i = \texttt{x12}$; $j = \texttt{x13}$. La variabile locale $f = \texttt{x20}$. Usiamo anche i registri temporanei \texttt{x5} e \texttt{x6}, assumendo di dover salvare \texttt{x5}, \texttt{x6} e \texttt{x20} nello stack.
+\end{itemize}
+
+\textbf{Prologo:}
+\begin{itemize}
+    \item Per prima cosa il compilatore sceglie un'etichetta associata all'indirizzo di entrata della procedura. In fase di linking l'etichetta sarà collegata a un indirizzo reale.
+    \item Si salvano in memoria tutti i registri usati in modo da poterli ripristinare. Questa fase è chiamata prologo e potrebbe richiedere di allocare nello stack anche spazio per le variabili locali.
+    \item \textit{Esempio di codice Assembly (Prologo):}
+    \begin{itemize}
+        \item \texttt{esempio\_foglia: addi sp, sp, -24} (decrementa \texttt{sp} di 24 per far posto a 3 double word).
+        \item \texttt{sd x5, 16(sp)} (salvataggio di \texttt{x5} in \texttt{sp+16}).
+        \item \texttt{sd x6, 8(sp)} (salvataggio di \texttt{x6} in \texttt{sp+8}).
+        \item \texttt{sd x20, 0(sp)} (salvataggio di \texttt{x20} in \texttt{sp+0}).
+    \end{itemize}
+\end{itemize}
+
+\textbf{Esecuzione ed Epilogo:}
+\begin{itemize}
+    \item Dopo il prologo, avviene l'esecuzione della procedura vera e propria:
+    \begin{itemize}
+        \item \texttt{add x5, x10, x11} (in \texttt{x5} salviamo \texttt{g+h}).
+        \item \texttt{add x6, x12, x13} (in \texttt{x6} salviamo \texttt{i+j}).
+        \item \texttt{sub x20, x5, x6} (in \texttt{x20}: \texttt{(g+h)-(i+j)}).
+    \end{itemize}
+    \item Segue l'epilogo per ripristinare i registri usati e settare il valore di ritorno:
+    \begin{itemize}
+        \item \texttt{addi x10, x20, 0} (trasferisce \texttt{x20} in \texttt{x10} come valore di ritorno).
+        \item \texttt{ld x20, 0(sp)} / \texttt{ld x6, 8(sp)} / \texttt{ld x5, 16(sp)} (ripristino dei registri prelevando i valori esattamente da dove li avevamo messi).
+        \item \texttt{addi sp, sp, 24} (ripristino dello stack; tutto ciò che è sotto \texttt{sp} non è significativo).
+        \item \texttt{jalr x0, 0(x1)} (salto al punto da dove siamo arrivati).
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Un bagno di realtà}
+\begin{itemize}
+    \item Nessun compilatore farebbe mai questo...
+    \item Infatti, i registri temporanei \texttt{x5} e \texttt{x6} in realtà non devono essere salvati durante la chiamata (avremmo potuto evitare due \texttt{ld} e due \texttt{sd}).
+    \item RISC-V adotta la seguente convenzione:
+    \begin{itemize}
+        \item \texttt{x5-x7} e \texttt{x28-x31}: registri temporanei, che non sono salvati in caso di chiamata a procedura.
+        \item \texttt{x8-x9} e \texttt{x18-x27}: registri da salvare il cui contenuto deve essere preservato in caso di chiamata a procedura.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Procedure Ricorsive e Ottimizzazioni}
+\begin{itemize}
+    \item In realtà le cose possono complicarsi per via di variabili locali e procedure annidate. Questo si risolve usando sempre lo stack e allocando al suo interno variabili locali e valori del registro di ritorno \texttt{x1}.
+\end{itemize}
+
+\subsubsection{Esempio Pratico: La funzione Fattoriale}
+\begin{verbatim}
+long long int fact(long long int n) {
+    if (n<1) return 1;
+    else return n*fact(n-1);
+}
+\end{verbatim}
+\begin{itemize}
+    \item In chiamate annidate (come la procedura ricorsiva appena vista), abbiamo il problema della sovrascrittura di \texttt{x1} (che rende impossibile il ritorno) e \texttt{x10} (usato per il parametro \texttt{n}).
+    \item Soluzione: salvaguardare i registri \texttt{x1}, \texttt{x10} creando spazio nello stack (es. \texttt{addi sp, sp, -16}).
+\end{itemize}
+
+\subsubsection{Tail Recursion (Ricorsione di coda)}
+\begin{itemize}
+    \item Per quanto le ricorsioni siano eleganti, spesso sono causa di inefficienze (``Never hire a programmer who solves the factorial with a recursion!'').
+    \item Consideriamo una funzione \texttt{sum(n, acc)} modificata affinché la chiamata ricorsiva sia l'ultima cosa che la procedura fa. Questa ricorsione viene detta ``di coda''.
+    \item In una ricorsione classica, ogni frame di attivazione deve essere preservato per produrre il risultato corretto tornando su per la catena di chiamate.
+    \item Nella ricorsione di coda, conservare i dati nel frame di attivazione è inutile: si può usare un unico frame di attivazione e svolgere la ricorsione in iterazione.
+    \item Alcuni compilatori sanno riconoscere la ricorsione di coda: evitano che il chiamante salvi \texttt{ra} per nulla sostituendo la \texttt{jal} con un salto incondizionato (es. \texttt{beq x0, x0, sum}), come fa il gcc con \texttt{-O2}.
+\end{itemize}
+
+\subsection{Memoria e Variabili}
+
+\subsubsection{Classi di Memoria e Record di Attivazione}
+\begin{itemize}
+    \item Le variabili in C sono associate a locazioni di memoria caratterizzate per tipo e \textit{storage class}:
+    \begin{itemize}
+        \item \textbf{Automatic}: variabili locali con ciclo di vita collegato alla funzione.
+        \item \textbf{Static}: sopravvivono alle chiamate di procedura. Nel RISC-V, questa zona è accessibile attraverso il registro \texttt{x3}, chiamato anche \texttt{gp} (``global pointer'').
+    \end{itemize}
+    \item Le variabili locali, quando sono tante, si allocano nello stack.
+    \item Il segmento di stack che contiene registri salvati e variabili locali relative a una procedura viene chiamato \textbf{record di attivazione} (o \textit{stack frame}).
+    \item Poiché il registro \texttt{sp} cambia (cresce verso il basso) durante l'esecuzione, alcuni programmi utilizzano il registro \texttt{x8}, chiamato \texttt{fp} (``frame pointer''), mantenuto costante durante la funzione. L'organizzazione standard tra \texttt{FP} (indirizzi alti) e \texttt{SP} (indirizzi bassi) prevede registri a scorrimento, indirizzo di ritorno, registri salvati, e vettori/strutture locali in fondo.
+\end{itemize}
+
+\subsubsection{Schema Generale di Memoria RISC-V}
+In aggiunta a variabili globali e locali, abbiamo le variabili dinamiche (allocate con \texttt{malloc/free}, \texttt{new/delete}), salvate nell'\textbf{heap}.
+\begin{itemize}
+    \item Lo \textbf{Stack} procede per indirizzi decrescenti.
+    \item L'\textbf{Heap} procede per indirizzi crescenti.
+    \item Sotto l'heap vi sono i \textbf{Dati statici}, il segmento di \textbf{Testo} (le istruzioni, PC) e una zona riservata.
+\end{itemize}
+
+\subsubsection{Riassunto Convenzioni Registri RISC-V}
+\begin{table}[ht!]
+\centering
+\begin{tabular}{lllc}
+\toprule
+\textbf{Nome} & \textbf{N. Registro} & \textbf{Utilizzo} & \textbf{Da conservare?} \\
+\midrule
+\texttt{x0} & 0 & Costante 0 & n.a. \\
+\texttt{x1 (ra)} & 1 & Registro di ritorno (collegamento) & sì \\
+\texttt{x2 (sp)} & 2 & Stack pointer & sì \\
+\texttt{x3 (gp)} & 3 & Global pointer & sì \\
+\texttt{x4 (tp)} & 4 & Thread pointer & sì \\
+\texttt{x5-x7} & 5-7 & Variabili temporanee & no \\
+\texttt{x8-x9} & 8-9 & Variabili da preservare & sì \\
+\texttt{x10-x17} & 10-17 & Argomenti/risultati & no \\
+\texttt{x18-x27} & 18-27 & Variabili da preservare & sì \\
+\texttt{x28-x31} & 28-31 & Variabili temporanee & no \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Esempi di Programmi Assembly RISC-V}
+\subsection{Semplici Istruzioni Aritmetiche e Logiche}
+Il codice di partenza è \texttt{f = (g + h) - (i + j);}
+\subsubsection{Traduzione Base}
+Si suppone che le variabili \texttt{g, h, i, j} si trovino rispettivamente nei registri \texttt{x19, x20, x21, x22}, e che il risultato debba essere salvato in \texttt{x23}. Il codice assembly corrispondente è:
+\begin{verbatim}
+add x5, x19, x20
+add x6, x21, x22
+sub x23, x5, x6
+\end{verbatim}
+\subsubsection{Traduzione Ottimizzata (v2)}
+È possibile utilizzare un registro in meno, salvando il risultato intermedio direttamente in \texttt{x23}. Il codice diventa:
+\begin{verbatim}
+add x23, x19, x20
+add x6, x21, x22
+sub x23, x23, x6
+\end{verbatim}
+\subsection{Accesso alla Memoria}
+Il codice di partenza è \texttt{a[12] = h + a[8];}
+Si ipotizza che \texttt{h} si trovi in \texttt{x21} e che l'indirizzo base del vettore \texttt{a} sia nel registro \texttt{x22}. La traduzione RISC-V prevede tre passi:
+\begin{itemize}
+\item Lettura dalla memoria: \texttt{ld x9, 64(x22)} (carica \texttt{a[8]} in \texttt{x9}).
+\item Addizione: \texttt{add x9, x21, x9} (calcola \texttt{h + a[8]}).
+\item Scrittura in memoria: \texttt{sd x9, 96(x22)} (salva il risultato in \texttt{a[12]}).
+\end{itemize}
+\subsection{Blocchi Condizionali e Cicli}
+\subsubsection{Condizione di Uguaglianza (\texttt{if (i == j)})}
+Se vero: \texttt{f = g + h;}. Se falso (else): \texttt{f = g - h;}. Viene utilizzato il salto condizionato \texttt{bne x22, x23, L2} per saltare all'etichetta \texttt{L2} se i registri sono diversi. In caso contrario, si esegue l'addizione e si salta la parte "else" con \texttt{beq x0, x0, L3}.
+\subsubsection{Condizione di Disuguaglianza (\texttt{if (i < j)})}
+Se vero: \texttt{f = g + h;}. Altrimenti: \texttt{f = g - h;}. Può essere tradotto usando \texttt{slt} e \texttt{beq}, oppure in modo più efficiente con l'istruzione \texttt{blt x22, x23, L2} per saltare direttamente se \texttt{x22 < x23}.
+\subsubsection{Ciclo While (\texttt{while (a[i] == k)})}
+Si calcola l'indirizzo dell'elemento corrente moltiplicando l'indice per 8 tramite \texttt{slli x10, x22, 3}. Si esce dal ciclo se il valore non è uguale a \texttt{k} usando \texttt{bne x9, x24, L2}. Si riavvia il ciclo incondizionatamente con \texttt{beq x0, x0, L1}.
+\subsection{Funzioni Foglia e Non Foglia}
+\subsubsection{Funzioni Foglia}
+Sono funzioni che non ne richiamano altre al loro interno. Senza ottimizzazioni, è necessario salvare e ripristinare i registri nello stack (prologo ed epilogo), allocando spazio con \texttt{addi sp, sp, -24} e deallocandolo con \texttt{addi sp, sp, 24}. Con le ottimizzazioni (e se non è necessario preservare registri temporanei), le operazioni sullo stack possono essere omesse, ritornando direttamente al chiamante con \texttt{jalr x0, 0(x1)}.
+\subsubsection{Tabella dei Registri RISC-V}
+I registri hanno nomi specifici e convenzioni d'uso:
+\begin{itemize}
+\item \texttt{x0} (zero): Costante 0.
+\item \texttt{x1} (ra): Indirizzo di ritorno, salvato dal chiamante.
+\item \texttt{x2} (sp): Stack pointer, salvato dal chiamato.
+\item \texttt{x10-x11} (a0-a1): Argomenti di funzione o valori restituiti.
+\end{itemize}
+\subsubsection{Funzioni Non Foglia}
+Una funzione non foglia, come una che richiama \texttt{inc(x)}, richiede il salvataggio del registro \texttt{ra} (indirizzo di ritorno) sullo stack. Esempio GCC con ottimizzazione (\texttt{O1}): estende lo stack (\texttt{addi sp, sp, -16}), salva \texttt{ra} (\texttt{sd ra, 8(sp)}), richiama la sottofunzione (\texttt{call inc}), e poi ripristina \texttt{ra} e lo stack prima di uscire con \texttt{ret}.
+\subsection{Algoritmi Complessi in Assembly}
+\subsubsection{Ordinamento di Array (Insertion Sort)}
+Viene mostrato un esempio con due funzioni: \texttt{ordina} e \texttt{sposta}. La funzione \texttt{sposta} prevede calcoli complessi sugli indirizzi di memoria, decrementi d'indice (\texttt{addiw a1, a1, -1}) e verifiche condizionali multiple all'interno di un ciclo \texttt{while} (\texttt{bge}, \texttt{bltz}) per scambiare gli elementi dell'array. La funzione \texttt{ordina} gestisce un loop esterno, richiamando \texttt{sposta} ad ogni iterazione, comportandosi quindi come funzione non foglia e gestendo correttamente lo stack (\texttt{addi sp, sp, -32}, \texttt{sd ra, 24(sp)}).
+\subsubsection{Copia di Stringhe}
+Basato sul loop C: \texttt{while ((d[i]=s[i])!='\textbackslash 0') i+=1;}. Tradotto in assembly RISC-V utilizzando istruzioni di accesso al singolo byte della memoria: \texttt{lbu x6, 0(x5)} per leggere un carattere e \texttt{sb x6, 0(x7)} per scriverlo nella nuova posizione. La condizione di uscita verifica se il byte appena copiato equivale a zero (\texttt{beq x6, x0, LoopCopiaStringaEnd}).
+
+\section{Tutorato Assembly RISC-V}
+
+\subsection{Concetti Teorici Fondamentali}
+\begin{itemize}
+    \item \textbf{Registri RISC-V}: L'architettura base a 64 bit dispone di \textbf{32 registri} general-purpose da 64 bit (ovvero \textit{double word}).
+    \item \textbf{Registro \texttt{x0}}: È un registro speciale cablato al valore costante \textbf{0}. Ogni tentativo di modifica viene ignorato; si rivela estremamente utile per semplificare diverse operazioni (es. copia di registri o salti incondizionati).
+    \item \textbf{Formati delle Istruzioni}: Il \textbf{Formato I} (Immediato) è impiegato per operazioni che richiedono un operando costante (come l'istruzione \texttt{addi}) e per gli accessi in memoria (load), permettendo di codificare la costante direttamente nei 32 bit dell'istruzione.
+    \item \textbf{Endianness}: Il processore RISC-V utilizza la convenzione \textbf{Little Endian}, memorizzando il byte meno significativo all'indirizzo di memoria più basso.
+\end{itemize}
+
+\subsection{Traduzione di Costrutti: dal C all'Assembly}
+
+\textbf{Operazioni Aritmetiche, Logiche e Shift}
+\begin{itemize}
+    \item \textit{Espressioni composte} (es. \texttt{a = (b + c) - d}): Si utilizzano registri temporanei per memorizzare i calcoli intermedi.
+\begin{verbatim}
+add x5, x11, x12  % x5 = b + c (risultato intermedio)
+sub x10, x5, x13  % a = x5 - d
+\end{verbatim}
+    \item \textit{Moltiplicazioni per potenze di 2} (es. \texttt{a = b * 8}): Si ottimizza il calcolo utilizzando l'istruzione di \textbf{shift logico a sinistra} (\texttt{slli}). Moltiplicare per $8$ ($2^3$) equivale a traslare i bit di 3 posizioni.
+\begin{verbatim}
+slli x10, x11, 3  % a = b << 3 (equivale ad a = b * 8)
+\end{verbatim}
+\end{itemize}
+
+\textbf{Accesso alla Memoria e Array}
+\begin{itemize}
+    \item \textit{Calcolo dell'offset}: L'indirizzamento in RISC-V è al byte. Lavorando con array di \textit{double word} (8 byte), l'indice deve essere sempre moltiplicato per 8 per ricavare lo spiazzamento corretto.
+    \item \textit{Esempio di traduzione} (\texttt{A[4] = h + A[2]}):
+\begin{verbatim}
+ld x9, 16(x22)    % Carica A[2] (indice 2 * 8 = offset 16)
+add x9, x21, x9   % Somma h con A[2]
+sd x9, 32(x22)    % Salva il risultato in A[4] (indice 4 * 8 = offset 32)
+\end{verbatim}
+\end{itemize}
+
+\textbf{Costrutti Condizionali (\texttt{if-else})}
+\begin{itemize}
+    \item \textit{La regola della condizione opposta}: Per tradurre i costrutti di selezione, la prassi comune è valutare la \textbf{condizione opposta} rispetto a quella del codice ad alto livello, in modo da poter saltare l'esecuzione del blocco \texttt{if} qualora la condizione sia falsa.
+    \item \textit{Esempio \texttt{if-else}} (\texttt{if (i < j) f = g + h; else f = g - h;}):
+\begin{verbatim}
+bge x22, x23, ELSE  % Condizione opposta: se i >= j salta a ELSE
+add x19, x20, x21   % Ramo IF: f = g + h
+beq x0, x0, ESCI    % Salto incondizionato alla fine
+ELSE:
+sub x19, x20, x21   % Ramo ELSE: f = g - h
+ESCI:               % Fine blocco
+\end{verbatim}
+\end{itemize}
+
+\textbf{Costrutti Iterativi (\texttt{while})}
+\begin{itemize}
+    \item \textit{Gestione dei cicli su Array} (\texttt{while (salva[i] == k) i += 1;}): I cicli richiedono il calcolo dinamico dell'indirizzo base ad ogni singola iterazione, seguito da un controllo sulla condizione di uscita.
+\begin{verbatim}
+CICLO:
+slli x10, x22, 3   % Moltiplica indice i per 8 per l'offset in byte
+add x10, x10, x25  % Aggiunge l'offset all'indirizzo base dell'array
+ld x9, 0(x10)      % Carica fisicamente salva[i] dalla memoria
+bne x9, x24, ESCI  % Condizione d'uscita: se salva[i] != k, interrompi
+addi x22, x22, 1   % Incrementa l'indice i di 1
+beq x0, x0, CICLO  % Salto incondizionato per ripetere
+ESCI:
+\end{verbatim}
+\end{itemize}
+
+\section{Soluzioni Mockup Complete}
+
+\begin{enumerate}
+
+    % --- DOMANDA 1 ---
+    \item \textbf{Domanda:} Il record di attivazione in RISC-V contiene diverse informazioni quando viene chiamata una funzione, questo include:
+    \begin{enumerate}[label=(\Alph*)]
+        \item Registri a scorrimento salvati, Registri del tipo ``callee-saved'' salvati, Indirizzo di ritorno, Registri non a scorrimento salvati, Registri del tipo ``caller-saved'' salvati, ed altre informazioni.
+        \item Registri a scorrimento salvati, Registri del tipo ``caller-saved'' salvati, Indirizzo di ritorno, ed altre informazioni.
+        \item Registri non a scorrimento salvati, Registri del tipo ``callee-saved'' salvati, ed altre informazioni.
+        \item Nessuna delle risposte precedenti è corretta.
+    \end{enumerate}
+    \textbf{Risposta corretta: (A)} \\
+    \textbf{Perché è corretta:} Nelle convenzioni di chiamata del RISC-V, il record di attivazione (Stack Frame) è la porzione di stack dedicata a una procedura per memorizzare tutte le informazioni necessarie al suo funzionamento. L'opzione A è l'unica che fornisce una lista completa, includendo sia i registri che devono essere preservati dal chiamato (\textit{callee-saved}), sia quelli preservati dal chiamante (\textit{caller-saved}), sia il fondamentale indirizzo di ritorno (\texttt{ra}). \\
+    \textbf{Perché scartare le altre:} L'opzione (B) omette i registri \textit{callee-saved}, che sono cruciali. L'opzione (C) omette l'indirizzo di ritorno e i \textit{caller-saved}. L'opzione (D) è errata poiché la (A) è esaustiva.
+
+    % --- DOMANDA 2 ---
+    \item \textbf{Domanda:} Cosa contiene il registro \texttt{x5} dopo le seguenti istruzioni?
+\begin{verbatim}
+addi x5, x0, 10
+addi x6, x0, 21
+sll x5, x5, x6
+\end{verbatim}
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{0000 0000 0001 0100 0000 0000 0000 0000 0000}
+        \item \texttt{0000 0000 0000 0000 0000 0000 0000 0000 0000}
+        \item \texttt{0000 0000 0000 0000 0000 0000 0000 0000 1010}
+        \item \texttt{0000 0000 0000 0001 0100 0000 0000 0000 0000}
+        \item Nessuna delle risposte precedenti è corretta.
+    \end{enumerate}
+    \textbf{Risposta corretta: (A)} \\
+    \textbf{Perché è corretta:} Il registro \texttt{x5} viene inizializzato a $10$ (in binario \texttt{1010}). L'istruzione \texttt{sll} (Shift Left Logical) scorre i bit di \texttt{x5} verso sinistra del valore contenuto in \texttt{x6} ($21$ posizioni), riempiendo i bit meno significativi con zeri. Questo equivale a calcolare $10 \times 2^{21}$. Spostando la sequenza \texttt{1010} di 21 posizioni, otteniamo \texttt{0001 0100} seguito da esattamente 20 zeri (cinque blocchi da 4 zeri). \\
+    \textbf{Perché scartare le altre:} La (B) presuppone erroneamente che il risultato sia zero. La (C) mostra il valore iniziale di \texttt{x5} ($10$) senza alcuno shift. La (D) ha un numero errato di zeri finali (ne ha solo 16, corrispondenti a uno shift di 17 posizioni anziché 21).
+
+    % --- DOMANDA 3 ---
+    \item \textbf{Domanda:} Secondo le convenzioni di chiamata del RISC-V illustrate a lezione, quali registri vengono comunemente utilizzati per il passaggio dei parametri in ingresso alle procedure e per i valori di ritorno?
+    \begin{enumerate}[label=(\Alph*)]
+        \item Da \texttt{x1} a \texttt{x8}
+        \item Da \texttt{x10} a \texttt{x17}
+        \item Da \texttt{x18} a \texttt{x27}
+        \item Da \texttt{x28} a \texttt{x31}
+        \item Nessuna delle risposte precedenti è corretta.
+    \end{enumerate}
+    \textbf{Risposta corretta: (B)} \\
+    \textbf{Perché è corretta:} L'interfaccia binaria (\textit{ABI}) del RISC-V dedica in modo standard i registri da \texttt{x10} a \texttt{x17} (noti come \texttt{a0}-\texttt{a7}) al passaggio dei parametri in ingresso. I primi due (\texttt{x10} e \texttt{x11} / \texttt{a0} e \texttt{a1}) sono utilizzati anche per restituire i valori di ritorno. \\
+    \textbf{Perché scartare le altre:} L'intervallo (A) include registri con scopi diversi (es. \texttt{x1} è l'indirizzo di ritorno \texttt{ra}, \texttt{x2} è lo stack pointer \texttt{sp}). L'intervallo (C) racchiude i registri salvati (\texttt{s2}-\texttt{s11}). L'intervallo (D) racchiude i registri temporanei (\texttt{t3}-\texttt{t6}).
+
+    % --- DOMANDA 4 ---
+    \item \textbf{Domanda:} In merito all'ottimizzazione del codice RISC-V, in cosa consiste l'ottimizzazione per il compilatore nota come ``ricorsione di coda'' (tail recursion)?
+    \begin{enumerate}[label=(\Alph*)]
+        \item Nel salvataggio sistematico di tutti i registri nello stack prima di effettuare qualsiasi chiamata ricorsiva.
+        \item Nell'uso esclusivo dei registri callee-saved per evitare conflitti con la funzione chiamante.
+        \item Nella sostituzione di un'istruzione \texttt{jal} seguita da un ritorno, con un salto incondizionato alla procedura, semplificando la gestione dello stack.
+        \item Nell'esecuzione parallela di più rami della ricorsione utilizzando le pipeline della CPU.
+        \item Nessuna delle risposte precedenti è corretta.
+    \end{enumerate}
+    \textbf{Risposta corretta: (C)} \\
+    \textbf{Perché è corretta:} La \textit{tail recursion} si verifica quando la chiamata ricorsiva è l'ultima istruzione eseguita da una funzione. Il compilatore la ottimizza evitando di creare un nuovo record di attivazione: sostituisce la chiamata a funzione (\texttt{jal}) con un semplice salto al prologo (\texttt{j}), riutilizzando lo stack frame attuale e prevenendo lo \textit{stack overflow}. \\
+    \textbf{Perché scartare le altre:} La (A) descrive l'esatto opposto (spreco di stack). La (B) riguarda una strategia di allocazione dei registri, non l'ottimizzazione ricorsiva. La (D) descrive parallelismo a livello hardware (ILP), slegato dal concetto logico di tail recursion.
+
+    % --- DOMANDA 5 ---
+    \item \textbf{Domanda:} Riporta quale di queste istruzioni è corretta per completare la traduzione del frammento (sostituendo \texttt{X1}): \texttt{while (z < g) \{ f = f + j; z = z + 1; \}}
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{add x11, x11, x12}
+        \item \texttt{add x12, x12, x11}
+        \item \texttt{addi x12, x12, 1}
+        \item \texttt{add x13, x12, x11}
+        \item Nessuna delle risposte precedenti è corretta.
+    \end{enumerate}
+    \textbf{Risposta corretta: (B)} \\
+    \textbf{Perché è corretta:} Nel C, l'operazione principale del ciclo è \texttt{f = f + j}. Secondo l'ABI passata come argomento, \texttt{f} (terzo parametro) si trova nel registro \texttt{x12} (\texttt{a2}) e \texttt{j} (secondo parametro) in \texttt{x11} (\texttt{a1}). L'istruzione per sommarli salvando il risultato in \texttt{f} è \texttt{add x12, x12, x11}. \\
+    \textbf{Perché scartare le altre:} La (A) salva il risultato in \texttt{j} anziché in \texttt{f}. La (C) aggiunge 1 a \texttt{f}, ignorando la variabile \texttt{j}. La (D) sovrascrive \texttt{g} (\texttt{x13}) distruggendo la condizione del ciclo.
+
+    % --- DOMANDA 6 ---
+    \item \textbf{Domanda:} Quale delle seguenti istruzioni deve sostituire \texttt{X1} affinché il calcolo dell'indirizzo di memoria dell'array sia corretto? (\texttt{long long int v[]})
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{slli x5, x11, 2}
+        \item \texttt{add x5, x11, x0}
+        \item \texttt{slli x5, x10, 3}
+        \item \texttt{slli x5, x11, 3}
+    \end{enumerate}
+    \textbf{Risposta corretta: (D)} \\
+    \textbf{Perché è corretta:} Il vettore è di tipo \texttt{long long int}, i cui elementi occupano 8 byte ciascuno. Per trovare l'indirizzo dell'elemento $i$-esimo (in \texttt{x11}), l'indice deve essere moltiplicato per 8 (il \textit{peso} in byte). Lo shift logico a sinistra di 3 posizioni (\texttt{slli ... 3}) equivale a moltiplicare l'indice per $2^3 = 8$. \\
+    \textbf{Perché scartare le altre:} La (A) moltiplica per 4, il che sarebbe corretto solo per un normale \texttt{int} a 32 bit. La (B) non moltiplica l'indice, assumendo erroneamente un array di \texttt{char} (1 byte). La (C) moltiplica l'indirizzo base (\texttt{x10}) invece dell'indice, distruggendo del tutto il puntatore alla memoria.
+
+    % --- DOMANDA 7 ---
+    \item \textbf{Domanda:} Qual è lo scopo principale dell'istruzione \texttt{addi sp, sp, 32} trovata in un epilogo?
+    \begin{enumerate}[label=(\Alph*)]
+        \item Allocare 32 byte di memoria nello stack per salvare i registri locali in vista di un'ulteriore chiamata.
+        \item Deallocare lo spazio precedentemente riservato nello stack (Record di Attivazione) prima di ritornare al chiamante.
+        \item Caricare i valori di ritorno nel registro \texttt{sp}.
+        \item Passare 32 byte di parametri dal callee al caller.
+    \end{enumerate}
+    \textbf{Risposta corretta: (B)} \\
+    \textbf{Perché è corretta:} In RISC-V lo stack cresce verso indirizzi di memoria \textit{decrescenti}. Quando una funzione inizia (prologo), sottrae spazio da \texttt{sp} per fare posto. Al termine (epilogo), deve ripristinare il puntatore originale sommando esattamente lo stesso valore (\texttt{+32}), "deallocando" logicamente lo spazio per le future chiamate. \\
+    \textbf{Perché scartare le altre:} La (A) confonde l'epilogo con il prologo (l'allocazione si fa con un valore negativo). La (C) è errata perché i valori di ritorno vanno in \texttt{a0}/\texttt{a1}, non nello Stack Pointer. La (D) è priva di senso a livello architetturale.
+
+    % --- DOMANDA 8 ---
+    \item \textbf{Domanda:} A quale istruzione base corrisponde la pseudo-istruzione \texttt{ret}?
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{jal x0, ra}
+        \item \texttt{jalr x0, 0(x1)}
+        \item \texttt{jr x1}
+        \item \texttt{beq x0, x0, x1}
+    \end{enumerate}
+    \textbf{Risposta corretta: (B)} \\
+    \textbf{Perché è corretta:} La pseudo-istruzione \texttt{ret} serve a saltare di ritorno all'indirizzo memorizzato dal chiamante. Il registro standard che contiene questo indirizzo è \texttt{x1} (\texttt{ra}). A livello hardware, l'istruzione \texttt{jalr x0, 0(x1)} salta incondizionatamente all'indirizzo in \texttt{x1} (con offset 0) e salva l'istruzione successiva in \texttt{x0} (scartandola, poiché \texttt{x0} è cablato a 0). \\
+    \textbf{Perché scartare le altre:} La (A) usa \texttt{jal}, che si basa su un offset relativo al Program Counter e non può saltare a un indirizzo contenuto in un registro. La (C) è a sua volta un'altra pseudo-istruzione (alias di \texttt{jalr}). La (D) è un'istruzione di \textit{branch} (salto condizionato), inadatta a salti assoluti basati su registri.
+
+    % --- DOMANDA 9 ---
+    \item \textbf{Domanda:} Lavorando con un'architettura RISC-V a 64 bit (RV64), qual è la differenza fondamentale tra \texttt{lw} e \texttt{lwu}?
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{lw} carica 64 bit dalla memoria, mentre \texttt{lwu} ne carica solo 32.
+        \item Entrambe caricano 32 bit dalla memoria, ma \texttt{lw} estende il segno sui restanti 32 bit del registro a 64 bit, mentre \texttt{lwu} riempie i restanti 32 bit con zeri.
+        \item \texttt{lw} carica un dato dalla memoria e lo allinea a sinistra nel registro, \texttt{lwu} lo allinea a destra.
+        \item Non esiste alcuna differenza a livello hardware, l'assemblatore sceglie quale usare in base al tipo di dato.
+    \end{enumerate}
+    \textbf{Risposta corretta: (B)} \\
+    \textbf{Perché è corretta:} Una "word" in RISC-V è di 32 bit. Poiché i registri di RV64 sono a 64 bit, quando si caricano 32 bit bisogna decidere cosa fare della metà superiore del registro. \texttt{lw} preserva il valore matematico dei numeri negativi copiando il bit di segno in tutte le posizioni superiori (\textit{sign extension}). \texttt{lwu} (Unsigned) tratta il dato come positivo, riempiendo la parte alta semplicemente con zeri (\textit{zero extension}). \\
+    \textbf{Perché scartare le altre:} La (A) è errata perché il caricamento a 64 bit si fa con \texttt{ld} (Load Doubleword). La (C) è falsa (tutti i valori sono allineati al Least Significant Bit a destra). La (D) è falsa perché \texttt{lw} e \texttt{lwu} corrispondono a \textit{opcode} binari hardware fisicamente distinti.
+
+    % --- DOMANDA 10 ---
+    \item \textbf{Domanda:} Nelle istruzioni di salto condizionato (come \texttt{beq}), come viene calcolato a livello hardware l'indirizzo di memoria dell'istruzione a cui saltare?
+    \begin{enumerate}[label=(\Alph*)]
+        \item Tramite un indirizzamento assoluto: l'indirizzo a 32/64 bit viene caricato direttamente da un registro base.
+        \item L'indirizzo target viene letto dallo Stack Pointer (\texttt{sp}).
+        \item Tramite indirizzamento PC-relative: l'indirizzo target si ottiene sommando il valore attuale del Program Counter (PC) con un offset codificato direttamente all'interno dell'istruzione di salto.
+        \item Il target viene calcolato moltiplicando per 4 il valore contenuto nel registro \texttt{ra}.
+    \end{enumerate}
+    \textbf{Risposta corretta: (C)} \\
+    \textbf{Perché è corretta:} I salti condizionati vengono generalmente utilizzati per saltare a blocchi di codice vicini (\texttt{if}, \texttt{loop}). RISC-V ottimizza questa operazione utilizzando l'indirizzamento \textit{PC-relative}: calcola la distanza (offset) tra l'istruzione corrente e la destinazione e la somma al Program Counter (PC). Questo permette di risparmiare spazio, poiché un piccolo offset entra comodamente nei 32 bit dell'istruzione. \\
+    \textbf{Perché scartare le altre:} La (A) descrive il meccanismo di \texttt{jalr}, usato tipicamente per i ritorni a funzione o chiamate tramite puntatore, non per i branch. La (B) coinvolge lo stack, che contiene i dati locali e non le istruzioni da eseguire. La (D) non ha senso architetturale.
+
+    % --- DOMANDA 11 ---
+    \item \textbf{Domanda:} Quale istruzione deve sostituire \texttt{X1} per permettere l'avanzamento logico corretto del ciclo in \texttt{sumV}? (\texttt{*v = *u + 1;})
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{lw a5, 0(a0)}
+        \item \texttt{lw a1, 0(a6)}
+        \item \texttt{lw a5, 4(a0)}
+        \item \texttt{lw a5, -4(a0)}
+    \end{enumerate}
+    \textbf{Risposta corretta: (A)} \\
+    \textbf{Perché è corretta:} L'istruzione in C \texttt{*v = *u + 1} impone prima di tutto di leggere in memoria il valore puntato da \texttt{u} per portarlo nel processore. Sapendo che il puntatore \texttt{u} è mappato sul registro \texttt{a0}, l'istruzione corretta per dereferenziarlo (senza alcuno spiazzamento, dato che il puntatore indica esattamente l'elemento attuale) è \texttt{lw a5, 0(a0)}, che carica il valore nel registro di appoggio \texttt{a5}. \\
+    \textbf{Perché scartare le altre:} La (B) usa i registri completamente sbagliati. La (C) usa un offset positivo di \texttt{4}, saltando inavvertitamente il primo elemento dell'array prima ancora di leggerlo. La (D) usa un offset negativo, leggendo fuori dai limiti previsti dell'array.
+
+    % --- DOMANDA 12 ---
+    \item \textbf{Domanda:} Quale combinazione deve sostituire \texttt{X1, X2, X3} per tradurre la copia di \texttt{char} e il break su \texttt{'\textbackslash0'}?
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{X1: lw x7, 0(x6) | X2: sw x7, 0(x28) | X3: beq x7, x0, end}
+        \item \texttt{X1: lbu x7, 0(x6) | X2: sb x7, 0(x28) | X3: bne x7, x0, end}
+        \item \texttt{X1: lbu x7, 0(x6) | X2: sb x7, 0(x28) | X3: beq x7, x0, end}
+        \item \texttt{X1: lbu x6, 0(x7) | X2: sb x28, 0(x7) | X3: beq x7, x0, end}
+    \end{enumerate}
+    \textbf{Risposta corretta: (C)} \\
+    \textbf{Perché è corretta:} Trattandosi di stringhe, i dati sono di tipo \texttt{char} (1 byte). Occorre caricare un singolo byte senza segno (\texttt{lbu}), salvarlo in destinazione (\texttt{sb}) e infine verificare la condizione di uscita. Il C dice \texttt{if (c == '\textbackslash0') break;}, quindi dobbiamo uscire dal ciclo (saltare a \texttt{end}) \textbf{se} il carattere in \texttt{x7} è \textbf{uguale} a zero. L'istruzione per farlo è \texttt{beq x7, x0, end}. \\
+    \textbf{Perché scartare le altre:} La (A) usa \texttt{lw} e \texttt{sw}, che spostano blocchi di 4 byte (parole intere) distruggendo la memoria adiacente alla stringa. La (B) esce dal ciclo se il carattere \textbf{non} è zero (\texttt{bne}), interrompendo la copia al primo carattere valido. La (D) inverte i registri per i puntatori, sovrascrivendo gli indirizzi di memoria.
+
+    % --- DOMANDA 13 ---
+    \item \textbf{Domanda:} Calcola la rappresentazione di -54 in base 10 in complemento a 2 su 8 bit.
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{1101.1100}
+        \item \texttt{1100 1010}
+        \item \texttt{1101 1010}
+        \item \texttt{0011 0110}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (B)} \\
+    \textbf{Perché è corretta:} Si parte dal numero positivo $54_{10}$, che in binario su 8 bit è \texttt{0011 0110} ($32+16+4+2$). Per ottenere il complemento a 2, si fa prima il complemento a 1 (si invertono tutti i bit: \texttt{1100 1001}) e poi si somma 1. Aggiungendo 1, l'ultimo bit diventa 0 con riporto, ottenendo \texttt{1100 1010}. \\
+    \textbf{Perché scartare le altre:} La (A) è formattata come numero a virgola fissa. La (C) presenta un errore di calcolo nel bit di peso 16. La (D) è la rappresentazione del numero positivo $+54$.
+
+    % --- DOMANDA 14 ---
+    \item \textbf{Domanda:} Seleziona la rappresentazione binaria del numero 173.
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{1010 1101}
+        \item \texttt{1011 1101}
+        \item \texttt{1010 1001}
+        \item \texttt{1110 1101}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (A)} \\
+    \textbf{Perché è corretta:} Il metodo più veloce è la somma dei pesi (potenze di 2): $173 = 128 + 32 + 8 + 4 + 1$. Mettendo a \texttt{1} le posizioni corrispondenti a questi pesi e a \texttt{0} le altre (64, 16, 2), si ottiene esattamente la sequenza \texttt{1010 1101}. \\
+    \textbf{Perché scartare le altre:} La (B) vale $189$ (ha il bit del 16 acceso). La (C) vale $169$ (manca il bit del 4). La (D) vale $237$ (ha il bit del 64 acceso).
+
+    % --- DOMANDA 15 ---
+    \item \textbf{Domanda:} Convertire il numero 13.625 in base 10 in binario con rappresentazione a virgola fissa.
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{1101.1100}
+        \item \texttt{1110.1010}
+        \item \texttt{1101.1010}
+        \item \texttt{1101.0101}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (C)} \\
+    \textbf{Perché è corretta:} Si scompone in parte intera e frazionaria. La parte intera 13 è \texttt{1101} ($8+4+1$). La parte frazionaria 0.625 può essere vista come $\frac{1}{2} + \frac{1}{8}$, ovvero $0.5 + 0.125$. Nelle potenze di 2 post-virgola ($2^{-1}, 2^{-2}, 2^{-3}$), questo si traduce in \texttt{1} sul peso del mezzo, \texttt{0} sul quarto, e \texttt{1} sull'ottavo: \texttt{.101}. Unendo e aggiungendo uno zero di \textit{padding} a destra (che non altera il valore) otteniamo \texttt{1101.1010}. \\
+    \textbf{Perché scartare le altre:} La (A) equivale a 13.75 ($\frac{1}{2} + \frac{1}{4}$). La (B) calcola male la parte intera (14). La (D) equivale a 13.3125 ($\frac{1}{4} + \frac{1}{16}$).
+
+    % --- DOMANDA 16 ---
+    \item \textbf{Domanda:} Quale di queste affermazioni è corretta nella comparazione tra architetture CISC e RISC?
+    \begin{enumerate}[label=(\Alph*)]
+        \item Entrambe consentono di avere operandi sia in memoria che nei registri.
+        \item Entrambe codificano le istruzioni con un numero di bit costante.
+        \item L'architettura RISC non supporta operandi ``immediati'', mentre CISC li supporta.
+        \item L'architettura RISC non supporta l'esecuzione di istruzioni diverse in base al valore di verità di una condizione.
+        \item Entrambe dispongono di operazioni che consentono di scambiare dati tra la memoria e i registri.
+    \end{enumerate}
+    \textbf{Risposta corretta: (E)} \\
+    \textbf{Perché è corretta:} Che un'architettura sia basata su istruzioni semplici (RISC) o complesse (CISC), lo scambio di dati tra la memoria centrale e la CPU è un'esigenza fondamentale. Entrambe possiedono operazioni dedicate a questo scopo (come \texttt{load}/\texttt{store} nel RISC-V o \texttt{MOV} nell'x86). \\
+    \textbf{Perché scartare le altre:} La (A) è falsa perché il RISC forza l'uso esclusivo di registri per le operazioni ALU, vietando operandi in memoria. La (B) è falsa perché il CISC (come l'Intel x86) usa istruzioni a lunghezza variabile. La (C) è falsa (il RISC usa moltissimo gli immediati, es. \texttt{addi}). La (D) è falsa (il RISC ha eccome i salti condizionati, es. \texttt{beq}).
+
+    % --- DOMANDA 17 ---
+    \item \textbf{Domanda:} Il registro \texttt{x5} contiene 11. Quale sarà il valore di \texttt{x6} dopo \texttt{slli x6, x5, 2} seguito da \texttt{xori x6, x6, 15}?
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{x6 = 0000 0000 0000 0000 0000 0000 0010 0011}
+        \item \texttt{x6 = 0000 0000 0000 0000 0000 0000 0010 1100}
+        \item \texttt{x6 = 0000 0000 0000 0000 0000 0000 0011 0011}
+        \item \texttt{x6 = 0000 0000 0000 0000 0000 0000 0010 0111}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (A)} \\
+    \textbf{Perché è corretta:} Il valore decimale 11 è \texttt{0000 1011}. L'istruzione \texttt{slli} lo trasla a sinistra di 2 bit, diventando \texttt{0010 1100} (equivalente a moltiplicare per 4, cioè $44$). L'istruzione \texttt{xori} fa un XOR bit a bit con 15 (\texttt{0000 1111}). La regola dell'XOR dice che l'uscita è 1 se e solo se i bit in ingresso sono diversi. Operando \texttt{0010 1100} XOR \texttt{0000 1111}, otteniamo esattamente \texttt{0010 0011} (il valore 35). \\
+    \textbf{Perché scartare le altre:} La (B) ignora completamente il passaggio finale dell'XOR, fermandosi al primo shift. La (C) è il risultato di un'operazione \texttt{OR} invece di \texttt{XOR}. La (D) è il risultato di una banale addizione (\texttt{+15}) invece dell'XOR logico.
+
+    % --- DOMANDA 18 ---
+    \item \textbf{Domanda:} Quale istruzione va inserita al posto di \texttt{X1} nel ciclo \texttt{while(arr[i] != 0)}?
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{bne a4, zero, .L3}
+        \item \texttt{beq a4, zero, .L2}
+        \item \texttt{bne a0, zero, .L3}
+        \item \texttt{beq a5, zero, .L2}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (A)} \\
+    \textbf{Perché è corretta:} \texttt{X1} si trova alla fine del corpo del ciclo, fungendo da condizione per saltare indietro (\texttt{.L3}) e ripetere l'iterazione. L'elemento corrente dell'array è appena stato caricato nel registro \texttt{a4}. Dato che il C richiede di ciclare finché l'elemento è diverso da zero, l'istruzione deve ordinare "salta a .L3 se \texttt{a4} NON È UGUALE a zero", ovvero \texttt{bne a4, zero, .L3}. \\
+    \textbf{Perché scartare le altre:} La (B) salta alla fine del ciclo se il valore è zero; sebbene logicamente corretto per uscire, posizionata in \texttt{X1} richiederebbe poi un salto incondizionato esplicito per tornare su, allungando il codice inutilmente. La (C) controlla il contatore \texttt{a0} invece dell'elemento letto dalla memoria. La (D) controlla l'indirizzo del puntatore \texttt{a5}, non il dato che esso contiene.
+
+    % --- DOMANDA 19 ---
+    \item \textbf{Domanda:} Effettua la seguente sottrazione in binario: \texttt{1010 1100 - 0101 0111}.
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{0101 0101}
+        \item \texttt{0101 1101}
+        \item \texttt{0110 0101}
+        \item \texttt{0100 0101}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (A)} \\
+    \textbf{Perché è corretta:} Eseguendo la sottrazione colonna per colonna da destra verso sinistra e gestendo i prestiti (borrow), si ottiene \texttt{0101 0101}. Un metodo di riprova infallibile è convertire i numeri in base 10: $172 - 87 = 85$. Convertendo 85 in binario ($64 + 16 + 4 + 1$) otteniamo proprio \texttt{0101 0101}. \\
+    \textbf{Perché scartare le altre:} Le altre opzioni presentano semplici errori aritmetici nella propagazione dei prestiti tra i bit adiacenti.
+
+    % --- DOMANDA 20 ---
+    \item \textbf{Domanda:} Rappresenta il numero decimale -5.75 nella codifica dello standard IEEE-754 a singola precisione (32 bit).
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{0100 0000 1011 1000 0000 0000 0000 0000}
+        \item \texttt{1100 0000 1101 1000 0000 0000 0000 0000}
+        \item \texttt{1100 0000 1011 1000 0000 0000 0000 0000}
+        \item \texttt{1100 0001 0011 1000 0000 0000 0000 0000}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (C)} \\
+    \textbf{Perché è corretta:} 1) Segno: negativo $\rightarrow$ \texttt{1}. 2) Conversione di 5.75 in binario: \texttt{101.11}. 3) Normalizzazione: spostiamo la virgola di 2 posizioni $\rightarrow 1.0111 \times 2^2$. 4) Esponente con Bias: l'esponente base è 2, sum bias (127) = 129. 129 in binario è \texttt{1000 0001}. 5) Mantissa: prendiamo \texttt{0111} (rimuovendo l'1 implicito) e riempiamo con zeri fino a 23 bit. Mettendo in fila i campi [1] [10000001] [01110000...] e raggruppando a blocchi di 4, otteniamo esattamente l'opzione C. \\
+    \textbf{Perché scartare le altre:} La (A) imposta il bit di segno a \texttt{0} (come fosse positivo). La (B) riporta una mantissa sbagliata (presume una frazione diversa da .75). La (D) ha un esponente pari a 130 anziché 129 (corrisponderebbe al numero -11.5).
+
+    % --- DOMANDA 21 ---
+    \item \textbf{Domanda:} Converti il numero decimale positivo 213 nella sua rappresentazione binaria.
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{1101 0101}
+        \item \texttt{1100 0101}
+        \item \texttt{1101 0011}
+        \item \texttt{1110 0101}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (A)} \\
+    \textbf{Perché è corretta:} Utilizzando il metodo delle potenze decrescenti di due: $213 - 128 = 85$. $85 - 64 = 21$. $21 - 16 = 5$. $5 - 4 = 1$. $1 - 1 = 0$. Le potenze utilizzate sono 128, 64, 16, 4, 1. Accendendo i bit corrispondenti (\texttt{1}) e tenendo spenti gli altri (\texttt{0}), la sequenza prodotta è \texttt{1101 0101}. \\
+    \textbf{Perché scartare le altre:} Ciascuna opzione errata somma un totale differente: la (B) equivale a $197$, la (C) a $211$ e la (D) a $229$.
+
+    % --- DOMANDA 22 ---
+    \item \textbf{Domanda:} Quale istruzione va inserita al posto di \texttt{X1} nel calcolo del \texttt{max(a, b)}?
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{blt a0, a1, .L2}
+        \item \texttt{bgt a0, a1, .L2}
+        \item \texttt{bge a0, a1, .L2}
+        \item \texttt{bne a0, a1, .L2}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (C)} \\
+    \textbf{Perché è corretta:} La logica Assembly assume temporaneamente che \texttt{a} (in \texttt{a0}) sia il massimo copiandolo in \texttt{a5}. L'istruzione \texttt{X1} decide se dobbiamo scavalcare (saltare) il ramo dell'\textit{else} (che eleggerebbe \texttt{b} come massimo). Dato che il C dice \texttt{if (a > b)}, dobbiamo saltare l'\textit{else} se e solo se la condizione \texttt{a >= b} è vera (che copre sia \texttt{a > b} sia \texttt{a == b}, per cui è indifferente chi dei due restituiamo). Pertanto l'istruzione per "saltare a .L2 se \texttt{a0 >= a1}" è \texttt{bge a0, a1, .L2}. \\
+    \textbf{Perché scartare le altre:} La (A) salterebbe l'\textit{else} se \texttt{a < b}, producendo il risultato opposto (la funzione restituirebbe il minimo). La (B) salta se \texttt{a > b}, ma fallirebbe nel caso in cui siano uguali (eseguendo un passaggio inutile o creando potenziali inefficienze logiche). La (D) salta sulla disuguaglianza pura, un criterio non adatto a un operatore maggiore/minore.
+
+    % --- DOMANDA 23 ---
+    \item \textbf{Domanda:} Quale istruzione va inserita al posto di \texttt{X1} per avanzare di tre posizioni nel ciclo \texttt{somma\_ogni\_tre}?
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{addi a5, a5, 3}
+        \item \texttt{slli a5, a5, 2}
+        \item \texttt{addi a5, a5, 12}
+        \item \texttt{addi a4, a4, 12}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (C)} \\
+    \textbf{Perché è corretta:} \texttt{X1} si occupa di aggiornare il \textit{puntatore} base dell'array (\texttt{a5}) in modo che alla successiva iterazione l'istruzione \texttt{lw} legga l'elemento tre celle più avanti. In C, gli array di \texttt{int} usano celle di 4 byte ciascuna. Avanzare di 3 posizioni significa spostarsi in avanti di $3 \times 4 = 12$ byte fisici in memoria. L'istruzione corretta somma quindi 12 all'indirizzo in \texttt{a5}. \\
+    \textbf{Perché scartare le altre:} La (A) somma 3 byte, disallineando la lettura e corrompendo l'accesso alla memoria. La (B) moltiplica per 4 l'intero indirizzo base fisico, distruggendolo del tutto. La (D) altera l'indice del ciclo (\texttt{a4}), che invece l'Assembly precedente aggiornava già correttamente di +3 dal punto di vista logico.
+
+    % --- DOMANDA 24 ---
+    \item \textbf{Domanda:} Quale istruzione va inserita al posto di \texttt{X1} per implementare il costrutto \texttt{if(arr[i] > 0)}?
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{bge a4, zero, .L3}
+        \item \texttt{ble a4, zero, .L3}
+        \item \texttt{bgt a4, zero, .L3}
+        \item \texttt{blt a4, zero, .L3}
+        \item Nessuna delle risposte
+    \end{enumerate}
+    \textbf{Risposta corretta: (B)} \\
+    \textbf{Perché è corretta:} Come di consueto in Assembly, per decidere se eseguire o meno un blocco \texttt{if}, si valuta la \textbf{condizione opposta} rispetto al codice C. L'obiettivo è saltare l'operazione di incremento del contatore (\texttt{count++}) e passare alla successiva iterazione (\texttt{j .L3}). La condizione opposta a "maggiore di zero" (\texttt{> 0}) è "minore o uguale a zero" (\texttt{<= 0}). L'istruzione per "salta se \texttt{a4} è minore o uguale a zero" è \texttt{ble a4, zero, .L3}. \\
+    \textbf{Perché scartare le altre:} La (A) e la (C) si basano sulla condizione diritta e non opposta, il che comporterebbe il salto del blocco proprio quando andrebbe eseguito. La (D) salta unicamente se il numero è strettamente negativo, fallendo però nel caso in cui il numero sia esattamente zero (che non va conteggiato e quindi richiederebbe di saltare il blocco).
+
+\end{enumerate}
+
+
+\end{document}
