@@ -10,6 +10,8 @@
 \usepackage{booktabs}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{array}
+\usepackage{float}
 
 \geometry{margin=2.5cm}
 
@@ -68,11 +70,6 @@ Un calcolatore è composto da quattro elementi principali:
 \end{enumerate}
 \section{Aritmetica dei Calcolatori}
 
-\begin{itemize}
-    \item \textbf{Corso}: CALCOLATORI - Aritmetica dei Calcolatori. 
-    \item \textbf{Docente}: Giovanni Iacca (basato su materiale del Prof. Luca Abeni). 
-    \item \textbf{Istituto}: Università degli Studi di Trento, Dipartimento di Ingegneria e Scienza dell'Informazione. 
-\end{itemize}
 
 \subsection{Informazione nei Computer e Codifica}
 
@@ -131,6 +128,8 @@ Dovendo rappresentare numeri interi $z \in \mathcal{Z}$, si utilizzano diverse t
     \item Questi comportamenti si basano sull'aritmetica modulare (classi di equivalenza modulo $2^k$), simile ai numeri sul quadrante di un orologio. 
 \end{itemize}
 
+\newpage
+
 \subsection{Rappresentazione dei Numeri Reali}
 
 Non essendo sempre possibile rappresentare un numero reale con un numero finito di bit (es. numeri irrazionali), si utilizzano delle approssimazioni. 
@@ -144,15 +143,48 @@ Non essendo sempre possibile rappresentare un numero reale con un numero finito 
 
 \subsubsection*{Virgola Mobile (Floating Point - IEEE 754)}
 \begin{itemize}
-    \item Un numero reale si esprime come $x = M \cdot B^E$ (in informatica la base $B=2$), dove $M$ è la mantissa e $E$ l'esponente. 
-    \item Lo standard IEEE 754 utilizza una codifica normalizzata in C per esponenti traslati $E' = E + 2^{e-1} - 1$. 
-    \item \textbf{Numeri Normalizzati}: Si usano quando $E' > 0$. La mantissa viene rappresentata con la forma $1.M$ e l'esponente vale $E = E' - (2^{e-1} - 1)$. 
-    \item \textbf{Numeri Denormalizzati}: Si usano quando $E' = 0$, per gestire l'underflow vicini allo zero. La mantissa assume forma $0.M$. 
+    \item Un numero reale si esprime come $x = M \cdot B^E$ (in informatica la base $B=2$), dove $M$ è la mantissa e $E$ l'esponente.
+    \begin{itemize}
+        \item \textit{Esempio concettuale:} Il numero $6.5_{10}$ si può scrivere in base 2 come $110.1_2$, che normalizzato diventa $1.101_2 \cdot 2^2$. In questo caso, la mantissa $M$ è $1.101$ e l'esponente $E$ è $2$.
+    \end{itemize}
+    
+    \item Lo standard IEEE 754 utilizza una codifica normalizzata in C per esponenti traslati $E' = E + \textit{bias}$, dove il bias per la precisione singola (32 bit, con $e=8$ bit di esponente) è $2^{8-1} - 1 = 127$.
+    \begin{itemize}
+        \item \textit{Esempio di traslazione:} Se l'esponente reale $E$ è $2$, l'esponente codificato $E'$ sarà $2 + 127 = 129_{10}$, che in binario si scrive \texttt{10000001}.
+    \end{itemize}
+
+    \item \textbf{Numeri Normalizzati}: Si usano quando $E' > 0$ e $E' < 255$ (per i 32 bit). La mantissa viene rappresentata con la forma implicita $1.M$ (l'1 prima della virgola non viene memorizzato per risparmiare un bit) e l'esponente vale $E = E' - 127$.
+    \begin{itemize}
+        \item \textit{Esempio di codifica (Singola Precisione per $6.5_{10}$):} 
+        \begin{itemize}
+            \item Segno: $0$ (positivo)
+            \item Esponente $E'$: $129_{10} \rightarrow$ \texttt{10000001}
+            \item Mantissa $M$ (frazionaria): $101$ (l'1 iniziale è implicito) riempita di zeri $\rightarrow$ \texttt{10100000000000000000000}
+            \item Codifica finale: \texttt{0 10000001 10100000000000000000000}
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Numeri Denormalizzati}: Si usano quando $E' = 0$ (tutti i bit dell'esponente sono a zero), per gestire il \textit{gradual underflow} vicini allo zero. La mantissa assume forma implicita $0.M$ e l'esponente reale è fissato a $E = 1 - \textit{bias}$ (ovvero $-126$ per la precisione singola).\\
+    \begin{itemize} 
+        \item \textit{Esempio:} Una sequenza \texttt{0 00000000 00000000000000000000001} rappresenta il numero positivo più piccolo rappresentabile. L'esponente è $-126$, e la mantissa è $0.00...01_2 = 2^{-23}$. Il valore è $2^{-23} \cdot 2^{-126} = 2^{-149} \approx 1.4 \cdot 10^{-45}$.
+    \end{itemize}
+
     \item \textbf{Casi Particolari}:
     \begin{itemize}
-        \item \textbf{Zero}: Esponente 0 e mantissa 0. 
-        \item \textbf{Infinito}: Esponente tutto a 1 (es. 255 per float 32-bit) e mantissa 0. 
-        \item \textbf{NaN (Not a Number)}: Esponente tutto a 1 e mantissa diversa da zero. 
+        \item \textbf{Zero}: Esponente tutto a 0 ($E'=0$) e mantissa tutta a 0 ($M=0$).
+        \begin{itemize}
+            \item \textit{Esempio:} \texttt{0 00000000 00000000000000000000000} è lo zero positivo ($+0$).
+        \end{itemize}
+        
+        \item \textbf{Infinito ($\pm\infty$)}: Esponente tutto a 1 (es. 255 per float 32-bit: \texttt{11111111}) e mantissa tutta a 0.
+        \begin{itemize}
+            \item \textit{Esempio:} \texttt{1 11111111 00000000000000000000000} rappresenta il meno infinito ($-\infty$), risultato per esempio di una divisione per zero come $-1.0 / 0.0$.
+        \end{itemize}
+        
+        \item \textbf{NaN (Not a Number)}: Esponente tutto a 1 e mantissa diversa da zero. Rappresenta risultati indefiniti.
+        \begin{itemize}
+            \item \textit{Esempio:} \texttt{0 11111111 10000000000000000000000}. Viene prodotto da operazioni matematiche invalide, come $\sqrt{-1}$ o $0/0$.
+        \end{itemize}
     \end{itemize}
 \end{itemize}
 
@@ -471,6 +503,7 @@ $53_{10} = 00110101_2$ \\
 \hrule
 \vspace{0.5cm}
 
+\newpage
 % --- PAGINA 13 ---
 \subsection*{Domanda 58: Virgola Fissa a Decimale}
 Convertire in decimale il binario a virgola fissa $1001110.0011_2$
@@ -660,6 +693,7 @@ $S=1$ | $e=10000101$ | $m=11101101010000000000000$
 \hrule
 \vspace{0.5cm}
 
+\newpage
 % --- PAGINA 20 ---
 \subsection*{Domanda 76: Conversione IEEE754}
 Rappresentare il decimale $5462.875$ secondo lo standard IEEE754.
@@ -688,9 +722,15 @@ Rappresentare il decimale $5462.875$ secondo lo standard IEEE754.
 $S=0$ | $e=10001011$ | $m=01010101011011100000000$ \\
 $\rightarrow$ Opzione \#4.
 
+
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+
 \section{Cenni alle Reti Logiche}
 
-L'obiettivo principale di questo corso è mostrare come funziona, e come si progetta, un calcolatore. Per fare ciò, è necessaria una piccola digressione su come si progettano i circuiti logici.
 
 \subsection{Valori Logici ed Elettronica}
 I computer moderni sono realizzati tramite circuiti elettronici. Trattandosi di elementi digitali avremo due livelli fondamentali:
@@ -699,12 +739,25 @@ I computer moderni sono realizzati tramite circuiti elettronici. Trattandosi di 
     \item \textbf{Basso, negato (0)}: Associato alla massa, ovvero a una tensione nulla.
 \end{itemize}
 Altri livelli di tensione sono considerati non significativi e vengono assunti solo in fase transitoria.
-
 \subsection{Tipologie di Reti Logiche}
-Le reti logiche sono circuiti che trasformano alcuni valori logici in ingresso in altri valori logici in uscita. Si dividono in due tipi principali:
+Le reti logiche sono circuiti elettronici digitali che trasformano uno o più segnali logici in ingresso in segnali logici in uscita. A seconda della presenza o meno di elementi in grado di conservare l'informazione nel tempo, si dividono in due macro-categorie principali:
+
 \begin{itemize}
-    \item \textbf{Reti Combinatorie}: Rappresentano una relazione funzionale tra ingresso e uscita. Non hanno memoria, poiché l'uscita dipende solo dal valore attuale dell'ingresso. Possono essere specificate tramite una \textit{tabella di verità}.
-    \item \textbf{Reti Sequenziali}: L'uscita dipende dalla storia degli ingressi passati e non solo dal valore attuale. Esse possiedono una memoria, definita anche come \textit{stato} della rete.
+    \item \textbf{Reti Combinatorie}: Rappresentano una relazione puramente funzionale (matematica) tra ingresso e uscita.
+    \begin{itemize}
+        \item \textbf{Funzionamento:} Non possiedono memoria. Il valore delle uscite in un dato istante dipende \textit{esclusivamente} dai valori degli ingressi in quello stesso istante (trascurando i fisiologici ritardi di propagazione elettrica dei componenti).
+        \item \textbf{Struttura costruttiva:} Il flusso dei dati è unidirezionale. Non presentano alcun anello di retroazione (feedback loop), ovvero l'uscita di una porta non è mai collegata all'ingresso di una porta che la precede.
+        \item \textbf{Rappresentazione logica:} Possono essere descritte in modo esaustivo tramite espressioni dell'Algebra di Boole o tramite una \textit{Tabella di Verità}.
+        \item \textbf{Esempi applicativi:} Multiplexer (MUX), Decoder, codificatori, e i circuiti della ALU (Arithmetic Logic Unit) impiegati per operazioni come addizioni (sommatori) e sottrazioni.
+    \end{itemize}
+    
+    \item \textbf{Reti Sequenziali}: Sono circuiti dinamici in cui l'uscita è influenzata non solo dalle condizioni attuali, ma anche dalla "storia" degli ingressi passati.
+    \begin{itemize}
+        \item \textbf{Funzionamento:} Possiedono una memoria interna, definita come \textit{stato} della rete. L'uscita in un dato momento e l'evoluzione verso lo stato successivo dipendono dalla combinazione degli ingressi attuali e dello stato presente.
+        \item \textbf{Struttura costruttiva:} Sfruttano il principio della \textit{retroazione} (feedback): alcuni segnali di uscita vengono reimmessi nel circuito come ingressi. Per evitare instabilità (race condition), il loro aggiornamento è quasi sempre governato e temporizzato da un segnale globale detto \textit{Clock} (reti sequenziali sincrone).
+        \item \textbf{Rappresentazione logica:} La tabella di verità non è sufficiente. Si modellano come Macchine a Stati Finiti (FSM, come gli automi di Mealy e Moore) e si descrivono tramite tabelle di transizione e diagrammi degli stati.
+        \item \textbf{Esempi applicativi:} Latch, Flip-Flop (le celle base della memoria), Registri della CPU, contatori e le memorie centrali (RAM).
+    \end{itemize}
 \end{itemize}
 
 \subsection{Algebra di Boole e Porte Logiche}
@@ -890,7 +943,7 @@ Tradizionalmente le ISA RISC offrono modalità di indirizzamento più semplici, 
 L'architettura RISC-V si basa su uno specifico set di operandi e istruzioni che permettono l'interazione tra processore e memoria, l'esecuzione di calcoli aritmetico-logici e il controllo del flusso del programma.
 
 \subsection{Operandi RISC-V}
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \begin{tabular}{l l p{10cm}}
 \toprule
@@ -905,7 +958,7 @@ Memoria & \texttt{Memoria[0]}, & Alla memoria si accede solamente attraverso ist
 \end{table}
 
 \subsection{Istruzioni Aritmetiche e di Trasferimento Dati}
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l l l p{6cm}}
@@ -936,11 +989,12 @@ Trasferimento dati & \texttt{lui x5, 0x12345} & $x5 = 0x12345000$ & Caricamento 
 }
 \end{table}
 
-\subsection{Linguaggio Assembler: Istruzioni Logiche, Scorrimento e Salti}
-\begin{table}[htbp]
+\subsection{Linguaggio Assembler: Istruzioni}
+\begin{table}[H]
 \centering
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{l l l p{5.5cm}}
+% Usa \raggedright per allineare a sinistra ed evitare buchi enormi tra le parole
+\begin{tabular}{l l l >{\raggedright\arraybackslash}p{6cm}}
 \toprule
 \textbf{Tipo di istruzioni} & \textbf{Istruzioni (Esempio)} & \textbf{Significato} & \textbf{Commenti} \\
 \midrule
@@ -1282,7 +1336,8 @@ slli x10, x11, 3  % a = b << 3 (equivale ad a = b * 8)
 \begin{verbatim}
 ld x9, 16(x22)    % Carica A[2] (indice 2 * 8 = offset 16)
 add x9, x21, x9   % Somma h con A[2]
-sd x9, 32(x22)    % Salva il risultato in A[4] (indice 4 * 8 = offset 32)
+sd x9, 32(x22)    % Salva il risultato in A[4] 
+                  % (indice 4 * 8 = offset 32)
 \end{verbatim}
 \end{itemize}
 
@@ -1627,8 +1682,98 @@ sll x5, x5, x6
     \textbf{Risposta corretta: (B)} \\
     \textbf{Perché è corretta:} Come di consueto in Assembly, per decidere se eseguire o meno un blocco \texttt{if}, si valuta la \textbf{condizione opposta} rispetto al codice C. L'obiettivo è saltare l'operazione di incremento del contatore (\texttt{count++}) e passare alla successiva iterazione (\texttt{j .L3}). La condizione opposta a "maggiore di zero" (\texttt{> 0}) è "minore o uguale a zero" (\texttt{<= 0}). L'istruzione per "salta se \texttt{a4} è minore o uguale a zero" è \texttt{ble a4, zero, .L3}. \\
     \textbf{Perché scartare le altre:} La (A) e la (C) si basano sulla condizione diritta e non opposta, il che comporterebbe il salto del blocco proprio quando andrebbe eseguito. La (D) salta unicamente se il numero è strettamente negativo, fallendo però nel caso in cui il numero sia esattamente zero (che non va conteggiato e quindi richiederebbe di saltare il blocco).
+    
+        % --- DOMANDA 1 ---
+    \item \textbf{Domanda:} Indicare l'esatto corrispondente in binario di $643_{10}$
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{0011 1100 0011}$_2$
+        \item Nessuna delle altre risposte
+        \item \texttt{0011 1000 0011}$_2$
+        \item Non rispondo alla domanda (nessuna penalità sarà applicata per questa scelta)
+        \item \texttt{0010 1000 0011}$_2$
+        \item \texttt{0010 1100 0011}$_2$
+    \end{enumerate}
+    \textbf{Risposta corretta: (E)} \\
+    \textbf{Perché è corretta:} Il numero decimale 643 si scompone nelle potenze di due come $512 + 128 + 2 + 1$, ovvero $2^9 + 2^7 + 2^1 + 2^0$. Posizionando i bit a \texttt{1} esattamente in questi pesi e a \texttt{0} negli altri, si ottiene la sequenza binaria \texttt{0010 1000 0011}$_2$. \\
+    \textbf{Perché scartare le altre:} Le altre opzioni presentano semplici errori di calcolo, tenendo accesi bit (come quello del peso 256 o 64) che porterebbero a somme diverse da 643.
+    
+    % --- DOMANDA 2 ---
+    \item \textbf{Domanda:} Usando la rappresentazione binaria, svolgere la sottrazione: \\ $\texttt{1110 1100 0110 1010 0011}_2 - \texttt{0101 1001 1110 1001 0111}_2$
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{0000 0110 0110 0101 0011 1010}$_2$
+        \item \texttt{0000 0100 0110 0101 0011 1010}$_2$
+        \item \texttt{0001 0100 0110 0101 0111 1010}$_2$
+        \item Non rispondo alla domanda (nessuna penalità sarà applicata per questa scelta)
+        \item Nessuna delle altre risposte
+        \item \texttt{0001 0100 0110 0101 0011 1010}$_2$
+    \end{enumerate}
+    \textbf{Risposta corretta: (E)} \\
+    \textbf{Perché è corretta:} Svolgendo realmente l'operazione di \textit{sottrazione} richiesta dai prestiti (borrow), il risultato corretto è $\texttt{1001 0010 1000 0000 1100}_2$. Dato che questo valore non compare in nessuna delle alternative esplicite, l'unica scelta corretta è "Nessuna delle altre risposte". \\
+    \textbf{Perché scartare le altre:} L'opzione (F) rappresenta il risultato dell'\textit{addizione} tra i due numeri, suggerendo un refuso nel testo originario del test da parte del docente. Le restanti stringhe presentano palesi errori di propagazione dei riporti.
+    
+    % --- DOMANDA 3 ---
+    \item \textbf{Domanda:} Rappresentare il decimale 0.12 secondo lo standard IEEE754 a singola precisione.
+    \begin{enumerate}[label=(\Alph*)]
+        \item \texttt{0011 1101 1111 0101 1100 0010 1000 1111}
+        \item \texttt{0011 1111 1111 0111 1100 0010 1000 1111}
+        \item Non rispondo alla domanda (nessuna penalità sarà applicata per questa scelta)
+        \item Nessuna delle altre risposte
+        \item \texttt{0011 1101 1111 0101 1111 1010 1000 1111}
+        \item \texttt{0011 1111 1011 1101 1100 0010 1000 1111}
+    \end{enumerate}
+    \textbf{Risposta corretta: (A)} \\
+    \textbf{Perché è corretta:} Il numero è positivo (Segno = \texttt{0}). Convertendo la parte frazionaria 0.12 in binario si ottiene un valore periodico. Normalizzandolo si arriva alla forma $1.1110101... \times 2^{-4}$. L'esponente traslato con il bias (127) è $127 - 4 = 123_{10} = \texttt{01111011}_2$. Arrotondando e riempiendo la mantissa per 23 bit si ottiene esattamente l'unione corrispondente all'opzione A. \\
+    \textbf{Perché scartare le altre:} Le altre stringhe differiscono per l'esponente (calcolato erroneamente) o riportano sezioni di mantissa palesemente incoerenti con la moltiplicazione frazionaria.
+    
+    % --- DOMANDA 4 ---
+    \item \textbf{Domanda:} Il registro \texttt{x8} contiene il valore: \\ $\texttt{x8} = \texttt{1110 0000 0000 0000 0000 0000 0000 1110}$. \\ Considerando le operazioni a 32 bit (suffisso "w"), quale valore conterrà \texttt{x8} dopo queste istruzioni?\\
+    \begin{verbatim}
+    slliw x8, x8, 4
+    srliw x5, x8, 8
+    xor x8, x8, x5
+    \end{verbatim}
+    \begin{enumerate}[label=(\Alph*)]
+        \item $\texttt{x8} = \texttt{0000 0000 0000 0000 1110 0000 0000 0000}$
+        \item Non rispondo alla domanda (nessuna penalità sarà applicata per questa scelta)
+        \item $\texttt{x8} = \texttt{0000 0000 0000 1110 0000 0000 0000 1110}$
+        \item $\texttt{x8} = \texttt{1110 0000 0000 0000 0000 0000 1110 1110}$
+        \item Nessuna delle altre risposte
+        \item $\texttt{x8} = \texttt{0000 0000 0000 0000 0000 0000 1110 0000}$
+    \end{enumerate}
+    \textbf{Risposta corretta: (F)} \\
+    \textbf{Perché è corretta:} Il suffisso "w" tronca le operazioni ai 32 bit bassi (che inizialmente sono \texttt{0000000E} in hex). \texttt{slliw x8, x8, 4} shifta a sinistra di 4 bit, facendo diventare i 32 bit bassi di \texttt{x8} pari a \texttt{000000E0}. \texttt{srliw x5, x8, 8} shifta a destra \texttt{x8} di 8 posizioni, inserendo in \texttt{x5} solo zeri (\texttt{00000000}). Infine, \texttt{xor x8, x8, x5} applica uno XOR con zero, lasciando il valore di \texttt{x8} invariato a \texttt{000000E0} (ovvero sedici zeri, e poi \texttt{1110 0000}). \\
+    \textbf{Perché scartare le altre:} Le altre opzioni non tengono conto del troncamento a 32 bit (eseguendo lo shift sull'intera word a 64 bit e riportando l'1 iniziale) o omettono lo shift logico finale.
+    
+    % --- DOMANDA 5 ---
+    \item \textbf{Domanda:} Quale delle seguenti affermazioni NON è FALSA quando si parla di una CPU CISC?
+    \begin{enumerate}[label=(\Alph*)]
+        \item Fornisce solo una modalità di indirizzamento.
+        \item Nessuna delle altre risposte
+        \item Gli operandi di ogni operazione possono essere contenuti solo nei registri.
+        \item Tutte le istruzioni Assembly sono codificate su un numero variabile di bit.
+        \item La destinazione di un'operazione non può essere una posizione in memoria.
+        \item Non rispondo alla domanda (nessuna penalità sarà applicata per questa scelta)
+    \end{enumerate}
+    \textbf{Risposta corretta: (D)} \\
+    \textbf{Perché è corretta:} Le CPU con architettura CISC (Complex Instruction Set Computer) hanno la peculiarità di possedere set di istruzioni eterogenei e molto complessi. Per accomodare queste istruzioni senza sprecare spazio in memoria, la loro codifica avviene su una lunghezza variabile di bit (al contrario dell'approccio RISC che usa una codifica a dimensione fissa, solitamente 32 bit). \\
+    \textbf{Perché scartare le altre:} Le opzioni (A), (C) ed (E) sono descrizioni esatte dei vincoli rigorosi di un'architettura RISC (poche modalità di indirizzamento e logica \textit{load/store} che forza le operazioni solo sui registri).
+    
+    % --- DOMANDA 6 ---
+    \item \textbf{Domanda:} Il compilatore fornisce la seguente traduzione in assembly RISC-V della funzione \texttt{sumV} (che somma gli elementi di array). Quale delle coppie \texttt{X1} e \texttt{X2} proposte corrisponde alle righe corrette per sostituire i segnaposto nel codice?
+    \begin{enumerate}[label=(\Alph*)]
+        \item Non rispondo alla domanda (nessuna penalità sarà applicata per questa scelta)
+        \item Nessuna delle altre risposte
+        \item \texttt{X1: beq a3, zero, FOR} | \texttt{X2: blt a7, a3, END}
+        \item \texttt{X1: beq a3, a7, FOR} | \texttt{X2: blt a7, zero, END}
+        \item \texttt{X1: beq a3, a7, END} | \texttt{X2: blt a7, zero, FOR}
+        \item \texttt{X1: beq a3, zero, END} | \texttt{X2: blt a7, a3, FOR}
+    \end{enumerate}
+    \textbf{Risposta corretta: (F)} \\
+    \textbf{Perché è corretta:} La variabile \texttt{size} dell'array si trova in \texttt{a3}. L'istruzione \texttt{X1} è la guardia in testa al programma: se la dimensione dell'array è zero (\texttt{size == 0}), il codice deve saltare il ciclo interamente (\texttt{beq a3, zero, END}). L'istruzione \texttt{X2} è il check finale del \texttt{for}: controlla se il contatore \texttt{i} (mappato in \texttt{a7}) è minore della dimensione \texttt{a3}. Finché è strettamente minore, deve risaltare all'etichetta del ciclo (\texttt{blt a7, a3, FOR}). \\
+    \textbf{Perché scartare le altre:} (C) inverte i target dei branch (il ciclo diventerebbe infinito al termine e la guardia fallirebbe in partenza). (D) ed (E) mettono a confronto \texttt{a3} con \texttt{a7} all'inizio (prima ancora che \texttt{a7} venga inizializzato a 0 dal compilatore) creando check insensati.
 
 \end{enumerate}
+
 
 
 \end{document}
