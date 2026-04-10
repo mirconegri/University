@@ -8,24 +8,63 @@
 \usepackage{geometry}
 \usepackage{enumitem}
 \usepackage{booktabs}
-\usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{array}
 \usepackage{float}
 
-\geometry{margin=2.5cm}
+% --- Impostazioni Colori ---
+\usepackage{xcolor}
+\pagecolor{black} 
+\color{white}     
 
-\title{Appunti di Calcolatori - Introduzione}
-\author{Trascrizione dalle fonti del corso}
-\date{}
+% --- Impostazioni Link ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=white, 
+    urlcolor=cyan    
+}
+
+\geometry{margin=2.5cm}
 
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+    \centering
+    \vspace*{3cm} 
+    
+    {\scshape\LARGE Università degli Studi di Trento \par}
+    \vspace{0.5cm}
+    {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
+    
+    \vspace{2cm}
+    
+    \rule{\textwidth}{0.8pt}\vspace{0.5cm}
+    {\Huge\bfseries Appunti di Calcolatori \par}
+    \vspace{0.3cm}
+    {\Large\itshape Primo parziale \par}
+    \vspace{0.4cm}\rule{\textwidth}{0.8pt}
+    
+    \vspace{3cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\large
+    \ifcase\month\or
+    Gennaio\or Febbraio\or Marzo\or Aprile\or Maggio\or Giugno\or
+    Luglio\or Agosto\or Settembre\or Ottobre\or Novembre\or Dicembre\fi
+    \space \the\year \par
+    }
+\end{titlepage}
 
 % --- Generazione dell'Indice ---
 \tableofcontents
 \newpage
+
 
 \section{Introduzione ai Calcolatori}
 
