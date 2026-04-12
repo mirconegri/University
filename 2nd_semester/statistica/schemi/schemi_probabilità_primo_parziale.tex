@@ -12,14 +12,14 @@
 
 % --- Impostazioni Colori ---
 \usepackage{xcolor}
-\pagecolor{white} 
-\color{black}     
+\pagecolor{black} 
+\color{white}     
 
 % --- Impostazioni Link ---
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
-    linkcolor=black, 
+    linkcolor=white, 
     urlcolor=cyan    
 }
 
@@ -980,156 +980,156 @@ In \texttt{R}: \texttt{pnbinom(q=7, size=3, prob=0.639)}.
 \section{Lezione 1: Introduzione alla Probabilità}
 
 \subsection{Struttura del Corso e Concetti Introduttivi}
-Il corso di Probabilità e Statistica (il cui testo di riferimento è il \textit{Probabilità e Statistica} di Ross [cite: 271]) è strutturato in due macro-argomenti:
+Il corso di Probabilità e Statistica (il cui testo di riferimento è il \textit{Probabilità e Statistica} di Ross ) è strutturato in due macro-argomenti:
 \begin{itemize}
-    \item \textbf{Probabilità (70\%):} Comprende l'introduzione alla probabilità, gli assiomi, la probabilità condizionata, l'indipendenza stocastica, le variabili aleatorie e i teoremi limite[cite: 290, 293, 294, 295, 296, 297, 298].
-    \item \textbf{Statistica Inferenziale parametrica (30\%):} Comprende la stima puntuale e intervallare, la verosimiglianza, la verifica delle ipotesi e il modello lineare[cite: 291, 292, 300, 301, 302, 304, 305].
+    \item \textbf{Probabilità (70\%):} Comprende l'introduzione alla probabilità, gli assiomi, la probabilità condizionata, l'indipendenza stocastica, le variabili aleatorie e i teoremi limite.
+    \item \textbf{Statistica Inferenziale parametrica (30\%):} Comprende la stima puntuale e intervallare, la verosimiglianza, la verifica delle ipotesi e il modello lineare.
 \end{itemize}
 
-Più in generale, Probabilità e Statistica sono rami della Matematica che studiano fenomeni soggetti a variabilità o incertezza[cite: 7, 8]. La statistica si divide tipicamente in \textbf{Descrittiva} (sintesi di informazioni sull'intera popolazione senza modelli probabilistici) e \textbf{Inferenziale} (costruzione di modelli a partire da un campione limitato per formulare previsioni)[cite: 14, 15, 16, 18, 19].
+Più in generale, Probabilità e Statistica sono rami della Matematica che studiano fenomeni soggetti a variabilità o incertezza. La statistica si divide tipicamente in \textbf{Descrittiva} (sintesi di informazioni sull'intera popolazione senza modelli probabilistici) e \textbf{Inferenziale} (costruzione di modelli a partire da un campione limitato per formulare previsioni).
 
 \subsection{L'Esperimento Aleatorio}
-\textbf{Definizione (Esperimento Aleatorio o Casuale):} Un esperimento si dice aleatorio per un certo individuo, in un certo istante, se tale individuo non è ancora in grado di indicarne con sicurezza il risultato[cite: 65, 320]. Questo è indipendente dal fatto che l'esperimento sia già avvenuto o debba ancora avvenire[cite: 320].
+\textbf{Definizione (Esperimento Aleatorio o Casuale):} Un esperimento si dice aleatorio per un certo individuo, in un certo istante, se tale individuo non è ancora in grado di indicarne con sicurezza il risultato. Questo è indipendente dal fatto che l'esperimento sia già avvenuto o debba ancora avvenire.
 
 \paragraph{Esempio: Le guarnizioni (O-ring)}
-Supponiamo di avere una scatola contenente 90 O-ring: 30 di diametro 9 mm, 30 di 10 mm e 30 di 11 mm[cite: 37, 308, 309, 310]. Qual è la probabilità di estrarre un O-ring da 9 mm? 
-Ad un primo sguardo si potrebbe rispondere $\frac{1}{3}$[cite: 313, 314]. Tuttavia, la probabilità dipende strettamente da \textit{come} avviene l'estrazione ("dalla mano che usiamo")[cite: 39, 318]. Se peschiamo bendati e senza tastare, la probabilità è effettivamente di $\frac{1}{3}$[cite: 40, 44, 47, 50]. Se invece esaminiamo i pezzi e scegliamo con il tatto, la probabilità cambia, arrivando a non esserci più aleatorietà se guardiamo esplicitamente nel contenitore[cite: 42, 54, 56, 315, 316]. 
-La probabilità è quindi subordinata alla chiara definizione del problema[cite: 63].
+Supponiamo di avere una scatola contenente 90 O-ring: 30 di diametro 9 mm, 30 di 10 mm e 30 di 11 mm. Qual è la probabilità di estrarre un O-ring da 9 mm? 
+Ad un primo sguardo si potrebbe rispondere $\frac{1}{3}$. Tuttavia, la probabilità dipende strettamente da \textit{come} avviene l'estrazione ("dalla mano che usiamo"). Se peschiamo bendati e senza tastare, la probabilità è effettivamente di $\frac{1}{3}$. Se invece esaminiamo i pezzi e scegliamo con il tatto, la probabilità cambia, arrivando a non esserci più aleatorietà se guardiamo esplicitamente nel contenitore. 
+La probabilità è quindi subordinata alla chiara definizione del problema.
 
 \subsection{Spazio Campionario ed Eventi}
 Per formalizzare gli esperimenti aleatori, è necessario definire l'insieme dei possibili risultati.
 
 \begin{itemize}
-    \item \textbf{Esito (o Evento Elementare):} È il risultato più semplice e indivisibile del nostro esperimento aleatorio[cite: 68, 322]. Gli eventi elementari devono essere tra loro \textbf{incompatibili}[cite: 323].
-    \item \textbf{Spazio Campionario ($\Omega$):} È la collezione (l'insieme) di tutti gli eventi elementari possibili di un certo esperimento[cite: 69, 324]. Gli elementi di $\Omega$ godono di due proprietà fondamentali: sono a due a due incompatibili e sono \textbf{esaustivi} (cioè coprono tutte le possibilità)[cite: 328, 329].
-    \item \textbf{Evento:} Un qualunque sottoinsieme dello spazio campionario $\Omega$[cite: 89].
+    \item \textbf{Esito (o Evento Elementare):} È il risultato più semplice e indivisibile del nostro esperimento aleatorio. Gli eventi elementari devono essere tra loro \textbf{incompatibili}.
+    \item \textbf{Spazio Campionario ($\Omega$):} È la collezione (l'insieme) di tutti gli eventi elementari possibili di un certo esperimento. Gli elementi di $\Omega$ godono di due proprietà fondamentali: sono a due a due incompatibili e sono \textbf{esaustivi} (cioè coprono tutte le possibilità).
+    \item \textbf{Evento:} Un qualunque sottoinsieme dello spazio campionario $\Omega$.
 \end{itemize}
 
 \paragraph{Esempi pratici:}
 \begin{enumerate}
-    \item \textbf{Estrazione di una pallina da un'urna:} L'urna contiene palline di tre colori diversi[cite: 72, 334]. Lo spazio campionario è $\Omega = \{\text{"Verde"}, \text{"Bianca"}, \text{"Rossa"}\}$[cite: 340].
-    \item \textbf{Lancio di un dado a 6 facce:} Lo spazio campionario è $\Omega = \{1, 2, 3, 4, 5, 6\}$[cite: 94, 344]. Esempi di eventi (sottoinsiemi di $\Omega$) sono:
+    \item \textbf{Estrazione di una pallina da un'urna:} L'urna contiene palline di tre colori diversi. Lo spazio campionario è $\Omega = \{\text{"Verde"}, \text{"Bianca"}, \text{"Rossa"}\}$.
+    \item \textbf{Lancio di un dado a 6 facce:} Lo spazio campionario è $\Omega = \{1, 2, 3, 4, 5, 6\}$. Esempi di eventi (sottoinsiemi di $\Omega$) sono:
     \begin{itemize}
-        \item $A_1 = \{1\} = \text{"Esce il numero 1"}$ [cite: 346]
-        \item $A_2 = \{2, 4, 6\} = \text{"Esce un numero pari"}$ [cite: 347]
-        \item $A_3 = \{1, 2\} = \text{"Esce un numero più piccolo di 3"}$ [cite: 348]
-        \item $A_4 = \{2, 3, 5\} = \text{"Esce un numero primo"}$ [cite: 349]
+        \item $A_1 = \{1\} = \text{"Esce il numero 1"}$ 
+        \item $A_2 = \{2, 4, 6\} = \text{"Esce un numero pari"}$ 
+        \item $A_3 = \{1, 2\} = \text{"Esce un numero più piccolo di 3"}$ 
+        \item $A_4 = \{2, 3, 5\} = \text{"Esce un numero primo"}$ 
     \end{itemize}
-    Notiamo che lo spazio campionario può essere definito anche in base al nostro interesse: se ci interessa solo la parità, potremmo definire $\Omega_{DP} = \{D, P\}$ (Dispari, Pari)[cite: 344].
+    Notiamo che lo spazio campionario può essere definito anche in base al nostro interesse: se ci interessa solo la parità, potremmo definire $\Omega_{DP} = \{D, P\}$ (Dispari, Pari).
     
-    \item \textbf{Lancio di due dadi a 6 facce:} Gli eventi elementari sono \textbf{coppie} ordinate $(i,j)$, dove il primo numero indica l'esito del primo dado e il secondo l'esito del secondo dado[cite: 101, 352, 353]. Lo spazio campionario complessivo è il prodotto cartesiano dei due spazi singoli: $\Omega = \Omega_A \times \Omega_B$[cite: 362]. Essendo formato da tutte le combinazioni da $(1,1)$ a $(6,6)$, la cardinalità (numero di elementi) dello spazio è $\#\Omega = 36$[cite: 135, 354, 358].
+    \item \textbf{Lancio di due dadi a 6 facce:} Gli eventi elementari sono \textbf{coppie} ordinate $(i,j)$, dove il primo numero indica l'esito del primo dado e il secondo l'esito del secondo dado. Lo spazio campionario complessivo è il prodotto cartesiano dei due spazi singoli: $\Omega = \Omega_A \times \Omega_B$. Essendo formato da tutte le combinazioni da $(1,1)$ a $(6,6)$, la cardinalità (numero di elementi) dello spazio è $\#\Omega = 36$.
 \end{enumerate}
 
 \subsection{Richiami di Teoria degli Insiemi}
-Poiché gli eventi sono trattati matematicamente come insiemi, le regole per combinarli derivano dalla teoria degli insiemi (spesso rappresentata visivamente tramite i Diagrammi di Venn)[cite: 179, 190, 366].
+Poiché gli eventi sono trattati matematicamente come insiemi, le regole per combinarli derivano dalla teoria degli insiemi (spesso rappresentata visivamente tramite i Diagrammi di Venn).
 
 Siano $A$ e $B$ due eventi (sottoinsiemi di $\Omega$):
 \begin{itemize}
-    \item \textbf{Unione ($A \cup B$):} L'evento si verifica se si verifica $A$ \textit{oppure} $B$ (o entrambi). $A \cup B = \{x : x \in A \text{ o } x \in B\}$[cite: 202, 205].
-    \item \textbf{Intersezione ($A \cap B$):} L'evento si verifica se si verificano \textit{sia} $A$ \textit{sia} $B$ contemporaneamente. $A \cap B = \{x : x \in A \text{ e } x \in B\}$[cite: 213, 216]. Due insiemi si dicono \textbf{disgiunti} (o incompatibili) se la loro intersezione è vuota: $A \cap B = \emptyset$[cite: 244].
-    \item \textbf{Complementare ($A^c$):} L'evento si verifica se \textit{non} si verifica $A$. $A^c = \{x : x \notin A\}$[cite: 224]. Vale che $A \cup A^c = \Omega$ e $A \cap A^c = \emptyset$[cite: 228].
+    \item \textbf{Unione ($A \cup B$):} L'evento si verifica se si verifica $A$ \textit{oppure} $B$ (o entrambi). $A \cup B = \{x : x \in A \text{ o } x \in B\}$.
+    \item \textbf{Intersezione ($A \cap B$):} L'evento si verifica se si verificano \textit{sia} $A$ \textit{sia} $B$ contemporaneamente. $A \cap B = \{x : x \in A \text{ e } x \in B\}$. Due insiemi si dicono \textbf{disgiunti} (o incompatibili) se la loro intersezione è vuota: $A \cap B = \emptyset$.
+    \item \textbf{Complementare ($A^c$):} L'evento si verifica se \textit{non} si verifica $A$. $A^c = \{x : x \notin A\}$. Vale che $A \cup A^c = \Omega$ e $A \cap A^c = \emptyset$.
 \end{itemize}
 
 \paragraph{Le Regole di De Morgan:}
-Fondamentali per la manipolazione logica degli eventi probabilistici[cite: 255, 368]:
+Fondamentali per la manipolazione logica degli eventi probabilistici:
 \begin{align*}
     (A \cup B)^c &= A^c \cap B^c \\
     (A \cap B)^c &= A^c \cup B^c \\
     (A^c)^c &= A
 \end{align*}
-\textit{(Nota: la negazione di un'unione corrisponde all'intersezione delle negazioni, e viceversa)}[cite: 255, 256, 257, 258, 368, 369].
+\textit{(Nota: la negazione di un'unione corrisponde all'intersezione delle negazioni, e viceversa)}.
 
 \section{Lezione 2: Assiomi della Probabilità e Regole Fondamentali}
 
 \subsection{Estensione delle Regole di De Morgan}
-Nella lezione precedente abbiamo visto le regole di De Morgan per due insiemi: $(A \cup B)^c = A^c \cap B^c$ e $(A \cap B)^c = A^c \cup B^c$[cite: 371].
-Queste regole possono essere generalizzate. Supponiamo di avere $n$ sottoinsiemi $A_1, A_2, \dots, A_n \subseteq \Omega$[cite: 372]. Le leggi estese sono:
-$$ \left(\bigcup_{i=1}^n A_i\right)^c = \bigcap_{i=1}^n A_i^c $$ [cite: 373]
-$$ \left(\bigcap_{i=1}^n A_i\right)^c = \bigcup_{i=1}^n A_i^c $$ [cite: 374]
+Nella lezione precedente abbiamo visto le regole di De Morgan per due insiemi: $(A \cup B)^c = A^c \cap B^c$ e $(A \cap B)^c = A^c \cup B^c$.
+Queste regole possono essere generalizzate. Supponiamo di avere $n$ sottoinsiemi $A_1, A_2, \dots, A_n \subseteq \Omega$. Le leggi estese sono:
+$$ \left(\bigcup_{i=1}^n A_i\right)^c = \bigcap_{i=1}^n A_i^c $$ 
+$$ \left(\bigcap_{i=1}^n A_i\right)^c = \bigcup_{i=1}^n A_i^c $$ 
 
-Tale principio rimane valido anche per una successione infinita numerabile di insiemi $(A_i)_{i=1}^{+\infty}$[cite: 375, 377]:
-$$ \left(\bigcup_{i=1}^{+\infty} A_i\right)^c = \bigcap_{i=1}^{+\infty} A_i^c \quad \text{e} \quad \left(\bigcap_{i=1}^{+\infty} A_i\right)^c = \bigcup_{i=1}^{+\infty} A_i^c $$ [cite: 379]
+Tale principio rimane valido anche per una successione infinita numerabile di insiemi $(A_i)_{i=1}^{+\infty}$:
+$$ \left(\bigcup_{i=1}^{+\infty} A_i\right)^c = \bigcap_{i=1}^{+\infty} A_i^c \quad \text{e} \quad \left(\bigcap_{i=1}^{+\infty} A_i\right)^c = \bigcup_{i=1}^{+\infty} A_i^c $$ 
 
 \subsection{L'Insieme delle Parti (Insieme Potenza)}
 Per definire rigorosamente la probabilità, dobbiamo individuare l'insieme di tutti i possibili eventi che possiamo misurare.
-\textbf{Definizione (Insieme delle parti):} L'insieme delle parti, o Insieme Potenza, che denoteremo con $\mathcal{P}(\Omega)$, è la collezione di tutti i possibili sottoinsiemi dello spazio campionario $\Omega$[cite: 381, 487].
+\textbf{Definizione (Insieme delle parti):} L'insieme delle parti, o Insieme Potenza, che denoteremo con $\mathcal{P}(\Omega)$, è la collezione di tutti i possibili sottoinsiemi dello spazio campionario $\Omega$.
 
-Se denotiamo con $\#\Omega$ la cardinalità (il numero di elementi) di uno spazio campionario finito, la cardinalità dell'insieme potenza sarà[cite: 382]:
-$$ \#\mathcal{P}(\Omega) = 2^{\#\Omega} $$ [cite: 382, 488]
+Se denotiamo con $\#\Omega$ la cardinalità (il numero di elementi) di uno spazio campionario finito, la cardinalità dell'insieme potenza sarà:
+$$ \#\mathcal{P}(\Omega) = 2^{\#\Omega} $$ 
 
 \paragraph{Esempio: Il Dado}
-Se lanciamo un dado a 6 facce, $\Omega = \{1, 2, 3, 4, 5, 6\}$ e $\#\Omega = 6$[cite: 383, 384].
-L'insieme potenza $\mathcal{P}(\Omega)$ conterrà tutti i $2^6 = 64$ possibili sottoinsiemi (eventi) [cite: 385, 390, 489], partendo dall'insieme vuoto $\emptyset$, includendo i singoletti $\{1\}, \{2\}, \dots$, le coppie $\{1,2\}, \{1,3\}, \dots$, fino all'intero $\Omega$[cite: 385, 386, 387, 388, 389].
+Se lanciamo un dado a 6 facce, $\Omega = \{1, 2, 3, 4, 5, 6\}$ e $\#\Omega = 6$.
+L'insieme potenza $\mathcal{P}(\Omega)$ conterrà tutti i $2^6 = 64$ possibili sottoinsiemi (eventi) , partendo dall'insieme vuoto $\emptyset$, includendo i singoletti $\{1\}, \{2\}, \dots$, le coppie $\{1,2\}, \{1,3\}, \dots$, fino all'intero $\Omega$.
 
 \subsection{Definizione Assiomatica di Probabilità (Kolmogorov)}
 Dato uno spazio campionario $\Omega$ e il suo insieme potenza $\mathcal{P}(\Omega)$, la \textbf{Probabilità} ($Pr$) è un'applicazione (o funzione) matematica definita come:
-$$ Pr: \mathcal{P}(\Omega) \rightarrow \mathbb{R}^+ $$ [cite: 392, 394]
+$$ Pr: \mathcal{P}(\Omega) \rightarrow \mathbb{R}^+ $$ 
 
-Affinché questa applicazione sia una probabilità valida, deve soddisfare i seguenti tre assiomi[cite: 395, 528]:
+Affinché questa applicazione sia una probabilità valida, deve soddisfare i seguenti tre assiomi:
 \begin{enumerate}
-    \item \textbf{Non negatività:} Per ogni evento $A \in \mathcal{P}(\Omega)$, si ha $Pr(A) \ge 0$[cite: 395, 529].
-    \item \textbf{Normalizzazione:} L'evento certo ha probabilità unitaria, ovvero $Pr(\Omega) = 1$[cite: 396, 530].
-    \item \textbf{$\sigma$-additività:} Data una successione numerabile di eventi $(A_i)_{i=1}^{+\infty}$ a due a due incompatibili (ovvero disgiunti, con $A_i \cap A_j = \emptyset$ per ogni $i \ne j$), la probabilità della loro unione è pari alla somma delle probabilità dei singoli eventi[cite: 397, 398, 400, 402, 531]:
-    $$ Pr\left(\bigcup_{i=1}^{+\infty} A_i\right) = \sum_{i=1}^{+\infty} Pr(A_i) $$ [cite: 403, 532]
+    \item \textbf{Non negatività:} Per ogni evento $A \in \mathcal{P}(\Omega)$, si ha $Pr(A) \ge 0$.
+    \item \textbf{Normalizzazione:} L'evento certo ha probabilità unitaria, ovvero $Pr(\Omega) = 1$.
+    \item \textbf{$\sigma$-additività:} Data una successione numerabile di eventi $(A_i)_{i=1}^{+\infty}$ a due a due incompatibili (ovvero disgiunti, con $A_i \cap A_j = \emptyset$ per ogni $i \ne j$), la probabilità della loro unione è pari alla somma delle probabilità dei singoli eventi:
+    $$ Pr\left(\bigcup_{i=1}^{+\infty} A_i\right) = \sum_{i=1}^{+\infty} Pr(A_i) $$ 
 \end{enumerate}
 
-\textit{Nota logica:} La $\sigma$-additività (infinita) implica automaticamente l'additività finita (ovvero che $Pr(\bigcup_{i=1}^n A_i) = \sum_{i=1}^n Pr(A_i)$), ma non è vero il contrario[cite: 404, 407, 408, 409].
-La coppia $(\Omega, Pr)$ prende il nome di \textbf{Spazio di Probabilità}[cite: 535].
+\textit{Nota logica:} La $\sigma$-additività (infinita) implica automaticamente l'additività finita (ovvero che $Pr(\bigcup_{i=1}^n A_i) = \sum_{i=1}^n Pr(A_i)$), ma non è vero il contrario.
+La coppia $(\Omega, Pr)$ prende il nome di \textbf{Spazio di Probabilità}.
 
 \subsection{Esempi Costruttivi}
 
 \paragraph{Esempio 1: Ipotesi di Equiprobabilità (Il Dado)}
-Supponiamo di lanciare il dado e assumiamo che ogni faccia abbia la stessa probabilità di uscire: $Pr(\{1\}) = Pr(\{2\}) = \dots = Pr(\{6\}) = p$[cite: 410, 412, 539].
+Supponiamo di lanciare il dado e assumiamo che ogni faccia abbia la stessa probabilità di uscire: $Pr(\{1\}) = Pr(\{2\}) = \dots = Pr(\{6\}) = p$.
 Sfruttando l'assioma di normalizzazione e l'additività:
-$$ 1 = Pr(\Omega) = Pr\left(\bigcup_{i=1}^6 \{i\}\right) = \sum_{i=1}^6 Pr(\{i\}) = 6p $$ [cite: 413, 414]
-Ne consegue che $p = \frac{1}{6}$[cite: 415, 547]. 
-Se vogliamo calcolare la probabilità di un evento composto, come $A = \{1, 2\}$, applichiamo l'additività su eventi disgiunti: $Pr(\{1,2\}) = Pr(\{1\}) + Pr(\{2\}) = \frac{1}{6} + \frac{1}{6} = \frac{1}{3}$[cite: 416].
-In generale, sotto l'ipotesi di equiprobabilità, $Pr(A) = \frac{\#A}{\#\Omega}$ (casi favorevoli su casi possibili)[cite: 417, 418].
+$$ 1 = Pr(\Omega) = Pr\left(\bigcup_{i=1}^6 \{i\}\right) = \sum_{i=1}^6 Pr(\{i\}) = 6p $$ 
+Ne consegue che $p = \frac{1}{6}$. 
+Se vogliamo calcolare la probabilità di un evento composto, come $A = \{1, 2\}$, applichiamo l'additività su eventi disgiunti: $Pr(\{1,2\}) = Pr(\{1\}) + Pr(\{2\}) = \frac{1}{6} + \frac{1}{6} = \frac{1}{3}$.
+In generale, sotto l'ipotesi di equiprobabilità, $Pr(A) = \frac{\#A}{\#\Omega}$ (casi favorevoli su casi possibili).
 
 \paragraph{Esempio 2: Probabilità Geometrica (Il Bersaglio)}
-Consideriamo un bersaglio circolare diviso in 3 aree: il centro (area 3) con raggio $\frac{1}{3}r$, l'anello medio (area 2) esteso fino a $\frac{2}{3}r$, e l'anello esterno (area 1) esteso fino a $r$[cite: 428, 431, 432, 554, 555, 556]. Lo spazio campionario dei punteggi è $\Omega = \{1, 2, 3\}$[cite: 428, 557].
-Assumendo di colpire sempre il bersaglio e che la probabilità di colpire una determinata area sia proporzionale all'area geometrica stessa[cite: 424, 426, 427, 558], calcoliamo:
+Consideriamo un bersaglio circolare diviso in 3 aree: il centro (area 3) con raggio $\frac{1}{3}r$, l'anello medio (area 2) esteso fino a $\frac{2}{3}r$, e l'anello esterno (area 1) esteso fino a $r$. Lo spazio campionario dei punteggi è $\Omega = \{1, 2, 3\}$.
+Assumendo di colpire sempre il bersaglio e che la probabilità di colpire una determinata area sia proporzionale all'area geometrica stessa, calcoliamo:
 \begin{itemize}
-    \item $Pr(\{3\}) = \frac{\pi (\frac{1}{3}r)^2}{\pi r^2} = \frac{1}{9}$ [cite: 433, 562]
-    \item $Pr(\{2\}) = \frac{\pi (\frac{2}{3}r)^2 - \pi (\frac{1}{3}r)^2}{\pi r^2} = \frac{3}{9}$ [cite: 434, 562]
-    \item $Pr(\{1\}) = \frac{\pi r^2 - \pi (\frac{2}{3}r)^2}{\pi r^2} = \frac{5}{9}$ [cite: 435, 560]
+    \item $Pr(\{3\}) = \frac{\pi (\frac{1}{3}r)^2}{\pi r^2} = \frac{1}{9}$ 
+    \item $Pr(\{2\}) = \frac{\pi (\frac{2}{3}r)^2 - \pi (\frac{1}{3}r)^2}{\pi r^2} = \frac{3}{9}$ 
+    \item $Pr(\{1\}) = \frac{\pi r^2 - \pi (\frac{2}{3}r)^2}{\pi r^2} = \frac{5}{9}$ 
 \end{itemize}
-Possiamo verificare l'assioma di normalizzazione: $\frac{5}{9} + \frac{3}{9} + \frac{1}{9} = 1$[cite: 436]. La probabilità di colpire l'area 2 o 3 sarà l'unione disgiunta: $Pr(\{2,3\}) = \frac{3}{9} + \frac{1}{9} = \frac{4}{9}$[cite: 437].
+Possiamo verificare l'assioma di normalizzazione: $\frac{5}{9} + \frac{3}{9} + \frac{1}{9} = 1$. La probabilità di colpire l'area 2 o 3 sarà l'unione disgiunta: $Pr(\{2,3\}) = \frac{3}{9} + \frac{1}{9} = \frac{4}{9}$.
 
 \subsection{Le 4 Regole (Proprietà) della Probabilità}
 Dagli assiomi discendono logicamente diverse proprietà fondamentali.
 
 \paragraph{Regola 1: Probabilità del Complementare}
 Se $A$ è un evento, allora la probabilità del suo complementare è:
-$$ Pr(A^c) = 1 - Pr(A) $$ [cite: 439, 440]
-\textit{Dimostrazione:} Poiché $\Omega = A \cup A^c$ e $A \cap A^c = \emptyset$, per il secondo e il terzo assioma si ha che $Pr(\Omega) = Pr(A \cup A^c) = Pr(A) + Pr(A^c) = 1$[cite: 441, 442, 443, 444]. Da questa regola deriva immediatamente che la probabilità dell'evento impossibile è nulla: $Pr(\emptyset) = 1 - Pr(\Omega) = 1 - 1 = 0$[cite: 446].
+$$ Pr(A^c) = 1 - Pr(A) $$ 
+\textit{Dimostrazione:} Poiché $\Omega = A \cup A^c$ e $A \cap A^c = \emptyset$, per il secondo e il terzo assioma si ha che $Pr(\Omega) = Pr(A \cup A^c) = Pr(A) + Pr(A^c) = 1$. Da questa regola deriva immediatamente che la probabilità dell'evento impossibile è nulla: $Pr(\emptyset) = 1 - Pr(\Omega) = 1 - 1 = 0$.
 
 \paragraph{Regola 2: Probabilità dell'Unione}
 Se $A$ e $B$ sono due eventi qualsiasi (anche compatibili), la probabilità della loro unione è:
-$$ Pr(A \cup B) = Pr(A) + Pr(B) - Pr(A \cap B) $$ [cite: 448, 450]
-\textit{Dimostrazione:} Possiamo partizionare l'unione come unione disgiunta $A \cup B = A \cup (B \cap A^c)$[cite: 451]. Calcolando la probabilità: $Pr(A \cup B) = Pr(A) + Pr(B \cap A^c)$[cite: 455]. Inoltre, sappiamo che $B$ può essere diviso in due parti disgiunte: $B = (A \cap B) \cup (A^c \cap B)$ [cite: 452], da cui $Pr(B) = Pr(A \cap B) + Pr(A^c \cap B)$[cite: 455]. Sostituendo quest'ultimo termine nella prima equazione, si ottiene la tesi[cite: 455].
+$$ Pr(A \cup B) = Pr(A) + Pr(B) - Pr(A \cap B) $$ 
+\textit{Dimostrazione:} Possiamo partizionare l'unione come unione disgiunta $A \cup B = A \cup (B \cap A^c)$. Calcolando la probabilità: $Pr(A \cup B) = Pr(A) + Pr(B \cap A^c)$. Inoltre, sappiamo che $B$ può essere diviso in due parti disgiunte: $B = (A \cap B) \cup (A^c \cap B)$ , da cui $Pr(B) = Pr(A \cap B) + Pr(A^c \cap B)$. Sostituendo quest'ultimo termine nella prima equazione, si ottiene la tesi.
 
 \paragraph{Regola 3: Monotonia della Probabilità}
 Se un evento $A$ è sottoinsieme di $B$ ($A \subseteq B$), allora:
-$$ Pr(A) \le Pr(B) $$ [cite: 457, 458]
-\textit{Dimostrazione:} Se $A \subseteq B$, possiamo scrivere $B$ come l'unione disgiunta dell'insieme $A$ e della parte di $B$ che non sta in $A$: $B = A \cup (A^c \cap B)$[cite: 459, 460]. Applicando l'additività: $Pr(B) = Pr(A) + Pr(A^c \cap B)$[cite: 461]. Essendo le probabilità sempre non negative (primo assioma, $Pr(A^c \cap B) \ge 0$), segue necessariamente che $Pr(B) \ge Pr(A)$[cite: 463].
+$$ Pr(A) \le Pr(B) $$ 
+\textit{Dimostrazione:} Se $A \subseteq B$, possiamo scrivere $B$ come l'unione disgiunta dell'insieme $A$ e della parte di $B$ che non sta in $A$: $B = A \cup (A^c \cap B)$. Applicando l'additività: $Pr(B) = Pr(A) + Pr(A^c \cap B)$. Essendo le probabilità sempre non negative (primo assioma, $Pr(A^c \cap B) \ge 0$), segue necessariamente che $Pr(B) \ge Pr(A)$.
 
 \paragraph{Regola 4: Disuguaglianza di Bonferroni}
-Dai principi appena esposti, deriva un limite fondamentale applicabile a qualsiasi evento $A$: poiché ogni evento $A$ è un sottoinsieme di $\Omega$ ($A \subseteq \Omega$), applicando la Regola 3 si ottiene che $Pr(A) \le Pr(\Omega) = 1$[cite: 464, 465, 466]. Le probabilità sono quindi sempre confinate nell'intervallo $[0, 1]$. Esistono formulazioni più avanzate della Disuguaglianza di Bonferroni per l'intersezione di eventi, ma si basano tutte sui principi di subadditività[cite: 467].
+Dai principi appena esposti, deriva un limite fondamentale applicabile a qualsiasi evento $A$: poiché ogni evento $A$ è un sottoinsieme di $\Omega$ ($A \subseteq \Omega$), applicando la Regola 3 si ottiene che $Pr(A) \le Pr(\Omega) = 1$. Le probabilità sono quindi sempre confinate nell'intervallo $[0, 1]$. Esistono formulazioni più avanzate della Disuguaglianza di Bonferroni per l'intersezione di eventi, ma si basano tutte sui principi di subadditività.
 
 \subsection{Costruzione di una Probabilità su spazi Numerabili}
-Quando lo spazio campionario $\Omega$ è infinito ma numerabile, possiamo costruire una probabilità assegnando ad ogni evento elementare $\omega_i$ un "peso" $p(\omega_i)$ [cite: 468, 472, 474], tale che rispetti gli assiomi: $p(\omega_i) \ge 0$ e $\sum_{i=1}^{+\infty} p(\omega_i) = 1$[cite: 475].
-La probabilità di un qualsiasi evento $A$ sarà semplicemente la somma dei pesi degli eventi elementari che lo compongono: $Pr(A) = \sum_{\omega_i \in A} p(\omega_i)$[cite: 476].
+Quando lo spazio campionario $\Omega$ è infinito ma numerabile, possiamo costruire una probabilità assegnando ad ogni evento elementare $\omega_i$ un "peso" $p(\omega_i)$ , tale che rispetti gli assiomi: $p(\omega_i) \ge 0$ e $\sum_{i=1}^{+\infty} p(\omega_i) = 1$.
+La probabilità di un qualsiasi evento $A$ sarà semplicemente la somma dei pesi degli eventi elementari che lo compongono: $Pr(A) = \sum_{\omega_i \in A} p(\omega_i)$.
 
 \textbf{Paradosso dell'Equiprobabilità su insiemi infiniti:} È possibile assegnare a tutti gli elementi di uno spazio infinito numerabile (come $\mathbb{N}$) la stessa esatta probabilità?
-Se supponiamo un'ipotesi di equiprobabilità $p(\omega_i) = p$, l'assioma di normalizzazione impone che $\sum_{i=1}^{+\infty} p = 1$[cite: 477, 480].
-Tuttavia, se $p = 0$, la serie infinita somma a 0. Se $p > 0$ (per quanto piccolo), la serie infinita diverge a $+\infty$[cite: 480].
-\textbf{Conclusione:} Non è matematicamente possibile distribuire una probabilità uniforme su un insieme infinito numerabile[cite: 480].
+Se supponiamo un'ipotesi di equiprobabilità $p(\omega_i) = p$, l'assioma di normalizzazione impone che $\sum_{i=1}^{+\infty} p = 1$.
+Tuttavia, se $p = 0$, la serie infinita somma a 0. Se $p > 0$ (per quanto piccolo), la serie infinita diverge a $+\infty$.
+\textbf{Conclusione:} Non è matematicamente possibile distribuire una probabilità uniforme su un insieme infinito numerabile.
 
 \vspace{0.5cm}
 \begin{quote}
 \textbf{Nota Teorica (Opzionale, esterna al programma d'esame):} 
-Fino ad ora abbiamo applicato la funzione di probabilità all'Insieme delle Parti $\mathcal{P}(\Omega)$. Se lo spazio campionario è finito o infinito numerabile, questo non genera contraddizioni[cite: 718, 719]. Se però $\Omega$ è continuo (es. l'insieme dei numeri reali $\mathbb{R}$), definire una probabilità su *tutti* i sottoinsiemi genera paradossi logici insormontabili[cite: 720]. Per questo, in probabilità avanzata, lo spazio degli eventi non è l'intero $\mathcal{P}(\Omega)$, ma un suo sottoinsieme strutturato chiamato \textbf{Tribù} o \textbf{$\sigma$-algebra} (es. la $\sigma$-algebra di Borel), in grado di garantire il rispetto degli assiomi[cite: 570, 573, 577, 720]. Il professore ha segnalato questo concetto unicamente per completezza e curiosità intellettuale[cite: 566, 567, 568].
+Fino ad ora abbiamo applicato la funzione di probabilità all'Insieme delle Parti $\mathcal{P}(\Omega)$. Se lo spazio campionario è finito o infinito numerabile, questo non genera contraddizioni. Se però $\Omega$ è continuo (es. l'insieme dei numeri reali $\mathbb{R}$), definire una probabilità su *tutti* i sottoinsiemi genera paradossi logici insormontabili. Per questo, in probabilità avanzata, lo spazio degli eventi non è l'intero $\mathcal{P}(\Omega)$, ma un suo sottoinsieme strutturato chiamato \textbf{Tribù} o \textbf{$\sigma$-algebra} (es. la $\sigma$-algebra di Borel), in grado di garantire il rispetto degli assiomi. Il professore ha segnalato questo concetto unicamente per completezza e curiosità intellettuale .
 \end{quote}
 
 
