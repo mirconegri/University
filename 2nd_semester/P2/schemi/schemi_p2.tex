@@ -1,0 +1,1508 @@
+\documentclass[12pt, a4paper]{article}
+
+% --- Caricamento pacchetti standard ---
+\usepackage{microtype}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+
+% --- Impostazioni Link ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=cyan
+}
+
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{3cm} 
+    
+    {\scshape\LARGE Università degli Studi di Trento \par}
+    \vspace{0.5cm}
+    {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
+    
+    \vspace{2cm}
+    
+    \rule{\textwidth}{0.8pt}\vspace{0.5cm}
+    {\Huge\bfseries Appunti di \\ Fondamenti Matematici \\ per l'informatica (FMI)\par}
+    \vspace{0.3cm}
+    {\Large\itshape Primo parziale \par}
+    \vspace{0.4cm}\rule{\textwidth}{0.8pt}
+    
+    \vspace{3cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\large
+    \ifcase\month\or
+    Gennaio\or Febbraio\or Marzo\or Aprile\or Maggio\or Giugno\or
+    Luglio\or Agosto\or Settembre\or Ottobre\or Novembre\or Dicembre\fi
+    \space \the\year \par
+    }
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+
+\section{Lezione 01: Recap delle nozioni di Programmazione 1}
+
+\subsection{Spiegazione teorica}
+Fino a questo momento, in Programmazione 1, l'approccio principale è stato il \textit{"programming in the small"}: scrittura di piccole procedure e familiarizzazione con le basi del coding. Il corso di Programmazione 2 sposta il focus sul \textit{"programming in the large"}. 
+
+Quando i progetti diventano enormi (migliaia di file e linee di codice), sorgono nuove sfide:
+\begin{itemize}
+    \item \textbf{Suddivisione del lavoro:} il codice deve poter essere scritto da persone e team diversi (\textit{divide et impera}).
+    \item \textbf{Manutenibilità:} il codice deve essere comprensibile e modificabile anche a distanza di mesi o anni senza "rompere" funzionalità esistenti.
+    \item \textbf{Robustezza:} prevenzione e gestione strutturata degli errori.
+\end{itemize}
+Per ottenere questi risultati, ci si affida a buone tecniche di programmazione, ai principi dell'Ingegneria del Software e, soprattutto, al supporto fornito dai linguaggi orientati agli oggetti (\textbf{Object-Oriented, OO}), che sono il vero fulcro di questo corso.
+
+Per comprendere a fondo i meccanismi di Java (il linguaggio principale del corso), è essenziale costruire una \textbf{Notional Machine} corretta. Si tratta di un'astrazione mentale che ci aiuta a visualizzare cosa accade "dietro le quinte" (il runtime) quando il codice viene eseguito. A tal fine, ripassiamo quattro concetti fondamentali ereditati dal C/C++:
+
+\begin{enumerate}
+    \item \textbf{Variabili e Scope:} Le variabili possiedono un tipo e un valore di inizializzazione. Lo \textit{scope} ne definisce la visibilità: se dichiarata fuori dalle funzioni è \textit{globale} (visibile ovunque), se dichiarata all'interno è \textit{locale}. I linguaggi moderni e sicuri forzano l'inizializzazione per evitare bug subdoli.
+    \item \textbf{Stack Frame (Record di attivazione):} Ogni volta che si invoca una funzione, viene allocato uno "stack frame" sulla memoria Stack. Questo blocco contiene i \textit{parametri attuali}, le \textit{variabili locali} e l'\textit{indirizzo di ritorno} (per sapere dove riprendere l'esecuzione al termine della funzione). 
+    \item \textbf{Puntatori:} Un puntatore è una variabile che contiene un indirizzo di memoria. L'operatore \texttt{\&} estrae l'indirizzo di una variabile, mentre l'operatore \texttt{*} (dereferenziazione) permette di accedere al valore contenuto in quell'indirizzo.
+    \item \textbf{Aree di Memoria:} Un programma in esecuzione è suddiviso in diverse zone:
+    \begin{itemize}
+        \item \textbf{Code Section (Testo):} contiene le istruzioni compilate (spesso in sola lettura).
+        \item \textbf{Data Section:} contiene le variabili globali.
+        \item \textbf{Stack:} gestisce la memoria per le chiamate a funzione (cresce e decresce dinamicamente e automaticamente).
+        \item \textbf{Heap:} area dedicata all'allocazione dinamica della memoria (gestita esplicitamente dal programmatore o dal sistema).
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Osservazione critica sulla gestione della memoria:} Esistono tre modi principali per gestire la memoria Heap:
+1. \textit{Manuale} (come nel C/C++ tramite \texttt{new} e \texttt{delete}), che garantisce controllo ma alto rischio di memory leak.
+2. \textit{Garbage Collection} (come in Java), dove il sistema pulisce automaticamente la memoria non più raggiungibile.
+3. \textit{Ownership} (come in Rust), gestita a tempo di compilazione.
+
+\subsection{Implementazione del codice}
+A lezione sono stati presentati vari file C++ per dimostrare visivamente il comportamento della memoria.
+
+\subsubsection{Test sulle Variabili (\texttt{test\_vars.cpp})}
+\begin{verbatim}
+#include <iostream>
+
+int x = 5; // Variabile globale
+
+void f() {
+    x = x + 1; // Modifica la variabile globale
+    std::cout << "x in f " << x << std::endl;
+}
+
+void g() {
+    int x = 2, b = 4; // Shadowing: la x locale "nasconde" la x globale
+    printf("(x,b) in g: (%d,%d)\n", x, b);
+}
+\end{verbatim}
+\textbf{Commento:} In questo snippet osserviamo la differenza tra scope globale e locale. La funzione \texttt{f()} modifica la variabile globale \texttt{x}. La funzione \texttt{g()} dichiara una sua variabile \texttt{x} locale: questo fenomeno si chiama \textit{shadowing}. Eventuali modifiche fatte in \texttt{g()} non intaccheranno la \texttt{x} globale, proteggendo i dati esterni da alterazioni accidentali.
+
+\subsubsection{Test sullo Stack Frame (\texttt{test\_stack\_frame.cpp})}
+\begin{verbatim}
+int fact(int n) {
+    if (n == 0) return 1;
+    else return n * fact(n - 1);
+}
+\end{verbatim}
+\textbf{Commento:} Questa semplice funzione ricorsiva genera una pila di \textit{stack frame}. Ad ogni chiamata \texttt{fact(n-1)}, un nuovo record di attivazione viene "impilato" sopra il precedente, con il proprio parametro \texttt{n}. Quando la condizione base \texttt{n == 0} è raggiunta, gli stack frame vengono de-allocati (fase di ritorno), risolvendo l'albero delle moltiplicazioni.
+
+\subsubsection{Test sui Puntatori e Modifiche (\texttt{test\_puntatori.cpp})}
+\begin{verbatim}
+void incrementa_ptr(int* px) {
+    *px = *px + 1;
+}
+
+void test_puntatori2() {
+    int x = 1;
+    incrementa_ptr(&x); // Passaggio per indirizzo (riferimento simulato in C)
+    std::cout << x << std::endl; // Stampa 2
+}
+\end{verbatim}
+\textbf{Commento:} Passare una variabile "per valore" significa passarne una copia; le modifiche fatte non persistono. Passando invece l'indirizzo della variabile in memoria tramite un puntatore (\texttt{\&x}), la funzione \texttt{incrementa\_ptr} può dereferenziare il puntatore (\texttt{*px}) e alterare il valore originale. Questo concetto sarà vitale in Java, dove gli oggetti vengono sempre gestiti tramite riferimenti.
+
+\subsubsection{Test sull'Allocazione Dinamica (\texttt{test\_memoria.cpp})}
+\begin{verbatim}
+void test_mem_dyn() {
+    int* px;
+    px = new int;      // Allocazione dinamica sulla Heap
+    *px = 3;
+    std::cout << *px << std::endl;
+    delete(px);        // De-allocazione manuale necessaria nel C++
+}
+\end{verbatim}
+\textbf{Commento:} La variabile puntatore \texttt{px} risiede nello \textit{Stack} (poiché è locale alla funzione), ma punta a un'area di memoria creata nella \textit{Heap} tramite la keyword \texttt{new}. Nel C++, il programmatore è responsabile di distruggere l'allocazione tramite \texttt{delete(px)}, altrimenti si incorre in memory leak. Nel corso vedremo come Java ci sollevi da questa responsabilità grazie al suo \textit{Garbage Collector}.
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Il \textbf{Tutorato 1} si concentra fin da subito sull'introduzione al linguaggio Java (sintassi base come vettori e array per calcolare media, mediana e moda) e sui primissimi concetti di programmazione ad oggetti (creazione di classi \texttt{Auto}, \texttt{Microscopio}, ecc.). 
+Poiché la Lezione 01 è focalizzata esclusivamente sul ripasso dell'architettura in C++, i materiali pratici del Tutorato 1 si allineano e verranno integrati a partire dalla \textbf{Lezione 02}, quando introdurremo l'approccio \textit{Object-Oriented} nativo in Java.
+
+\newpage
+
+\newpage
+\section{Lezione 02: Introduzione all'Orientamento agli Oggetti}
+
+\subsection{Spiegazione teorica}
+In questa lezione passiamo dal paradigma procedurale a quello **Orientato agli Oggetti (OOP)**. Se nella programmazione procedurale il focus è sulle funzioni che manipolano dati, nella OOP il focus è sulle "entità" che raggruppano sia i dati che il comportamento.
+
+\begin{itemize}
+    \item \textbf{Classe:} È il "progetto" o "stampo" (blueprint). Definisce quali dati (\textbf{campi} o attributi) e quali azioni (\textbf{metodi}) avranno gli oggetti di quel tipo.
+    \item \textbf{Oggetto (Istanza):} È l'entità concreta creata in memoria a partire dalla classe. Ogni oggetto ha il proprio stato (valori dei campi).
+    \item \textbf{Costruttore:} Un metodo speciale chiamato quando si crea un oggetto con la keyword \texttt{new}. Serve a inizializzare lo stato interno. In Java, se non ne scriviamo uno, ne esiste uno "di default" senza parametri.
+    \item \textbf{Il riferimento \texttt{this}:} È una parola chiave che indica "questo oggetto specifico". Si usa spesso nel costruttore per distinguere i parametri della funzione dai campi della classe (es. \texttt{this.x = x}).
+\end{itemize}
+
+\textbf{Tipi Enumerativi (Enum):} Spesso abbiamo bisogno di variabili che possono assumere solo un set ristretto di valori costanti (es. i giorni della settimana o i punti cardinali). In Java, gli \texttt{enum} sono tipi di dato che rendono il codice più leggibile e "type-safe" rispetto all'uso di semplici interi o stringhe.
+
+\subsection{Implementazione del codice}
+Vediamo l'evoluzione della classe \texttt{TNT} usata a lezione per simulare un blocco del gioco Minecraft.
+
+\subsubsection{Versione 1: Struttura base e Costruttore}
+In questa fase definiamo solo lo stato (posizione x, y, z).
+\begin{verbatim}
+public class TNT {
+    public int x, y, z;
+
+    public TNT(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+}
+\end{verbatim}
+\textbf{Commento:} I campi sono \texttt{public} (accessibili da chiunque, pratica che vedremo essere sconsigliata) e il costruttore usa \texttt{this} per assegnare i valori ricevuti ai campi dell'oggetto.
+
+\subsubsection{Versione 2 e 3: Aggiunta di comportamento (Metodi)}
+Aggiungiamo un metodo per far "esplodere" il blocco e gestire lo stato \texttt{primed}.
+\begin{verbatim}
+public class TNT {
+    public int x, y, z;
+    public boolean isPrimed;
+
+    public TNT(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.isPrimed = false;
+    }
+
+    public void explode() {
+        if (isPrimed) {
+            System.out.println("BOOM at " + x + ", " + y + ", " + z);
+        } else {
+            System.out.println("TNT is not primed yet.");
+        }
+    }
+}
+\end{verbatim}
+\textbf{Commento:} Qui notiamo come il metodo \texttt{explode()} utilizzi i dati interni dell'oggetto (\texttt{x, y, z, isPrimed}) per decidere cosa fare. Questo è il cuore della OOP: l'oggetto "sa" come comportarsi in base al suo stato.
+
+\subsubsection{Uso delle Enum (\texttt{Direction.java})}
+\begin{verbatim}
+public enum Direction {
+    NORTH, SOUTH, EAST, WEST, UP, DOWN
+}
+\end{verbatim}
+\textbf{Commento:} Invece di usare numeri (0, 1, 2...) che potrebbero confondere, usiamo nomi chiari. Java garantisce che una variabile di tipo \texttt{Direction} possa contenere solo uno di questi sei valori.
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Nel \textbf{Tutorato 1}, l'approccio OOP è stato applicato alla modellazione di oggetti del mondo reale. Un esempio significativo è la modellazione di un sistema di \texttt{Settings}.
+
+\subsubsection{Modellazione gerarchica di oggetti (\texttt{Settings})}
+L'esercizio richiedeva di creare una classe \texttt{Settings} che contiene altri oggetti (Composizione) e usa gli \texttt{enum}.
+
+\begin{verbatim}
+// Definizione dello stato tramite Enum
+public enum Status { CONNECTED, DISCONNECTED, ERROR }
+public enum Theme { DARK, LIGHT, SYSTEM }
+
+public class Network {
+    private Status status;
+    private String ip;
+    
+    public Network(Status status, String ip) {
+        this.status = status;
+        this.ip = ip;
+    }
+    // Metodi getter...
+}
+
+public class Settings {
+    private Network network;
+    private Theme theme;
+
+    public Settings(Network n, Theme t) {
+        this.network = n;
+        this.theme = t;
+    }
+}
+\end{verbatim}
+
+\textbf{Analisi dell'esercizio:} 
+\begin{itemize}
+    \item \textbf{Astrazione:} Abbiamo diviso il problema "Impostazioni" in sottoproblemi più piccoli (Network, Theme).
+    \item \textbf{Invarianti:} Usando gli \texttt{enum} per il tema o lo stato della rete, impediamo al programmatore di inserire valori assurdi (es. un tema "BLUE" se non previsto), aumentando la robustezza del software.
+\end{itemize}
+
+\newpage
+
+\newpage
+\section{Lezione 03: Organizzazione del codice e pattern base}
+
+\subsection{Spiegazione teorica}
+Man mano che un progetto cresce, scrivere tutto il codice in un unico file diventa insostenibile. In questa lezione esploriamo i meccanismi offerti da Java per organizzare, proteggere e condividere le funzionalità: \textit{packages}, modificatori di visibilità, parole chiave per l'immutabilità e la globalità, fino ad arrivare a un primo \textit{Design Pattern}.
+
+\begin{itemize}
+    \item \textbf{Packages:} Sono i "namespace" di Java, corrispondenti fisicamente alle cartelle sul disco. Risolvono i conflitti di nome (es. avere due classi \texttt{TNT} in pacchetti diversi) e organizzano logicamente il progetto. Per usare classi di altri pacchetti si usa la direttiva \texttt{import}.
+    
+    \item \textbf{Visibilità e Incapsulamento (Information Hiding):}
+    Nascondere i dettagli implementativi all'interno di una classe è fondamentale per evitare alterazioni esterne indesiderate (es. cambiare la vita di un giocatore ignorando l'armatura).
+    \begin{itemize}
+        \item \texttt{public}: visibile ovunque.
+        \item \texttt{private}: visibile solo all'interno della classe stessa.
+        \item \texttt{protected}: visibile all'interno dello stesso package e alle sottoclassi.
+        \item \textit{Package-private} (default, nessuna keyword): visibile solo all'interno dello stesso package.
+    \end{itemize}
+    Per leggere o scrivere in modo controllato i campi \texttt{private}, si definiscono metodi pubblici chiamati \textbf{getter} e \textbf{setter}.
+
+    \item \textbf{Immutabilità (\texttt{final}):} Applicata a una variabile o a un campo, la keyword \texttt{final} lo rende una \textit{costante}. Una volta assegnato (o al momento della dichiarazione o nel costruttore), il valore non può più cambiare. Questo previene bug legati alla mutazione inattesa dello stato.
+
+    \item \textbf{Globalità (\texttt{static}):} Un campo o metodo \texttt{static} appartiene alla \textit{Classe} e non alla singola istanza (oggetto). Di conseguenza:
+    \begin{itemize}
+        \item Esiste una sola copia in memoria per tutta l'esecuzione.
+        \item Vi si accede usando il nome della classe (es. \texttt{Classe.metodo()}).
+        \item Non si può usare \texttt{this} all'interno di metodi \texttt{static}.
+        \item Utile per definire costanti globali (es. \texttt{public static final int MAX\_STACK = 64}).
+    \end{itemize}
+
+    \item \textbf{Design Pattern - Singleton:} I Design Pattern sono soluzioni standard e testate a problemi ricorrenti. Il \textbf{Singleton} garantisce che esista \textit{una sola istanza} di una classe nell'intero programma (utile ad esempio per i Settings o oggetti unici del gioco, come il Dragon Egg).
+\end{itemize}
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Incapsulamento e Getters/Setters (\texttt{Player.java})}
+\begin{verbatim}
+package lecture03.ackages.entities;
+
+public class Player {
+    public String username;              // Leggibile e modificabile da tutti
+    private int health = 20;             // Nascosto, accessibile solo ai metodi interni
+    private boolean isPoisoned = false;
+    
+    // Setter per controllare in modo sicuro lo stato
+    public void setPoisoned(boolean p) {
+        this.isPoisoned = p;
+    }
+    
+    // Getter per leggere lo stato in sola lettura
+    public String getUsername() {
+        return this.username;
+    }
+
+    public void damage(int amount) {
+        this.health = this.health - amount;
+        if (this.health <= 0) {
+            System.out.println("Player died!");
+        }
+    }
+}
+\end{verbatim}
+\textbf{Commento:} Il campo \texttt{health} è \texttt{private}. Nessun'altra classe può fare \texttt{player.health = 0}, "barando" e aggirando la logica di danno del gioco. L'unico modo per sottrarre vita è tramite il metodo pubblico \texttt{damage(int amount)}. Questo è l'\textbf{Information Hiding}.
+
+\subsubsection{Immutabilità con \texttt{final} (\texttt{ToolTier.java})}
+\begin{verbatim}
+package lecture03.final_mod;
+
+public enum ToolTier {
+    WOOD(59, 2.0f), DIAMOND(1561, 8.0f);
+
+    private final int maxUses;
+    private final float efficiency;
+
+    ToolTier(int maxUses, float efficiency) {
+        this.maxUses = maxUses;
+        this.efficiency = efficiency;
+    }
+
+    public float getEfficiency() { return this.efficiency; }
+}
+\end{verbatim}
+\textbf{Commento:} La velocità (\texttt{efficiency}) del diamante deve essere sempre 8.0f. Rendendola \texttt{final}, garantiamo a livello di compilatore che non possa essere alterata accidentalmente a runtime.
+
+\subsubsection{Variabili di gioco globali e \texttt{static} (\texttt{GameConstants.java})}
+\begin{verbatim}
+package lecture03.static_globals;
+
+public class GameConstants {
+    // Un valore condiviso da tutto il server
+    public static final int MAX_STACK_SIZE = 64; 
+
+    // Metodo Utility statico: non ha bisogno dello stato di un oggetto
+    public static void printMOTD() {
+        System.out.println(">> Welcome to the Minecraft Course!");
+    }
+}
+\end{verbatim}
+\textbf{Commento:} \texttt{MAX\_STACK\_SIZE} è \texttt{static}, quindi è condivisa; non ne viene creata una copia in memoria per ogni blocco o inventario esistente. Poiché è anche \texttt{final}, nessuno può modificarne il valore. Si richiamerà con \texttt{GameConstants.MAX\_STACK\_SIZE}.
+
+\subsubsection{Il Singleton Pattern (\texttt{DragonEgg.java})}
+\begin{verbatim}
+package lecture03.static_globals;
+
+public class DragonEgg {
+    // 1. Unica istanza statica, creata al momento del caricamento
+    private static DragonEgg THE_INSTANCE = new DragonEgg();
+
+    // 2. Costruttore privato (nessuno può fare 'new DragonEgg()' fuori da qui)
+    private DragonEgg() {}
+
+    // 3. Getter pubblico e statico per accedere all'unica istanza
+    public static DragonEgg getInstance() {
+        return THE_INSTANCE;
+    }
+
+    public void teleport() {
+        System.out.println(">> Vwoop! The Dragon Egg teleported away.");
+    }
+}
+\end{verbatim}
+\textbf{Commento:} Questo pattern ruota attorno all'uso combinato di \texttt{private} e \texttt{static}. Rendendo il costruttore privato, blocchiamo la creazione di nuovi oggetti. Offriamo invece l'accesso alla singola istanza globale tramite il metodo \texttt{getInstance()}. Questo assicura, ad esempio, che non si duplichino accidentalmente le risorse o gli asset unici del programma.
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Anche se il materiale di questa lezione verte in modo massiccio sull'architettura e l'information hiding, il \textbf{Tutorato 1} rafforza questi concetti. Negli esercizi proposti dai tutor, la progettazione corretta dei metodi \texttt{public} contro l'accesso diretto ai campi \texttt{private} risulta essere il "cuore" delle correzioni. Progettare fin da subito pensando a "chi" deve leggere o modificare "cosa" (ed esponendo di conseguenza solo i metodi necessari) è l'approccio ingegneristico che accompagnerà tutto il corso.
+
+
+\newpage
+\section{Lezione 04: Incapsulamento, Invarianti e Memory Layout}
+
+\subsection{Spiegazione teorica}
+In questa lezione si approfondiscono le conseguenze dell'incapsulamento, si introduce il concetto di \textbf{invariante} e si analizza in dettaglio come Java gestisce la memoria "dietro le quinte", in particolare il passaggio dei parametri e il layout di classi e oggetti (V-Table).
+
+\begin{itemize}
+    \item \textbf{Incapsulamento e Invarianti:} 
+    L'incapsulamento non serve solo a nascondere le informazioni, ma è lo strumento principale per garantire gli \textit{invarianti}. Un invariante è una proprietà o una condizione di un oggetto che deve rimanere \textbf{sempre vera} durante tutta la sua esistenza. 
+    Ad esempio: la vita di un giocatore non può essere negativa, oppure il fuso di una \texttt{TNT} non può essere modificato con valori arbitrari (es. \texttt{-100}). Per far rispettare questi invarianti, si rendono i campi \texttt{private} e si gestisce la logica di mutazione unicamente attraverso metodi di classe controllati.
+
+    \item \textbf{Passaggio dei valori (Value vs Reference):}
+    Quando si passa una variabile a un metodo, il comportamento dipende dal tipo di dato:
+    \begin{itemize}
+        \item \textbf{Tipi Primitivi} (\texttt{int}, \texttt{double}, \texttt{boolean}...): Vengono allocati sullo \textit{Stack} e passati per \textbf{Copia} (Passaggio per valore). Le modifiche fatte dal metodo chiamato non si riflettono sulla variabile originale.
+        \item \textbf{Oggetti e Array}: Vengono allocati nella \textit{Heap}. La variabile nello Stack contiene in realtà un \textbf{Riferimento} (un puntatore) all'oggetto. Quando si passa un oggetto a un metodo, si copia il \textit{riferimento}. Di conseguenza, le modifiche fatte allo stato dell'oggetto all'interno del metodo si rifletteranno anche all'esterno, poiché entrambe le variabili puntano alla stessa area di memoria.
+    \end{itemize}
+
+    \item \textbf{Memory Layout e V-Table:}
+    Quando il programma viene caricato, il codice dei metodi (\texttt{static} e non) va nella \textit{Code Section}, mentre i campi \texttt{static} vanno in un'area \textit{Read-Only}.
+    Ma come fa un oggetto a sapere quali metodi può eseguire? Tramite la \textbf{V-Table} (Virtual Table).
+    \begin{itemize}
+        \item Ogni classe possiede una V-Table, ovvero un array di puntatori che indicano l'indirizzo in memoria delle implementazioni dei suoi metodi.
+        \item Ogni oggetto istanziato nella \textit{Heap} ha una struttura precisa: la prima parola (word) di memoria è un puntatore nascosto alla V-Table della sua classe. Le parole successive contengono i valori dei suoi campi (stato).
+        \item Quando si invoca un metodo su un oggetto (\texttt{p.damage()}), Java segue il puntatore alla V-Table, cerca l'offset del metodo e ne esegue il codice corrispondente.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Protezione degli Invarianti}
+\begin{verbatim}
+public static void invariants() {
+    TNT standardTNT = new TNT();
+    
+    // Se fuseLength fosse public, potremmo violare l'invariante del gioco:
+    // standardTNT.fuseLength = -100; // ORA E' UN ERRORE DI COMPILAZIONE!
+
+    // Utilizzo corretto e sicuro tramite i metodi previsti:
+    standardTNT.ignite();
+    standardTNT.tick();
+}
+\end{verbatim}
+\textbf{Commento:} Rendendo \texttt{fuseLength} e \texttt{isIgnited} privati, costringiamo chi usa la classe \texttt{TNT} a invocare i metodi \texttt{ignite()} e \texttt{tick()}, che al loro interno contengono i controlli di sicurezza (es. non far scendere il fuso sotto lo zero, non esplodere se non innescata).
+
+\subsubsection{Passaggio dei valori per riferimento e per copia}
+\begin{verbatim}
+private static void valuePassingExample(){
+    int x = 0;
+    helper(x); 
+    // x rimane 0. È stato passato il "valore" 0 copiandolo nel nuovo stack frame.
+
+    TNT t = new TNT();
+    reference(t); 
+    // Se "reference()" modifica lo stato di 't', lo vedremo anche qui.
+    // Viene passato l'indirizzo di memoria dell'oggetto.
+
+    TNT[] arrT = new TNT[5];
+    // In questo momento abbiamo creato solo "lo spazio" per l'array.
+    // Le celle contengono 'null' (il valore di default per i riferimenti).
+
+    for (int i = 0 ; i < 5 ; i++){
+        arrT[i] = new TNT(); // Ora creiamo concretamente gli oggetti nella Heap
+    }
+}
+\end{verbatim}
+\textbf{Commento:} L'errore più comune nei linguaggi ad oggetti è la cosiddetta eccezione di \texttt{NullPointerException}. Questo avviene quando si cerca di invocare un metodo o leggere un campo su una variabile riferimento che non punta ad alcun oggetto allocato (come le celle di \texttt{arrT} prima del ciclo \texttt{for}).
+
+\subsubsection{Layout degli oggetti e memoria}
+\begin{verbatim}
+private static void layoutTest(){
+    Player p1 = new Player();
+    Player p2 = new Player();
+    
+    p2.username = "steve";
+    p1.setPoisoned(true);
+}
+\end{verbatim}
+\textbf{Commento (Analisi del Runtime):} Quando viene eseguito questo codice:
+1. Nello \textit{Stack} del \texttt{main} vengono create due variabili, \texttt{p1} e \texttt{p2}.
+2. Nella \textit{Heap} vengono allocati due blocchi di memoria separati.
+3. Il layout di \texttt{p1} nella memoria \textit{Heap} sarà:
+   - Indirizzo: \texttt{0x00A000} (Puntatore alla V-Table di \texttt{Player})
+   - Indirizzo: \texttt{0x00A004} (\texttt{null}, valore di default di \texttt{username})
+   - Indirizzo: \texttt{0x00A008} (\texttt{20}, valore di default di \texttt{health})
+   - Indirizzo: \texttt{0x00A00C} (\texttt{true}, perché modificato da \texttt{setPoisoned})
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Nel \textbf{Tutorato 2}, l'esercizio \texttt{TestMemoria.java} esplora proprio questi concetti chiedendo di prevedere il comportamento delle variabili. In particolare, si è posta l'enfasi sulla differenza fra l'operatore \texttt{==} e le modifiche ai riferimenti.
+
+Quando scriviamo \texttt{Auto a = new Auto("SUV"); Auto b = a;}, non stiamo creando due automobili. \texttt{a} e \texttt{b} sono due variabili sullo \textit{Stack} che puntano all'\textbf{esatto stesso indirizzo} nella \textit{Heap}. Di conseguenza, modificando \texttt{b.colore = "Rosso";}, vedremo la modifica anche interrogando l'oggetto tramite \texttt{a}. Questo fenomeno è alla base dei bug da \textit{side-effect} non previsti, ed è il motivo per cui l'uso di \texttt{private} e metodi \texttt{final} è cruciale nelle architetture "in the large".
+
+
+\newpage
+\section{Lezione 05: Ereditarietà e Polimorfismo di Sottotipo}
+
+\subsection{Spiegazione teorica}
+L'ereditarietà è uno dei pilastri fondamentali della programmazione orientata agli oggetti. Permette di definire una nuova classe (sottoclasse) a partire da una classe esistente (superclasse), ereditandone campi e metodi[cite: 1].
+
+\begin{itemize}
+    \item \textbf{Relazione "is-a":} Una sottoclasse \textit{è un} tipo specifico della superclasse (es. un \texttt{Cane} è un \texttt{Animale}). Questo permette il riutilizzo del codice e la creazione di gerarchie logiche.
+    \item \textbf{Keyword \texttt{extends}:} In Java si usa per stabilire il legame di ereditarietà. Una classe può estendere \textbf{una sola} altra classe (ereditarietà singola).
+    \item \textbf{Polimorfismo di Sottotipo:} È la capacità di un riferimento di tipo superclasse di puntare a un oggetto di una sottoclasse. Ad esempio, una variabile di tipo \texttt{Entity} può contenere un oggetto \texttt{Player}. Questo è fondamentale per scrivere codice generico che funzioni con intere gerarchie.
+    \item \textbf{Costruttori e \texttt{super()}:} I costruttori non vengono ereditati. La sottoclasse deve chiamare il costruttore della superclasse tramite la keyword \texttt{super(...)} come prima istruzione del proprio costruttore. Se non specificato, Java inserisce automaticamente una chiamata a \texttt{super()} senza parametri[cite: 1].
+    \item \textbf{La classe \texttt{Object}:} In Java, ogni classe che non specifica un genitore estende implicitamente \texttt{java.lang.Object}. Essa è la radice di ogni gerarchia e fornisce metodi universali come \texttt{toString()}, \texttt{equals()} e \texttt{hashCode()}.
+    \item \textbf{Diamond Problem:} Java non permette l'ereditarietà multipla di classi (estendere due classi contemporaneamente) per evitare ambiguità: se due genitori hanno un metodo con la stessa firma ma implementazione diversa, la sottoclasse non saprebbe quale ereditare.
+\end{itemize}
+
+\subsection{Implementazione del codice}
+A lezione è stata presentata la gerarchia delle entità, simile a quella di un motore di gioco come Minecraft[cite: 3].
+
+\subsubsection{La Superclasse (\texttt{Entity.java})}
+\begin{verbatim}
+public class Entity {
+    protected double x, y, z; // Visibile alle sottoclassi
+
+    public Entity(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public void move(double dx, double dy, double dz) {
+        this.x += dx;
+        this.y += dy;
+        this.z += dz;
+    }
+}
+\end{verbatim}
+\textbf{Commento:} L'uso del modificatore \texttt{protected} permette alle classi figlie di accedere direttamente alle coordinate, mantenendole però nascoste al resto del programma (incapsulamento parziale).
+
+\subsubsection{La Sottoclasse (\texttt{LivingEntity.java})}
+\begin{verbatim}
+public class LivingEntity extends Entity {
+    private int health;
+
+    public LivingEntity(double x, double y, double z, int health) {
+        super(x, y, z); // Chiamata obbligatoria al costruttore del genitore
+        this.health = health;
+    }
+
+    public void takeDamage(int amount) {
+        this.health -= amount;
+        if (this.health <= 0) {
+            System.out.println("Entity is dead.");
+        }
+    }
+}
+\end{verbatim}
+\textbf{Commento:} \texttt{LivingEntity} aggiunge lo stato \texttt{health} e il comportamento \texttt{takeDamage}, ma possiede anche le coordinate e il metodo \texttt{move} ereditati da \texttt{Entity}.
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Nel \textbf{Tutorato 2}, l'ereditarietà è stata applicata alla gestione di un inventario tramite una gerarchia di oggetti (\texttt{Item})[cite: 2].
+
+\subsubsection{Gerarchia degli Oggetti (\texttt{es5})}
+L'esercizio prevedeva una classe base \texttt{Item} e specializzazioni come \texttt{Arma} e \texttt{Pozione}.
+
+\begin{verbatim}
+// Superclasse generica
+public class Item {
+    private String nome;
+    public Item(String nome) { this.nome = nome; }
+}
+
+// Sottoclasse specializzata
+public class Arma extends Item {
+    private int danno;
+    public Arma(String nome, int danno) {
+        super(nome); // Inizializza la parte "Item" dell'oggetto
+        this.danno = danno;
+    }
+}
+\end{verbatim}
+
+\textbf{Analisi del Polimorfismo (dal main del tutorato):}
+\begin{verbatim}
+Item spada = new Arma("Excalibur", 50); // Lecito per polimorfismo
+Item pozione = new Pozione("Cura", 20); // Lecito per polimorfismo
+
+Item[] inventario = {spada, pozione}; // Array polimorfico
+\end{verbatim}
+\textbf{Osservazione:} Grazie al polimorfismo di sottotipo, possiamo gestire un array di \texttt{Item} che contiene in realtà oggetti diversi (\texttt{Arma}, \texttt{Pozione}). Tuttavia, agendo tramite un riferimento di tipo \texttt{Item}, non potremo accedere direttamente ai metodi specifici di \texttt{Arma} (come un eventuale \texttt{getDanno()}) senza un'operazione di casting, che vedremo nelle lezioni successive[cite: 2].
+
+\newpage
+
+\newpage
+\section{Lezione 06: Astrazione e Polimorfismo Ad-hoc}
+
+\subsection{Spiegazione teorica}
+L'astrazione è il processo di isolamento delle proprietà essenziali di un'entità, tralasciando i dettagli implementativi che non sono comuni a tutte le sue varianti.
+
+\begin{itemize}
+    \item \textbf{Classi Astratte (\texttt{abstract class}):} Una classe dichiarata come astratta non può essere istanziata direttamente (non si può fare \texttt{new}). Serve come modello parziale per le sottoclassi. Può contenere sia metodi implementati che metodi astratti.
+    \item \textbf{Metodi Astratti (\texttt{abstract method}):} Sono metodi dichiarati senza un corpo (senza implementazione). Rappresentano una "promessa": ogni sottoclasse concreta \textbf{deve} fornire un'implementazione per quel metodo.
+    \item \textbf{Polimorfismo Ad-hoc:} Si riferisce alla capacità di un metodo di comportarsi in modo diverso in base ai tipi dei parametri o alla classe che lo implementa. Si divide in:
+    \begin{itemize}
+        \item \textbf{Overloading (Sovraccarico):} Più metodi nella stessa classe con lo \textbf{stesso nome} ma \textbf{parametri diversi} (per tipo o numero). È risolto a tempo di compilazione (\textit{static polymorphism}).
+        \item \textbf{Overriding (Sovrascrittura):} Una sottoclasse fornisce una nuova implementazione di un metodo già definito nella superclasse (stessa firma). È risolto a runtime (\textit{dynamic polymorphism}).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Classi e Metodi Astratti (\texttt{AbstractEntity.java})}
+\begin{verbatim}
+public abstract class AbstractEntity {
+    protected int x, y;
+
+    public AbstractEntity(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    // Metodo concreto: tutte le entità si muovono allo stesso modo
+    public void moveTo(int newX, int newY) {
+        this.x = newX;
+        this.y = newY;
+    }
+
+    // Metodo astratto: ogni entità ha un modo diverso di "esistere" o agire
+    public abstract void update();
+}
+\end{verbatim}
+\textbf{Commento:} \texttt{AbstractEntity} definisce la struttura comune (coordinate) e un comportamento condiviso (\texttt{moveTo}), ma delega il comportamento specifico (\texttt{update}) alle classi figlie[cite: 1].
+
+\subsubsection{Overloading vs Overriding (\texttt{OverloadTest.java})}
+\begin{verbatim}
+public class Calculator {
+    // OVERLOADING: stesso nome, parametri diversi
+    public int sum(int a, int b) { return a + b; }
+    public double sum(double a, double b) { return a + b; }
+}
+
+public class SpecialCalculator extends Calculator {
+    // OVERRIDING: stessa firma della superclasse, comportamento diverso
+    @Override
+    public int sum(int a, int b) {
+        System.out.println("Using special sum!");
+        return a + b + 1;
+    }
+}
+\end{verbatim}
+\textbf{Commento:} L'overloading permette di gestire tipi diversi con lo stesso nome logico[cite: 1]. L'overriding, segnalato dall'annotazione \texttt{@Override}, permette di specializzare un comportamento ereditato[cite: 1].
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Nel \textbf{Tutorato 3}, il concetto di astrazione viene applicato all'esercizio \texttt{Flatland}[cite: 13].
+
+\subsubsection{Esercizio: La gerarchia Flatland}
+L'obiettivo è modellare abitanti di diverse dimensioni (0D, 1D, 2D) che condividono una base comune.
+
+\begin{verbatim}
+// Superclasse astratta che definisce il concetto di abitante
+public abstract class Flatlander {
+    private String nome;
+    public Flatlander(String nome) { this.nome = nome; }
+    
+    // Ogni abitante ha un modo diverso di calcolare la propria "misura"
+    public abstract double getMeasure();
+}
+
+public class Linelander extends Flatlander {
+    private double length;
+    public Linelander(String nome, double length) {
+        super(nome);
+        this.length = length;
+    }
+    @Override
+    public double getMeasure() { return length; }
+}
+\end{verbatim}
+
+\textbf{Analisi critica:} L'uso di \texttt{abstract} impedisce di creare un "abitante generico" che non avrebbe senso nella logica del programma[cite: 13, 16]. Obbligando all'overriding di \texttt{getMeasure()}, il compilatore garantisce che ogni nuova forma aggiunta al sistema (es. \texttt{Squarelander}) implementi correttamente la propria logica di calcolo[cite: 13].
+
+\newpage
+
+\newpage
+\section{Lezione 07: Interfacce e Capacità}
+
+\subsection{Spiegazione teorica}
+Se le classi astratte rappresentano "cosa un oggetto è" (un'entità, un animale), le interfacce rappresentano "cosa un oggetto sa fare" (una capacità). In Java, un'interfaccia è un contratto puramente formale.
+
+\begin{itemize}
+    \item \textbf{Definizione:} Un'interfaccia può contenere solo firme di metodi (di default pubblici e astratti) e costanti (\texttt{public static final}). Non può avere campi di istanza (stato) né costruttori.
+    \item \textbf{Ereditarietà Multipla di Tipo:} A differenza delle classi, una classe può implementare \textbf{infinite interfacce} (\texttt{implements A, B, C...}). Questo permette a un oggetto di assumere molteplici "ruoli" polimorfici.
+    \item \textbf{Metodi \texttt{default} (Java 8+):} Introdotti per permettere l'evoluzione delle interfacce senza rompere il codice esistente. Consentono di scrivere un'implementazione standard all'interno dell'interfaccia stessa. Se una classe eredita due metodi \texttt{default} identici da due interfacce diverse, Java obbliga il programmatore a fare l'override per risolvere l'ambiguità.
+    \item \textbf{Interfacce vs Classi Astratte:} 
+    \begin{itemize}
+        \item \textit{Classe Astratta:} Si usa per condividere codice e stato tra classi strettamente correlate (relazione forte "is-a").
+        \item \textit{Interfaccia:} Si usa per definire un protocollo di comunicazione o una capacità comune a classi anche molto diverse tra loro (relazione debole "can-do").
+    \end{itemize}
+\end{itemize}
+
+\subsection{Implementazione del codice}
+Vediamo come definire un'interfaccia per oggetti che possono essere "annullati" (come un'esplosione o un comando).
+
+\subsubsection{Definizione di un'interfaccia (\texttt{Cancellable.java})}
+\begin{verbatim}
+public interface Cancellable {
+    // Un campo in un'interfaccia è implicitamente public static final
+    int MAX_DELAY = 100; 
+
+    // Un metodo è implicitamente public e abstract
+    void cancel();
+
+    // Metodo default: fornisce un'implementazione base
+    default void logCancel() {
+        System.out.println("Operation was cancelled.");
+    }
+}
+\end{verbatim}
+
+\subsubsection{Implementazione multipla}
+\begin{verbatim}
+public class ExplodingTNT extends TNT implements Cancellable, Runnable {
+    @Override
+    public void cancel() {
+        this.isPrimed = false;
+        System.out.println("Explosion averted.");
+    }
+
+    @Override
+    public void run() {
+        this.explode();
+    }
+}
+\end{verbatim}
+\textbf{Commento:} \texttt{ExplodingTNT} eredita lo stato da \texttt{TNT}, ma acquisisce la capacità di essere annullata (\texttt{Cancellable}) e di essere eseguita come un thread (\texttt{Runnable}).
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Nel \textbf{Tutorato 3}, il concetto di interfaccia è centrale nell'esercizio della \textbf{Macchinetta delle bevande} e dei sistemi di pagamento.
+
+\subsubsection{Sistemi di pagamento polimorfici}
+L'esercizio richiede di gestire diverse modalità di pagamento (\texttt{Moneta}, \texttt{CartaDiCredito}, \texttt{AppPagamento}) che condividono la capacità di fornire un credito.
+
+\begin{verbatim}
+// Interfaccia che definisce la capacità di pagare
+public interface Credito {
+    double getValore();
+    boolean isValido();
+}
+
+public class Moneta implements Credito {
+    private double valore;
+    public Moneta(double valore) { this.valore = valore; }
+    @Override
+    public double getValore() { return valore; }
+    @Override
+    public boolean isValido() { return true; }
+}
+\end{verbatim}
+
+\textbf{Il Pattern Null Object (Approfondimento dal tutorato):}
+Spesso, se non c'è credito, si rischierebbe un \texttt{NullPointerException}. Il tutorato introduce \texttt{NullCredito.java}, una classe che implementa \texttt{Credito} ma restituisce valore 0.
+\begin{verbatim}
+public class NullCredito implements Credito {
+    @Override
+    public double getValore() { return 0.0; }
+    @Override
+    public boolean isValido() { return false; }
+}
+\end{verbatim}
+\textbf{Vantaggio:} La macchinetta può chiamare \texttt{credito.getValore()} senza controllare se l'oggetto è \texttt{null}, rendendo il codice più pulito e robusto.
+
+\newpage
+
+\newpage
+\section{Lezione 08: Composizione vs Ereditarietà e lo Strategy Pattern}
+
+\subsection{Spiegazione teorica}
+Finora abbiamo utilizzato l'ereditarietà per condividere stato e comportamento, modellando la relazione \textit{"is-a"} (è un). Tuttavia, l'ereditarietà in Java è singola (una classe può avere una sola superclasse) e intrinsecamente rigida. 
+
+\begin{itemize}
+    \item \textbf{I limiti dell'Ereditarietà:} Se volessimo modellare un \texttt{Piglin} che può attaccare con la spada, con la balestra o a mani nude, potremmo pensare di creare le sottoclassi \texttt{SwordPiglin}, \texttt{RangedPiglin} e \texttt{PunchPiglin}. Ma cosa succederebbe se a un \texttt{RangedPiglin} si rompesse la balestra a runtime? L'ereditarietà non ci permette di cambiare la classe di un oggetto durante l'esecuzione: un \texttt{RangedPiglin} rimarrebbe tale per sempre. Questo genera un'esplosione combinatoria di classi e una fortissima rigidità.
+    \item \textbf{La Composizione ("has-a"):} La soluzione è favorire la \textit{composizione} rispetto all'ereditarietà. Invece di dire "il Piglin \textbf{è un} tiratore", diciamo "il Piglin \textbf{ha un} metodo di attacco". L'oggetto principale viene composto da sotto-oggetti che ne definiscono il comportamento.
+    \item \textbf{Lo Strategy Pattern:} È un design pattern comportamentale basato sulla composizione che permette di definire una famiglia di algoritmi (strategie), incapsularli in classi separate e renderli intercambiabili. 
+    \begin{itemize}
+        \item Si definisce un'\textbf{Interfaccia} comune per le strategie (es. \texttt{AttackStrategy}).
+        \item Si implementano le \textbf{Strategie Concrete} che rispettano il contratto (es. \texttt{PunchAttack}, \texttt{CrossbowAttack}).
+        \item La classe di \textbf{Contesto} (es. \texttt{Piglin}) mantiene un riferimento all'interfaccia e delega l'azione al sotto-oggetto, potendolo sostituire a runtime.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Implementazione del codice}
+Vediamo come il \texttt{Piglin} utilizzi lo Strategy Pattern per cambiare tipo di attacco dinamicamente senza mai dover cambiare la propria natura (classe).
+
+\subsubsection{L'Interfaccia Strategy (\texttt{AttackStrategy.java})}
+\begin{verbatim}
+package lecture08.strategy.strategies;
+
+public interface AttackStrategy {
+    // Contratto: tutte le strategie di attacco devono poter essere eseguite
+    void execute();
+}
+\end{verbatim}
+\textbf{Commento:} Qualsiasi classe che implementa questa interfaccia dovrà fornire la propria logica per il metodo \texttt{execute()}. 
+
+\subsubsection{Le Strategie Concrete}
+\begin{verbatim}
+// Strategia 1: Attacco corpo a corpo
+public class PunchAttack implements AttackStrategy {
+    @Override
+    public void execute() {
+        System.out.println(">> Attack: *Punch* (Melee Hit)");
+    }
+}
+
+// Strategia 2: Attacco a distanza
+public class CrossbowAttack implements AttackStrategy {
+    @Override
+    public void execute() {
+        System.out.println(">> Attack: *TWANG* (Fired Arrow)");
+    }
+}
+\end{verbatim}
+\textbf{Commento:} La logica dell'attacco non è più cablata nel \texttt{Piglin}, ma è separata in classi altamente modulari. Se volessimo aggiungere un \texttt{AxeAttack}, basterebbe creare una nuova classe senza toccare nulla del codice esistente (Principio Open/Closed).
+
+\subsubsection{La Classe di Contesto (\texttt{Piglin.java})}
+\begin{verbatim}
+package lecture08.strategy;
+import lecture08.strategy.strategies.*;
+
+public class Piglin {
+    // Relazione HAS-A: Il Piglin ha una strategia, non sa quale sia di preciso
+    private AttackStrategy currentStrategy;
+
+    public Piglin(){
+        // Strategia di default alla creazione
+        this.currentStrategy = new PunchAttack();
+    }
+
+    // Permette di cambiare la strategia A RUNTIME
+    public void setStrategy(AttackStrategy newStrategy) {
+        this.currentStrategy = newStrategy;
+        System.out.println("Piglin changed strategy to " 
+                           + newStrategy.getClass().getSimpleName());
+    }
+
+    public void fight() {
+        if (currentStrategy == null) {
+            System.out.println("Piglin stands still (No Strategy).");
+            return;
+        }
+        // DELEGAZIONE: Il Piglin non sa come fare danno, delega all'oggetto
+        System.out.print("Piglin acts: ");
+        currentStrategy.execute();
+    }
+}
+\end{verbatim}
+\textbf{Commento:} Questo è il fulcro del pattern. Il metodo \texttt{fight()} non contiene \texttt{if/else} per capire che arma ha il Piglin, ma fa una semplice \textit{delegazione} al sotto-oggetto tramite \texttt{currentStrategy.execute()}.
+
+\subsubsection{Modifica del comportamento a Runtime (\texttt{Lecture8.main})}
+\begin{verbatim}
+public static void strategyPatternExample() {
+    Piglin monster = new Piglin();
+
+    System.out.println("\n--- Round 1: Default Behavior ---");
+    monster.fight(); // Eseguirà il PunchAttack
+
+    System.out.println("\n--- Round 2: Picking up a crossbow ---");
+    // Sostituiamo il sotto-oggetto: il Piglin cambia comportamento!
+    monster.setStrategy(new CrossbowAttack());
+    monster.fight(); // Eseguirà il CrossbowAttack
+}
+\end{verbatim}
+\textbf{Commento:} Se l'arma del Piglin si rompesse, basterebbe chiamare \texttt{monster.setStrategy(new PunchAttack())} e il comportamento ritornerebbe immediatamente quello corpo a corpo. L'ereditarietà non ci avrebbe mai permesso una simile flessibilità dinamica.
+
+\newpage
+\section{Lezione 09 (Lab 1): Modellazione, Identità degli oggetti e gerarchie}
+
+\subsection{Spiegazione teorica e Struttura del Laboratorio}
+Questa lezione rappresenta il primo di una serie di laboratori pratici. Nei laboratori, l'obiettivo si sposta dalla teoria alla \textit{modellazione attiva} di un problema, per cominciare a prepararsi ai temi d'esame. 
+
+Il focus del Laboratorio 1 è il primo passo dell'Ingegneria del Software orientata agli oggetti. Data una specifica testuale, si deve procedere per fasi logiche:
+\begin{itemize}
+    \item \textbf{Identificare le Classi e i Campi (Fase 1):} Quali entità diventano classi? Quali informazioni costituiscono lo "stato" di queste entità?
+    \item \textbf{Modificatori di visibilità (Fase 2):} Quali campi devono essere \texttt{private} per garantire l'incapsulamento e gli invarianti? Quali metodi devono essere \texttt{public} per offrire un'interfaccia usabile?
+    \item \textbf{Uso di \texttt{final} e \texttt{static} (Fase 3):} Quali informazioni non cambiano mai nel ciclo di vita dell'oggetto (\texttt{final})? Quali appartengono alla classe in generale e non alla singola istanza (\texttt{static})?
+    \item \textbf{Identificazione delle Enum (Fase 4):} Quali concetti rappresentano un set finito di opzioni categoriche (anziché usare "magic numbers" o stringhe) e richiedono un'enumerazione?
+\end{itemize}
+
+Durante i laboratori, si discute in gruppo non tanto per scrivere subito l'algoritmo perfetto, ma per definire le \textit{firme}, le gerarchie e lo \textit{scheletro} architetturale.
+
+\subsection{Implementazione pratica: Esercizio di Modellazione}
+Simulando il lavoro di gruppo del Lab 1, proviamo a modellare l'identità di un'arma in un gioco:
+
+\begin{verbatim}
+// Fase 4: Identificazione delle Enum
+public enum Rarity {
+    COMMON, UNCOMMON, RARE, EPIC, LEGENDARY
+}
+
+public class Weapon {
+    // Fase 3: Scelta dei modificatori final e static
+    public static final int MAX_DURABILITY = 100; // Globale a tutte le armi
+
+    // Fase 1 e 2: Definizione dei campi e della visibilità
+    private final String name;           // Immutabile e nascosto
+    private final Rarity rarity;         // Immutabile e nascosto
+    private int durability;              // Mutevole, ma privato (Incapsulamento)
+    
+    public Weapon(String name, Rarity rarity) {
+        this.name = name;
+        this.rarity = rarity;
+        this.durability = MAX_DURABILITY;
+    }
+
+    // API per manipolare lo stato in modo sicuro mantenendo gli invarianti
+    public void use() {
+        if (this.durability > 0) {
+            this.durability--;
+            System.out.println(this.name + " used. Durability: " + this.durability);
+        } else {
+            System.out.println(this.name + " is broken!");
+        }
+    }
+}
+\end{verbatim}
+\textbf{Commento e Analisi:} Questo snippet riassume l'obiettivo formativo del Lab 1. La classe \texttt{Weapon} nasconde il suo stato interno (\texttt{private}). Il nome e la rarità sono \texttt{final} perché l'identità dell'arma non cambia nel tempo. L'uso della \texttt{enum Rarity} scongiura l'uso di stringhe vulnerabili a errori di battitura. Infine, \texttt{MAX\_DURABILITY} è stato reso \texttt{static} e \texttt{final} perché è una regola globale del gioco.
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+I concetti dei laboratori si intrecciano fortemente con gli esercizi assegnati nei tutorati. Un ottimo esempio affrontato dai tutor (dal \textbf{Tutorato 1 e 2}) per modellare l'identità e i vincoli degli oggetti è l'esercizio \textbf{Microscopio e Batterio}.
+
+Nell'esercizio viene chiesto di estrarre dal testo le classi e la loro struttura:
+\begin{itemize}
+    \item \textbf{Le Classi:} \texttt{Batterio}, \texttt{Microscopio}.
+    \item \textbf{Le Enum:} \texttt{Morfologia} (\texttt{BACILLO}, \texttt{COCCO}, \texttt{SPIRILLO}) e \texttt{TipoMicroscopio} (\texttt{OTTICO}, \texttt{ELETTRONICO}).
+    \item \textbf{L'Identità:} Un batterio possiede un nome (\texttt{final}) e una morfologia (\texttt{final}), modellati con un costruttore mirato.
+\end{itemize}
+
+Questo approccio metodico alla lettura del testo — estraendo prima i \textit{sostantivi} (potenziali classi o enum) e poi definendone i \textit{vincoli} (static, final, private) — è il cuore pulsante del \textit{programming in the large} e la chiave per affrontare correttamente i successivi temi d'esame.
+
+
+\newpage
+\section{Lezione 10: Il Dispatch (Static vs Dynamic Binding) e la risoluzione degli argomenti}
+
+\subsection{Spiegazione teorica}
+In Java, il processo che determina quale blocco di codice eseguire quando viene invocato un metodo si chiama \textbf{Dispatch} (o Binding). Per capirlo a fondo, dobbiamo distinguere due concetti fondamentali legati alle variabili:
+\begin{itemize}
+    \item \textbf{Tipo Statico (Compile-time type):} È il tipo con cui la variabile è stata dichiarata nel codice (es. \texttt{Block b}). È l'unico tipo che il compilatore "vede". Determina \textit{quali} metodi è possibile chiamare su quell'oggetto.
+    \item \textbf{Tipo Dinamico (Runtime type):} È il tipo dell'oggetto reale che è stato allocato in memoria nella Heap tramite la keyword \texttt{new} (es. \texttt{= new DiamondBlock()}). Determina \textit{quale implementazione} del metodo verrà effettivamente eseguita a runtime.
+\end{itemize}
+
+A partire da questa distinzione, Java applica due meccanismi di binding:
+\begin{enumerate}
+    \item \textbf{Dynamic Binding (Late Binding / Dynamic Dispatch):} È il comportamento standard in Java. Quando si invoca un metodo su un oggetto, la Java Virtual Machine guarda il \textbf{tipo dinamico} dell'oggetto per decidere quale codice eseguire. Se la sottoclasse ha fatto l'overriding del metodo, verrà eseguita l'implementazione della sottoclasse.
+    \item \textbf{Static Binding (Early Binding / Static Dispatch):} Avviene a tempo di compilazione. Il compilatore collega la chiamata al metodo usando il \textbf{tipo statico} dell'oggetto. Questo accade obbligatoriamente (e unicamente) per i metodi dichiarati \texttt{final}, \texttt{static} e \texttt{private}, perché, per definizione, tali metodi non possono subire overriding.
+\end{enumerate}
+
+\textbf{Interazione tra Dispatch e Overloading (Risoluzione degli argomenti):}
+L'overloading (stesso nome del metodo, parametri diversi) viene risolto \textbf{a tempo di compilazione}. Il compilatore decide quale variante (firma) del metodo chiamare basandosi esclusivamente sul \textbf{tipo statico} degli argomenti passati. Il \textit{Dynamic Dispatch} si applica solo all'oggetto ricevente (quello alla sinistra del punto), mai ai suoi argomenti.
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Static vs Dynamic Binding (\texttt{Block} e \texttt{DiamondBlock})}
+\begin{verbatim}
+public class Block {
+    // Metodo normale: soggetto a Dynamic Binding
+    public void onBreak() {
+        System.out.println("Generic Block breaks into pieces.");
+    }
+    
+    // Metodo final: soggetto a Static Binding
+    public final void getRegistryName() {
+        System.out.println("ID: minecraft:generic_block");
+    }
+}
+
+public class DiamondBlock extends Block {
+    @Override
+    public final void onBreak() {
+        System.out.println("DiamondBlock: *CLING* (Drops Diamonds!)");
+    }
+    // L'override di getRegistryName() genererebbe un errore di compilazione
+}
+\end{verbatim}
+
+\textbf{Test del Binding:}
+\begin{verbatim}
+private static void predictBindingExample() {
+    Block bd = new DiamondBlock(); 
+    // Tipo statico di bd: Block
+    // Tipo dinamico di bd: DiamondBlock
+
+    bd.onBreak(); 
+    // Dynamic Binding: si valuta il tipo dinamico (DiamondBlock).
+    // Stampa: "DiamondBlock: *CLING* (Drops Diamonds!)"
+
+    bd.getRegistryName();
+    // Static Binding (a causa del final): si valuta il tipo statico (Block).
+    // Stampa: "ID: minecraft:generic_block"
+}
+\end{verbatim}
+\textbf{Commento:} Benché \texttt{bd} contenga un \texttt{DiamondBlock}, il compilatore ci impedisce di invocare metodi esclusivi del diamante (come un ipotetico \texttt{getDiamond()}) perché il tipo statico \texttt{Block} non li possiede. L'IDE vi darebbe errore.
+
+\subsubsection{La risoluzione degli argomenti (\texttt{Miner} e \texttt{Pick})}
+\begin{verbatim}
+public class Miner {
+    // Variante 1: ascia normale
+    public void mine(Pick p) {
+        System.out.println("-> Used Generic Mining (Slow)");
+    }
+    
+    // Variante 2: ascia in diamante
+    public void mine(DiamondPick p) {
+        System.out.println("-> Used Diamond Mining (Instant!)");
+    }
+}
+
+public static void argBindingExample() {
+    Miner steve = new Miner();
+    
+    Pick hiddenDiamond = new DiamondPick();
+    // Tipo statico dell'argomento: Pick
+    // Tipo dinamico dell'argomento: DiamondPick
+
+    steve.mine(hiddenDiamond); 
+}
+\end{verbatim}
+\textbf{Commento:} L'invocazione \texttt{steve.mine(hiddenDiamond)} stamperà \texttt{-> Used Generic Mining (Slow)}. Perché non ha usato la variante superveloce? Perché il compilatore, nel momento in cui sceglie quale metodo in overloading usare, valuta il \textbf{tipo statico} dell'argomento (\texttt{Pick}). L'overloading si risolve in modo statico e ignora il reale contenuto dinamico della variabile.
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Negli esercizi visti a lezione e a tutorato sul binding, la regola d'oro da applicare per non farsi fregare durante gli esami è divisa in due step mentali:
+\begin{enumerate}
+    \item \textbf{Fase 1 (Compilazione e Staticità):} Guarda il \textit{tipo statico} dell'oggetto che chiama il metodo. Verifica se il metodo esiste lì. Se ci sono parametri in overloading, scegli la firma esatta usando i \textit{tipi statici} degli argomenti passati. Se il metodo non viene trovato, è un \textit{Errore di Compilazione}.
+    \item \textbf{Fase 2 (Esecuzione e Dinamicità):} Se la firma è stata trovata, controlla i modificatori. Se il metodo è \texttt{final}, \texttt{static} o \texttt{private}, esegui la versione trovata nella Fase 1. Altrimenti (metodo virtuale normale), passa al \textit{tipo dinamico} dell'oggetto. Cerca dal basso della gerarchia (partendo dal tipo dinamico) verso l'alto la versione sovrascritta (\texttt{@Override}) più specifica per quella firma ed esegui quella.
+\end{enumerate}
+
+\newpage
+\section{Lezione 11: V-Table, Casting, instanceof e Template Method}
+
+\subsection{Spiegazione teorica}
+Questa lezione fa da ponte tra i concetti di basso livello (come la JVM gestisce la memoria per l'ereditarietà) e quelli di alto livello (Design Patterns per evitare codice fragile).
+
+\begin{itemize}
+    \item \textbf{La V-Table (Virtual Table):} Abbiamo visto che il \textit{Dynamic Dispatch} sceglie il metodo a runtime in base al tipo dinamico dell'oggetto. Ma come fa fisicamente? 
+    Ogni classe possiede una V-Table, ovvero una tabella (array) di puntatori alle locazioni di memoria dove risiedono le istruzioni dei suoi metodi. 
+    Quando un oggetto viene allocato nella \textit{Heap}, la sua primissima parola di memoria è un puntatore nascosto alla V-Table della sua classe. 
+    Se invochiamo \texttt{miner.mine(p)}, Java va all'indirizzo dell'oggetto \texttt{miner}, segue il puntatore alla V-Table, salta all'offset corrispondente al metodo \texttt{mine} ed esegue il codice.
+    
+    \item \textbf{Casting e \texttt{instanceof}:} 
+    A volte il tipo statico di una variabile è generico (es. \texttt{Entity}), ma abbiamo l'esigenza di invocare un metodo specifico della sua classe reale (es. \texttt{hiss()} di \texttt{Creeper}).
+    \begin{itemize}
+        \item \texttt{instanceof}: È un operatore che restituisce \texttt{true} se il tipo dinamico dell'oggetto a runtime è compatibile con la classe specificata.
+        \item \textbf{Casting (Downcasting):} Forza il compilatore a trattare una variabile generica come se fosse di un tipo più specifico (es. \texttt{(Creeper) myEntity}). Se ci sbagliamo e l'oggetto non è davvero di quel tipo, il programma va in crash a runtime con una \texttt{ClassCastException}.
+    \end{itemize}
+    \textbf{Attenzione (Code Smell):} Il professore sottolinea che l'uso massiccio di \texttt{instanceof} e casting è un sintomo di pessima progettazione a oggetti. Viola il Principio Open/Closed (se aggiungo una classe, devo scovare e modificare decine di \texttt{if/else} sparsi nel codice), è prono a errori ed è lento. La soluzione è sempre il \textbf{Polimorfismo}.
+
+    \item \textbf{Il Pattern Template Method:} È un \textit{Behavioral Pattern} che risolve proprio l'abuso di \texttt{instanceof}. Si applica quando diverse classi eseguono la stessa identica sequenza di operazioni (un algoritmo standard), ma differiscono nei dettagli di alcuni passaggi.
+    \begin{itemize}
+        \item Si crea una classe astratta base.
+        \item Si definisce un metodo \textbf{scheletro} (il \textit{Template Method}), contrassegnato come \texttt{final} affinché l'ordine delle operazioni non possa essere alterato.
+        \item Lo scheletro richiama altri metodi interni (\texttt{abstract} o \texttt{protected}) che le sottoclassi implementeranno per fornire il comportamento specifico del singolo step.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Il problema: L'abuso di \texttt{instanceof} (\texttt{BadBlock.java})}
+\begin{verbatim}
+public class BadBlock {
+    public void destroyBlock() {
+        System.out.println("1. Spawning Particles...");
+        System.out.print("2. Playing Sound: ");
+        
+        // CATTIVA PRATICA: Controlli manuali sul tipo (lento e fragile)
+        if (this instanceof BadGlass) {
+            System.out.println("*Tink* (Glass Sound)");
+        } else {
+            System.out.println("*Crack* (Default Stone Sound)");
+        }
+
+        System.out.print("3. Dropping: ");
+        if (this instanceof BadDiamond) {
+            BadDiamond diamond = (BadDiamond) this; // Casting
+            diamond.dropSpecialDiamond();
+        } else if (this instanceof BadGlass) {
+            System.out.println("Nothing (Shattered)");
+        } else {
+            System.out.println("Cobblestone");
+        }
+    }
+}
+\end{verbatim}
+\textbf{Commento:} Questo codice è fragile. Se domani aggiungessimo un \texttt{BadWoodBlock}, dovremmo aprire questa classe e aggiungere altri \texttt{else if}. Le classi non sono indipendenti, violando le regole base dell'OOP.
+
+\subsubsection{La soluzione: Il Template Method (\texttt{AbstractBlock.java})}
+\begin{verbatim}
+public abstract class AbstractBlock {
+
+    // IL TEMPLATE METHOD: È final, fissa l'algoritmo (lo scheletro)
+    public final void destroyBlock() {
+        spawnParticles();   // Step 1: Logica privata, fissa per tutti
+        playBreakSound();   // Step 2: Sovrascrivibile (facoltativo)
+        dropLoot();         // Step 3: Obbligatorio per le sottoclassi
+    }
+
+    private void spawnParticles() {
+        System.out.println(" *Poof* (Particles spawned)");
+    }
+
+    // Comportamento di default che le sottoclassi possono cambiare (Hook)
+    protected void playBreakSound() {
+        System.out.println(" *Crack* (Sound played)");
+    }
+
+    // Comportamento astratto: ogni blocco DEVE dire cosa droppa
+    protected abstract void dropLoot();
+}
+\end{verbatim}
+\textbf{Commento:} La sequenza delle operazioni (\texttt{destroyBlock}) è blindata dal \texttt{final}. Le sottoclassi non devono più preoccuparsi di \textit{quando} fare un'azione, ma solo di \textit{come} farla all'interno del proprio contesto.
+
+\subsubsection{Le implementazioni concrete}
+\begin{verbatim}
+public class DiamondOre extends AbstractBlock {
+    @Override
+    protected void dropLoot() {
+        System.out.println(" Dropped: 1x Diamond");
+    }
+}
+
+public class GlassBlock extends AbstractBlock {
+    @Override
+    protected void dropLoot() {
+        System.out.println(" Dropped: Nothing (It shattered)");
+    }
+
+    @Override
+    protected void playBreakSound() {
+        System.out.println("*Tink* (Glass Sound)");
+    }
+}
+\end{verbatim}
+\textbf{Commento:} Le classi figlie sono ora pulite ed estremamente focalizzate solo sulle proprie peculiarità.
+
+\subsection{Esercizi e approfondimenti a lezione}
+Per verificare la flessibilità del pattern, è stato richiesto di espanderlo per gestire i blocchi di legno. La potenza del \textit{Template Method} sta nel permettere di creare livelli intermedi nella gerarchia senza intaccare lo scheletro originale.
+
+\begin{verbatim}
+// Livello intermedio: fissa il suono per TUTTI i legni, ma lascia astratto il drop
+public abstract class AbstractWoodBlock extends AbstractBlock {
+    @Override
+    protected void playBreakSound() { 
+        System.out.println(" (Soft Wood Sound)");
+    }
+}
+
+// Implementazione finale: l'albero specifico definisce solo il suo loot
+public class OakBlock extends AbstractWoodBlock {
+    @Override
+    protected void dropLoot() { 
+        System.out.println(" -> Dropped: Oak Log");
+    }
+}
+\end{verbatim}
+\textbf{Conclusione:} Se volessimo aggiungere un \texttt{CherryBlock}, basterebbe estendere \texttt{AbstractWoodBlock} e implementare una singola riga per il drop. Il codice madre del distruttore e della gestione del suono non verrebbe toccato, rispettando appieno il principio dell'ereditarietà.
+
+\newpage
+\section{Lezione 12 (Lab 2): Classi astratte, Metodi e Refactoring}
+
+\subsection{Spiegazione teorica e Struttura del Laboratorio}
+Questo secondo laboratorio sposta l'attenzione dalla semplice identificazione delle entità (vista nel Lab 1) alla \textbf{progettazione avanzata delle gerarchie e dei comportamenti}. L'obiettivo è abituarsi a fare scelte architetturali consapevoli in base al testo di un problema.
+
+I gruppi di lavoro affrontano le seguenti fasi di modellazione:
+\begin{itemize}
+    \item \textbf{Fase 1: Le classi astratte:} Non tutte le entità identificate in un testo devono poter essere istanziate direttamente. Capire quando una classe serve solo da "stampo base" e da collettore di comportamenti comuni (diventando quindi \texttt{abstract}) è essenziale per evitare l'istanziazione di oggetti logici incompleti o troppo generici.
+    \item \textbf{Fase 2: I metodi, astratti e non:} All'interno di una classe astratta o di un genitore, il programmatore deve tracciare un confine netto: quali comportamenti hanno un'implementazione universale e condivisa da tutti i figli (metodi \textit{concreti}), e quali invece rappresentano solo un contratto che \textit{deve} essere specializzato da ogni figlio (metodi \textit{astratti}).
+    \item \textbf{Fase 3: Campi che dovrebbero essere metodi:} Un errore gravissimo e comunissimo nella progettazione è salvare come \textit{stato} (in una variabile) un'informazione che è in realtà \textbf{derivabile} o calcolabile al volo da altri stati. Trasformare questi campi in metodi previene inconsistenze logiche.
+\end{itemize}
+
+\subsection{Implementazione pratica: Esercizio di Refactoring}
+Per illustrare il cuore della "Fase 3", consideriamo un errore classico di modellazione e la sua risoluzione ingegneristica.
+
+\begin{verbatim}
+// MODELLAZIONE ERRATA: "isAlive" è un campo statico nello stato
+public class BadPlayer {
+    private int health = 20;
+    private boolean isAlive = true; // Rischio altissimo di inconsistenza!
+
+    public void takeDamage(int amount) {
+        this.health -= amount;
+        // Se non ci ricordiamo di aggiornare isAlive, il giocatore
+        // avrà vita <= 0 ma risulterà ancora vivo per il resto del gioco.
+        if (this.health <= 0) {
+            this.isAlive = false; 
+        }
+    }
+}
+
+// MODELLAZIONE CORRETTA: "isAlive" diventa un metodo (Proprietà calcolata)
+public class GoodPlayer {
+    private int health = 20;
+
+    public void takeDamage(int amount) {
+        this.health -= amount;
+    }
+
+    // Il campo sparisce e diventa un metodo: 
+    // valuta lo stato "in tempo reale", garantendo l'invariante logico.
+    public boolean isAlive() {
+        return this.health > 0;
+    }
+}
+\end{verbatim}
+
+\textbf{Commento e Analisi:} Nel primo caso stiamo memorizzando informazioni ridondanti. Mantenere sincronizzati \texttt{health} e \texttt{isAlive} attraverso decine di metodi (danno, cure, pozioni, respawn) è prono a errori (\textit{bug}). Nel secondo caso delegando l'informazione "vita" a un metodo derivato (\texttt{isAlive()}), si rende la classe a prova di errore e si riduce anche la memoria occupata (un \texttt{boolean} in meno per ogni oggetto allocato).
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Il materiale dei tutorati e le correzioni in classe si concentrano moltissimo sulla \textbf{scomposizione del polimorfismo}. 
+
+Spesso un esame (o un esercizio) si presenta con una richiesta che invoglia a usare uno \texttt{switch} o un \texttt{if/else} infinito per decidere come comportarsi in base a un tipo (es. "Se è un blocco di legno suona X, se è vetro suona Y"). Il laboratorio insegna a estrarre questa logica creando una \texttt{ClasseAstratta} genitore con un metodo \texttt{abstract void suona()}, e tante sottoclassi concrete quante sono le varianti. Il programma principale chiamerà semplicemente \texttt{blocco.suona()} senza più doversi preoccupare del tipo specifico del blocco, sfruttando in pieno il \textbf{Dynamic Dispatch} (visto nella Lezione 10) e ripulendo drasticamente l'architettura.
+
+
+\newpage
+\section{Lezione 13: Gestione degli Errori ed Eccezioni}
+
+\subsection{Spiegazione teorica}
+Nei linguaggi meno recenti (come il C), gli errori venivano gestiti tramite "codici di errore" (es. ritornare \texttt{-1} se un'operazione falliva). Questo approccio porta a numerosi problemi: come differenziare gli errori? Cosa succede se \texttt{-1} è un valore di ritorno lecito? Come separare la logica di business dalla gestione degli errori?
+
+I linguaggi orientati agli oggetti risolvono questo problema elevandolo a livello semantico tramite le \textbf{Eccezioni}.
+\begin{itemize}
+    \item \textbf{La gerarchia delle eccezioni:} In Java, tutte le eccezioni estendono la classe radice \texttt{Throwable}. Da essa derivano due grandi rami:
+    \begin{itemize}
+        \item \texttt{Error}: Errori critici della JVM (es. \texttt{OutOfMemoryError}). Non vanno mai gestiti.
+        \item \texttt{Exception}: Errori recuperabili derivanti dalla logica dell'applicazione. Si dividono a loro volta in:
+        \begin{itemize}
+            \item \textbf{Checked Exceptions:} Il compilatore obbliga il programmatore a gestirle (tramite \texttt{try-catch} o dichiarandole nella firma del metodo).
+            \item \textbf{Unchecked Exceptions (\texttt{RuntimeException}):} Eccezioni dovute a bug del programmatore (es. \texttt{NullPointerException}, \texttt{IndexOutOfBoundsException}). Queste \textbf{non} vanno gestite con un \texttt{try-catch}, ma prevenute sistemando il codice logico (es. controllando che l'indice non sia fuori dai limiti prima di accedere all'array).
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Sintassi base (\texttt{throw} e \texttt{throws}):}
+    \begin{itemize}
+        \item \texttt{throw new ...}: Solleva materialmente l'eccezione, interrompendo l'esecuzione normale del metodo.
+        \item \texttt{throws ...}: Si mette nella firma del metodo per dichiarare che il metodo "potrebbe" sollevare tali eccezioni, scaricando la responsabilità di gestirle a chi lo invoca.
+    \end{itemize}
+
+    \item \textbf{Gestione (\texttt{try-catch}):} Se un metodo dichiara di lanciare un'eccezione checked, chi lo chiama deve racchiuderlo in un blocco \texttt{try}. Se l'eccezione si verifica, il flusso salta al blocco \texttt{catch} corrispondente. \textbf{Regola fondamentale:} i blocchi \texttt{catch} vanno ordinati dal più specifico (sottoclasse) al più generico (superclasse).
+
+    \item \textbf{Eccezioni e Subtyping (Overriding):} Se una sottoclasse fa l'override di un metodo, può dichiarare (\texttt{throws}) solo le stesse eccezioni del metodo originale, un sottoinsieme di esse, oppure sottotipi di quelle originali. \textbf{Non può dichiarare eccezioni nuove o più generiche}. Questo garantisce che il polimorfismo non si rompa a runtime.
+
+    \item \textbf{Try-with-resources:} Un costrutto speciale (es. \texttt{try (FileReader f = new FileReader(...)) \{ ... \}}) introdotto per chiudere automaticamente le risorse (file, connessioni) al termine del blocco, anche in caso di errore. Funziona solo con oggetti che implementano l'interfaccia \texttt{AutoCloseable}.
+\end{itemize}
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Definizione di una gerarchia di Eccezioni}
+Creare eccezioni personalizzate è utile per dare semantica precisa agli errori del nostro dominio (es. Minecraft).
+\begin{verbatim}
+// Eccezione base del nostro dominio
+public class CraftingException extends Exception {
+    public CraftingException(String msg) { super(msg); }
+}
+
+// Eccezioni specifiche figlie di CraftingException
+public class RecipeMissingException extends CraftingException {
+    public RecipeMissingException(String msg) { super(msg); }
+}
+
+public class InventoryFullException extends CraftingException {
+    public InventoryFullException(String msg) { super(msg); }
+}
+\end{verbatim}
+
+\subsubsection{Sollevare e dichiarare le eccezioni (\texttt{CraftingTable.java})}
+\begin{verbatim}
+public class CraftingTable {
+    // La firma dichiara quali errori checked possono sfuggire da questo metodo
+    public Block craftAdvanced(String item) throws RecipeMissingException, 
+                                                   InventoryFullException {
+        if (item.equals("UnknownThing")) {
+            // Generazione materiale dell'errore
+            throw new RecipeMissingException("What is a " + item + "?");
+        }
+        
+        boolean hasSpace = false;
+        if (!hasSpace) {
+            throw new InventoryFullException("No empty slots available.");
+        }
+        return new Block("Boat");
+    }
+}
+\end{verbatim}
+
+\subsubsection{Catturare e gestire gli errori}
+\begin{verbatim}
+public static void exceptionsExample() {
+    CraftingTable table = new CraftingTable();
+    
+    try {
+        table.craftAdvanced("Diamond_Sword"); // Potrebbe fallire
+    } 
+    catch (RecipeMissingException e) {
+        System.out.println("Unknown Recipe: " + e.getMessage());
+        System.out.println(">> Opening Recipe Book...");
+    } 
+    catch (InventoryFullException e) {
+        System.out.println("Inventory Full: " + e.getMessage());
+        System.out.println(">> Please clear a slot.");
+    } 
+    catch (Exception e) { // Catch generico di "salvataggio" sempre alla fine
+        System.out.println("Critical Error: " + e.getMessage());
+    }
+}
+\end{verbatim}
+\textbf{Commento:} L'uso del \texttt{try-catch} divide in modo netto la \textit{business logic} (il tentativo di craftare nel \texttt{try}) dalla \textit{error logic} (i vari \texttt{catch}). 
+
+\subsubsection{Eccezioni e Costruttori}
+I costruttori non possono restituire valori, quindi le eccezioni sono \textbf{l'unico modo} per segnalare e bloccare la creazione di un oggetto in uno stato invalido.
+\begin{verbatim}
+public CraftingTable(int n) throws CraftingException {
+    if (n < 0) {
+        throw new CraftingException("Cannot create table with negative slots");
+    }
+}
+\end{verbatim}
+
+\subsection{Esercizi e approfondimenti dai laboratori (Lab 3)}
+Il \textbf{Laboratorio 3} pone l'accento sul processo di ingegnerizzazione degli errori:
+\begin{enumerate}
+    \item \textbf{Quali eccezioni definire?} Leggendo un tema d'esame, ogni frase che esprime un vincolo ("Un giocatore non può usare un'arma rotta", "Un prelievo non può superare il saldo") si traduce in una classe \texttt{Exception} (es. \texttt{BrokenWeaponException}, \texttt{InsufficientFundsException}).
+    \item \textbf{Dove lanciarle (\texttt{throw})?} Solitamente all'inizio dei metodi di mutazione dello stato (\texttt{setter}, \texttt{withdraw}, \texttt{attack}) per validare gli input o lo stato interno.
+    \item \textbf{Dove catturarle (\texttt{try-catch})?} Mai all'interno delle classi di modello base. Le eccezioni vanno "tirate" verso l'alto e gestite nei \textit{Controller} o nell'interfaccia utente (es. la classe \texttt{Main} o un \texttt{GameEngine}), in modo da poter mostrare un messaggio di errore all'utente.
+\end{enumerate}
+
+\newpage
+\section{Lezione 14: Modellazione e Spawner}
+
+\subsection{Spiegazione teorica}
+In questa lezione il focus si sposta dalla singola classe alla progettazione di un **sistema di gestione**. Spesso nei software (specialmente nei videogiochi o nei sistemi di monitoraggio) non gestiamo oggetti isolati, ma intere popolazioni di entità che nascono, agiscono e muoiono.
+
+\begin{itemize}
+    \item \textbf{Responsibility-Driven Design:} Bisogna decidere "chi fa cosa". Se abbiamo molte entità (come i mostri in Minecraft), non è efficiente che ognuna si gestisca da sola nel programma principale. Serve un oggetto "Manager", chiamato **Spawner**, che ha la responsabilità di:
+    \begin{itemize}
+        \item Mantenere un elenco (collezione) di tutte le entità attive.
+        \item Creare nuove istanze e aggiungerle alla gestione.
+        \item Aggiornare lo stato di tutte le entità in un unico ciclo (\textit{tick}).
+    \end{itemize}
+    
+    \item \textbf{Introduzione alle Collezioni (List):} Per gestire un numero variabile di entità, non usiamo gli array (che hanno dimensione fissa), ma le liste dinamiche di Java, come \texttt{ArrayList<T>}.
+    \begin{itemize}
+        \item \texttt{List<Entity>}: È un primo esempio di **Generics**. Indica una lista che può contenere solo oggetti di tipo \texttt{Entity} o sottoclassi.
+        \item \texttt{entities.add(e)}: Aggiunge un elemento alla fine.
+        \item \texttt{for (Entity e : entities)}: Ciclo \textit{for-each} per iterare su tutta la collezione.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Implementazione del codice}
+Vediamo il cuore dello \texttt{Spawner}, che utilizza il polimorfismo per aggiornare entità diverse senza conoscerne il tipo specifico.
+
+\subsubsection{La classe Spawner (\texttt{Spawner.java})}
+\begin{verbatim}
+package lecture14.spawn;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Spawner {
+    // Collezione di entità gestite
+    private final List<Entity> entities;
+
+    public Spawner() {
+        this.entities = new ArrayList<>();
+    }
+
+    // Aggiunge un'entità alla gestione
+    public void spawn(Entity e) {
+        this.entities.add(e);
+    }
+
+    // Aggiornamento globale (Tick)
+    public void tick() {
+        System.out.println("--- Spawner Tick ---");
+        for (Entity e : entities) {
+            // Polimorfismo: ogni entità agisce secondo la propria logica
+            e.update(); 
+        }
+    }
+}
+\end{verbatim}
+\textbf{Commento:} Lo \texttt{Spawner} non sa se nella lista c'è un \texttt{Piglin} o uno \texttt{Zombie}. Sa solo che sono tutte \texttt{Entity} e che possiedono un metodo \texttt{update()}. Questa è la potenza del \textbf{Dynamic Binding} applicato alle collezioni.
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+Nel **Tutorato 4**, il concetto di modellazione di sistemi è stato approfondito con l'esercizio della **Sonda**.
+
+\subsubsection{Modellazione di Sistemi Gerarchici (\texttt{Sonda})}
+L'esercizio richiedeva di modellare una \texttt{Sonda} base e una \texttt{SondaAvanzata} che estende le funzionalità di rilevamento.
+
+\begin{itemize}
+    \item \textbf{Sonda base:} Gestisce un identificativo e una posizione.
+    \item \textbf{SondaAvanzata:} Aggiunge sensori per la temperatura o la pressione.
+\end{itemize}
+
+\textbf{Analisi del problema:} Proprio come lo Spawner gestisce diverse entità, un \texttt{Satellite} potrebbe gestire una \texttt{List<Sonda>}. Questo permette di inviare un comando "rileva dati" a tutte le sonde contemporaneamente, sfruttando l'ereditarietà per far sì che ogni sonda (base o avanzata) risponda con i dati che è in grado di raccogliere.
+
+
+
+\newpage
+\section{Lezione 15: Creazione ed Evoluzione (Factory Method e State Pattern)}
+
+\subsection{Spiegazione teorica}
+Fino a questo momento abbiamo creato gli oggetti usando direttamente la keyword \texttt{new} (es. \texttt{new Zombie()}). Tuttavia, l'uso diretto di \texttt{new} accoppia fortemente (lega) il nostro codice alla classe concreta. Cosa succede se vogliamo che uno \texttt{Spawner} generi mostri diversi in base al livello di difficoltà, senza dover riempire il codice di \texttt{if/else}? E cosa succede quando un'entità cambia drasticamente comportamento nel tempo (es. un Creeper che si innesca)?
+
+Per risolvere queste sfide architetturali, la \textit{Gang of Four (GoF)} ha definito due pattern cruciali:
+
+\begin{itemize}
+    \item \textbf{Factory Method Pattern (Creazionale):} Risolve il problema della creazione degli oggetti. Invece di chiamare \texttt{new} direttamente, si delega l'istanziazione a un metodo speciale (il \textit{Factory Method}). 
+    \begin{itemize}
+        \item Permette a una superclasse di definire un'interfaccia per la creazione di un oggetto, ma lascia alle sottoclassi la decisione su \textit{quale} classe concreta istanziare.
+        \item Favorisce il polimorfismo fin dal momento della nascita dell'oggetto.
+    \end{itemize}
+
+    \item \textbf{State Pattern (Comportamentale):} Risolve il problema di un oggetto il cui comportamento cambia in base al suo stato interno. 
+    \begin{itemize}
+        \item Invece di usare variabili booleane (\texttt{isAngry}, \texttt{isSleeping}) e riempire i metodi di \texttt{if(isAngry) \{ ... \}}, lo stato stesso diventa un \textbf{Oggetto} (simile allo \textit{Strategy Pattern}).
+        \item L'oggetto principale (Contesto) delega l'esecuzione delle azioni all'oggetto "Stato" corrente. Quando lo stato logico cambia, il Contesto sostituisce il proprio oggetto Stato con uno nuovo.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Il Factory Method (\texttt{MobSpawner})}
+Immaginiamo di avere un gioco con diverse zone (Normale e Nether). Vogliamo uno spawner generico, ma che generi mostri appropriati per la zona.
+
+\begin{verbatim}
+// La classe creatrice astratta
+public abstract class MobSpawner {
+    // IL FACTORY METHOD: delega la creazione alle sottoclassi
+    protected abstract Entity createMob(); 
+
+    // Metodo logico comune che usa il Factory Method
+    public void spawnWave() {
+        Entity mob = createMob(); // Non so quale mob sia, ma so che è un'Entity
+        mob.spawnInWorld();
+        System.out.println("Spawned a new " + mob.getClass().getSimpleName());
+    }
+}
+
+// Fabbrica concreta 1
+public class OverworldSpawner extends MobSpawner {
+    @Override
+    protected Entity createMob() {
+        return new Zombie(); // Sceglie di creare uno Zombie
+    }
+}
+
+// Fabbrica concreta 2
+public class NetherSpawner extends MobSpawner {
+    @Override
+    protected Entity createMob() {
+        return new Piglin(); // Sceglie di creare un Piglin
+    }
+}
+\end{verbatim}
+\textbf{Commento:} Se aggiungiamo una nuova dimensione (es. The End), non dobbiamo modificare il codice esistente. Creiamo semplicemente un \texttt{EndSpawner} che restituisce un \texttt{Enderman}. Principio Open/Closed rispettato perfettamente.
+
+\subsubsection{Lo State Pattern (\texttt{Creeper})}
+Un \texttt{Creeper} ha due stati: "Idle" (Calmo) e "Ignited" (Innescato). A seconda dello stato, reagisce diversamente al tempo che passa (tick).
+
+\begin{verbatim}
+// 1. L'Interfaccia dello Stato
+public interface CreeperState {
+    void tick(Creeper context);
+}
+
+// 2. Stato Concreto: Calmo
+public class IdleState implements CreeperState {
+    @Override
+    public void tick(Creeper context) {
+        System.out.println("Creeper is wandering around aimlessly...");
+        // Se il giocatore è vicino, cambia stato!
+        if (context.isPlayerNear()) {
+            System.out.println("*Hiss* Creeper is ignited!");
+            context.setState(new IgnitedState()); // Transizione di stato
+        }
+    }
+}
+
+// 3. Stato Concreto: Innescato
+public class IgnitedState implements CreeperState {
+    private int fuse = 3;
+
+    @Override
+    public void tick(Creeper context) {
+        fuse--;
+        if (fuse <= 0) {
+            System.out.println("BOOM! Creeper exploded!");
+            context.die();
+        } else {
+            System.out.println("Creeper is swelling up... " + fuse);
+        }
+    }
+}
+
+// 4. Il Contesto (Il Creeper stesso)
+public class Creeper extends Entity {
+    private CreeperState currentState;
+
+    public Creeper() {
+        this.currentState = new IdleState(); // Stato iniziale
+    }
+
+    public void setState(CreeperState newState) {
+        this.currentState = newState;
+    }
+
+    @Override
+    public void update() {
+        // Delega il comportamento allo stato corrente
+        currentState.tick(this);
+    }
+}
+\end{verbatim}
+\textbf{Commento:} Senza lo State Pattern, il metodo \texttt{update()} del Creeper sarebbe un enorme e confuso blocco \texttt{if-else}. Con questo pattern, ogni classe di stato si concentra solo sulle proprie regole, rendendo l'evoluzione del comportamento pulita e modulare.
+
+\subsection{Esercizi e approfondimenti dal tutorato}
+La gestione degli stati è un concetto che ricorre spesso nei laboratori avanzati. Nel \textbf{Tutorato 5 e 6}, quando si modellano sistemi come macchinette del caffè o controller di abbonamenti (SubscriptionController), la corretta implementazione dei Factory Method per validare e istanziare l'oggetto corretto (es. creare un \texttt{AbbonatoMensile} o \texttt{Annuale} in base all'input utente) diventa un requisito fondamentale di valutazione.
+Il pattern State, in particolare, è eccellente per modellare i \textit{menu di gioco} o l'interfaccia utente, dove l'intero sistema si comporta in modo diverso a seconda che ci si trovi nello stato "MenuPrincipale", "InGioco" o "Pausa".
+
+
+\end{document}
