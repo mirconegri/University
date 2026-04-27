@@ -14,14 +14,14 @@
 
 % --- Impostazioni Colori ---
 \usepackage{xcolor}
-\pagecolor{black} 
-\color{white}     
+\pagecolor{white} 
+\color{black}     
 
 % --- Impostazioni Link ---
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
-    linkcolor=white, 
+    linkcolor=black, 
     urlcolor=cyan    
 }
 
@@ -236,9 +236,19 @@ Non essendo sempre possibile rappresentare un numero reale con un numero finito 
 
 Per i \texttt{float} a singola precisione, il massimo valore normalizzato rappresentabile è di circa $3.4 \cdot 10^{38}$, mentre il minimo numero positivo denormalizzato rappresentabile è circa $1.4 \cdot 10^{-45}$. 
 \section{Esercizi di Aritmetica e Rappresentazione}
+% --- INTESTAZIONE: DEFINIZIONE CONTATORE E COMANDO ---
+\newcounter{numdomanda}
+\setcounter{numdomanda}{0} % Inizializza a 0
+
+% Questo comando sostituisce \subsection*{Domanda X: ...}
+\newcommand{\domanda}[1]{
+    \stepcounter{numdomanda}
+    \subsection*{Domanda \arabic{numdomanda}: #1}
+}
+% -----------------------------------------------------
 
 % --- PAGINA 1 ---
-\subsection*{Domanda 30: Decimale in Binario}
+\domanda{Decimale in Binario}
 Indicare l'esatto corrispondente in binario di $728_{10}$
 \begin{itemize}
     \item[$\square$] Nessuna delle altre risposte
@@ -270,7 +280,7 @@ Indicare l'esatto corrispondente in binario di $728_{10}$
 \vspace{0.5cm}
 
 % --- PAGINA 2 ---
-\subsection*{Domanda 30: Binario in Decimale}
+\domanda{Binario in Decimale}
 Come si rappresenta in decimale il numero binario $00100110_2$?
 \begin{itemize}
     \item[$\square$] $76_{10}$
@@ -293,7 +303,7 @@ Come si rappresenta in decimale il numero binario $00100110_2$?
 \vspace{0.5cm}
 
 % --- PAGINA 3 ---
-\subsection*{Domanda 30: Decimale in Binario}
+\domanda{Decimale in Binario}
 Indicare l'esatto corrispondente in binario di $3429_{10}$
 \begin{itemize}
     \item[$\square$] Nessuna delle altre risposte
@@ -327,7 +337,7 @@ Indicare l'esatto corrispondente in binario di $3429_{10}$
 \vspace{0.5cm}
 
 % --- PAGINA 4 ---
-\subsection*{Domanda 30: Binario in Decimale}
+\domanda{Binario in Decimale}
 Come si rappresenta in decimale il numero binario $101101101100_2$?
 \begin{itemize}
     \item[$\square$] Nessuna delle altre risposte
@@ -350,7 +360,7 @@ Come si rappresenta in decimale il numero binario $101101101100_2$?
 \vspace{0.5cm}
 
 % --- PAGINA 5 ---
-\subsection*{Domanda 1: Somma Binaria}
+\domanda{Somma Binaria}
 Usando la rappresentazione binaria, svolgere la somma $623+412$
 \begin{itemize}
     \item[$\square$] $623_{10}+412_{10} = 00111111011_2$
@@ -383,7 +393,7 @@ Usando la rappresentazione binaria, svolgere la somma $623+412$
 \vspace{0.5cm}
 
 % --- PAGINA 6 ---
-\subsection*{Domanda 1: Somma Binaria}
+\domanda{Somma Binaria}
 Usando la rappresentazione binaria, svolgere la somma $8494+7726$
 \begin{itemize}
     \item[$\square$] $8494_{10}+7726_{10} = 1100001111110101_2$
@@ -399,8 +409,9 @@ Usando la rappresentazione binaria, svolgere la somma $8494+7726$
 \hrule
 \vspace{0.5cm}
 
+
 % --- PAGINA 7 ---
-\subsection*{Domanda 1: Sottrazione Binaria}
+\domanda{Sottrazione Binaria}
 Usando la rappresentazione binaria, svolgere la sottrazione:
 \begin{verbatim}
   101100111011000110010100 - 
@@ -410,18 +421,18 @@ Usando la rappresentazione binaria, svolgere la sottrazione:
 \begin{itemize}
     \item[$\square$] $10110001000100001000_2$
     \item[$\square$] $10111001100000001000_2$
-    \item[$\square$] Nessuna delle altre risposte
+    \item[$\blacksquare$] Nessuna delle altre risposte
     \item[$\square$] $01100001000010010100_2$
-    \item[$\blacksquare$] $01101001000010000100_2$
+    \item[$\square$] $01101001000010000100_2$
 \end{itemize}
-\textbf{Risposta}: $01101001000010000100_2 \rightarrow$ Opzione \#5.
+\textbf{Risposta}: Nessuna delle altre risposte (il risultato corretto è $010111100110011011101111_2$) $\rightarrow$ Opzione \#3.
 
 \vspace{0.5cm}
 \hrule
 \vspace{0.5cm}
 
 % --- PAGINA 8 ---
-\subsection*{Domanda 21: Moltiplicazione Binaria}
+\domanda{Moltiplicazione Binaria}
 Svolgere in binario la moltiplicazione: $21 \times 11$
 \begin{itemize}
     \item[$\square$] Nessuna delle altre risposte
@@ -448,7 +459,7 @@ Svolgere in binario la moltiplicazione: $21 \times 11$
 \vspace{0.5cm}
 
 % --- PAGINA 9 ---
-\subsection*{Domanda 21: Moltiplicazione Binaria}
+\domanda{Moltiplicazione Binaria}
 Svolgere in binario la moltiplicazione: $85 \times 19$
 \begin{itemize}
     \item[$\square$] Nessuna delle altre risposte
@@ -465,7 +476,7 @@ Svolgere in binario la moltiplicazione: $85 \times 19$
 \vspace{0.5cm}
 
 % --- PAGINA 10 ---
-\subsection*{Domanda 5: Complemento a 2}
+\domanda{Complemento a 2}
 Come è rappresentato -97 in complemento a 2 su 8 bit?
 \begin{itemize}
     \item[$\square$] $01111010_2$
@@ -496,7 +507,7 @@ Invertendo i bit e sommando 1 otteniamo il complemento a 2.\\
 \vspace{0.5cm}
 
 % --- PAGINA 11 ---
-\subsection*{Domanda 5: Operazione in Complemento a 2 (12 bit)}
+\domanda{Operazione in Complemento a 2 (12 bit)}
 Svolgere in complemento a 2 su 12 bit l'operazione $1957 - 2016$
 \begin{itemize}
     \item[$\square$] $111110000101_2$
@@ -513,7 +524,7 @@ Svolgere in complemento a 2 su 12 bit l'operazione $1957 - 2016$
 \vspace{0.5cm}
 
 % --- PAGINA 12 ---
-\subsection*{Domanda 5: Operazione in Complemento a 2 (8 bit)}
+\domanda{Operazione in Complemento a 2 (8 bit)}
 Svolgere in complemento a 2 su 8 bit l'operazione $-34 - 53$
 \begin{itemize}
     \item[$\square$] $11101101_2$
@@ -544,7 +555,7 @@ $53_{10} = 00110101_2$ \\
 
 \newpage
 % --- PAGINA 13 ---
-\subsection*{Domanda 58: Virgola Fissa a Decimale}
+\domanda{Virgola Fissa a Decimale}
 Convertire in decimale il binario a virgola fissa $1001110.0011_2$
 \begin{itemize}
     \item[$\square$] $1001110.0011_2 = 156.1875_{10}$
@@ -567,7 +578,7 @@ Convertire in decimale il binario a virgola fissa $1001110.0011_2$
 \vspace{0.5cm}
 
 % --- PAGINA 14 ---
-\subsection*{Domanda 58: Decimale a Virgola Fissa}
+\domanda{Decimale a Virgola Fissa}
 Convertire in binario a virgola fissa il decimale $362.828125_{10}$
 \begin{itemize}
     \item[$\square$] $362.828125_{10} = 010101101.110101_2$
@@ -598,7 +609,7 @@ Convertire in binario a virgola fissa il decimale $362.828125_{10}$
 \vspace{0.5cm}
 
 % --- PAGINA 15 ---
-\subsection*{Domanda 58: Somma in Virgola Fissa}
+\domanda{Somma in Virgola Fissa}
 Riportare in binario il risultato della somma $10.5625_{10} + 1100.1011_2$
 \begin{itemize}
     \item[$\square$] $10.5625_{10} + 1100.1011_2 = 10110.01_2$
@@ -614,7 +625,7 @@ Riportare in binario il risultato della somma $10.5625_{10} + 1100.1011_2$
 \vspace{0.5cm}
 
 % --- PAGINA 16 ---
-\subsection*{Domanda 76: Conversione IEEE754}
+\domanda{Conversione IEEE754}
 Rappresentare il decimale $-1313.3125$ secondo lo standard IEEE754.
 \begin{itemize}
     \item[$\square$] Nessuna delle altre risposte
@@ -648,7 +659,7 @@ $\rightarrow$ Opzione \#4.
 \vspace{0.5cm}
 
 % --- PAGINA 17 ---
-\subsection*{Domanda 76: Da IEEE754 Esadecimale a Decimale}
+\domanda{Da IEEE754 Esadecimale a Decimale}
 A quale numero decimale corrisponde la cifra esadecimale \texttt{0xE7E80000} codificata secondo lo standard IEEE754?
 \begin{itemize}
     \item[$\square$] Nessuna delle altre risposte
@@ -681,7 +692,7 @@ A quale numero decimale corrisponde la cifra esadecimale \texttt{0xE7E80000} cod
 \vspace{0.5cm}
 
 % --- PAGINA 18 ---
-\subsection*{Domanda 76: Rappresentazioni Equivalenti}
+\domanda{Rappresentazioni Equivalenti}
 A quale delle seguente opzioni corrisponde la cifra decimale $3.5_{10}$?
 \begin{itemize}
     \item[$\square$] Corrisponde al numero $1.11_2 \times 2^{1}$
@@ -705,7 +716,7 @@ A quale delle seguente opzioni corrisponde la cifra decimale $3.5_{10}$?
 \vspace{0.5cm}
 
 % --- PAGINA 19 ---
-\subsection*{Domanda 76: Da IEEE754 Binario a Decimale}
+\domanda{Da IEEE754 Binario a Decimale}
 A quale numero decimale corrisponde la seguente cifra binaria codificata secondo lo standard IEEE754?\\
 $S=1$ | $e=10000101$ | $m=11101101010000000000000$
 \begin{itemize}
@@ -734,7 +745,7 @@ $S=1$ | $e=10000101$ | $m=11101101010000000000000$
 
 \newpage
 % --- PAGINA 20 ---
-\subsection*{Domanda 76: Conversione IEEE754}
+\domanda{Conversione IEEE754}
 Rappresentare il decimale $5462.875$ secondo lo standard IEEE754.
 \begin{itemize}
     \item[$\square$] Nessuna delle altre risposte
@@ -761,12 +772,9 @@ Rappresentare il decimale $5462.875$ secondo lo standard IEEE754.
 $S=0$ | $e=10001011$ | $m=01010101011011100000000$ \\
 $\rightarrow$ Opzione \#4.
 
-
-
 \vspace{0.5cm}
 \hrule
 \vspace{0.5cm}
-
 
 \section{Cenni alle Reti Logiche}
 
