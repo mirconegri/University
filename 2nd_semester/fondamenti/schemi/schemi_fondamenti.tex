@@ -585,5 +585,312 @@ Se supponiamo l'esistenza di un'altra fattorizzazione in primi $n = q_1 \cdot q_
 Negli scritti di Fondamenti, le dimostrazioni teoriche legate ai numeri primi spesso richiedono di sfruttare l'unicità di questa fattorizzazione tramite procedimenti induttivi. 
 Ad esempio, se un numero primo $p$ divide un prodotto $q_1 \cdot q_2 \cdot \dots \cdot q_b$ di numeri primi, allora $p$ deve necessariamente coincidere con uno di quei fattori. Questo principio si usa per dimostrare l'unicità stessa della scomposizione: se si eguagliano due fattorizzazioni distinte $p_1 \dots p_a = q_1 \dots q_b$, si divide progressivamente per i primi comuni riducendo l'equazione fino a provare che gli insiemi dei fattori coincidono perfettamente.
 
+\section{Congruenze e Integri Modulo $n$}
+
+\subsection{Definizione di Congruenza}
+Fissato un intero $n \in \mathbb{Z}$ (solitamente $n > 0$), due numeri interi $a, b \in \mathbb{Z}$ si dicono \textbf{congrui modulo $n$} se la loro differenza è un multiplo di $n$. In simboli:
+\[ a \equiv b \pmod n \iff n \mid (a - b) \]
+Equivalentemente, $a$ e $b$ sono congrui modulo $n$ se e solo se hanno lo stesso resto quando divisi per $n$.
+
+\subsection{Proprietà della Congruenza}
+La relazione di congruenza modulo $n$ è una \textbf{relazione di equivalenza} sull'insieme degli interi $\mathbb{Z}$, poiché soddisfa le tre proprietà fondamentali:
+\begin{enumerate}
+    \item \textbf{Riflessiva:} $a \equiv a \pmod n$ per ogni $a \in \mathbb{Z}$ (infatti $n \mid 0$).
+    \item \textbf{Simmetrica:} Se $a \equiv b \pmod n$, allora $b \equiv a \pmod n$.
+    \item \textbf{Transitiva:} Se $a \equiv b \pmod n$ e $b \equiv c \pmod n$, allora $a \equiv c \pmod n$.
+\end{enumerate}
+
+\subsection{Classi di Resto e l'Insieme $\mathbb{Z}/n\mathbb{Z}$}
+Essendo una relazione di equivalenza, la congruenza partiziona $\mathbb{Z}$ in sottoinsiemi disgiunti detti \textbf{classi di equivalenza} (o classi di resto). La classe di un intero $a$ modulo $n$ è indicata con $[a]_n$ ed è l'insieme di tutti gli interi congrui ad $a$:
+\[ [a]_n = \{ x \in \mathbb{Z} \mid x \equiv a \pmod n \} = \{ a + kn \mid k \in \mathbb{Z} \} \]
+L'insieme quoziente, ovvero l'insieme di tutte le possibili classi di resto modulo $n$, si indica con $\mathbb{Z}/n\mathbb{Z}$ (o $\mathbb{Z}_n$):
+\[ \mathbb{Z}/n\mathbb{Z} = \{ [0]_n, [1]_n, \dots, [n-1]_n \} \]
+Questo insieme contiene esattamente $n$ elementi distinti, corrispondenti ai possibili resti della divisione per $n$.
+
+\subsubsection*{Osservazioni Importanti}
+\begin{itemize}
+    \item Se $n=0$, la relazione $a \equiv b \pmod 0$ implica $a-b = 0$, quindi $a=b$. In questo caso, ogni classe $[a]_0$ contiene il solo elemento $\{a\}$ e $\mathbb{Z}/0\mathbb{Z}$ è in biiezione con $\mathbb{Z}$.
+    \item Se $n=1$, tutti gli interi sono congrui tra loro ($1$ divide ogni differenza), quindi esiste un'unica classe $[0]_1 = \mathbb{Z}$.
+\end{itemize}
+
+\section{Esercitazione: Tipologie d'Esame Risolte}
+
+\subsection{Divisione Euclidea con Interi Negativi}
+Negli esercizi sulla divisione euclidea $n = q \cdot m + r$, è fondamentale ricordare la condizione sul resto: $0 \le r < |m|$. Questo è particolarmente importante quando il dividendo è negativo.
+
+\textbf{Esercizio:} Calcolare quoziente $q$ e resto $r$ della divisione di $n$ per $m$ nei seguenti casi:
+\begin{enumerate}
+    \item $n = 16, \quad m = 5$
+    \item $n = -16, \quad m = 5$
+\end{enumerate}
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item Nel primo caso, essendo entrambi positivi, si ha banalmente:
+    \[ 16 = 3 \cdot 5 + 1 \]
+    Poiché $0 \le 1 < 5$, si ha $q = 3$ e $r = 1$.
+    
+    \item Nel secondo caso, partendo dall'uguaglianza precedente e cambiando di segno otteniamo:
+    \[ -16 = -3 \cdot 5 - 1 \]
+    Tuttavia, $-1$ non è un resto ammissibile in quanto negativo. Per correggere, si sottrae e si aggiunge $5$:
+    \[ -16 = (-3) \cdot 5 - 5 + 5 - 1 = (-3 - 1) \cdot 5 + (5 - 1) = -4 \cdot 5 + 4 \]
+    Poiché ora $0 \le 4 < 5$, la forma è corretta. Il quoziente è $q = -4$ e il resto è $r = 4$.
+\end{enumerate}
+
+\subsection{Induzione e Divisibilità: Proprietà dei Numeri Primi}
+\textbf{Esercizio:} Sia $k \ge 1$ un intero, siano $n_1, \dots, n_k \in \mathbb{Z}$ e sia $p$ un numero primo. Si dimostri per induzione su $k$ che se $p \mid (n_1 \cdot n_2 \dots n_k)$, allora esiste un indice $i \in \{1, \dots, k\}$ tale che $p \mid n_i$.
+
+\textbf{Svolgimento:} Procediamo per induzione su $k \ge 1$.
+\begin{enumerate}
+    \item \textbf{Base dell'induzione ($k=1$):} Se $p \mid n_1$, allora banalmente esiste l'indice $i=1$ tale che $p \mid n_1$.
+    \item \textbf{Passo induttivo:} Assumiamo che l'asserto sia vero per un generico $k$ (Ipotesi Induttiva). Vogliamo dimostrarlo per $k+1$. Supponiamo dunque che:
+    \[ p \mid (n_1 \cdot n_2 \dots n_k \cdot n_{k+1}) \]
+    Possiamo riscrivere il prodotto come $(n_1 \dots n_k) \cdot n_{k+1}$. Poiché $p$ è un numero primo, se esso divide il prodotto di due fattori, deve dividere almeno uno dei due. Si presentano due casi:
+    \begin{itemize}
+        \item Se $p \mid n_{k+1}$, allora abbiamo trovato l'indice ($i = k+1$) e l'asserto è dimostrato.
+        \item Se $p \mid (n_1 \dots n_k)$, per l'Ipotesi Induttiva applicata ai $k$ fattori, esiste un indice $i \in \{1, \dots, k\}$ tale che $p \mid n_i$, e l'asserto è nuovamente dimostrato.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Induzione Matematica con Sommatorie}
+\textbf{Esercizio:} Si dimostri per induzione che per ogni intero $m \ge 0$ vale:
+\[ \sum_{k=0}^{m} 5^k k = \frac{5 + 5^{m+1}(4m - 1)}{16} \]
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item \textbf{Base dell'induzione ($m=0$):}
+    Primo membro: $\sum_{k=0}^{0} 5^k k = 5^0 \cdot 0 = 0$.
+    Secondo membro: $\frac{5 + 5^{0+1}(4(0) - 1)}{16} = \frac{5 + 5(-1)}{16} = 0$.
+    I due membri coincidono, la base è verificata.
+    
+    \item \textbf{Passo induttivo:} Supponiamo l'uguaglianza vera per $m$ e dimostriamola per $m+1$:
+    \[ \sum_{k=0}^{m+1} 5^k k = \left( \sum_{k=0}^{m} 5^k k \right) + 5^{m+1}(m+1) \]
+    Sostituendo l'Ipotesi Induttiva:
+    \[ = \frac{5 + 5^{m+1}(4m - 1)}{16} + 5^{m+1}(m+1) = \frac{5 + 5^{m+1}(4m - 1) + 16 \cdot 5^{m+1}(m+1)}{16} \]
+    Raccogliamo $5^{m+1}$ a numeratore:
+    \[ = \frac{5 + 5^{m+1}[4m - 1 + 16m + 16]}{16} = \frac{5 + 5^{m+1}[20m + 15]}{16} \]
+    Possiamo raccogliere un $5$ dal termine in parentesi quadra:
+    \[ = \frac{5 + 5^{m+1} \cdot 5(4m + 3)}{16} = \frac{5 + 5^{m+2}(4(m+1) - 1)}{16} \]
+    Il risultato coincide con la formula valutata in $m+1$, confermando il passo induttivo.
+\end{enumerate}
+
+\subsection{Risoluzione di un Sistema di Congruenze (Teorema Cinese dei Resti)}
+\textbf{Esercizio:} Si determinino le soluzioni del seguente sistema e la minima soluzione positiva:
+\[
+\begin{cases}
+    x \equiv 86 \pmod{138} \\
+    x \equiv 74 \pmod{81}
+\end{cases}
+\]
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item \textbf{Compatibilità:} Calcoliamo il $\text{MCD}(138, 81)$ con l'algoritmo di Euclide:
+    \begin{align*}
+        138 &= 1 \cdot 81 + 57 \\
+        81 &= 1 \cdot 57 + 24 \\
+        57 &= 2 \cdot 24 + 9 \\
+        24 &= 2 \cdot 9 + 6 \\
+        9 &= 1 \cdot 6 + 3 \\
+        6 &= 2 \cdot 3 + 0
+    \end{align*}
+    Il $\text{MCD}$ è $3$. Poiché la differenza dei termini noti è $86 - 74 = 12$, e si ha che $3 \mid 12$, il sistema è compatibile.
+    
+    \item \textbf{Identità di Bézout (a ritroso):}
+    Ripercorriamo l'algoritmo per scrivere $3$ come combinazione lineare di $138$ e $81$. Svolgendo i calcoli si ottiene l'identità:
+    \[ 3 = 10 \cdot 138 - 17 \cdot 81 \]
+    Moltiplicando tutto per $4$ (in modo da ottenere $12$, la differenza dei resti):
+    \[ 12 = 40 \cdot 138 - 68 \cdot 81 \]
+    Questa equazione è equivalente a $86 - 74 = 40(138) - 68(81)$, da cui si ricava una soluzione particolare raggruppando i termini:
+    \[ x_0 = 86 - 40(138) = 74 - 68(81) = -5434 \]
+    
+    \item \textbf{Insieme delle Soluzioni:}
+    Il modulo del sistema unificato è il $\text{m.c.m.}(138, 81) = \frac{138 \cdot 81}{3} = 3726$.
+    La soluzione generale è dunque:
+    \[ x \equiv -5434 \pmod{3726} \]
+    Per trovare la minima soluzione positiva, si aggiunge un multiplo adeguato di $3726$ al numero $-5434$.
+    \[ -5434 + 2 \cdot 3726 = -5434 + 7452 = 2018 \]
+    L'insieme di tutte le soluzioni è $S = \{ 2018 + 3726k \mid k \in \mathbb{Z} \}$.
+\end{enumerate}
+
+\section{Il Teorema di Fermat-Eulero}
+Definiamo la funzione $\phi: \mathbb{N} \setminus \{0\} \to \mathbb{N}$ ponendo, per ogni $n \in \mathbb{N} \setminus \{0\}$:
+\[ \phi(n) := |\{a \in \mathbb{Z} \mid 1 \le a \le n, \text{mcd}(a, n) = 1\}| \]
+Rappresenta il numero di interi compresi tra 1 e $n$ (inclusi) che sono coprimi con $n$.
+
+\paragraph{Esempi:}
+\begin{itemize}
+    \item $\phi(1) = |\{1\}| = 1$
+    \item $\phi(2) = |\{1\}| = 1$
+    \item $\phi(3) = |\{1, 2\}| = 2$
+    \item $\phi(8) = |\{1, 3, 5, 7\}| = 4$
+\end{itemize}
+
+\paragraph{Proprietà:}
+\begin{enumerate}
+    \item La funzione $\phi$ \textbf{non} è moltiplicativa in generale. Ad esempio:
+    \[ \phi(2 \cdot 4) = \phi(8) = 4 \neq \phi(2) \cdot \phi(4) = 1 \cdot 2 = 2 \]
+    \item La funzione $\phi$ è \textbf{moltiplicativa sulle coppie coprime}, ovvero:
+    \[ \phi(n \cdot m) = \phi(n) \cdot \phi(m) \quad \text{se } \text{mcd}(n, m) = 1 \]
+    \item Se $p$ è un numero primo e $m \ge 1$:
+    \[ \phi(p^m) = p^m - p^{m-1} \]
+\end{enumerate}
+
+\subsection{Formula Generale}
+Sia $n \ge 2$ e sia $n = p_1^{m_1} p_2^{m_2} \cdots p_k^{m_k}$ la sua decomposizione in fattori primi. Allora:
+\begin{align*}
+\phi(n) &= \phi(p_1^{m_1} \cdot p_2^{m_2} \cdots p_k^{m_k}) = \phi(p_1^{m_1}) \phi(p_2^{m_2}) \cdots \phi(p_k^{m_k}) \\
+&= (p_1^{m_1} - p_1^{m_1-1}) (p_2^{m_2} - p_2^{m_2-1}) \cdots (p_k^{m_k} - p_k^{m_k-1})
+\end{align*}
+
+\paragraph{Esercizio:} Calcolare $\phi(24)$.
+\[ \phi(24) = \phi(2^3 \cdot 3) = \phi(2^3) \phi(3) = (2^3 - 2^2)(3 - 1) = (8 - 4) \cdot 2 = 4 \cdot 2 = 8 \]
+
+\section{Struttura Algebrica di $\mathbb{Z}/n\mathbb{Z}$}
+
+L'insieme degli interi modulo $n$, indicato con $\mathbb{Z}/n\mathbb{Z}$, non è solo un insieme di classi di equivalenza, ma possiede una struttura algebrica di \textbf{anello commutativo con unità} grazie alle operazioni di somma e prodotto ereditate da $\mathbb{Z}$.
+
+\subsection{Operazioni in $\mathbb{Z}/n\mathbb{Z}$}
+Siano $[a]_n, [b]_n \in \mathbb{Z}/n\mathbb{Z}$. Definiamo:
+\begin{itemize}
+    \item \textbf{Somma:} $[a]_n + [b]_n = [a + b]_n$
+    \item \textbf{Prodotto:} $[a]_n \cdot [b]_n = [a \cdot b]_n$
+\end{itemize}
+Queste operazioni sono \textit{ben definite}, ovvero il risultato non dipende dal particolare rappresentante scelto per la classe di resto.
+
+\subsection{Proprietà Fondamentali}
+Per ogni $[a]_n, [b]_n, [c]_n \in \mathbb{Z}/n\mathbb{Z}$, valgono le seguenti proprietà:
+\begin{enumerate}
+    \item \textbf{Proprietà Associativa:}
+    \begin{itemize}
+        \item $([a]_n + [b]_n) + [c]_n = [a]_n + ([b]_n + [c]_n)$
+        \item $([a]_n \cdot [b]_n) \cdot [c]_n = [a]_n \cdot ([b]_n \cdot [c]_n)$
+    \end{itemize}
+    \item \textbf{Proprietà Commutativa:}
+    \begin{itemize}
+        \item $[a]_n + [b]_n = [b]_n + [a]_n$
+        \item $[a]_n \cdot [b]_n = [b]_n \cdot [a]_n$
+    \end{itemize}
+    \item \textbf{Esistenza degli Elementi Neutri:}
+    \begin{itemize}
+        \item \textbf{Zero:} $[0]_n$ è l'elemento neutro rispetto alla somma ($[a]_n + [0]_n = [a]_n$).
+        \item \textbf{Unità:} $[1]_n$ è l'elemento neutro rispetto al prodotto ($[a]_n \cdot [1]_n = [a]_n$).
+    \end{itemize}
+    \item \textbf{Esistenza dell'Opposto:} Per ogni $[a]_n$, esiste $[-a]_n = [n-a]_n$ tale che $[a]_n + [-a]_n = [0]_n$.
+    \item \textbf{Proprietà Distributiva:} $[a]_n \cdot ([b]_n + [c]_n) = [a]_n \cdot [b]_n + [a]_n \cdot [c]_n$.
+\end{enumerate}
+
+
+
+[Image of modular arithmetic circle]
+
+
+\subsection{Esercitazione: Calcolo del MCD e Identità di Bézout}
+Il documento presenta un caso pratico di calcolo per determinare la compatibilità di un sistema di congruenze partendo dal calcolo del Massimo Comun Divisore tra 77 e 56.
+
+\textbf{Passaggio 1: Algoritmo di Euclide per $\text{MCD}(77, 56)$}
+\begin{align*}
+    77 &= 1 \cdot 56 + 21 \\
+    56 &= 2 \cdot 21 + 14 \\
+    21 &= 1 \cdot 14 + 7 \quad \leftarrow \text{Ultimo resto non nullo} \\
+    14 &= 2 \cdot 7 + 0
+\end{align*}
+Dunque $\text{MCD}(77, 56) = 7$.
+
+\textbf{Passaggio 2: Identità di Bézout (Risalita a ritroso)}
+Esprimiamo il 7 come combinazione lineare di 77 e 56:
+\begin{align*}
+    7 &= 21 - 1 \cdot 14 \\
+    7 &= 21 - 1 \cdot (56 - 2 \cdot 21) = 3 \cdot 21 - 56 \\
+    7 &= 3 \cdot (77 - 56) - 56 = 3 \cdot 77 - 4 \cdot 56
+\end{align*}
+Questa espressione è fondamentale per trovare le soluzioni particolari nei sistemi di congruenze lineari e per il Teorema Cinese del Resto.
+
+\section{Sistemi di Congruenze e Teorema Cinese del Resto (Caso Generale)}
+
+Quando i moduli di un sistema di congruenze non sono primi tra loro, il Teorema Cinese del Resto (TCR) richiede una condizione di compatibilità specifica. Consideriamo il sistema estratto dall'appello del 21/06/2016:
+
+\[
+\begin{cases}
+x \equiv 33 \pmod{77} \\
+x \equiv -2 \pmod{56}
+\end{cases}
+\]
+
+\subsection{Condizione di Compatibilità}
+Un sistema del tipo $x \equiv a \pmod{n}$, $x \equiv b \pmod{m}$ ammette soluzioni se e solo se:
+\[ a \equiv b \pmod{\text{MCD}(n, m)} \]
+Nel nostro caso:
+\begin{itemize}
+    \item $n = 77, m = 56 \Rightarrow \text{MCD}(77, 56) = 7$.
+    \item Verifichiamo: $33 \equiv -2 \pmod{7} \Rightarrow 33 - (-2) = 35$, che è multiplo di 7.
+\end{itemize}
+Il sistema è quindi \textbf{compatibile}.
+
+
+
+\subsection{Risoluzione e Insieme delle Soluzioni}
+Utilizzando l'identità di Bézout precedentemente calcolata ($7 = 3 \cdot 77 - 4 \cdot 56$) e la formula per la soluzione particolare $c$:
+\[ c = a + k \cdot n \quad \text{oppure} \quad c = a \cdot m \cdot y + b \cdot n \cdot x / \text{MCD} \]
+Dalle dispense si ricava che l'insieme delle soluzioni è:
+\[ S = [110]_{616} = \{ 110 + 616k \mid k \in \mathbb{Z} \} \]
+Dove $616 = \text{mcm}(77, 56)$.
+
+\subsection{Verifica delle Proprietà delle Soluzioni}
+Il problema chiede di dimostrare che tutte le soluzioni sono divisibili per 11.
+Prendiamo la generica soluzione $x = 110 + 616k$ e analizziamola modulo 11:
+\begin{align*}
+    [110 + 616k]_{11} &= [110]_{11} + [616k]_{11} \\
+    &= [11 \cdot 10 + 0]_{11} + [11 \cdot 56 + 0]_{11} \cdot [k]_{11} \\
+    &= [0]_{11} + [0]_{11} \cdot [k]_{11} = [0]_{11}
+\end{align*}
+Poiché il resto della divisione per 11 è sempre 0, \textbf{tutte le soluzioni sono divisibili per 11}.
+
+\subsection{Ricerca di Soluzioni Particolari}
+Per verificare se esiste una soluzione $x \in S$ divisibile per 17, dobbiamo risolvere la congruenza:
+\[ 110 + 616k \equiv 0 \pmod{17} \]
+Semplificando i coefficienti modulo 17:
+\begin{itemize}
+    \item $110 = 17 \cdot 6 + 8 \Rightarrow [110]_{17} = [8]_{17}$
+    \item $616 = 17 \cdot 36 + 4 \Rightarrow [616]_{17} = [4]_{17}$
+\end{itemize}
+L'equazione diventa: $4k \equiv -8 \pmod{17}$, ovvero $4k \equiv 9 \pmod{17}$. Moltiplicando per l'inversa di 4 modulo 17 (che è 13, poiché $4 \cdot 13 = 52 \equiv 1 \pmod{17}$):
+\[ k \equiv 9 \cdot 13 = 117 \equiv 15 \pmod{17} \]
+Esistono quindi infinite soluzioni divisibili per 17, la più piccola positiva si ottiene per $k=15$.
+
+\section{Assioma di Buon Ordinamento e Divisione Euclidea}
+
+In questa lezione vengono introdotti concetti fondamentali riguardanti l'ordinamento dei numeri naturali e le proprietà della divisione negli interi.
+
+\subsection{L'Assioma di Buon Ordinamento}
+L'assioma di buon ordinamento è una proprietà distintiva dell'insieme dei numeri naturali $(\mathbb{N}, \le)$.
+
+\begin{itemize}
+    \item \textbf{Definizione di Minimo:} Sia $X$ un insieme e $\le$ un ordinamento su $X$. Un elemento $z \in A \subseteq X$ è un \textbf{minimo} di $A$ se $z \le x$ per ogni $x \in A$. Se esiste, il minimo è unico.
+    \item \textbf{Definizione di Buon Ordinamento:} Un ordinamento totale su $X$ si dice \textbf{buon ordinamento} se ogni suo sottoinsieme non vuoto ammette un minimo.
+    \item \textbf{Teorema 7.4:} $(\mathbb{N}, \le)$ è un insieme ben ordinato con l'ordinamento usuale.
+\end{itemize}
+
+
+
+\subsection{Teorema della Divisione Euclidea}
+Il teorema stabilisce l'esistenza e l'unicità del quoziente e del resto per ogni coppia di interi.
+
+\textbf{Enunciato:} Siano $n, m \in \mathbb{Z}$ con $m \neq 0$. Allora esistono unici $q, r \in \mathbb{Z}$ tali che:
+\[ n = qm + r \quad \text{con} \quad 0 \le r < |m| \]
+
+\subsection{Dimostrazione (Esistenza e Unicità)}
+La dimostrazione dell'esistenza procede analizzando diversi casi in base ai segni di $n$ e $m$:
+\begin{enumerate}
+    \item \textbf{Caso $n \ge 0, m > 0$:} Si utilizza il principio di induzione o l'assioma di buon ordinamento sull'insieme dei possibili resti.
+    \item \textbf{Caso $n < 0, m > 0$:} Si considera l'opposto $-n$. Se $-n = qm + r$, allora $n = -qm - r$. Se $r=0$ la tesi è immediata; se $r>0$, si aggiusta il quoziente e il resto:
+    \[ n = (-q-1)m + (m-r) \]
+    Poiché $0 < r < m$, allora $0 < m-r < m$, soddisfacendo le condizioni del teorema.
+    \item \textbf{Caso $m < 0$:} Ci si riconduce ai casi precedenti utilizzando $|m|$.
+\end{enumerate}
+
+
+
+\textbf{Unicità:} Se esistessero due coppie $(q, r)$ e $(q', r')$, sottraendo le due espressioni $qm + r = q'm + r'$ si dimostra che $m(q-q') = r'-r$. Poiché $|r'-r| < |m|$, l'unica possibilità è che $r'-r = 0$ e di conseguenza $q-q' = 0$, provando l'unicità dei valori.
 
 \end{document}
