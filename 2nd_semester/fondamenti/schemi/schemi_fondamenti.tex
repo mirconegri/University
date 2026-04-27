@@ -1,7 +1,6 @@
 \documentclass[12pt, a4paper]{article}
 
 % --- Caricamento pacchetti standard ---
-\usepackage{microtype}
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
 \usepackage[T1]{fontenc}
@@ -9,14 +8,21 @@
 \usepackage{geometry}
 \usepackage{enumitem}
 \usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{float}
+
+% --- Impostazioni Colori ---
 \usepackage{xcolor}
+\pagecolor{white} 
+\color{black}     
 
 % --- Impostazioni Link ---
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
-    linkcolor=black,
-    urlcolor=cyan
+    linkcolor=black, 
+    urlcolor=cyan    
 }
 
 \geometry{margin=2.5cm}
@@ -34,7 +40,7 @@
     \vspace{2cm}
     
     \rule{\textwidth}{0.8pt}\vspace{0.5cm}
-    {\Huge\bfseries Appunti di \\ Fondamenti Matematici \\ per l'informatica (FMI)\par}
+    {\Huge\bfseries Appunti di \\ Fondamenti Matematici \\ per l'informatica (FMI) \par}
     \vspace{0.3cm}
     {\Large\itshape Primo parziale \par}
     \vspace{0.4cm}\rule{\textwidth}{0.8pt}
@@ -55,8 +61,10 @@
     }
 \end{titlepage}
 
+% --- Generazione dell'Indice ---
 \tableofcontents
 \newpage
+
 
 \section{Teoria degli Insiemi}
 
