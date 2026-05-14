@@ -21,6 +21,21 @@ Welcome to my university archive! Here I collect notes, projects, and study mate
 
 ---
 
+
+## 📄 Schemi & Riassunti LaTeX
+
+| 🍂 1° Semestre | 🌸 2° Semestre |
+| :--- | :--- |
+| 📐 [Schemi Analisi 1](1st_semester/analisi_1/schemi) | 💻 [Schemi Programmazione 2](2nd_semester/P2/schemi) |
+| 💻 [Schemi Programmazione 1](1st_semester/prog_1/schemi) | ⚙️ [Schemi Calcolatori](2nd_semester/calcolatori/schemi) |
+| 📏 [Schemi Geometria e Algebra Lineare](1st_semester/GAL/schemi) | 🧠 [Schemi Fondamenti Matematici](2nd_semester/fondamenti/schemi) |
+| | ƛ [Schemi Programmazione Funzionale](2nd_semester/funzionale/schemi) |
+| | 📊 [Schemi Probabilità e Statistica](2nd_semester/statistica/schemi) |
+
+
+---
+
+
 ## ⚡ How to use this repository
 
 1. Clone the repository:
