@@ -1,0 +1,752 @@
+\documentclass[12pt, a4paper]{article}
+
+% --- Caricamento pacchetti standard ---
+\usepackage{microtype}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+% --- Impostazioni Colori ---
+\usepackage{xcolor}
+\pagecolor{white} 
+\color{black}     
+
+% --- Impostazioni Link ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black, 
+    urlcolor=cyan    
+}
+
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{3cm} 
+    
+    {\scshape\LARGE Università degli Studi di Trento \par}
+    \vspace{0.5cm}
+    {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
+    
+    \vspace{2cm}
+    
+    \rule{\textwidth}{0.8pt}\vspace{0.5cm}
+    {\Huge\bfseries Appunti di Probabilità \par}
+    \vspace{0.3cm}
+    {\Large\itshape Secondo parziale \par}
+    \vspace{0.4cm}\rule{\textwidth}{0.8pt}
+    
+    \vspace{3cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\large
+    \ifcase\month\or
+    Gennaio\or Febbraio\or Marzo\or Aprile\or Maggio\or Giugno\or
+    Luglio\or Agosto\or Settembre\or Ottobre\or Novembre\or Dicembre\fi
+    \space \the\year \par
+    }
+\end{titlepage}
+
+% --- Generazione dell'Indice ---
+\tableofcontents
+\newpage
+
+
+\section*{Probabilità e Statistica - Esercizi 5}
+\addcontentsline{toc}{section}{Probabilità e Statistica - Esercizi 5}
+\markboth{Esercizi 5}{Esercizi 5}
+
+% ---------------- ESERCIZIO 1 ----------------
+\subsection*{Esercizio 1: Valore Atteso per Binomiale e Poisson}
+Abbiamo una variabile aleatoria $X$ di distribuzione binomiale di parametri $n=17$ e $p=0.203$.
+
+\subsubsection*{Quesito 1}
+\textbf{Testo:} Qual è il valore atteso di $X$?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Per una variabile aleatoria discreta, il valore atteso è definito come $\mathbb{E}(X) = \sum_{x \in R_X} x p_X(x)$. Nel caso specifico di una distribuzione Binomiale $X \sim Bin(n, p)$, lo sviluppo della sommatoria porta al risultato notevole:
+$$ \mathbb{E}(X) = np $$
+Sostituendo i valori forniti:
+$$ \mathbb{E}(X) = 17 \times 0.203 = 3.451 $$
+
+\subsubsection*{Quesito 2}
+\textbf{Testo:} Sia ora $Y$ una variabile aleatoria di Poisson con parametro $\lambda=np$ (ove $n,p$ sono quelli del quesito precedente). Qual è il valore atteso di $23Y+14.791$?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Sfruttiamo la linearità dell'operatore valore atteso: per una generica trasformazione lineare $g(X) = aX + b$, vale la proprietà $\mathbb{E}(aX + b) = a\mathbb{E}(X) + b$.
+Dobbiamo prima ricavare il valore atteso della V.A. di Poisson $Y \sim Pois(\lambda)$. La densità discreta è $p_Y(y) = \frac{\lambda^y e^{-\lambda}}{y!}$.
+Calcoliamo $\mathbb{E}(Y)$:
+\begin{align*}
+\mathbb{E}(Y) &= \sum_{y=0}^{\infty} y \frac{\lambda^y e^{-\lambda}}{y!} = \sum_{y=1}^{\infty} y \frac{\lambda^y e^{-\lambda}}{y(y-1)!} \\
+&= \lambda e^{-\lambda} \sum_{y=1}^{\infty} \frac{\lambda^{y-1}}{(y-1)!} = \lambda e^{-\lambda} \sum_{k=0}^{\infty} \frac{\lambda^k}{k!}
+\end{align*}
+Ricordando lo sviluppo in serie di Taylor per l'esponenziale $\sum_{k=0}^{\infty} \frac{\lambda^k}{k!} = e^\lambda$, si ottiene $\mathbb{E}(Y) = \lambda e^{-\lambda} e^\lambda = \lambda$.
+Quindi, applicando la linearità:
+$$ \mathbb{E}(23Y + 14.791) = 23\lambda + 14.791 = 23(3.451) + 14.791 = 79.373 + 14.791 = 94.164 $$
+
+\subsubsection*{Quesito 3}
+\textbf{Testo:} Sia la $Y$ la stessa del quesito precedente, qual è la probabilità $P(Y=0)$?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Per trovare la probabilità che una V.A. di Poisson assuma il valore 0, si valuta la sua densità discreta nel punto desiderato:
+$$ P(Y=0) = p_Y(0) = \frac{\lambda^0 e^{-\lambda}}{0!} = e^{-3.451} \approx 0.0317139 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 2 ----------------
+\subsection*{Esercizio 2: Dado non equilibrato (Binomiale)}
+Si consideri un dado non regolarmente equilibrato, con le seguenti probabilità per le singole facce:
+\begin{center}
+\begin{tabular}{c|cccccc}
+\toprule
+$x$ & 1 & 2 & 3 & 4 & 5 & 6 \\
+\midrule
+$P(x)$ & 0.07 & 0.20 & 0.25 & 0.06 & 0.06 & 0.36 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Se esce 6 o 5 è un successo, altrimenti è un insuccesso. Si effettuano $N=18$ lanci, modellabili con $X \sim Bin(N,p)$.
+
+\subsubsection*{Quesito 1}
+\textbf{Testo:} Qual è la probabilità di successo $p$ dell'evento elementare?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Il successo è definito dall'unione di due eventi incompatibili (uscita del 5 e uscita del 6). Per l'assioma di additività, si ha:
+$$ p = P(\{6\} \cup \{5\}) = P(\{6\}) + P(\{5\}) = 0.36 + 0.06 = 0.42 $$
+
+\subsubsection*{Quesito 2}
+\textbf{Testo:} Qual è la probabilità di ottenere esattamente un successo (in $N=18$ lanci)?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Usando la funzione di densità della Binomiale:
+$$ P(X=1) = \binom{18}{1} p^1 (1-p)^{17} = 18 \times 0.42 \times (0.58)^{17} \approx 7.191139 \times 10^{-4} $$
+
+\subsubsection*{Quesito 3}
+\textbf{Testo:} Qual è la probabilità di ottenere almeno 8 successi (in $N=18$ lanci)?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Si tratta di accumulare le probabilità dall'ottavo successo fino al massimo possibile ($N=18$):
+$$ P(X \ge 8) = \sum_{k=8}^{18} \binom{18}{k} (0.42)^k (0.58)^{18-k} \approx 0.5061698 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 3 ----------------
+\subsection*{Esercizio 3: Chip per guida autonoma (Bernoulli e Geometrica)}
+Il chip funziona correttamente nel 94.1\% dei casi.
+
+\subsubsection*{Quesito 1}
+\textbf{Testo:} Qual è la probabilità che il chip sbagli la misurazione?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Modelliamo la singola prova con una V.A. di Bernoulli $Y$, dove $Y=1$ se c'è un insuccesso (misurazione sbagliata) e $Y=0$ altrimenti. La probabilità di misurazione corretta è $1-p = 0.941$, per cui la probabilità di errore è:
+$$ p = 1 - 0.941 = 0.059 $$
+
+\subsubsection*{Quesito 2}
+\textbf{Testo:} Indichiamo con $X \sim G(p)$ la v.a. geometrica. Qual è la probabilità che le prime $m=27$ misurazioni siano esatte (ovvero la 28esima sia sbagliata)?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+La distribuzione Geometrica modella il numero di prove necessarie per ottenere il primo "successo" (che nel nostro modello di interesse è l'errore del chip). La densità è data da $m$ "non-errori" seguiti da 1 "errore":
+$$ P(X = m+1) = p(1-p)^m = 0.059 \times (0.941)^{27} \approx 0.0114228 $$
+
+\subsubsection*{Quesito 3}
+\textbf{Testo:} Le prime $m=27$ simulazioni si sono susseguite senza sbagli. Qual è la probabilità che un errore si presenti per la prima volta dopo ulteriori $l=5$ simulazioni?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Sfruttiamo l'\textbf{assenza di memoria} tipica della distribuzione Geometrica:
+$$ P(X = m+l \mid X > m) = P(X = l) = p(1-p)^{l-1} $$
+$$ P(X = 5) = 0.059 \times (0.941)^4 \approx 0.0462605 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 4 ----------------
+\subsection*{Esercizio 4: Esame di Italiano (Binomiale Negativa)}
+Jane Doe supera l'esame appena totalizza 16 risposte esatte. Tasso di risposte esatte $p=0.567$.
+
+\subsubsection*{Quesiti 1 e 2}
+\textbf{Testo:} Si può descrivere questo esperimento con una variabile casuale distribuita come una Binomiale Negativa? Quali sono i parametri $(r,p)$?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+L'affermazione è \textbf{TRUE}. Il modello Binomiale Negativo si applica a prove ripetute e indipendenti, con probabilità costante $p$, l'esperimento continua finché non si raggiunge un numero prefissato $r$ di successi.
+I parametri sono \textbf{c(16, 0.567)}.
+
+\subsubsection*{Quesito 3}
+\textbf{Testo:} Qual è la probabilità che Jane superi l'esame dopo esattamente 16 domande?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Sia $X$ il numero totale di domande necessarie. Se supera l'esame dopo 16 domande, significa che non ha commesso alcun errore ($k = X - r = 0$ fallimenti). La densità discreta della binomiale negativa per $k$ fallimenti è:
+$$ Pr(K=k) = \binom{k+r-1}{r-1} p^r (1-p)^k $$
+Per $k=0$:
+$$ Pr(K=0) = \binom{15}{15} (0.567)^{16} (1-0.567)^0 = (0.567)^{16} \approx 1.1411138 \times 10^{-4} $$
+
+\subsubsection*{Quesito 4}
+\textbf{Testo:} Qual è la probabilità che Jane superi l'esame dopo 28 domande?
+
+\textbf{Soluzione e Fondamento Teorico:} 
+I fallimenti sono $k = 28 - 16 = 12$. Sostituendo nella formula:
+$$ Pr(K=12) = \binom{12+16-1}{16-1} (0.567)^{16} (0.433)^{12} = \binom{27}{15} (0.567)^{16} (0.433)^{12} \approx 0.0861648 $$
+
+\subsubsection*{Quesito 5}
+\textbf{Testo:} Calcolare $P(X \le 20.28)$.
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Poiché $X$ è discreta, $P(X \le 20.28)$ equivale a $P(X \le 20)$. Il numero di fallimenti ammessi è al massimo $k = 20 - 16 = 4$. Accumuliamo le probabilità:
+$$ P(K \le 4) = \sum_{k=0}^4 \binom{k+15}{15} (0.567)^{16} (0.433)^k \approx 0.0269213 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 5 ----------------
+\subsection*{Esercizio 5: Autolavaggio (Poisson)}
+Arrivano in media 5 macchine all'ora. $X \sim Pois(\lambda=5)$.
+
+\begin{itemize}
+    \item \textbf{Quesito 1 (Zero macchine):} $P(X=0) = \frac{e^{-5} 5^0}{0!} = e^{-5} \approx 0.0067379$.
+    \item \textbf{Quesito 2 (Esattamente 3 macchine):} $P(X=3) = \frac{e^{-5} 5^3}{3!} \approx 0.1403739$.
+    \item \textbf{Quesito 3 (Tra 7 e 10 macchine):} $P(7 \le X \le 10) = \sum_{x=7}^{10} \frac{e^{-5} 5^x}{x!} \approx 0.2241213$.
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 6 ----------------
+\subsection*{Esercizio 6: Famiglia (Binomiale)}
+Sia $X \sim Bin(n=6, p=0.22)$ il numero di figli maschi.
+
+\begin{itemize}
+    \item \textbf{Q1 (Almeno un maschio):} Sfruttiamo l'evento complementare. $P(X \ge 1) = 1 - P(X=0) = 1 - (1-0.22)^6 \approx 0.7748004$.
+    \item \textbf{Q2 (Sei femmine):} Equivale a zero maschi. $P(X=0) = (0.78)^6 \approx 0.2251996$.
+    \item \textbf{Q3 (Non più di 5 maschi):} $P(X \le 5) = 1 - P(X=6) = 1 - (0.22)^6 \approx 0.9998866$.
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 7 ----------------
+\subsection*{Esercizio 7: V.A. Continua - Densità Polinomiale}
+Funzione $f(x) = cx^4$ per $0 \le x \le 1$.
+
+\subsubsection*{Quesito 1}
+\textbf{Testo:} Determinare $c>0$ affinché sia una funzione di densità.
+
+\textbf{Soluzione e Fondamento Teorico:} 
+L'integrale della densità sul supporto deve essere unitario.
+$$ 1 = \int_0^1 cx^4 dx = c \left[ \frac{x^5}{5} \right]_0^1 = \frac{c}{5} \implies c = 5 $$
+
+\subsubsection*{Quesito 2}
+\textbf{Testo:} Determinare il valor medio di $X$.
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Il valore atteso per distribuzioni continue è l'integrale di $x \cdot f(x)$.
+$$ \mathbb{E}(X) = \int_0^1 x(5x^4) dx = 5 \int_0^1 x^5 dx = 5 \left[ \frac{x^6}{6} \right]_0^1 = \frac{5}{6} \approx 0.8333333 $$
+
+\subsubsection*{Quesito 3}
+\textbf{Testo:} Determinare la varianza di $X$.
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Per calcolare la varianza, usiamo la formula dei momenti $Var(X) = \mathbb{E}(X^2) - (\mathbb{E}(X))^2$.
+Calcoliamo il momento non centrato di ordine 2:
+$$ \mathbb{E}(X^2) = \int_0^1 x^2(5x^4) dx = 5 \int_0^1 x^6 dx = \frac{5}{7} $$
+Sostituendo:
+$$ Var(X) = \frac{5}{7} - \left(\frac{5}{6}\right)^2 = \frac{5}{7} - \frac{25}{36} = \frac{180 - 175}{252} = \frac{5}{252} \approx 0.0198413 $$
+
+\subsubsection*{Quesito 4}
+\textbf{Testo:} Determinare $P(X \le 0.24)$.
+
+\textbf{Soluzione e Fondamento Teorico:} 
+Equivale a calcolare la Funzione di Ripartizione $F(0.24)$:
+$$ F(0.24) = \int_0^{0.24} 5x^4 dx = \left[ x^5 \right]_0^{0.24} = (0.24)^5 \approx 0.0039813 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 8 ----------------
+\subsection*{Esercizio 8: V.A. Continua - Sopravvivenza Organismo}
+Densità $f(x) = 2\lambda x \exp\{-\lambda x^2\}$ per $x>0$, con $\lambda=1.29$.
+
+\subsubsection*{Quesiti 1 e 2}
+\textbf{Testo e Soluzione:} 
+Calcoliamo anzitutto la funzione di ripartizione integrando $f(t)$:
+$$ F(x) = \int_0^x 2\lambda t \exp\{-\lambda t^2\} dt = \left[ -\exp\{-\lambda t^2\} \right]_0^x = 1 - \exp\{-\lambda x^2\} $$
+\begin{itemize}
+    \item $P(X \le 0.4) = F(0.4) = 1 - \exp\{-1.29 \cdot 0.4^2\} = 1 - \exp\{-0.2064\} \approx 0.1864924$
+    \item $P(0.24 \le X \le 1.99) = F(1.99) - F(0.24) \approx 0.9223445$
+\end{itemize}
+
+\subsubsection*{Quesito 3 (Momenti)}
+Sia $Y \sim E(\alpha=1.05)$. Per la distribuzione esponenziale, $E(Y^n) = \frac{n!}{\alpha^n}$.
+\begin{itemize}
+    \item Momento ordine 1 (Valore atteso): $\mathbb{E}(Y) = \frac{1}{\alpha} = \frac{1}{1.05} \approx 0.952381$
+    \item Momento ordine 2: $\mathbb{E}(Y^2) = \frac{2}{\alpha^2} = \frac{2}{1.05^2} \approx 1.814059$
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 9 ----------------
+\subsection*{Esercizio 9: V.A. Continua - Densità Lineare}
+Sia $f(x) = k(8.9 - 2x)$ su $0 < x < 4$.
+
+\begin{itemize}
+    \item \textbf{Costante $k$:} $\int_0^4 k(8.9 - 2x) dx = k [8.9x - x^2]_0^4 = k(35.6 - 16) = 19.6k$. Ponendo $19.6k = 1 \implies k \approx 0.0510204$.
+    \item \textbf{Valore Atteso:} $\mathbb{E}(X) = \int_0^4 x \cdot k(8.9 - 2x) dx = k \left[ \frac{8.9x^2}{2} - \frac{2x^3}{3} \right]_0^4 = k(71.2 - 42.666) \approx 1.4557823$.
+    \item \textbf{Linearità E(X):} $\mathbb{E}(14.8 + 6.1X) = 14.8 + 6.1 \cdot \mathbb{E}(X) \approx 23.6802721$.
+    \item \textbf{Varianza:} Dato $\mathbb{E}(X^2) = 3.1564626$, calcoliamo $Var(X) = \mathbb{E}(X^2) - \mathbb{E}(X)^2 = 3.1564626 - (1.4557823)^2 \approx 1.0371604$.
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 10 e 11 ----------------
+\subsection*{Esercizi 10 e 11: Distribuzione Normale e Standardizzazione}
+Sia $X \sim N(\mu, \sigma^2)$. Si passa alla Normale Standard $Z \sim N(0,1)$ tramite la trasformazione $Z = \frac{X - \mu}{\sigma}$.
+
+\paragraph{Esercizio 10 (Altezza donne):}
+Dati $\mu = 162.5$ e $\sigma = 4.98$.
+\begin{itemize}
+    \item Valore standardizzato per 169.223: $z = \frac{169.223 - 162.5}{4.98} = 1.35$.
+    \item $P(X \le 169.223) = P(Z \le 1.35) = \Phi(1.35) \approx 0.9115$.
+    \item $P(X \ge 172.0118) \implies z = \frac{172.0118 - 162.5}{4.98} = 1.91 \implies P(Z \ge 1.91) = 1 - \Phi(1.91) \approx 0.0281$.
+\end{itemize}
+
+\paragraph{Esercizio 11 (Peso caramelle):}
+Dati $\mu = 5.85$ e $\sigma = 0.57$.
+\begin{itemize}
+    \item $P(X > 6.6508908) \implies z = \frac{6.6508908 - 5.85}{0.57} = 1.405 \implies P(Z > 1.405) \approx 0.08$.
+    \item Caramelle scartate ogni N prodotte: La probabilità totale di scarto (code superiore e inferiore) è stimata dal testo a $p = 0.17$. In media, si presenta una caramella difettosa ogni $\frac{1}{0.17} \approx 5.8823529$ prodotte.
+    \item Valore standardizzato per 5.0857696: $z = \frac{5.0857696 - 5.85}{0.57} \approx -1.340755$.
+\end{itemize}
+
+
+\section*{Probabilità e Statistica - Esercizi 6}
+\addcontentsline{toc}{section}{Probabilità e Statistica - Esercizi 6}
+\markboth{Esercizi 6}{Esercizi 6}
+
+% ---------------- ESERCIZIO 1 ----------------
+\subsection*{Esercizio 1: Variabile Normale, Trasformazioni e Chi-quadro}
+Sia $X \sim N(\mu, \sigma^2)$ con $\mu=6.7$ e $\sigma^2=3.24$.
+
+\subsubsection*{Quesito 1: Secondo momento non centrato}
+\textbf{Testo:} Quanto vale il secondo momento non centrato della variabile $X$?
+
+\textbf{Soluzione e Fondamento Teorico:}
+Dalla definizione di varianza $Var(X) = \mathbb{E}(X^2) - \mathbb{E}(X)^2$, si ricava in modo diretto il secondo momento non centrato:
+$$ \mathbb{E}(X^2) = Var(X) + \mathbb{E}(X)^2 = \sigma^2 + \mu^2 $$
+Sostituendo i valori:
+$$ \mathbb{E}(X^2) = 3.24 + (6.7)^2 = 3.24 + 44.89 = 48.13 $$
+
+\subsubsection*{Quesito 2: Trasformazione di una V.A.}
+\textbf{Testo:} Si consideri la trasformazione $Y = g(X) = \left(\frac{X-\mu}{\sigma}\right)^2$. Qual è la media di $Y$?
+
+\textbf{Soluzione e Fondamento Teorico:}
+Ricordiamo che l'operazione $Z = \frac{X-\mu}{\sigma}$ è detta \textbf{standardizzazione} e produce una variabile $Z \sim N(0,1)$, avente $\mathbb{E}(Z)=0$ e $Var(Z)=1$.
+Pertanto, $Y = Z^2$. Il valore atteso di $Y$ è il secondo momento non centrato di $Z$:
+$$ \mathbb{E}(Y) = \mathbb{E}(Z^2) = Var(Z) + \mathbb{E}(Z)^2 = 1 + 0 = 1 $$
+
+\subsubsection*{Quesito 3: Varianza della trasformazione}
+\textbf{Testo:} Qual è la varianza di $Y$?
+
+\textbf{Soluzione e Fondamento Teorico:}
+Sappiamo che $Var(Y) = \mathbb{E}(Y^2) - \mathbb{E}(Y)^2 = \mathbb{E}(Z^4) - 1^2$.
+Il momento quarto di una Normale Standard $Z$ è un risultato noto, calcolabile tramite integrazione: $\mathbb{E}(Z^4) = 3$.
+$$ Var(Y) = 3 - 1 = 2 $$
+\textit{Nota Teorica:} Questo esercizio dimostra le proprietà della distribuzione \textbf{Chi-quadro}. La somma dei quadrati di $n$ variabili Normali Standard i.i.d. segue una distribuzione $\chi^2_n$ con $n$ gradi di libertà. Qui $n=1$, quindi $Y \sim \chi^2_1$. Per una Chi-quadro vale che $\mathbb{E}(Q) = n = 1$ e $Var(Q) = 2n = 2$.
+
+\subsubsection*{Quesito 4: Densità di Z}
+\textbf{Testo:} Scrivere la funzione di densità della variabile $Z$.
+
+\textbf{Soluzione:} 
+Essendo $Z \sim N(0,1)$ una normale standard, la sua funzione di densità di probabilità è:
+$$ f_Z(z) = \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{z^2}{2}\right) $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 2 ----------------
+\subsection*{Esercizio 2: Overbooking al Cinema (Distribuzione Binomiale)}
+Sia $p=0.83$ la probabilità che un acquirente si presenti. 
+Sala 1: capienza 12, biglietti venduti $N_1 = 14 \implies X_1 \sim Bin(14, 0.83)$.
+Sala 2: capienza 15, biglietti venduti $N_2 = 18 \implies X_2 \sim Bin(18, 0.83)$.
+
+\subsubsection*{Quesito 1 e 2: Probabilità di scontentare un cliente}
+\textbf{Testo:} Calcolare la probabilità che una persona non trovi posto nella Sala 1 e nella Sala 2.
+
+\textbf{Soluzione e Fondamento Teorico:}
+Il problema si traduce nel calcolare la probabilità che il numero di persone che si presentano superi la capienza della sala.
+Per la Sala 1 ($X_1 > 12$):
+$$ P(X_1 > 12) = P(X_1 = 13) + P(X_1 = 14) = \sum_{k=13}^{14} \binom{14}{k} (0.83)^k (1-0.83)^{14-k} \approx 0.284787 $$
+Per la Sala 2 ($X_2 > 15$):
+$$ P(X_2 > 15) = \sum_{k=16}^{18} \binom{18}{k} (0.83)^k (1-0.83)^{18-k} \approx 0.388091 $$
+
+\subsubsection*{Quesito 3: Ottimizzazione dei biglietti}
+\textbf{Testo:} Calcolare il numero massimo di biglietti $N_1$ vendibili per la Sala 1 (12 posti) per avere $P(X_1 > 12) \le 0.38$.
+
+\textbf{Soluzione e Fondamento Teorico:}
+Trattasi di un problema inverso sulla funzione di ripartizione. Si fissa la soglia di rischio $\alpha = 0.38$. Variando la cardinalità della binomiale $N_1$, scopriamo che vendendo 14 biglietti il rischio è $\approx 0.28$ (accettabile), ma vendendone 15 il rischio di overbooking supererebbe il 38\%. Pertanto, il numero massimo accettabile di biglietti è \textbf{14}.
+
+\subsubsection*{Quesito 4: Media di persone presenti}
+\textbf{Testo:} In media quante persone si presentano per la sala 2?
+
+\textbf{Soluzione:} Il valore atteso di una Binomiale è $\mathbb{E}(X_2) = N_2 \cdot p = 18 \times 0.83 = 14.94$.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 3 ----------------
+\subsection*{Esercizio 3: Lancio di un Dado a 9 Facce (Geometrica e Condizionata)}
+Lancio finché non esce 9. $N =$ numero di lanci totali (v.a. Geometrica). $X =$ numero di volte che è uscito 4.
+
+\subsubsection*{Quesiti 1 e 2: Valore Atteso e Varianza Condizionati}
+\textbf{Testo:} Qual è il valore atteso $\mathbb{E}[X|N=11]$ e il momento $\mathbb{E}[X^2|N=11]$?
+
+\textbf{Soluzione e Fondamento Teorico:}
+L'informazione condizionante $N=11$ ci dice che:
+1) L'11° lancio è un 9 (ferma il gioco).
+2) I primi 10 lanci sono stati numeri \textit{diversi da 9}. 
+Limitando lo spazio a questi 10 lanci utili, la probabilità che esca un 4 su uno dei restanti 8 esiti possibili (da 1 a 8) è $p = \frac{1}{8} = 0.125$.
+Quindi $X | N=11 \sim Bin(n=10, p=0.125)$.
+$$ \mathbb{E}[X|N=11] = n \cdot p = 10 \times 0.125 = 1.25 $$
+Per il secondo momento centrato usiamo la formula $Var(Y) = \mathbb{E}(Y^2) - \mathbb{E}(Y)^2$:
+$$ \mathbb{E}[X^2|N=11] = Var(X|N=11) + (\mathbb{E}[X|N=11])^2 = np(1-p) + (np)^2 $$
+$$ = 10(0.125)(0.875) + (1.25)^2 = 1.09375 + 1.5625 = 2.65625 $$
+
+\subsubsection*{Quesito 3: Trasformazione di V.A.}
+\textbf{Testo:} Scrivere la densità di $z(N) = \mathbb{E}[X|N]$ come funzione in R.
+
+\textbf{Soluzione e Fondamento Teorico:}
+Generalizzando il punto 1, il numero di "4" in $N-1$ prove segue $\mathbb{E}[X|N] = (N-1) \frac{1}{8}$. La V.A. $N$ è una Geometrica che conta il numero totale di prove ($p^* = 1/9$).
+In R si adatta usando `dgeom` che richiede il numero di fallimenti $x_{in} = N-1$.
+Invertendo $z = (N-1)/8$, i fallimenti sono $N-1 = 8z$. 
+La chiamata corretta è: \texttt{dgeom(x = x * 8, prob = 1/9)}.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 4 ----------------
+\subsection*{Esercizi 4, 11 e 12: Variabili Bivariate Discrete e Marginali}
+Data una distribuzione di probabilità congiunta $p_{X,Y}(x,y)$, riportata in una matrice in cui alcune probabilità dipendono da una costante $k$.
+
+\subsubsection*{La costante di Normalizzazione $k$}
+\textbf{Fondamento Teorico:} Affinché una tabella rappresenti una valida funzione di densità discreta bivariata, la somma di tutte le probabilità congiunte sulla matrice deve essere 1:
+$$ \sum_{x \in R_X} \sum_{y \in R_Y} p_{X,Y}(x,y) = 1 $$
+\begin{itemize}
+    \item \textit{Esercizio 4:} La somma di tutte le celle dà $45k = 1 \implies k = 1/45 \approx 0.0222222$.
+    \item \textit{Esercizio 11:} Analoga matrice con somma $45k = 1 \implies k \approx 0.0222222$.
+    \item \textit{Esercizio 12:} Matrice con somma $178k = 1 \implies k = 1/178 \approx 0.0128205$.
+\end{itemize}
+
+\subsubsection*{Distribuzioni Marginali}
+\textbf{Fondamento Teorico:} La probabilità marginale di $X$ si ottiene saturando (sommando) su tutti i possibili valori di $Y$, cioè sommando l'intera riga:
+$$ p_X(x) = \sum_{y \in R_Y} p_{X,Y}(x,y) $$
+Allo stesso modo, $p_Y(y)$ si ricava sommando sulle colonne.
+Per calcolare il \textbf{Valore Atteso Marginalizzato} si applica $\mathbb{E}(X) = \sum x \cdot p_X(x)$.
+
+\subsubsection*{Distribuzioni Condizionate (Esercizio 12)}
+\textbf{Fondamento Teorico:} La distribuzione di $X$ dato un valore fissato di $Y$ si definisce usando la probabilità condizionata:
+$$ p_{X|Y}(x|y) = \frac{p_{X,Y}(x,y)}{p_Y(y)} $$
+Il \textbf{Valore Atteso Condizionato} è calcolato usando la densità condizionata:
+$$ \mathbb{E}(X|Y=y) = \sum_{x \in R_X} x \cdot p_{X|Y}(x|y) $$
+La \textbf{Varianza Condizionata} segue lo stesso principio logico:
+$$ Var(Y|X=x) = \mathbb{E}(Y^2|X=x) - (\mathbb{E}(Y|X=x))^2 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 5 ----------------
+\subsection*{Esercizio 5: Moneta Lanciata $D$ volte (Legge delle Aspettative Iterate)}
+$D$ è il risultato di un dado a 6 facce ($p_D = 1/6$). Si lancia una moneta ($p=0.422$) $D$ volte. $N$ è il numero totale di Teste. La congiunta è $p_{D,N}(d,n) = P(D=d) \cdot P(N=n|D=d)$.
+
+\subsubsection*{Quesito 1: Valore atteso di N}
+\textbf{Testo:} Qual è il valore atteso di $N$?
+
+\textbf{Soluzione e Fondamento Teorico:}
+Sapendo che, condizionatamente a $D$, il numero di teste segue una Binomiale $N|D=d \sim Bin(d, p)$, abbiamo che il valore atteso condizionato è $\mathbb{E}(N|D=d) = d \cdot p$.
+Per la \textbf{Legge delle Aspettative Iterate} (o Teorema della Speranza Matematica Totale):
+$$ \mathbb{E}(N) = \mathbb{E}(\mathbb{E}(N|D)) = \sum_{d=1}^6 \mathbb{E}(N|D=d) \cdot P(D=d) = \sum_{d=1}^6 (d \cdot p) \cdot \frac{1}{6} $$
+$$ \mathbb{E}(N) = p \cdot \mathbb{E}(D) = 0.422 \times 3.5 = 1.477 $$
+
+\subsubsection*{Quesito 2 e 3: Teorema di Bayes su Variabili Discrete}
+\textbf{Testo e Soluzione:} 
+Conoscendo $D=5$, il calcolo diretto $\mathbb{E}[N|D=5] = 5 \times 0.422 = 2.11$.
+Volendo invece dedurre $D$ a posteriori sapendo che sono uscite 5 Teste ($N=5$), applichiamo la definizione condizionata di Bayes:
+$$ P(D=d|N=5) = \frac{P(D=d) P(N=5|D=d)}{P(N=5)} $$
+Calcolando la marginale a denominatore e iterando il calcolo $\sum_{d=5}^6 d \cdot P(D=d|N=5)$, si deduce $\mathbb{E}[D|N=5] \approx 5.7761862$.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 6 ----------------
+\subsection*{Esercizio 6: Dado a 20 facce (Probabilità Totali)}
+$X$ è l'esito di un dado a 20 facce truccato (numero di facce: $n_i$). $Y|X \sim Bin(X, p=0.41)$.
+
+\textbf{Soluzione e Fondamento Teorico:}
+Si tratta di un'applicazione canonica del \textbf{Teorema delle Probabilità Totali} e del \textbf{Teorema di Bayes} esteso alle variabili aleatorie:
+1. $P(Y=4) = \sum_{i=4}^{10} P(X=i) \cdot P(Y=4|X=i) \approx 0.0966134$.
+2. $P(X=2Y)$: si cercano le probabilità diagonali condizionate vincolate ai soli $X$ pari: $\sum_{i=1}^5 P(X=2i) \cdot P(Y=i | X=2i) \approx 0.1625297$.
+3. Inversione di Bayes: $P(X=9|Y=4) = \frac{P(X=9)P(Y=4|X=9)}{P(Y=4)} \approx 0.2634686$.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 7 ----------------
+\subsection*{Esercizio 7: Somma di Poisson e Condizionamento}
+$X \sim Pois(\lambda_X)$ con $P(X=9) = P(X=10)$. $Y \sim Pois(8)$. $Z = X+Y$.
+
+\subsubsection*{Quesito 1: Identificazione del Parametro}
+\textbf{Soluzione e Fondamento Teorico:}
+Uguagliando le funzioni di massa per la Poissoniana si trova immediatamente il parametro:
+$$ \frac{\lambda_X^9 e^{-\lambda_X}}{9!} = \frac{\lambda_X^{10} e^{-\lambda_X}}{10!} \implies 1 = \frac{\lambda_X}{10} \implies \lambda_X = 10 $$
+
+\subsubsection*{Quesiti 2 e 3: Distribuzione della Somma Fissata}
+\textbf{Soluzione e Fondamento Teorico:}
+Per la \textbf{proprietà di riproducibilità}, la somma di due Poissoniane indipendenti è una Poissoniana: $Z \sim Pois(10+8) = Pois(18)$.
+Uno dei risultati notevoli della teoria delle probabilità afferma che la distribuzione condizionata di una Poissoniana $X$, dato il valore della somma $Z = X+Y = n$, segue una distribuzione \textbf{Binomiale} di parametri $n$ e probabilità di successo dipendente dal "peso" del parametro:
+$$ X | Z=n \sim Bin\left(n, \frac{\lambda_X}{\lambda_X + \lambda_Y}\right) $$
+Per questo caso, $X | Z=24 \sim Bin(24, \frac{10}{18})$.
+La probabilità condizionata $P(X=13|Z=24)$ si ottiene sostituendo nella formula binomiale: $\binom{24}{13} \left(\frac{10}{18}\right)^{13} \left(\frac{8}{18}\right)^{11} \approx 0.160221$.
+Il valore atteso condizionato risulta banalmente $E(X|Z=24) = n \cdot p = 24 \times \frac{10}{18} \approx 13.3333333$.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZI 8 e 9 ----------------
+\subsection*{Esercizi 8 e 9: Variabili Continue - Normale e Tempi di Attesa}
+\begin{itemize}
+    \item \textbf{Esercizio 8 (Normale):} Per il calcolo di aree sotto curve Gaussiane $N(35.63, 9.55)$, si esegue la standardizzazione classica $Z = \frac{X - \mu}{\sigma}$. Es: $P(X < 33.98) = P(Z < \frac{33.98 - 35.63}{\sqrt{9.55}}) \approx 0.2966959$.
+    \item \textbf{Esercizio 10 (Processo di Poisson ed Esponenziale):} La Poissoniana conta gli eventi in un certo intervallo temporale $\lambda=5$. Il tempo $T$ che intercorre tra due eventi successivi segue, come dimostrato a lezione, una \textbf{Distribuzione Esponenziale} $T \sim Exp(\lambda)$. La probabilità che trascorrano più di $k=7$ settimane (nessun evento per quel lasso di tempo) è $P(T \ge 7) = e^{-\lambda k} = e^{-35} \approx 6.66 \times 10^{-16}$.
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 13 ----------------
+\subsection*{Esercizio 13: Bivariata di Dadi Non Equilibrati e Indipendenza}
+Due dadi, probabilità descritte in matrice $6 \times 6$.
+
+\subsubsection*{Quesiti 1 e 2: Probabilità Marginali}
+\textbf{Soluzione:} Ricaviamo $p_X(x)$ sommando le righe e $p_Y(y)$ sommando le colonne. La probabilità che il primo dado sia pari è la somma delle marginali: $P(X=2) + P(X=4) + P(X=6) = 0.16 + 0.17 + 0.21 = 0.54$.
+Per il secondo dado, $1 - (P(Y=2) + P(Y=6)) = 1 - (0.25 + 0.13) = 0.62$.
+
+\subsubsection*{Quesiti 3, 4 e 5: Controllo di Indipendenza}
+\textbf{Testo e Soluzione:} Dopo aver calcolato la distribuzione condizionata, ci si rende conto che $P_{X|Y}(x|y=2) = P_X(x)$ per ogni cella.
+\textbf{Fondamento Teorico:} Se le probabilità condizionate coincidono con le probabilità marginali per tutto lo spazio, le variabili $X$ e $Y$ si definiscono \textbf{Stocasticamente Indipendenti}. L'informazione sull'esito del secondo dado non aggiunge alcuna conoscenza sull'esito del primo.
+Essendo indipendenti:
+\begin{itemize}
+    \item $P(X \ge 4 | Y=2) = P(X \ge 4) = 0.17 + 0.23 + 0.21 = 0.61$
+    \item $\mathbb{E}(X | Y=6) = \mathbb{E}(X) = 4.04$
+    \item $Var(Y | X=4) = Var(Y) = 1.8896$
+\end{itemize}
+
+\section*{Probabilità e Statistica - Esercizi 7}
+\addcontentsline{toc}{section}{Probabilità e Statistica - Esercizi 7}
+\markboth{Esercizi 7}{Esercizi 7}
+
+% ---------------- ESERCIZIO 1 ----------------
+\subsection*{Esercizio 1: Costanti di Rinormalizzazione per Densità Continue}
+Per essere una valida densità di probabilità, una funzione $f(x)$ deve avere integrale su tutto $\mathbb{R}$ uguale a 1.
+
+\subsubsection*{Quesito 1: Funzione simil-Esponenziale}
+\textbf{Testo:} Per quale valore di $c$ la funzione $f(x)=c \cdot e^{-8x}$ per $x \ge 0$ (e nulla altrimenti) è una densità?
+
+\textbf{Soluzione e Fondamento Teorico:}
+Imponiamo la condizione di normalizzazione sull'intero supporto:
+$$ \int_0^{+\infty} c \cdot e^{-8x} dx = 1 \implies c = \left( \int_0^{+\infty} e^{-8x} dx \right)^{-1} $$
+L'integrale dell'esponenziale è noto: $\int e^{-kx} dx = -\frac{1}{k}e^{-kx}$. Valutato tra $0$ e $+\infty$ restituisce $\frac{1}{8}$.
+$$ c = \left( \frac{1}{8} \right)^{-1} = 8 $$
+
+\subsubsection*{Quesito 2: Funzione simil-Cauchy}
+\textbf{Testo:} Per quale valore di $c$ la funzione $f(x)=c \cdot \frac{8}{1+x^2}$, per $x \in \mathbb{R}$, è una densità?
+
+\textbf{Soluzione e Fondamento Teorico:}
+L'integrale notevole di $\frac{1}{1+x^2}$ è l'arcotangente. Valutando su tutto l'asse reale:
+$$ c = \left( \int_{-\infty}^{+\infty} \frac{8}{1+x^2} dx \right)^{-1} = \left( 8 \left[ \arctan(x) \right]_{-\infty}^{+\infty} \right)^{-1} $$
+Sapendo che $\arctan(+\infty) = \pi/2$ e $\arctan(-\infty) = -\pi/2$, la differenza è $\pi$.
+$$ c = (8\pi)^{-1} = \frac{1}{8\pi} \approx 0.0397887 $$
+
+\subsubsection*{Quesito 3: Funzione simil-Beta}
+\textbf{Testo:} Sia $f(x)=c \cdot x^3(1-x)^b$ per $x \in [0,1]$. Calcolare $c$ in funzione di $b$ intero non negativo.
+
+\textbf{Soluzione e Fondamento Teorico:}
+Dobbiamo risolvere l'integrale $I(a,b) = \int_0^1 x^a(1-x)^b dx$ con $a=3$. Procedendo con l'integrazione per parti ripetuta:
+$$ I(a,b) = \frac{a}{b+1} I(a-1, b+1) = \dots = \frac{a(a-1)\dots(1)}{(b+1)(b+2)\dots(b+a)} I(0, b+a) $$
+$$ I(0, b+a) = \int_0^1 (1-x)^{b+a} dx = \frac{1}{b+a+1} $$
+Pertanto, nel nostro caso con $a=3$:
+$$ I(3,b) = \frac{3!}{(b+1)(b+2)(b+3)(b+4)} = \frac{3! \cdot b!}{(b+4)!} $$
+La costante di rinormalizzazione è l'inverso dell'integrale:
+$$ c = \frac{(b+4)!}{3! \cdot b!} $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 2 ----------------
+\subsection*{Esercizio 2: Variabile Continua a Coda Pesante}
+Sia $f(x)=c \cdot x^{-9}$ per $x > 9$ e nulla altrimenti.
+
+\subsubsection*{Quesito 1: Costante $c$}
+\textbf{Testo e Soluzione:}
+Imponiamo $\int_9^{+\infty} c \cdot x^{-9} dx = 1$. L'integrale di $x^{-9}$ è $\frac{x^{-8}}{-8}$. Valutato all'infinito dà 0, valutato in 9 dà $\frac{9^{-8}}{8}$.
+$$ c \left( \frac{9^{-8}}{8} \right) = 1 \implies c = 8 \cdot 9^8 = (9-1) \cdot 9^{9-1} \approx 3.4437377 \times 10^8 $$
+
+\subsubsection*{Quesito 2: Valore atteso}
+\textbf{Testo e Soluzione:}
+Per definizione $\mathbb{E}[X] = \int_9^{+\infty} x \cdot f(x) dx$.
+$$ \mathbb{E}[X] = \int_9^{+\infty} x \cdot (8 \cdot 9^8) x^{-9} dx = 8 \cdot 9^8 \int_9^{+\infty} x^{-8} dx $$
+$$ \mathbb{E}[X] = 8 \cdot 9^8 \left[ \frac{x^{-7}}{-7} \right]_9^{+\infty} = 8 \cdot 9^8 \cdot \frac{9^{-7}}{7} = \frac{8 \cdot 9}{7} = \frac{72}{7} \approx 10.2857143 $$
+
+\subsubsection*{Quesito 3: Calcolo Probabilità}
+\textbf{Testo e Soluzione:}
+Essendo $X$ una variabile aleatoria continua, la probabilità di un singolo punto è nulla: $P(X=26.1) = 0$. Pertanto l'inclusione o l'esclusione degli estremi di un intervallo non altera il calcolo.
+La funzione di ripartizione si ricava per $x>9$ come:
+$$ F(x) = \int_9^x 8 \cdot 9^8 \cdot t^{-9} dt = 1 - \left(\frac{9}{x}\right)^8 $$
+Le probabilità per $X \in [26.1, 27)$, $X \in (26.1, 27]$ si calcolano entrambe come:
+$$ F(27) - F(26.1) $$
+Per l'intervallo $(-0.92, 26.1)$, poiché il supporto inizia da 9 (e $F(-0.92)=0$), si ha semplicemente $F(26.1)$.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 3 ----------------
+\subsection*{Esercizio 3: Tempi di vita (V.A. Continue e Indipendenza)}
+Moscerino: $f_X(x) = c \lambda x e^{-\lambda x^2}$ per $x>0$, con $\lambda=1.42$. 
+Sensore: $f_Y(y) = \alpha e^{-\alpha y}$ per $y \ge 0$, con $\alpha=0.64$.
+
+\subsubsection*{Quesiti 1 e 2: Funzione di Densità e Ripartizione del Moscerino}
+\textbf{Testo e Soluzione:}
+Troviamo la CDF $F_X(t)$ integrando $f_X(x)$:
+$$ F_X(t) = \int_0^t c \lambda x e^{-\lambda x^2} dx = -\frac{c}{2} \int_0^t -2\lambda x e^{-\lambda x^2} dx = -\frac{c}{2} \left[ e^{-\lambda x^2} \right]_0^t = \frac{c}{2} (1 - e^{-\lambda t^2}) $$
+Per $t \to +\infty$, affinché $F_X(\infty) = 1$, deve essere $\frac{c}{2} = 1 \implies c=2$.
+Pertanto $F_X(x) = 1 - e^{-\lambda x^2}$.
+Per calcolare la probabilità $P(X \in [0.17, 1.51])$ usiamo $F_X(1.51) - F_X(0.17) \approx 0.9205402$.
+
+\subsubsection*{Quesiti 3 e 4: Momenti della Variabile Esponenziale}
+\textbf{Testo e Soluzione:}
+La V.A. $Y$ segue una distribuzione Esponenziale $Y \sim Exp(\alpha)$.
+I momenti notevoli di una V.A. esponenziale sono dati da $\mathbb{E}[Y^k] = \frac{k!}{\alpha^k}$.
+\begin{itemize}
+    \item \textbf{Momento primo (Valore Atteso):} $\mathbb{E}[Y] = \frac{1}{\alpha} = \frac{1}{0.64} = 1.5625$
+    \item \textbf{Momento secondo:} $\mathbb{E}[Y^2] = \frac{2!}{\alpha^2} = \frac{2}{0.64^2} = 4.8828125$
+\end{itemize}
+
+\subsubsection*{Quesito 5: Evento Congiunto con Indipendenza}
+\textbf{Testo e Soluzione:}
+Data l'indipendenza delle due V.A., la funzione di ripartizione congiunta fattorizza nel prodotto delle marginali: $F_{X,Y}(x,y) = F_X(x) \cdot F_Y(y)$.
+$$ F_Y(y) = 1 - e^{-\alpha y} $$
+$$ P(X \le 1.04, Y \le 1.04) = F_X(1.04) \cdot F_Y(1.04) \approx 0.3814072 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 4 ----------------
+\subsection*{Esercizio 4: Polizia (Poisson e Approssimazione Normale)}
+Media veicoli fermati all'ora: $\lambda=5$. Si modella il conteggio con $X \sim Pois(5)$.
+
+\begin{itemize}
+    \item \textbf{Q1 (Zero veicoli):} La probabilità è data dalla massa in 0: $P(X=0) = \frac{e^{-5} 5^0}{0!} = e^{-5} \approx 0.0067379$.
+    \item \textbf{Q2 (Esattamente 5 veicoli):} $P(X=5) = \frac{e^{-5} 5^5}{5!} \approx 0.1754674$.
+    \item \textbf{Q3 (Approssimazione Gaussiana):} Essendo per una Poissoniana $\mathbb{E}[X]=Var(X)=\lambda$, si definisce un'approssimazione normale $Y \sim N(\lambda, \lambda)$, ovvero $N(5, 5)$.
+    La probabilità $P(Y \in [8, 13])$ si calcola con la CDF della Normale continua:
+    $$ P(8 \le Y \le 13) = \Phi\left(\frac{13-5}{\sqrt{5}}\right) - \Phi\left(\frac{8-5}{\sqrt{5}}\right) \approx 0.0896829 $$
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 5 ----------------
+\subsection*{Esercizio 5: Intertempo del Traffico (Esponenziale)}
+L'intertempo tra veicoli $T$ segue un'esponenziale con media $\mu = 11$ min. Essendo $\mu = 1/\lambda$, si ha $\lambda = 1/11 \approx 0.0909091$.
+
+\subsubsection*{Quesito 1 e 2: CDF e Quantili}
+\textbf{Testo e Soluzione:}
+\begin{itemize}
+    \item $P(T < 9.2) = 1 - e^{-9.2 \cdot (1/11)} \approx 0.5667168$.
+    \item Trovare $t$ tale che $P(T > t) = 0.94$. Questo equivale a porre la funzione di sopravvivenza a $0.94$:
+    $$ e^{-\lambda t} = 0.94 \implies -\lambda t = \ln(0.94) \implies t = \frac{-\ln(0.94)}{1/11} \approx 0.6806294 $$
+\end{itemize}
+
+\subsubsection*{Quesito 3: Assenza di memoria}
+\textbf{Testo e Soluzione:}
+La proprietà di assenza di memoria stabilisce che $P(T > s+t \mid T > s) = P(T > t)$, che riformulata in forma complementare risulta $P(T < s+t \mid T > s) = P(T < t)$.
+$$ P(T < 9.7 + 4 \mid T > 9.7) = P(T < 4) = 1 - e^{-4(1/11)} \approx 0.3048561 $$
+
+\subsubsection*{Quesito 4: Trasformazione di V.A.}
+\textbf{Testo e Soluzione:}
+Sia $U = \sqrt{T}$. Troviamo la densità $f_U(u)$.
+Sfruttiamo la trasformazione monotona $g(t) = \sqrt{t}$, che ha inversa $t = g^{-1}(u) = u^2$ per $u>0$. La derivata dell'inversa è $2u$.
+Dal teorema di trasformazione:
+$$ f_U(u) = f_T(g^{-1}(u)) \left| \frac{d}{du} g^{-1}(u) \right| = \left( \lambda e^{-\lambda u^2} \right) \cdot (2u) = 2\lambda u e^{-\lambda u^2} \quad \text{per } u>0 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 6 ----------------
+\subsection*{Esercizio 6: Listelli di legno (Somma di Normali)}
+Listello singolo $X_i \sim N(\mu, \sigma^2)$ con $\mu=16.5$ cm e $\sigma=0.13$ cm.
+La somma di $n$ variabili Normali i.i.d. è $S_n \sim N(n\mu, n\sigma^2)$. Per $n=30$:
+$$ S_{30} \sim N(30 \cdot 16.5, 30 \cdot 0.13^2) \implies S_{30} \sim N(495, 0.507) $$
+
+\subsubsection*{Quesiti 1 e 2: Probabilità Standardizzata}
+\textbf{Testo e Soluzione:}
+La deviazione standard per $S_{30}$ è $\sqrt{30} \cdot 0.13 \approx 0.712039$.
+Servono \textbf{più} di 30 listelli per raggiungere 494.038 se la loro somma è inferiore a quel limite ($S_{30} < 494.038$).
+$$ Z = \frac{494.0387469 - 495}{0.712039} \approx -1.35 $$
+$$ P(S_{30} < 494.038) = \Phi(-1.35) \approx 0.088508 $$
+Il quesito 2 chiede l'opposto (servono \textbf{meno} di 30 listelli se i primi 30 eccedono il target), $1 - 0.088508 \approx 0.911492$.
+
+\subsubsection*{Quesito 3: Calcolo Inverso}
+\textbf{Testo e Soluzione:}
+Trovare $L$ per cui $P(S_{30} \ge L) \ge 0.64519$. Standardizzando:
+$$ 1 - \Phi\left(\frac{L - n\mu}{\sqrt{n}\sigma}\right) \ge p \implies \Phi\left(\frac{L - n\mu}{\sqrt{n}\sigma}\right) \le 1-p $$
+Passando al quantile inverso e invertendo la trasformazione:
+$$ L = \sqrt{n}\sigma \cdot \Phi^{-1}(1-0.64519) + n\mu \approx 494.7348604 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 7 ----------------
+\subsection*{Esercizio 7: Teorema della Varianza Totale}
+Data una distribuzione condizionata in tabella e la marginale di $X$.
+
+\subsubsection*{Quesito 1 e 2: Statistiche descrittive marginali}
+\textbf{Testo e Soluzione:}
+\begin{itemize}
+    \item Valore atteso: $\mathbb{E}(X) = \sum x \cdot p_X(x) = (-9)(0.35) + (2)(0.35) + (7)(0.30) = -0.35$.
+    \item Varianza: $\mathbb{E}(X^2) = (81)(0.35) + (4)(0.35) + (49)(0.30) = 44.45$. $Var(X) = 44.45 - (-0.35)^2 = 44.3275$.
+\end{itemize}
+
+\subsubsection*{Quesito 3 e 4: Scomposizione della Varianza}
+\textbf{Fondamento Teorico:}
+Il teorema della varianza totale per una v.a. bivariata afferma che:
+$$ \mathbb{V}ar(X) = \mathbb{E}(\mathbb{V}ar(X|Y)) + \mathbb{V}ar(\mathbb{E}(X|Y)) $$
+Dopo aver calcolato con l'inversione Bayesiana i valori di $\mathbb{E}(X|Y=y)$ per ogni $y$ (utilizzando $p_{X|Y}(x|y) = \frac{p_X(x)p_{Y|X}(y|x)}{p_Y(y)}$), si valuta $\mathbb{V}ar(\mathbb{E}(X|Y))$ applicando le consuete regole della varianza su questa nuova v.a. di appoggio.
+Il risultato è $0.082576$.
+Per calcolare il residuo $\mathbb{E}(\mathbb{V}ar(X|Y))$, sfruttiamo semplicemente la scomposizione per differenza:
+$$ \mathbb{E}(\mathbb{V}ar(X|Y)) = \mathbb{V}ar(X) - \mathbb{V}ar(\mathbb{E}(X|Y)) = 44.3275 - 0.082576 = 44.244924 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 8 ----------------
+\subsection*{Esercizio 8: Bivariata - Covarianza e Correlazione}
+\textbf{Fondamento Teorico:}
+La Covarianza valuta la tendenza di due V.A. a variare in maniera concorde. L'indice di Correlazione Lineare di Pearson è la covarianza standardizzata.
+$$ \mathbb{C}ov(X,Y) = \mathbb{E}(XY) - \mathbb{E}(X)\mathbb{E}(Y) \quad \text{e} \quad \rho(X,Y) = \frac{\mathbb{C}ov(X,Y)}{\sqrt{Var(X)Var(Y)}} $$
+Dopo aver ricavato la congiunta $p_{X,Y}(x,y) = p_X(x) p_{Y|X}(y|x)$, calcoliamo il momento misto $\mathbb{E}(XY)$ e i momenti marginali.
+Due variabili si dicono \textbf{non correlate} se $Cov(X,Y) = 0$. Essendo la covarianza pari a $-0.1743338$, le variabili risultano \textbf{correlate} (la risposta è FALSE).
+Sostituendo nelle definizioni si ottiene un coefficiente di correlazione $\rho(X,Y) \approx -0.0219907$.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZI 9 e 10 ----------------
+\subsection*{Esercizio 9 e 10: Aspettative Iterate e Poissoniane}
+
+\paragraph{Problema del Viaggiatore (Esercizio 9 - Legge delle aspettative iterate):}
+Sia $T$ il tempo per arrivare. L'esperimento genera tre percorsi equiprobabili (probabilità $1/3$):
+\begin{itemize}
+    \item $X_1$: perde 1h e torna all'inizio. $\mathbb{E}(T|X_1) = 1 + \mathbb{E}(T)$.
+    \item $X_2$: perde 2h e torna all'inizio. $\mathbb{E}(T|X_2) = 2 + \mathbb{E}(T)$.
+    \item $X_3$: strada corretta, ci mette 3h. $\mathbb{E}(T|X_3) = 3$.
+\end{itemize}
+Per il teorema delle probabilità totali per la speranza matematica:
+$$ \mathbb{E}(T) = \frac{1}{3}(1 + \mathbb{E}(T)) + \frac{1}{3}(2 + \mathbb{E}(T)) + \frac{1}{3}(3) \implies \mathbb{E}(T) = \frac{3 + 2\mathbb{E}(T) + 3}{3} \implies \mathbb{E}(T) = 6 $$
+
+\paragraph{Somma di Poisson (Esercizio 10):}
+Si ricava $\lambda_X = 3$ dalla condizione $P(X=2)=P(X=3)$.
+Data $Y \sim Pois(5)$ indipendente da $X$, la somma $Z = X+Y$ segue una $Pois(8)$.
+\textbf{Condizionamento notevole:} Come dimostrato in classe, la distribuzione della V.A. di Poisson $X$ condizionata a una somma nota $X+Y = n$ è una Binomiale con $N=n$ prove e probabilità di successo $p = \frac{\lambda_X}{\lambda_X + \lambda_Y}$.
+Nel nostro caso, $X | Z=n \sim Bin\left(n, \frac{3}{8}\right)$.
+\begin{itemize}
+    \item $P(X=5 | Z=11) = \binom{11}{5} \left(\frac{3}{8}\right)^5 \left(\frac{5}{8}\right)^6 \approx 0.2042107$.
+    \item Il valore atteso condizionato di una Binomiale è banalmente $n \cdot p = 11 \cdot \frac{3}{8} = 4.125$.
+\end{itemize}
+
+\end{document}
