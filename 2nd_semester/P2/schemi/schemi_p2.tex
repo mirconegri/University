@@ -14,14 +14,14 @@
 
 % --- Impostazioni Colori ---
 \usepackage{xcolor}
-\pagecolor{black} 
-\color{white}     
+\pagecolor{white} 
+\color{black}     
 
 % --- Impostazioni Link ---
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
-    linkcolor=white, 
+    linkcolor=black, 
     urlcolor=cyan    
 }
 
@@ -42,7 +42,7 @@
     \rule{\textwidth}{0.8pt}\vspace{0.5cm}
     {\Huge\bfseries Appunti di Programmazione 2\par}
     \vspace{0.3cm}
-    {\Large\itshape Primo parziale \par}
+    {\Large\itshape Teoria, Lab e Tutorati \par}
     \vspace{0.4cm}\rule{\textwidth}{0.8pt}
     
     \vspace{3cm}
@@ -64,6 +64,8 @@
 % --- Generazione dell'Indice ---
 \tableofcontents
 \newpage
+
+
 
 \section{Lezione 01: Recap delle nozioni di Programmazione 1}
 
@@ -675,7 +677,7 @@ public class Linelander extends Flatlander {
 }
 \end{verbatim}
 
-\textbf{Analisi critica:} L'uso di \texttt{abstract} impedisce di creare un "abitante generico" che non avrebbe senso nella logica del programma[cite: 13, 16]. Obbligando all'overriding di \texttt{getMeasure()}, il compilatore garantisce che ogni nuova forma aggiunta al sistema (es. \texttt{Squarelander}) implementi correttamente la propria logica di calcolo.
+\textbf{Analisi critica:} L'uso di \texttt{abstract} impedisce di creare un "abitante generico" che non avrebbe senso nella logica del programma. Obbligando all'overriding di \texttt{getMeasure()}, il compilatore garantisce che ogni nuova forma aggiunta al sistema (es. \texttt{Squarelander}) implementi correttamente la propria logica di calcolo.
 
 \section{Lezione 07: Interfacce e Capacità}
 
