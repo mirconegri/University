@@ -9,6 +9,7 @@
 \usepackage{geometry}
 \usepackage{enumitem}
 \usepackage{booktabs}
+\usepackage{eurosym}
 
 % --- Impostazioni Colori ---
 \usepackage{xcolor}
@@ -321,6 +322,7 @@ Dati $\mu = 5.85$ e $\sigma = 0.57$.
     \item Caramelle scartate ogni N prodotte: La probabilità totale di scarto (code superiore e inferiore) è stimata dal testo a $p = 0.17$. In media, si presenta una caramella difettosa ogni $\frac{1}{0.17} \approx 5.8823529$ prodotte.
     \item Valore standardizzato per 5.0857696: $z = \frac{5.0857696 - 5.85}{0.57} \approx -1.340755$.
 \end{itemize}
+
 
 \section*{Probabilità e Statistica - Esercizi 6}
 \addcontentsline{toc}{section}{Probabilità e Statistica - Esercizi 6}
@@ -747,5 +749,256 @@ Nel nostro caso, $X | Z=n \sim Bin\left(n, \frac{3}{8}\right)$.
     \item $P(X=5 | Z=11) = \binom{11}{5} \left(\frac{3}{8}\right)^5 \left(\frac{5}{8}\right)^6 \approx 0.2042107$.
     \item Il valore atteso condizionato di una Binomiale è banalmente $n \cdot p = 11 \cdot \frac{3}{8} = 4.125$.
 \end{itemize}
+
+\section*{Probabilità e Statistica - Esercizi 8}
+\addcontentsline{toc}{section}{Probabilità e Statistica - Esercizi 8}
+\markboth{Esercizi 8}{Esercizi 8}
+
+% ---------------- ESERCIZIO 1 ----------------
+\subsection*{Esercizio 1: Scomposizione della Varianza su Bivariata Discreta}
+Data una distribuzione di probabilità congiunta per le modalità di $X \in \{-8, -7, -3\}$ e $Y \in \{-9, -3, 0, 1\}$.
+
+\subsubsection*{Quesiti 1 e 2: Momenti Marginali di X}
+\textbf{Testo:} Calcolare $\mathbb{E}(X)$ e $Var(X)$.
+
+\textbf{Soluzione e Fondamento Teorico:}
+Utilizzando le funzioni di probabilità marginali ottenute saturando rispetto alle colonne della tabella congiunta ($\sum_{y} p_{X,Y}(x,y)$), calcoliamo il valore atteso e la varianza tramite le definizioni classiche per v.a. discrete:
+$$ \mathbb{E}(X) = \sum_{x \in R_X} x \cdot p_X(x) = (-8)(0.36) + (-7)(0.34) + (-3)(0.30) = -6.16 $$
+$$ \mathbb{E}(X^2) = \sum_{x \in R_X} x^2 \cdot p_X(x) = (-8)^2(0.36) + (-7)^2(0.34) + (-3)^2(0.30) = 42.4 $$
+$$ Var(X) = \mathbb{E}(X^2) - (\mathbb{E}(X))^2 = 42.4 - (-6.16)^2 = 42.4 - 37.9456 = 4.4544 $$
+
+\subsubsection*{Quesiti 3 e 4: Teorema della Varianza Totale}
+\textbf{Testo:} Calcolare $Var(\mathbb{E}(X|Y))$ e $\mathbb{E}(Var(X|Y))$.
+
+\textbf{Soluzione e Fondamento Teorico:}
+Per la \textbf{Legge della Varianza Totale} (formula di decomposizione della varianza):
+$$ Var(X) = \mathbb{E}(Var(X|Y)) + Var(\mathbb{E}(X|Y)) $$
+Invertendo preliminarmente la matrice tramite la relazione di Bayes $p_{X|Y}(x|y) = \frac{p_{X,Y}(x,y)}{p_Y(y)}$, si ricavano i singoli valori attesi condizionati $\mathbb{E}(X|Y=y)$ per ogni modalità della v.a. condizionante $Y$. 
+Applicando la varianza alla nuova v.a. discreta d'appoggio $\mathbb{E}(X|Y)$ pesata sulle frequenze marginali di $Y$ si ricava:
+$$ Var(\mathbb{E}(X|Y)) = \sum_{y \in R_Y} (\mathbb{E}(X|Y=y) - \mathbb{E}(X))^2 p_Y(y) \approx 0.0226507 $$
+La quantità residua (la media delle varianze condizionate) si ottiene per differenza algebrica:
+$$ \mathbb{E}(Var(X|Y)) = Var(X) - Var(\mathbb{E}(X|Y)) = 4.4544 - 0.0226507 = 4.4317493 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 2 ----------------
+\subsection*{Esercizio 2: Covarianza, Correlazione e Indipendenza}
+Siano $X \in \{-5, 0.5, 6.5\}$ e $Y \in \{-4.5, -1, 6, 9\}$.
+
+\subsubsection*{Quesito 1: Calcolo di una probabilità congiunta}
+\textbf{Testo:} Qual è la probabilità di $(-5, -4.5)$?
+
+\textbf{Soluzione e Fondamento Teorico:}
+Dalla definizione di probabilità condizionata sappiamo che $p_{X,Y}(x,y) = p_{Y|X}(y|x) \cdot p_X(x)$. Moltiplicando il dato della prima riga e della prima colonna per la marginale di $X$:
+$$ P(X=-5, Y=-4.5) = p_{Y|X}(-4.5 \mid -5) \cdot p_X(-5) = 0.32 \times 0.26 = 0.0832 $$
+
+\subsubsection*{Quesiti 2, 3 e 4: Parametri di Associazione Lineare}
+\textbf{Testo:} Determinare $Cov(X,Y)$, stabilire se sono incorrelate e calcolare il coefficiente $\rho(X,Y)$.
+
+\textbf{Soluzione e Fondamento Teorico:}
+La covarianza esprime la presenza di legami lineari tra due variabili ed è definita come:
+$$ Cov(X,Y) = \mathbb{E}(XY) - \mathbb{E}(X)\mathbb{E}(Y) $$
+Calcolando il momento misto $\mathbb{E}(XY) = \sum \sum x_i y_j p_{X,Y}(x_i, y_j)$ e sottraendo il prodotto dei valori attesi marginali ($\mathbb{E}(X)=1.65$, $\mathbb{E}(Y)=2.20395$), si ottiene $Cov(X,Y) = 1.1852575$.
+Poiché $Cov(X,Y) \neq 0$, le due variabili si definiscono \textbf{correlate}. Dall'implicazione logica si deduce che le due variabili sono anche stocasticamente \textbf{dipendenti} (Risposta: \textbf{FALSE}).
+L'indice di correlazione standardizzato di Pearson risulterà:
+$$ \rho(X,Y) = \frac{Cov(X,Y)}{\sqrt{Var(X)Var(Y)}} \approx 0.046228 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 3 ----------------
+\subsection*{Esercizio 3: Aspettative Iterate e Legge della Varianza Totale}
+
+\paragraph{Testo 1: Il Viaggiatore smarrito}
+\textbf{Soluzione e Fondamento Teorico:}
+L'esperimento si basa sul campionamento a ogni bivio senza memoria con probabilità $1/3$. Le tre condizioni producono: $\mathbb{E}(T|X_1) = \mathbb{E}(T) + 1$, $\mathbb{E}(T|X_2) = \mathbb{E}(T) + 3$, $\mathbb{E}(T|X_3) = 2$.
+Per la \textbf{Legge delle Aspettative Iterate} ($\mathbb{E}(T) = \mathbb{E}[\mathbb{E}(T|X_i)]$):
+$$ \mathbb{E}(T) = \frac{1}{3}(\mathbb{E}(T)+1) + \frac{1}{3}(\mathbb{E}(T)+3) + \frac{1}{3}(2) \implies \mathbb{E}(T) = \frac{2\mathbb{E}(T) + 6}{3} \implies \mathbb{E}(T) = 6 \text{ ore} $$
+
+\paragraph{Testo 2: Varianza Totale su tavola condizionata}
+\textbf{Soluzione e Fondamento Teorico:}
+Applicando la scomposizione della varianza tramite la legge della varianza totale:
+1. Ricaviamo i valori attesi condizionati $\mathbb{E}(X|Y)$ per ricavare la media marginale globale via linearità: $\mathbb{E}(X) = -1.4608$.
+2. Calcoliamo la varianza delle medie condizionate: $Var(\mathbb{E}(X|Y)) = \sum (\mathbb{E}(X|Y=y) - \mathbb{E}(X))^2 p_Y(y) = 0.8020634$.
+3. Calcoliamo la media delle varianze condizionate ricavando preliminarmente $Var(X|Y=y)$ per ogni riga: $\mathbb{E}(Var(X|Y)) = 40.7688$.
+$$ Var(X) = \mathbb{E}(Var(X|Y)) + Var(\mathbb{E}(X|Y)) = 40.7688 + 0.8020634 = 41.5708634 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 4 ----------------
+\subsection*{Esercizio 4: Sacchetti di Caramelle (Linearità e Limiti di Markov)}
+Siano $X$ e $Y$ variabili indipendenti (caramelle rosse e gialle):
+$\mathbb{E}(X) = 34, Var(X) = 2^2 = 4$. $\mathbb{E}(Y) = 29, Var(Y) = 6^2 = 36$.
+
+\subsubsection*{Quesito 1 e 2: Valore Atteso di Funzioni Lineari}
+\textbf{Soluzione e Fondamento Teorico:}
+Per la proprietà di linearità dell'operatore valore atteso, il valore atteso della somma di variabili aleatorie (anche dipendenti) coincide con la somma dei singoli valori attesi:
+$$ \mathbb{E}(X+Y) = \mathbb{E}(X) + \mathbb{E}(Y) = 34 + 29 = 63 \text{ g} \implies \text{Costo medio} = 63 \times 0.15 = 9.45 \text{ \euro} $$
+Modificando i coefficienti lineari con i nuovi prezzi $a=0.25$ e $b=0.15$:
+$$ \mathbb{E}(aX + bY) = a\mathbb{E}(X) + b\mathbb{E}(Y) = 0.25(34) + 0.15(29) = 8.5 + 4.35 = 12.85 \text{ \euro} $$
+
+\subsubsection*{Quesito 3: Varianza di una Combinazione Lineare}
+\textbf{Soluzione e Fondamento Teorico:}
+La varianza di una combinazione lineare risente della covarianza tra i termini:
+$$ Var(aX + bY) = a^2 Var(X) + b^2 Var(Y) + 2ab Cov(X,Y) $$
+Poiché le due macchine operano in modo \textbf{indipendente}, la loro covarianza è strettamente nulla ($Cov(X,Y) = 0$).
+$$ Var(0.25X + 0.15Y) = (0.25)^2(4) + (0.15)^2(36) = 0.25 + 0.81 = 1.06 $$
+
+\subsubsection*{Quesito 4: Disuguaglianza di Markov}
+\textbf{Testo e Soluzione:}
+La disuguaglianza di Markov fornisce un limite superiore per la probabilità della coda destra di una v.a. non negativa, richiedendo unicamente la conoscenza del valore atteso:
+$$ P(W \ge \alpha) \le \frac{\mathbb{E}(W)}{\alpha} \implies P(\text{Costo} \ge 11.4) \le \frac{12.85}{11.4} \approx 1.127193 $$
+\textit{Nota metodologica del prof:} Poiché una misura di probabilità non può matematicamente eccedere l'unità per il secondo assioma, un limite superiore coerente e maggiormente restrittivo può essere espresso come $\min\left\{\frac{\mathbb{E}(W)}{\alpha}, 1\right\} = 1$.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 5 ----------------
+\subsection*{Esercizio 5: Limiti di Markov e Chebychev}
+
+\subsubsection*{Quesiti 1 e 2: Markov applicato a Poisson e Binomiale Condizionata}
+\textbf{Soluzione:} 
+1. Siano $X \sim Pois(11)$ e $Y \sim Pois(3)$ indipendenti. La loro somma è $S \sim Pois(14)$ con $\mathbb{E}(S) = 14$.
+$$ P(S \ge 23) \le \frac{\mathbb{E}(S)}{23} = \frac{14}{23} \approx 0.6086957 $$
+2. Condizionatamente alla somma, sappiamo che la v.a. $X \mid X+Y=23$ si distribuisce come una Binomiale con $n=23$ e $p=\frac{11}{11+3} = \frac{11}{14}$. Il valore atteso condizionato è $\mathbb{E}(X \mid S=23) = 23 \times \frac{11}{14} \approx 18.0714$.
+$$ P(X \ge 8 \mid S=23) \le \frac{\mathbb{E}(X \mid S=23)}{8} = \frac{18.0714}{8} \approx 2.2589286 $$
+
+\subsubsection*{Quesito 3 e 4: Disuguaglianza di Chebychev}
+\textbf{Soluzione e Fondamento Teorico:}
+La disuguaglianza di Chebychev esprime un limite di variabilità simmetrico attorno alla media per qualsiasi distribuzione di cui sia nota la varianza $\sigma^2$:
+$$ P(|Y - \mu| \ge z) \le \frac{\sigma^2}{z^2} $$
+Sia $X \sim N(0,1)$, allora $Y = aX \sim N(0, a^2)$. Nel nostro problema poniamo $\mu=0$ e $\sigma^2 = a^2$. Sfruttando la legge dell'evento complementare ricaviamo un limite inferiore:
+$$ P(|Y| < z) = 1 - P(|Y| \ge z) \ge 1 - \frac{a^2}{z^2} $$
+Fissando i parametri simbolici del testo la disuguaglianza computa il bound a $0.75$.
+Il valore esatto per la seconda parte (con $Y \sim N(0, 1.21)$) si ottiene integrando per via computazionale l'area interna:
+$$ P(-2.4 < Y < 2.4) = \Phi\left(\frac{2.4}{1.1}\right) - \Phi\left(\frac{-2.4}{1.1}\right) = 2\Phi(2.1818) - 1 \approx 0.9544997 $$
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 6 ----------------
+\subsection*{Esercizio 6: Distribuzione Binomiale e Conteggi Combinatori}
+\begin{itemize}
+    \item \textbf{Quesito 1:} \textbf{FALSE}. Nel lancio di una moneta equilibrata ($n=12$), la probabilità del punto centrale della massa binomiale $\binom{12}{6}(0.5)^{12} \approx 0.225$ è strettamente inferiore alla somma di tutte le altre probabilità rimanenti ($1 - 0.225 = 0.775$).
+    \item \textbf{Quesito 2 (Almeno 11 teste):} $P(X \ge 11) = \binom{12}{11}(0.5)^{12} + \binom{12}{12}(0.5)^{12} = \frac{12+1}{4096} \approx 2.4414063 \times 10^{-4}$.
+    \item \textbf{Quesito 3 (Coefficiente Binomiale):} I modi possibili di disporre $11$ successi in $12$ posizioni senza considerare l'ordine corrispondono a $\binom{12}{11} = 12$.
+    \item \textbf{Quesito 4:} Il numero medio (valore atteso) è $\mathbb{E}(X) = n \cdot p = 12 \times 0.74 = 8.88$.
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 7 ----------------
+\subsection*{Esercizio 7: Riproducibilità e Turni Ipergeometrici}
+Siano $X \sim Bin(6, 0.501)$ e $Y \sim Bin(5, 0.501)$ indipendenti. Per la proprietà di riproducibilità delle v.a. binomiali con medesimo parametro $p$, la loro somma è $S \sim Bin(11, 0.501)$.
+
+\begin{itemize}
+    \item \textbf{Quesito 1:} $P(0 \le S < 7) = P(S \le 6) = \sum_{k=0}^6 \binom{11}{k} (0.501)^k (0.499)^{11-k} \approx 0.7233256$.
+    \item \textbf{Quesito 2 e 3 (Condizionamento Ipergeometrico):} Come dimostrato analiticamente nei passaggi algebrici, la distribuzione condizionata di una componente della somma, dato il valore totale della somma stessa, perde la dipendenza dal parametro continuo $p$ e si struttura come una distribuzione \textbf{Ipergeometrica}:
+    \begin{align*}
+    X \mid S=5 &\sim Hyper(M=6, N=5, n=5) \\ &\implies P(X=5 \mid S=5) = \frac{\binom{6}{5}\binom{5}{0}}{\binom{11}{5}} \approx 0.012987
+\end{align*}
+    Simmetricamente per il Quesito 3, invertendo i ruoli per ricavare $Y \mid S=6 \sim Hyper(5,6,6)$:
+    $$ P(1 \le Y \le 2 \mid S=6) = \sum_{k=1}^2 \frac{\binom{5}{k}\binom{6}{6-k}}{\binom{11}{6}} \approx 0.3896104 $$
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 8 ----------------
+\subsection*{Esercizio 8: Gestione di Cassa e Overbooking al Cinema}
+Modello Binomiale per la presenza di acquirenti con tasso di successo $p=0.80$.
+
+\begin{itemize}
+    \item \textbf{Q1 (Overbooking Sala 1):} $N=16$, posti disponibili 14. Almeno una persona resta esclusa se si presentano 15 o 16 persone ($X_1 > 14$):
+    $$ P(X_1 > 14) = \binom{16}{15}(0.8)^{15}(0.2)^1 + \binom{16}{16}(0.8)^{16} \approx 0.1407375 $$
+    \item \textbf{Q2 (Nessun problema Sala 2):} $N=17$, posti disponibili 15. Nessun problema se si presentano al più 15 persone ($X_2 \le 15$):
+    $$ P(X_2 \le 15) = 1 - P(X_2 > 15) = 1 - [P(X_2=16)+P(X_2=17)] \approx 0.8817805 $$
+    \item \textbf{Q3 (Risoluzione Inversa):} Ricerchiamo per tentativi il massimo intero $N_1$ tale per cui $P(X_1 > 14) \le 0.46$. Valutando la massa per $N_1=17$ si ottiene un rischio di sforamento accettabile inferiore alla quota $\alpha$, mentre per $18$ la supererebbe. Risposta: \textbf{17}.
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 9 ----------------
+\subsection*{Esercizio 9: Approssimazione mediante Teorema Centrale del Limite}
+Sia $X_{59} \sim Bin(n=59, p=0.41)$ il numero di canestri. Ogni canestro vale 2 punti.
+
+\subsubsection*{Quesito 1 e 2: Approssimazione continua e correzione per continuità}
+\textbf{Testo:} Calcolare la probabilità di fare al più 54 punti usando il TLC.
+
+\textbf{Soluzione e Fondamento Teorico:}
+Fare al più 54 punti equivale a fare al più $54/2 = 27$ canestri ($X_{59} \le 27$).
+Calcoliamo i parametri di sintesi: $\mu = np = 24.19$ e $\sigma = \sqrt{np(1-p)} = \sqrt{14.2721} \approx 3.7778$.
+Per il \textbf{Teorema Centrale del Limite}, la distribuzione asintotica della binomiale è una Gaussiana. Essendo una conversione da un dominio discreto a uno continuo, applichiamo la \textbf{correzione per continuità} estendendo l'intervallo di mezzo punto ($27 \to 27.5$) per includere interamente la barra di probabilità del punto 27:
+$$ P(X_{59} \le 27) \approx \Phi\left(\frac{27.5 - 24.19}{\sqrt{14.2721}}\right) = \Phi\left(\frac{3.31}{3.7778}\right) = \Phi(0.8761) \approx 0.8095288 $$
+Il calcolo esatto tramite software calcola l'errore assoluto di questa approssimazione a $4.4128511 \times 10^{-4}$.
+
+\subsubsection*{Quesito 3: Dimensione campionaria minima per bound di probabilità}
+\textbf{Testo:} Trovare il numero minimo di tiri $n$ per avere almeno 84 punti con probabilità $\ge 0.89$.
+
+\textbf{Soluzione e Fondamento Teorico:}
+Target: almeno 84 punti $\implies$ almeno 42 canestri ($X_n \ge 42$). Vogliamo $P(X_n \ge 42) \ge 0.89$. 
+Usando l'approssimazione normale e la correzione per continuità ($42 \to 41.5$):
+$$ P(X_n \ge 41.5) = 1 - \Phi\left(\frac{41.5 - 0.41n}{\sqrt{0.2419n}}\right) \ge 0.89 \implies \Phi\left(\frac{41.5 - 0.41n}{\sqrt{0.2419n}}\right) \le 0.11 $$
+Risolvendo l'equazione di secondo grado associata rispetto a $\sqrt{n}$ sfruttando il quantile critico standard $\Phi^{-1}(0.11) = -1.2265$, si ricava la condizione geometrica $n \ge 117.14$, che approssimata per eccesso all'intero successivo fornisce la dimensione minima: \textbf{118}.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 10 ----------------
+\subsection*{Esercizio 10: Teoria della Stima e Proprietà degli Stimatori}
+Sia un campione casuale i.i.d. $X_i \sim N(\mu=22, \sigma^2=5)$ con $n=30$.
+Consideriamo gli stimatori $T_1 = \bar{X}_n$ e $T_2 = 2\bar{X}_n - X_1$.
+
+\subsubsection*{Quesito 1: La Distorsione (Bias)}
+\textbf{Soluzione e Fondamento Teorico:}
+La distorsione di uno stimatore misura lo scostamento sistematico del suo valore atteso dal parametro reale: $Bias(T) = \mathbb{E}(T) - \mu$.
+$$ \mathbb{E}(T_1) = \mathbb{E}(\bar{X}_n) = \mu \implies Bias(T_1) = 0 $$
+$$ \mathbb{E}(T_2) = 2\mathbb{E}(\bar{X}_n) - \mathbb{E}(X_1) = 2\mu - \mu = \mu \implies Bias(T_2) = 0 $$
+Entrambi sono stimatori \textbf{non distorti} (Risposta: \textbf{0, 0}).
+
+\subsubsection*{Quesiti 2 e 3: Varianza ed Errore Quadratico Medio (MSE)}
+\textbf{Soluzione e Fondamento Teorico:}
+L'errore quadratico medio sintetizza l'accuratezza dello stimatore ed è legato alla scomposizione $MSE(T) = Var(T) + (Bias(T))^2$. Essendo non distorti, l'MSE coincide con la varianza.
+Per la media campionaria nota: $Var(T_1) = \frac{\sigma^2}{n} = \frac{5}{30} = 0.1666667$.
+Per lo stimatore $T_2$, espandendo la combinazione lineare e calcolando le covarianze interne tra la media e il singolo elemento iniziale ($Cov(\bar{X}_n, X_1) = \sigma^2/n$):
+$$ Var(T_2) = 4Var(\bar{X}_n) + Var(X_1) - 4Cov(\bar{X}_n, X_1) = 4\frac{\sigma^2}{n} + \sigma^2 - 4\frac{\sigma^2}{n} = \sigma^2 = 5 $$
+Risposta MSE: \textbf{0.1666667, 5}. Lo stimatore $T_1$ è preferibile perché \textbf{più efficiente} (varianza minima).
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 11 ----------------
+\subsection*{Esercizio 11: Stima Puntuale del Campione Toracico}
+Dati empirici misurati su $n=6$ persone.
+
+\begin{itemize}
+    \item \textbf{Stima della media $\mu$:} Si adotta lo stimatore naturale della media campionaria $\bar{X} = \frac{1}{n}\sum X_i = 79.3166667$.
+    \item \textbf{Stima della deviazione standard:} Calcolando la varianza campionaria condizionata a denominatore $n$ si ottre $Var = 18.398$. Estraendone la radice quadrata si ricava la deviazione standard puntuale pari a $4.2892955$.
+    \item \textbf{Fattore di correzione per la distorsione:} Lo stimatore della varianza a denominatore $n$ è \textbf{distorto} perché tende a sottostimare la varianza reale della popolazione. Come dimostrato a lezione, il suo valore atteso è $\frac{n-1}{n}\sigma^2$. Per renderlo non distorto (ottenendo la varianza campionaria corretta $S^2$), occorre moltiplicarlo per il fattore correttivo $\frac{n}{n-1} = \frac{6}{5} = 1.2$.
+\end{itemize}
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 12 ----------------
+\subsection*{Esercizio 12: Stimatori per la Distribuzione Esponenziale}
+Sia un campione i.i.d. $X_i \sim Exp(\lambda)$ con $\mathbb{E}(X_i) = 1/\lambda$ e $Var(X_i) = 1/\lambda^2$.
+
+\subsubsection*{Quesiti 1, 2 e 3: Efficienza e invarianza degli stimatori}
+\textbf{Soluzione e Fondamento Teorico:}
+Calcolando i valori attesi si verifica che $\mathbb{E}(T_1) = \mathbb{E}(T_2) = \mathbb{E}(T_3) = 1/\lambda$. Tutti e tre sono non distorti (Risposta convenzionale: \textbf{7}).
+Per l'efficienza confrontiamo le varianze: $Var(T_1) = \lambda^{-2}$, $Var(T_2) = \frac{5}{9}\lambda^{-2}$, $Var(T_3) = \frac{42}{144}\lambda^{-2} \approx 0.2916\lambda^{-2}$. Lo stimatore preferibile con MSE minimo è $T_3$ (Risposta: \textbf{3}).
+
+\subsubsection*{Quesito 4: Stimatore di Massima Verosimiglianza (MLE)}
+\textbf{Soluzione e Fondamento Teorico:}
+La funzione di verosimiglianza per il campione indipendente è il prodotto delle densità:
+$$ L(\lambda) = \prod_{i=1}^n \lambda e^{-\lambda x_i} = \lambda^n e^{-\lambda \sum x_i} \implies \ln L(\lambda) = n\ln(\lambda) - \lambda \sum_{i=1}^n  x_i $$
+Derivando e uguagliando a zero la *score function* per trovare il punto di massimo:
+$$ \frac{d}{d\lambda}\ln L(\lambda) = \frac{n}{\lambda} - \sum_{i=1}^n x_i = 0 \implies \hat{\lambda} = \frac{n}{\sum x_i} = \frac{1}{\bar{X}_n} $$
+Sostituendo la somma dei dati del testo ($\sum x_i = 16.1$ su $n=10$), si ottiene la stima MLE: $\hat{\lambda} = \frac{10}{16.1} \approx 0.621118$.
+
+\vspace{0.5cm}\hrule\vspace{0.5cm}
+
+% ---------------- ESERCIZIO 13 ----------------
+\subsection*{Esercizio 13: Trasformazioni di Variabili e MLE}
+\textbf{Soluzione e Fondamento Teorico:}
+1. Sia $Y = 8X$. Per il principio di invarianza degli stimatori di massima verosimiglianza (proprietà di Zehna), se $\hat{\theta}$ è l'MLE di $\theta$, allora $g(\hat{\theta})$ è l'MLE di $g(\theta)$. Sapendo che $\bar{Y} = 8\bar{X}$, lo stimatore per l'esponenziale scalata risulta:
+$$ \hat{\lambda} = \frac{8}{\bar{Y}_n} $$
+Inserendo i dati del campione fornito si ricava la stima puntuale pari a $2.8742515$.
+
+2. Sia la traslazione $Z = X - 10$. Applicando la medesima proprietà di invarianza per i parametri di scala della densità modificata, lo stimatore MLE si adatta sulla media campionaria corretta per lo shift lineare, fornendo come output numerico sui dati stasti il valore $0.0992939$.
 
 \end{document}
