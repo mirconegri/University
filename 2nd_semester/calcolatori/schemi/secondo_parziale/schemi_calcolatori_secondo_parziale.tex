@@ -1,29 +1,58 @@
 \documentclass[12pt, a4paper]{article}
 
-% --- Caricamento pacchetti standard ---
+\def\islight{true} 
+
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{amsmath, amssymb}
 \usepackage{geometry}
 \usepackage{enumitem}
 \usepackage{booktabs}
+\usepackage{eurosym}
 \usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{datetime} 
 \usepackage{array}
 \usepackage{float}
 
-% --- Impostazioni Colori ---
-\usepackage{xcolor}
-\pagecolor{white} 
-\color{black}     
+\newcommand{\myfootertext}{}
+\newcommand{\myicon}{}
 
-% --- Impostazioni Link ---
-\usepackage{hyperref}
+\ifx\islight\undefined
+    \definecolor{lightergray}{gray}{0.85}
+    \definecolor{tocsec}{gray}{0.85}
+    \definecolor{tocsubsec}{gray}{0.75}
+    \renewcommand{\myicon}{logo_unitn_scuro.png}
+    \renewcommand{\myfootertext}{Appunti redatti per gli studenti del DISI. \\ Eventuali errori possono essere segnalati su GitHub.}
+    \pagecolor{black}
+    \color{white}
+\else
+    \definecolor{lightergray}{gray}{0.35}
+    \definecolor{tocsec}{gray}{0.35}
+    \definecolor{tocsubsec}{gray}{0.45}
+    \renewcommand{\myicon}{logo_unitn_chiaro.png}
+    \renewcommand{\myfootertext}{Versione Light Mode. Disponibile anche la \href{https://github.com/mirconegri/University/tree/main/2nd_semester/calcolatori/schemi/secondo_parziale/schemi_calcolatori_secondo_parziale_darkV.pdf}{versione Dark Mode}.}    \pagecolor{white}
+    \color{black}
+\fi
+
 \hypersetup{
     colorlinks=true,
-    linkcolor=black, 
-    urlcolor=cyan    
+    linkcolor=lightergray,
+    urlcolor=cyan,
+    pdftitle={Appunti di Probabilità - Secondo Parziale},
+    pdfauthor={Mirco Negri}
 }
+
+\renewcommand{\cftsecfont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecpagefont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecleader}{\color{tocsubsec}\cftdotfill{\cftdotsep}}
 
 \geometry{margin=2.5cm}
 
@@ -31,21 +60,23 @@
 
 \begin{titlepage}
     \centering
-    \vspace*{3cm} 
+    
+    \includegraphics[width=0.25\textwidth]{\myicon}
+    \vspace{1cm}
     
     {\scshape\LARGE Università degli Studi di Trento \par}
-    \vspace{0.5cm}
+    \vspace{0.4cm}
     {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
     
     \vspace{2cm}
     
-    \rule{\textwidth}{0.8pt}\vspace{0.5cm}
+    {\color{cyan}\rule{\textwidth}{1pt}}\vspace{0.5cm}
     {\Huge\bfseries Appunti di Calcolatori \par}
     \vspace{0.3cm}
     {\Large\itshape Secondo parziale \par}
-    \vspace{0.4cm}\rule{\textwidth}{0.8pt}
+    \vspace{0.4cm}{\color{cyan}\rule{\textwidth}{1pt}}
     
-    \vspace{3cm}
+    \vspace{2.5cm}
     
     {\Large A cura di: \par}
     \vspace{0.3cm}
@@ -53,16 +84,17 @@
     
     \vfill
     
-    {\large
-    \ifcase\month\or
-    Gennaio\or Febbraio\or Marzo\or Aprile\or Maggio\or Giugno\or
-    Luglio\or Agosto\or Settembre\or Ottobre\or Novembre\or Dicembre\fi
-    \space \the\year \par
-    }
+    {\small \textit{\myfootertext} \par}
+    \vspace{0.8cm}
+    
+    {\large \monthname\ \the\year \par}
 \end{titlepage}
 
-% --- Generazione dell'Indice ---
+\newpage
+\begingroup
+\hypersetup{hidelinks}
 \tableofcontents
+\endgroup
 \newpage
 
 \section{Cenni ad Assembly Intel}
@@ -1585,7 +1617,7 @@ L9:
         \item Nessuna delle altre risposte.
     \end{enumerate}
     \textbf{Risposta corretta: (D)} \\
-    \textbf{Perché è corretta:} Un hazard (conflitto) sui dati si verifica quando c'è una dipendenza diretta tra istruzioni che si sovrappongono nella pipeline. Nell'opzione (D), la prima istruzione (sottrazione) calcola un valore che viene salvato nel registro \texttt{t0} come \textit{destinazione}[cite: 384]. La seconda istruzione tenta immediatamente di leggere il registro \texttt{t0} come \textit{sorgente} per l'addizione[cite: 384]. Siccome la prima istruzione non ha ancora fatto in tempo a scrivere fisicamente il nuovo valore nel banco dei registri, si crea un conflitto del tipo RAW (Read-After-Write)[cite: 385, 386]. \\
+    \textbf{Perché è corretta:} Un hazard (conflitto) sui dati si verifica quando c'è una dipendenza diretta tra istruzioni che si sovrappongono nella pipeline. Nell'opzione (D), la prima istruzione (sottrazione) calcola un valore che viene salvato nel registro \texttt{t0} come \textit{destinazione}. La seconda istruzione tenta immediatamente di leggere il registro \texttt{t0} come \textit{sorgente} per l'addizione. Siccome la prima istruzione non ha ancora fatto in tempo a scrivere fisicamente il nuovo valore nel banco dei registri, si crea un conflitto del tipo RAW (Read-After-Write)[cite: 385, 386]. \\
     \textbf{Perché scartare le altre:} Nella (A) le due istruzioni non condividono alcun registro. Nella (B) \texttt{t2} è prima sorgente e solo dopo diventa destinazione, quindi non genera ritardi RAW. Nella (C) il registro \texttt{t1} è letto contemporaneamente da entrambe come sorgente: più letture dallo stesso registro non causano conflitti nell'hardware.
 
     % --- DOMANDA ESTRATTA DA MIDTERM 2 ITA ---
@@ -1601,7 +1633,7 @@ L9:
 \newpage
     
     \textbf{Risposta corretta: (A)} \\
-    \textbf{Perché è corretta:} Le gerarchie di memoria sono strutturate su distanze crescenti dalla ALU che si traducono anche in tempi di accesso e costi differenti. Il livello zero "interno" sono i Registri (praticamente istantanei). Subito a ridosso del chip troviamo la memoria Cache (estremamente veloce)[cite: 398]. Uscendo sul bus si passa alla memoria di massa volatile RAM. All'estremo opposto (il più distante, lento ed economico) risiede l'Hard Disk (memoria permanente)[cite: 399]. \\
+    \textbf{Perché è corretta:} Le gerarchie di memoria sono strutturate su distanze crescenti dalla ALU che si traducono anche in tempi di accesso e costi differenti. Il livello zero "interno" sono i Registri (praticamente istantanei). Subito a ridosso del chip troviamo la memoria Cache (estremamente veloce). Uscendo sul bus si passa alla memoria di massa volatile RAM. All'estremo opposto (il più distante, lento ed economico) risiede l'Hard Disk (memoria permanente). \\
     \textbf{Perché scartare le altre:} La (B) inverte Cache e Registri. La (C) inverte i ruoli di RAM e Cache (la Cache è tra CPU e RAM). La (D) posiziona insensatamente l'Hard Disk come un componente intermedio più vicino/veloce della memoria RAM.
 
     % --- DOMANDA ESTRATTA DA MIDTERM 2 ITA ---
@@ -1614,7 +1646,7 @@ L9:
         \item Nessuna delle altre risposte
     \end{enumerate}
     \textbf{Risposta corretta: (E)} \\
-    \textbf{Perché è corretta:} Nessuna delle definizioni fornite dalla (A) alla (D) è valida per accomunare questi due costrutti. Le interruzioni (Interrupts) sono generate da dispositivi hardware esterni (come l'I/O) e sono, per loro natura, \textit{asincrone} rispetto all'esecuzione ordinaria del programma[cite: 408, 409]. Al contrario, le Traps (eccezioni) sono generate direttamente da anomalie della CPU \textit{dall'interno} e sono squisitamente \textit{sincrone} in quanto scatenate da una singola precisa istruzione[cite: 409, 410]. Poiché divergono sia per causa (interna/esterna) sia per tempismo (sincrona/asincrona), è impossibile accorparle e la risposta esatta è la (E)[cite: 411]. \\
+    \textbf{Perché è corretta:} Nessuna delle definizioni fornite dalla (A) alla (D) è valida per accomunare questi due costrutti. Le interruzioni (Interrupts) sono generate da dispositivi hardware esterni (come l'I/O) e sono, per loro natura, \textit{asincrone} rispetto all'esecuzione ordinaria del programma[cite: 408, 409]. Al contrario, le Traps (eccezioni) sono generate direttamente da anomalie della CPU \textit{dall'interno} e sono squisitamente \textit{sincrone} in quanto scatenate da una singola precisa istruzione[cite: 409, 410]. Poiché divergono sia per causa (interna/esterna) sia per tempismo (sincrona/asincrona), è impossibile accorparle e la risposta esatta è la (E). \\
     \textbf{Perché scartare le altre:} Le opzioni A, B, C e D tentano erroneamente di forzare sia i trap sia gli interrupt nella stessa identica scatola, asserendo in modo fallace che abbiano la stessa identica origine causale (entrambi interni / entrambi esterni).
 
     % --- DOMANDA ESTRATTA DAGLI ESAMI (PIPELINE) ---
@@ -2093,5 +2125,129 @@ jalr x0, 0(x1)
     \textbf{Perché scartare le altre:} L'opzione (A) esegue uno shift di 4 posizioni (\texttt{slli x6, x11, 4}), che moltiplica l'indice per 16, sfalsando completamente il calcolo dell'indirizzo in memoria. L'opzione (C) utilizza istruzioni \texttt{lw} / \texttt{sw} (che caricano e salvano solo 4 byte) e offset incrementati di 4; questo sarebbe corretto per array di normali \texttt{int}, ma fallisce gravemente troncando a metà i \texttt{long long int} a 64 bit richiesti dal frammento C.
 
 \end{enumerate}
+
+
+\section{Preparazione all'Esame Orale: Domande Teoriche e Approfondimenti}
+
+In questa sezione vengono affrontate in maniera discorsiva e dettagliata le principali domande poste frequentemente all'esame orale. Queste risposte costituiscono un'ottima base per ripassare i concetti e dimostrare padronanza tecnica.
+
+\subsection{1. Spiegare la gerarchia della memoria}
+Il problema storico dell'architettura dei calcolatori è conciliare la necessità di avere memorie \textbf{capienti}, \textbf{veloci} ed \textbf{economiche}. Fisicamente, una memoria non può soddisfare tutti e tre i requisiti: memorie veloci (come la SRAM) costano tantissimo e occupano molto spazio sul chip (bassa densità), mentre memorie capienti (come dischi o DRAM) sono lente ed economiche. 
+
+Per risolvere il problema si utilizza una \textbf{gerarchia}. Si sfrutta il \textit{Principio di Località} per dare all'utente l'illusione di possedere una memoria grande quanto il livello più capiente (e lento) ma veloce quanto il livello più rapido (vicino al processore).
+La gerarchia si compone tipicamente di:
+
+\newpage
+
+\begin{enumerate}
+    \item \textbf{Registri della CPU:} Costruiti in SRAM, i più veloci in assoluto ma limitati a poche decine o centinaia di byte.
+    \item \textbf{Cache (L1, L2, L3):} Costruite in SRAM, vicinissime o integrate nel processore. Ordine di grandezza dei Kilobyte o Megabyte. Latenza di pochi nanosecondi.
+    \item \textbf{Memoria Principale (RAM):} Costruita in DRAM (condensatore + transistor), molto densa ed economica. Ordine dei Gigabyte, ma latenze nell'ordine delle decine o centinaia di nanosecondi.
+    \item \textbf{Memorie di Massa (Hard Disk, SSD):} Archiviazione permanente, non volatile, ordine dei Terabyte. Tempi di accesso nell'ordine dei millisecondi (milioni di volte più lenti della CPU).
+\end{enumerate}
+
+\subsection{2. Definire i principi di località spaziale e temporale}
+Il successo dell'intera gerarchia di memoria, e in primis della cache, si fonda su due assunti statistici verificati sul comportamento reale dei programmi:
+\begin{itemize}
+    \item \textbf{Località Temporale:} Se un programma ha appena fatto accesso a una determinata cella di memoria, è altamente probabile che \textit{a brevissimo tempo} faccia di nuovo accesso a quella stessa cella. Un esempio tipico sono le variabili contatore all'interno di un ciclo \texttt{for}, che vengono lette e sovrascritte ad ogni iterazione.
+    \item \textbf{Località Spaziale:} Se un programma fa accesso a una locazione di memoria, è altamente probabile che nei passi immediatamente successivi richieda l'accesso alle celle di memoria \textit{fisicamente adiacenti}. Un classico esempio è lo scorrimento di un array o l'esecuzione sequenziale delle istruzioni del programma in \texttt{.text}.
+\end{itemize}
+Grazie alla prima, manteniamo in cache i dati usati da poco. Grazie alla seconda, quando si verifica un \textit{miss}, non portiamo in cache la singola word richiesta, ma preleviamo un intero \textbf{blocco} (linea di cache) che comprende la word richiesta e quelle adiacenti.
+
+\subsection{3. Le varie tipologie di cache e la lettura Set-Associativa}
+Esistono tre architetture hardware per mappare la memoria nella cache:
+\begin{enumerate}
+    \item \textbf{Direct Mapped (A mappatura diretta):} Ogni blocco della RAM ha \textit{un solo} blocco specifico nella cache in cui può essere salvato (calcolato tramite l'operazione \texttt{Indirizzo MODULO NumeroBlocchiCache}). Se due indirizzi competono per lo stesso slot, si sfrattano a vicenda creando molti conflitti (\textit{conflict miss}).
+    \item \textbf{Fully Associative (Completamente associativa):} Un blocco può essere posizionato in \textit{qualsiasi} riga libera della cache. Abbassa drasticamente i miss, ma per cercare il dato bisogna confrontare contemporaneamente in hardware tutti i \textit{Tag} della cache. Estremamente costosa, impraticabile per grandi dimensioni.
+    \item \textbf{Set Associativa a N vie:} Un compromesso eccellente. La cache è divisa in "Insiemi" (\textit{Set}). Un blocco RAM è vincolato a finire in uno specifico Set (tramite operazione modulo), ma \textit{all'interno} di quel Set può essere collocato in una qualsiasi delle $N$ vie a disposizione.
+\end{enumerate}
+
+\textbf{Lettura da una Set-Associativa:}
+Quando la CPU cerca un dato, frammenta l'indirizzo generato in tre parti: \textit{Tag}, \textit{Indice} e \textit{Offset}.
+\begin{itemize}
+    \item L'\textbf{Indice} viene usato per selezionare lo specifico \textit{Set} della cache.
+    \item All'interno di quel Set vi sono $N$ blocchi. La circuiteria estrae \textit{tutti gli $N$ Tag} dei blocchi presenti e li confronta \textbf{in parallelo} (simultaneamente) con il \textit{Tag} derivato dall'indirizzo richiesto.
+    \item Se c'è una coincidenza e il bit di validità ($V$) è 1, si ha un \textit{Hit}. L'uscita del comparatore logico piloterà un Multiplexer che selezionerà esattamente la via giusta, restituendo infine la specifica word calcolata tramite l'\textbf{Offset}.
+\end{itemize}
+
+\subsection{4. Il concetto di Pipeline: vantaggi, stadi ed Hazard}
+La \textbf{Pipeline} è una tecnica architetturale che aumenta il \textbf{throughput} del processore, applicando il principio della catena di montaggio di Henry Ford. Invece di eseguire un'intera istruzione (es. 800ps) prima di prelevare la successiva, l'esecuzione viene sminuzzata in stadi bilanciati (solitamente 5, di pari durata, es. 200ps). In questo modo, ad ogni ciclo di clock (200ps), una nuova istruzione entra e un'istruzione terminata esce, permettendo alla CPU di lavorare su 5 istruzioni in parallelo in fasi diverse.
+
+Gli \textbf{Stadi RISC classici} sono:
+\textbf{IF} (Instruction Fetch), \textbf{ID} (Instruction Decode \& Register Read), \textbf{EX} (Execute / ALU), \textbf{MEM} (Memory Access), \textbf{WB} (Write-Back nel registro).
+
+I problemi di sovrapposizione si chiamano \textbf{Hazard}:
+\begin{itemize}
+    \item \textbf{Hazard Strutturali:} Due istruzioni tentano di usare fisicamente la stessa risorsa nello stesso ciclo (es. leggere un dato e prelevare un'istruzione usando l'unica memoria). Si risolve duplicando l'hardware (es. Cache Istruzioni e Cache Dati separate).
+    \item \textbf{Hazard sui Dati (Data Hazard):} Un'istruzione in fase \textit{EX} ha bisogno del risultato di una \textit{add} che la precede ma che non è ancora arrivata alla fine per scriverlo (\textit{WB}). Si risolve con il \textbf{Forwarding} (la ALU pesca il risultato appena finito e lo ricicla in ingresso) o, nei peggiori casi (dopo una \textit{Load}), si stallerà la pipeline inserendo delle \textbf{bolle} (Nop) per aspettare che la memoria consegni il dato.
+    \item \textbf{Hazard di Controllo (Branch Hazard):} Dopo una \textit{beq}, la CPU non sa subito da quale riga prelevare la successiva (non ha ancora calcolato l'uguaglianza e il target). Si risolve con la \textbf{Branch Prediction}: hardware specifico prova a indovinare statisticamente l'esito. Se sbaglia, svuota la pipeline sprecando cicli (\textit{Flush}).
+\end{itemize}
+
+\newpage
+
+\subsection{5. Differenza tra Interrupt e Traps}
+Entrambe causano una transizione imprevista del flusso verso il Sistema Operativo (passando a modalità \textit{Supervisor}), ma le origini e le tempistiche sono opposte.
+\begin{itemize}
+    \item Le \textbf{Eccezioni Interne (Traps / Faults)} sono generate \textbf{dall'interno} del processore a causa dell'esecuzione di una singola e specifica istruzione problematica (es. divisione per zero, page fault, istruzione illegale o \texttt{ecall}). Sono eventi del tutto \textbf{sincroni}: avvengono esattamente su quella istruzione.
+    \item Gli \textbf{Interrupts} sono interruzioni hardware generate \textbf{dall'esterno} del processore (es. una tastiera, la scheda di rete, un timer, il disco fisso). Sono totalmente scorrelate dall'istruzione che la CPU sta processando e sono eventi \textbf{asincroni}.
+\end{itemize}
+
+\subsection{6. Polling vs I/O Asincrono e Bus}
+\textbf{L'I/O Polling (Attesa Attiva):} La CPU dialoga con le periferiche (molto lente) attraverso registri Memory Mapped. Nel \textit{polling}, la CPU entra in un ciclo infinito in cui legge ripetutamente un \textit{Registro di Stato} della periferica (\texttt{while (!ready);}), attendendo che l'hardware setti il bit di disponibilità per poi inviare il dato. Sebbene semplice da programmare, genera un enorme spreco di preziosi cicli di CPU (fino al 100\% di CPU Load inutilmente).
+Per questo motivo si delega la comunicazione agli \textit{Interrupts} o al \textit{DMA} (Direct Memory Access).
+
+\textbf{Bus sincroni vs asincroni:}
+\begin{itemize}
+    \item I \textbf{Bus Sincroni} operano comandati da un clock globale (tipicamente il bus Processore-Memoria). Sono velocissimi, ma impongono che ogni entità collegata rispetti una specifica tempistica: non si prestano a periferiche eterogenee di varia velocità.
+    \item I \textbf{Bus Asincroni} non hanno un clock condiviso (es. bus di I/O o di sistema estesi). La sincronizzazione avviene con un protocollo di \textbf{Handshaking} a quattro mani (Richiesta, Conferma di pronto, Ricevuta) adattando dinamicamente le tempistiche della comunicazione alle capacità della singola periferica.
+\end{itemize}
+
+\newpage
+
+\subsection{7. Spiegare lo schema del processore (RISC-V) e la \texttt{beq}}
+Lo schema del Datapath di base (a singolo ciclo) unisce gli stadi logici visti per la pipeline in un unico grande circuito combinatorio che viene alimentato e termina in un singolo colpo di clock.
+Tutto inizia dal \textbf{PC (Program Counter)}, che indica quale istruzione prelevare dalla \textbf{Memoria Istruzioni}. Un sommatore isolato ne ricalcola subito il +4. 
+L'istruzione generata spinge l'\textbf{Unità di Controllo} ad asserire segnali (0/1) per pilotare i vari MUX (Multiplexer) del datapath, scegliendo cosa deve scorrere nei fili.
+
+\textbf{I Segnali di Controllo per la Branch (\texttt{beq}):}
+Per la \texttt{beq x5, x6, offset}, la CPU deve confrontare \texttt{x5} e \texttt{x6} e saltare se sono uguali.
+L'Unità di Controllo leggerà l'Opcode (codice operativo) e configurerà la CPU così:
+\begin{itemize}
+    \item \texttt{\textbf{Branch = 1}}: Attiva il potenziale Multiplexer di ricalcolo del PC che si trova alla fine del datapath.
+    \item \texttt{\textbf{ALUOp = 01}}: Ordina al controllore secondario della ALU di eseguire una \textbf{sottrazione}.
+    \item \texttt{\textbf{ALUSrc = 0}}: Indica che il secondo operando che entra in ALU \textit{non} deve essere l'offset, ma deve essere letto dal banco dei registri (\texttt{x6}).
+    \item \texttt{\textbf{RegWrite = 0} / \textbf{MemWrite = 0}}: La \textit{branch} non modifica né registri generali né la memoria dati. Quei circuiti vanno tenuti spenti per sicurezza.
+\end{itemize}
+Contemporaneamente, l'addizionatore in alto calcola l'indirizzo di offset (esteso in segno e \textit{shiftato} per 2). 
+Infine: se la ALU ha calcolato $x5 - x6 = 0$, la sua uscita hardware speciale \textbf{Zero} diventa $1$. Essendo una porta logica AND attivata su \texttt{Branch} e \texttt{Zero}, solo in questo scenario il Mux finale devierà il prossimo PC sull'indirizzo appena calcolato, "prendendo" di fatto il salto.
+
+
+
+\subsection{8. Istruzione \texttt{lea} in Assembly Intel x86-64}
+L'istruzione \textbf{Load Effective Address} (\texttt{lea}) sfrutta una particolarità CISC di Intel. Benché abbia la sintassi di un'operazione verso la RAM (ad es. \texttt{leaq (\%rsi, \%rdi, 4), \%rax}), \textit{non tocca mai la memoria}.
+Passa invece gli operandi all'\textit{Address Generation Unit} hardware della CPU, facendogli eseguire un'operazione aritmetica complessa (in questo caso $rsi + rdi \times 4$) e riversa puramente il risultato aritmetico calcolato all'interno del registro di destinazione (\texttt{\%rax}). A differenza dell'istruzione \texttt{add}, \texttt{lea} non "sporca" nessuno dei due registri in ingresso ed è usatissima dal compilatore per operazioni aritmetiche ottimizzate o incrementi.
+
+\newpage
+
+\subsection{9. Toolchain: fasi ed esecuzione}
+Il processo di trasformazione dal linguaggio C all'eseguibile passa tramite 4 fasi della "catena degli strumenti":
+\begin{enumerate}
+    \item \textbf{Preprocessore:} Risolve direttive testuali (\texttt{\#include}, \texttt{\#define}), incollando e sostituendo testo puro.
+    \item \textbf{Compilatore:} Analizza la logica di alto livello e traduce in linguaggio macchina mnemonico (\textbf{Assembly}, file \texttt{.s}). 
+    \item \textbf{Assemblatore (Assembler):} Sostituisce le istruzioni pseudo (\texttt{mv, li, j}) in istruzioni vere. Codifica le istruzioni mnemonico in vero \textbf{Linguaggio Macchina binario}, producendo i blocchi \texttt{.data} e \texttt{.text}. Restituisce un File Oggetto non eseguibile (file \texttt{.o}), contenente "buchi" non risolti (Tabella di Rilocazione) e le interfacce per comunicare all'esterno (Symbol Table).
+    \item \textbf{Linker:} Assembla e amalgama più file oggetto insieme alle librerie (Statiche o Dinamiche). Assegna a tutti uno spazio di memoria assoluto (sostituendo gli indirizzi relativi) ed esegue il \textit{patching} (Rilocazione) rimpiazzando i "buchi" con i veri indirizzi fisici prima di sfornare l'eseguibile (\texttt{.exe} o \texttt{a.out}).
+\end{enumerate}
+
+\subsection{10. Write-back in Assembly ARM (e implementazione in RISC-V)}
+Una delle peculiarità dell'istruzione di Load e Store in ARM è l'utilizzo dell'operatore \textbf{Write-Back} (espresso col suffisso del punto esclamativo \texttt{!}, o tramite post-indexing).
+Un'istruzione come \texttt{ldr r3, [r0, \#4]!} estrae il valore dalla memoria all'indirizzo $r0+4$, e in un singolo colpo di clock aggiorna \textit{anche} il registro di base \texttt{r0}, che ora conterrà proprio il valore \texttt{r0+4}.
+
+\textbf{Domanda Bonus: Come implementereste l'equivalente ARM in RISC-V?}
+L'architettura RISC-V si rifiuta di fare troppe cose nello stesso colpo di clock (per mantenere stadi rapidi). RISC-V permette un'unica operazione di Write-Back alla volta per istruzione (scrivendo, in questo caso, sul registro \texttt{r3}). Poiché in ARM stiamo aggiornando ben *due registri in contemporanea* (la destinazione \texttt{r3} col dato RAM e la base \texttt{r0} col nuovo offset calcolato dalla ALU), un'implementazione RISC-V esatta richiederebbe \textbf{due istruzioni sequenziali distinte}:
+\begin{verbatim}
+ld   x3, 4(x0)        // Carico il dato in x3 (Equivalente al LDR semplice)
+addi x0, x0, 4        // Incremento separatamente il registro base x0
+\end{verbatim}
+Per averlo nativo, la microarchitettura RISC-V dovrebbe essere pesantemente modificata, inserendo due reti di feedback distinte per il \textit{Write-Back stage} e costringendo il banco dei registri ad accettare \textit{due scritture} simultanee per ciclo, complicando il datapath a dismisura e rendendolo più costoso.
 
 \end{document}
