@@ -1,6 +1,6 @@
 \documentclass[12pt, a4paper]{article}
 
-%\def\islight{true} 
+\def\islight{true} 
 
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
@@ -2799,6 +2799,115 @@ Inserendo la media del nuovo campione calcolato, si deduce la stima empirica fin
 
 La risposta è: 0.0992939
 
+
+\newpage
+\section*{Probabilità e Statistica - Esercizi 9}
+\addcontentsline{toc}{section}{Probabilità e Statistica - Esercizi 9}
+\markboth{Esercizi 9}{Esercizi 9}
+
+% ==========================================
+%               ESERCIZIO 1
+% ==========================================
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Sia $(X_1,\dots,X_n)$ un campione casuale (i.e. le $X_i$ sono indipendenti ed identicamente distribuite) da una distribuzione binomiale di parametri $m=14$, numero di prove, e $\theta$, probabilità di successo.
+Sia inoltre dato il seguente campione estratto:
+\begin{center}
+(13, 11, 9, 9, 7, 10, 13, 10, 10, 11, 9)
+\end{center}
+\end{tcolorbox}
+
+\subsubsection*{Quesito 1}
+Trovare lo stimatore di massima verosimiglianza di $\theta$. E riportare la stima di massima verosimiglianza.
+
+\textbf{Soluzione:}
+Per trovare lo stimatore di massima verosimiglianza, partiamo con lo scrivere la funzione di verosimiglianza sfruttando l'indipendenza del campione:
+$$ \begin{aligned} L(x_1, \dots, x_n; \theta) &= P_{X_1, \dots, X_n}(x_1, \dots, x_n) \\ &= \prod_{i=1}^n P_{X_i}(x_i) \\ &= \prod_{i=1}^n \binom{m}{x_i} \theta^{x_i} (1-\theta)^{m-x_i} \\ &= \left[ \prod_{i=1}^n \binom{m}{x_i} \right] \theta^{\sum_i x_i} (1-\theta)^{nm - \sum_i x_i} \end{aligned} $$
+ove nell’ultima uguaglianza abbiamo usato la commutatività del prodotto. Si osservi inoltre che $\left[ \prod_{i=1}^n \binom{m}{x_i} \right] = C$ è una costante e non dipende dal parametro $\theta$.
+
+Prendiamo ora la log-verosimiglianza (il logaritmo naturale di $L$):
+$$ \ell(x_1, \dots, x_n; \theta) = \log C + \sum_i x_i \log\theta + \left(nm - \sum_i x_i\right)\log(1-\theta) $$
+e deriviamo rispetto a $\theta$, ponendo la derivata nota come \textit{score function} uguale a zero per trovare il punto di massimo:
+$$ 0 = \frac{\partial}{\partial\theta}\ell(x_1, \dots, x_n; \theta) = \frac{\sum_i x_i}{\theta} - \frac{nm - \sum_i x_i}{1-\theta} $$
+Risolvendo l'equazione rispetto a $\theta$:
+$$ 0 = (1-\theta)\sum_i x_i - \theta\left(nm - \sum_i x_i\right) \implies \hat{\theta}_{ML} = \frac{\sum_i x_i}{nm} = \frac{\bar{X}_n}{m} $$
+Sostituendo la somma dei dati estratti ($\sum x_i = 112$), $n=11$ e $m=14$, otteniamo il valore della stima.
+
+La risposta è: 0.7272727
+
+\subsubsection*{Quesito 2}
+Calcolare l’intervallo di confidenza per $\theta$ (alla Wald) a livello di confidenza del 91\%, per il campione estratto.
+
+\textbf{Soluzione:}
+Sappiamo che per le singole v.a. $X_i \sim Bin(m,\theta)$, $\mathbb{E}(X_i) = m\theta$ e $Var(X_i) = m\theta(1-\theta)$.
+Abbiamo determinato lo stimatore $\hat{\theta} = \frac{1}{nm} \sum_{i=1}^n X_i$, per le cui proprietà di correttezza sappiamo che:
+$$ \mathbb{E}(\hat{\theta}) = \theta \quad \text{e} \quad Var(\hat{\theta}) = \frac{\theta(1-\theta)}{nm} $$
+Inoltre, possiamo assumere la convergenza asintotica per il Teorema Centrale del Limite (infatti potremmo anche vedere le nostre $n$ variabili binomiali come $nm$ variabili Bernoulliane indipendenti, ed essendo $nm \gg 1$ l'approssimazione regge):
+$$ Z_n = \frac{\hat{\theta} - \theta}{\sqrt{\frac{\theta(1-\theta)}{nm}}} \xrightarrow{d} N(0,1) $$
+Ci chiediamo quindi per quali quantili si verifica:
+$$ 1-\alpha \approx P\left( z_{\frac{\alpha}{2}} \leq \frac{\hat{\theta} - \theta}{\sqrt{\frac{\theta(1-\theta)}{nm}}} \leq z_{1-\frac{\alpha}{2}} \right) $$
+Nell'approccio ``alla Wald'', si sostituisce il parametro $\theta$ incognito a denominatore con il suo stimatore puntuale $\hat{\theta}$:
+$$ \begin{aligned} 1-\alpha &\approx P\left( z_{\frac{\alpha}{2}} \leq \frac{\hat{\theta} - \theta}{\sqrt{\frac{\hat{\theta}(1-\hat{\theta})}{nm}}} \leq z_{1-\frac{\alpha}{2}} \right) \\ &= P\left( z_{\frac{\alpha}{2}} \sqrt{\frac{\hat{\theta}(1-\hat{\theta})}{nm}} \leq \hat{\theta} - \theta \leq z_{1-\frac{\alpha}{2}} \sqrt{\frac{\hat{\theta}(1-\hat{\theta})}{nm}} \right) \\ &= P\left( -\hat{\theta} + z_{\frac{\alpha}{2}} \sqrt{\dots} \leq -\theta \leq -\hat{\theta} + z_{1-\frac{\alpha}{2}} \sqrt{\dots} \right) \\ &= P\left( \hat{\theta} - z_{1-\frac{\alpha}{2}} \sqrt{\frac{\hat{\theta}(1-\hat{\theta})}{nm}} \leq \theta \leq \hat{\theta} - z_{\frac{\alpha}{2}} \sqrt{\frac{\hat{\theta}(1-\hat{\theta})}{nm}} \right) \end{aligned} $$
+Da cui, ricordando la simmetria della normale per cui $z_{\frac{\alpha}{2}} = -z_{1-\frac{\alpha}{2}}$, ricaviamo l'intervallo stimato:
+$$ \hat{\theta} \pm z_{1-\frac{\alpha}{2}} \sqrt{\frac{\hat{\theta}(1-\hat{\theta})}{nm}} $$
+(Suggerimento: usare \texttt{qnorm()} per trovare i quantili della normale corrispondenti al livello di confidenza richiesto).
+
+La risposta è: (0.666427829248847, 0.788117625296607)
+
+\newpage
+
+% ==========================================
+%               ESERCIZIO 2
+% ==========================================
+\vspace{0.5cm}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+Sia $(X_1,\dots,X_n)$ un campione casuale (i.e. le $X_i$ sono indipendenti ed identicamente distribuite) da una distribuzione esponenziale di parametro $\theta$.
+Sia inoltre dato il seguente campione estratto:
+\begin{center}
+(0.57, 0.13, 0.07, 0.02, 0.19, 1.66, 0.3, 0.35, 1.37, 1.08, 2.11, 1.77)
+\end{center}
+\end{tcolorbox}
+
+\subsubsection*{Quesito 1}
+Trovare lo stimatore di massima verosimiglianza di $\theta$ e calcolarne la stima per il campione estratto e riportare il valore della stima.
+
+\textbf{Soluzione:}
+$X_i \sim Exp(\theta)$ per $i=1,2,\dots,n$.
+Scriviamo la funzione di verosimiglianza per il campione $(x_1, x_2, \dots, x_n)$:
+$$ L(x_1, \dots, x_n; \theta) = \prod_{i=1}^n f_{X_i}(x_i; \theta) = \prod_{i=1}^n \theta e^{-\theta x_i} = \theta^n e^{-\theta \sum_{i=1}^n x_i} $$
+Prendiamo la log-verosimiglianza:
+$$ \ell(x_1, \dots, x_n; \theta) = n\log\theta - \theta\sum_{i=1}^n x_i $$
+Infine deriviamo e poniamo la derivata uguale a zero per massimizzare la funzione:
+$$ \frac{\partial \ell}{\partial \theta} = \frac{n}{\theta} - \sum_{i=1}^n x_i = 0 \implies \hat{\theta}_{ML} = \frac{n}{\sum_{i=1}^n x_i} $$
+Ossia, lo stimatore di massima verosimiglianza per il parametro dell’esponenziale è dato dal reciproco della media campionaria $\hat{\theta}_{ML} = (\bar{X}_n)^{-1}$.
+
+La risposta corretta è: sol1 (n.d.r. testo originale)
+
+\subsubsection*{Quesito 2}
+Stimare la media (valore atteso) della popolazione, utilizzando il campione estratto e lo stimatore del quesito 1.
+
+\textbf{Soluzione:}
+Sappiamo che il valore atteso di una v.a. esponenziale di parametro $\theta$ è $\mathbb{E}(X) = \frac{1}{\theta}$. Per il principio di invarianza degli stimatori ML, ci basta prendere il reciproco della stima precedente, ossia calcolare direttamente la media campionaria:
+$$ \widehat{\mathbb{E}(X)} = \frac{1}{\hat{\theta}_{ML}} = \bar{X}_n $$
+Calcolando la media dei 12 valori osservati si ottiene il risultato.
+
+La risposta corretta è: 0.8016667
+
+\subsubsection*{Quesito 3}
+Usando il teorema centrale del limite, calcolare l’intervallo di confidenza (approssimato) per $\theta$ a livello di confidenza del 91\%, dato il campione estratto.
+
+\textbf{Soluzione:}
+Sia $X_i \sim Exp(\theta)$, con $\mathbb{E}(X_i) = \frac{1}{\theta}$ e $Var(X_i) = \frac{1}{\theta^2}$.
+Usando il Teorema Centrale del Limite abbiamo che:
+$$ Z_n = \frac{\bar{X}_n - \frac{1}{\theta}}{\frac{1}{\theta \sqrt{n}}} \xrightarrow{d} N(0,1) $$
+in distribuzione. Possiamo quindi utilizzare la distribuzione normale standard per stimare gli estremi dell’intervallo di confidenza. In particolare:
+$$ 1-\alpha \approx P\left( z_{\frac{\alpha}{2}} \leq \frac{\bar{X}_n - \frac{1}{\theta}}{\frac{1}{\theta \sqrt{n}}} \leq z_{1-\frac{\alpha}{2}} \right) $$
+Manipoliamo l'espressione per isolare il parametro teorico $\theta$ al centro (usando $\bar{X}_n = \frac{1}{\hat{\theta}}$):
+$$ \begin{aligned} 1-\alpha &\approx P\left( z_{\frac{\alpha}{2}} \frac{1}{\sqrt{n}} \leq \frac{\frac{1}{\hat{\theta}} - \frac{1}{\theta}}{\frac{1}{\theta}} \leq z_{1-\frac{\alpha}{2}} \frac{1}{\sqrt{n}} \right) \\ &= P\left( z_{\frac{\alpha}{2}} \frac{1}{\sqrt{n}} \leq \frac{\theta}{\hat{\theta}} - 1 \leq z_{1-\frac{\alpha}{2}} \frac{1}{\sqrt{n}} \right) \\ &= P\left( 1 + z_{\frac{\alpha}{2}} \frac{1}{\sqrt{n}} \leq \frac{\theta}{\hat{\theta}} \leq 1 + z_{1-\frac{\alpha}{2}} \frac{1}{\sqrt{n}} \right) \\ &= P\left( \hat{\theta}\left(1 + \frac{z_{\alpha/2}}{\sqrt{n}}\right) \leq \theta \leq \hat{\theta}\left(1 + \frac{z_{1-\alpha/2}}{\sqrt{n}}\right) \right) \end{aligned} $$
+Da cui, ricordando che $z_{\frac{\alpha}{2}} = -z_{1-\frac{\alpha}{2}}$, ricaviamo analiticamente la formula per gli estremi dell'intervallo:
+$$ \hat{\theta} \left(1 \pm \frac{z_{1-\frac{\alpha}{2}}}{\sqrt{n}}\right) $$
+
+La risposta è: (0.636899173965222, 1.85790332083727)
 
 
 \end{document}
