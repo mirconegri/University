@@ -1,27 +1,57 @@
 \documentclass[12pt, a4paper]{article}
 
-% --- Caricamento pacchetti standard ---
-\usepackage{microtype}
+\def\islight{true} 
+
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{amsmath, amssymb}
 \usepackage{geometry}
 \usepackage{enumitem}
 \usepackage{booktabs}
-
-% --- Impostazioni Colori ---
+\usepackage{eurosym}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\usepackage{tocloft}
 \usepackage{xcolor}
-\pagecolor{white} 
-\color{black}     
-
-% --- Impostazioni Link ---
 \usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{datetime} 
+
+\newcommand{\myfootertext}{}
+\newcommand{\myicon}{}
+
+\ifx\islight\undefined
+    \definecolor{lightergray}{gray}{0.85}
+    \definecolor{tocsec}{gray}{0.85}
+    \definecolor{tocsubsec}{gray}{0.75}
+    \renewcommand{\myicon}{logo_unitn_scuro.png}
+    \renewcommand{\myfootertext}{Appunti redatti per gli studenti del DISI. \\ Eventuali errori possono essere segnalati su GitHub.}
+    \pagecolor{black}
+    \color{white}
+\else
+    \definecolor{lightergray}{gray}{0.35}
+    \definecolor{tocsec}{gray}{0.35}
+    \definecolor{tocsubsec}{gray}{0.45}
+    \renewcommand{\myicon}{logo_unitn_chiaro.png}
+    \renewcommand{\myfootertext}{Versione Light Mode. Disponibile anche la \href{https://github.com/mirconegri/University/tree/main/2nd_semester/statistica/schemi/primo_parziale/schemi_probabilità_primo_parziale_darkV.pdf}{versione Dark Mode}.}    \pagecolor{white}
+    \color{black}
+\fi
+
 \hypersetup{
     colorlinks=true,
-    linkcolor=black, 
-    urlcolor=cyan    
+    linkcolor=lightergray,
+    urlcolor=cyan,
+    pdftitle={Appunti di Probabilità - Secondo Parziale},
+    pdfauthor={Mirco Negri}
 }
+
+\renewcommand{\cftsecfont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecpagefont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecleader}{\color{tocsubsec}\cftdotfill{\cftdotsep}}
 
 \geometry{margin=2.5cm}
 
@@ -29,21 +59,23 @@
 
 \begin{titlepage}
     \centering
-    \vspace*{3cm} 
+    
+    \includegraphics[width=0.25\textwidth]{\myicon}
+    \vspace{1cm}
     
     {\scshape\LARGE Università degli Studi di Trento \par}
-    \vspace{0.5cm}
+    \vspace{0.4cm}
     {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
     
     \vspace{2cm}
     
-    \rule{\textwidth}{0.8pt}\vspace{0.5cm}
-    {\Huge\bfseries Appunti di Probabilità \par}
+    {\color{cyan}\rule{\textwidth}{1pt}}\vspace{0.5cm}
+    {\Huge\bfseries Appunti di Probabilità e Statistica \par}
     \vspace{0.3cm}
     {\Large\itshape Primo parziale \par}
-    \vspace{0.4cm}\rule{\textwidth}{0.8pt}
+    \vspace{0.4cm}{\color{cyan}\rule{\textwidth}{1pt}}
     
-    \vspace{3cm}
+    \vspace{2.5cm}
     
     {\Large A cura di: \par}
     \vspace{0.3cm}
@@ -51,17 +83,19 @@
     
     \vfill
     
-    {\large
-    \ifcase\month\or
-    Gennaio\or Febbraio\or Marzo\or Aprile\or Maggio\or Giugno\or
-    Luglio\or Agosto\or Settembre\or Ottobre\or Novembre\or Dicembre\fi
-    \space \the\year \par
-    }
+    {\small \textit{\myfootertext} \par}
+    \vspace{0.8cm}
+    
+    {\large \monthname\ \the\year \par}
 \end{titlepage}
 
-% --- Generazione dell'Indice ---
-\tableofcontents
 \newpage
+\begingroup
+\hypersetup{hidelinks}
+\tableofcontents
+\endgroup
+\newpage
+
 
 \section*{Probabilità e Statistica - Esercizi 1}
 \addcontentsline{toc}{section}{Probabilità e Statistica - Esercizi 1}
@@ -1568,7 +1602,7 @@ Due allineamenti si considerano diversi se:
     \item Gli oggetti si ripetono un numero diverso di volte.
 \end{enumerate}
 
-\subsubsection{1. Disposizioni con Ripetizione ($D_{n,r}^*$)}
+\subsubsection{1. Disposizioni con Ripetizione (\texorpdfstring{$D_{n,r}^*$}{Dnr*})}
 In questo caso, l'ordine \textbf{è importante} e gli oggetti \textbf{possono ripetersi}. Due allineamenti differiscono per gli oggetti, per l'ordine o per le ripetizioni.
 Formula:
 $$ D_{n,r}^* = n^r $$
