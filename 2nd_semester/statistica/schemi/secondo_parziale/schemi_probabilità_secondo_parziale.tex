@@ -1,6 +1,6 @@
 \documentclass[12pt, a4paper]{article}
 
-\def\islight{true} 
+%\def\islight{true} 
 
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
@@ -18,6 +18,8 @@
 \usepackage{hyperref}
 \usepackage{microtype}
 \usepackage{datetime} 
+
+\setcounter{secnumdepth}{-1}
 
 \newcommand{\myfootertext}{}
 \newcommand{\myicon}{}
@@ -57,25 +59,36 @@
 
 \begin{document}
 
+
 \begin{titlepage}
     \centering
     
-    \includegraphics[width=0.25\textwidth]{\myicon}
-    \vspace{1cm}
-    
-    {\scshape\LARGE Università degli Studi di Trento \par}
-    \vspace{0.4cm}
-    {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://www.unitn.it/}{%
+        \begin{tabular}{@{}c@{}}
+            {\includegraphics[width=0.25\textwidth]{\myicon}} \\[1cm]
+            {\scshape\LARGE Università degli Studi di Trento} \\[0.4cm]
+            {\large Dipartimento di Ingegneria e Scienza dell'Informazione}
+        \end{tabular}%
+    }\par
+    \endgroup
     
     \vspace{2cm}
-    
-    {\color{cyan}\rule{\textwidth}{1pt}}\vspace{0.5cm}
-    {\Huge\bfseries Appunti di Probabilità e Statistica \par}
-    \vspace{0.3cm}
-    {\Large\itshape Secondo parziale \par}
-    \vspace{0.4cm}{\color{cyan}\rule{\textwidth}{1pt}}
-    
-    \vspace{2.5cm}
+
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://github.com/mirconegri/University}{%
+        \begin{tabular}{@{}c@{}}
+            {\color{cyan}\rule{\textwidth}{1pt}} \\[0.5cm]
+            {\Huge\bfseries Appunti di Probabilità e Statistica} \\[0.3cm]
+            {\Large\itshape Secondo parziale} \\[0.4cm]
+            {\color{cyan}\rule{\textwidth}{1pt}}
+        \end{tabular}%
+    }\par
+    \endgroup
+
+    \vspace{4cm}
     
     {\Large A cura di: \par}
     \vspace{0.3cm}
@@ -2908,6 +2921,300 @@ Da cui, ricordando che $z_{\frac{\alpha}{2}} = -z_{1-\frac{\alpha}{2}}$, ricavia
 $$ \hat{\theta} \left(1 \pm \frac{z_{1-\frac{\alpha}{2}}}{\sqrt{n}}\right) $$
 
 La risposta è: (0.636899173965222, 1.85790332083727)
+
+\newpage
+
+
+\section{Lezione 12: Valore Atteso (Speranza Matematica)}
+
+\subsection{Media delle Variabili Aleatorie Discrete e Continue}
+Abbiamo visto che una v.a. può essere definita attraverso la funzione di probabilità/densità o attraverso la funzione di ripartizione. Sintetizzare una v.a. significa utilizzare caratteristiche sintetiche come moda, quantili e momenti (centrati e non centrati).
+
+\textbf{Definizione (Valore Atteso Discreto):} Sia $X$ una v.a. discreta con supporto $R_X=\{x_1, \dots, x_n\}$ e funzione di probabilità $p_X(x_i) = p_i$. Il suo valore atteso è definito come il "baricentro" della distribuzione:
+$$ \mathbb{E}(X) = \sum_{i=1}^n x_i p_X(x_i) $$
+
+\textbf{Definizione (Valore Atteso Continuo):} Sia $X$ una v.a. con densità $f_X(x)$ definita su tutto $\mathbb{R}$. Il suo valore atteso si calcola tramite integrazione:
+$$ \mathbb{E}(X) = \int_{-\infty}^{+\infty} x f_X(x) dx $$
+
+Condizione di esistenza: l'integrale del valore assoluto $\int_{-\infty}^{+\infty} |x| f_X(x) dx$ deve essere finito.
+
+\subsection{Proprietà di Linearità dell'Operatore Valore Atteso}
+Il calcolo del valore atteso si estende agilmente alle trasformazioni di variabili. Sia $Y = g(X)$:
+$$ \mathbb{E}(g(X)) = \begin{cases} \sum_{x} g(x) p_X(x) & \text{se } X \text{ è discreta} \\ \int_{\mathbb{R}} g(x) f_X(x) dx & \text{se } X \text{ è continua} \end{cases} $$
+
+Per trasformazioni lineari $Y = aX + b$, per la proprietà di linearità dell'operatore si ricava che:
+$$ \mathbb{E}(aX + b) = a\mathbb{E}(X) + b $$
+
+\subsection{Valore Atteso della Distribuzione Normale e Esponenziale}
+
+\paragraph{Distribuzione Normale $N(\mu, \sigma^2)$}
+Data la densità $f_X(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left\{-\frac{1}{2}\frac{(x-\mu)^2}{\sigma^2}\right\}$, applichiamo la standardizzazione $z = \frac{x-\mu}{\sigma} \implies x = \sigma z + \mu$, $dx = \sigma dz$:
+$$ \mathbb{E}(X) = \int_{-\infty}^{+\infty} (\sigma z + \mu) \frac{1}{\sqrt{2\pi}} \exp\left\{-\frac{z^2}{2}\right\} dz $$
+L'integrale si divide in due componenti:
+1. $\mu \int \frac{1}{\sqrt{2\pi}} e^{-z^2/2} dz = \mu \cdot 1 = \mu$ (poiché è l'integrale dell'intera densità normale standard).
+2. $\sigma \int z \frac{1}{\sqrt{2\pi}} e^{-z^2/2} dz = 0$ (perché la funzione integranda $z e^{-z^2/2}$ è dispari ed è simmetrica rispetto all'origine).
+Quindi, si dimostra formalmente che per una v.a. Gaussiana $\mathbb{E}(X) = \mu$.
+
+\paragraph{Distribuzione Esponenziale $Exp(\lambda)$}
+L'integrazione per parti di $\int_0^{+\infty} x \lambda e^{-\lambda x} dx$ dimostra che per una V.A. esponenziale $\mathbb{E}(X) = \frac{1}{\lambda}$.
+
+
+\section{Lezione 13: Momenti e Varianza}
+
+\subsection{Momenti Centrati e Non Centrati}
+Spesso per descrivere "la forma" della distribuzione si definiscono i Momenti, ovvero il valore atteso di specifiche potenze di $X$.
+
+\textbf{Definizione (Momento Non Centrato):} Il momento non centrato di ordine $r$ è definito ponendo la trasformazione $g(X) = X^r$:
+$$ \mu_r = \mathbb{E}(X^r) = \begin{cases} \sum_x x^r p_X(x) \\ \int x^r f_X(x) dx \end{cases} $$
+\begin{itemize}
+    \item Il momento di ordine 0 è 1: $\mu_0 = \mathbb{E}(X^0) = 1$.
+    \item Il momento di ordine 1 è la media: $\mu_1 = \mathbb{E}(X)$.
+\end{itemize}
+
+\textbf{Definizione (Momento Centrato):} È calcolato come deviazione dalla media $\mu_1$:
+$$ \bar{\mu}_r = \mathbb{E}((X - \mathbb{E}(X))^r) $$
+Il primo momento centrato è banalmente zero: $\mathbb{E}(X - \mathbb{E}(X)) = \mathbb{E}(X) - \mathbb{E}(X) = 0$.
+
+\subsection{La Varianza}
+Il secondo momento centrato $\bar{\mu}_2$ è la Varianza (indicata con $Var(X)$ o $\sigma^2$). Sintetizza la dispersione dei valori attorno al valore atteso.
+Formula di calcolo rapido basata sullo sviluppo del quadrato del binomio:
+$$ Var(X) = \mathbb{E}((X - \mathbb{E}(X))^2) = \mathbb{E}(X^2 - 2X\mathbb{E}(X) + \mathbb{E}(X)^2) = \mathbb{E}(X^2) - 2\mathbb{E}(X)^2 + \mathbb{E}(X)^2 $$
+$$ Var(X) = \mathbb{E}(X^2) - (\mathbb{E}(X))^2 $$
+\textit{(La varianza è il momento non centrato di ordine 2 meno la media al quadrato).}
+
+\textbf{Proprietà lineari della Varianza:}
+Sapendo che l'aggiunta di una costante trasla l'intera distribuzione senza modificarne la dispersione interna ($Var(X+b) = Var(X)$), e che un fattore moltiplicativo viene elevato al quadrato per via della formula originaria, si ottiene:
+$$ Var(aX + b) = a^2 Var(X) $$
+
+
+\section{Lezione 14: Variabili Aleatorie Doppie o Bivariate}
+
+Quando si osserva l'esito di un esperimento e si misurano contemporaneamente due grandezze distinte (es. altezza e peso), introduciamo le Variabili Bivariate $Z = (X, Y)$. 
+
+\subsection{Distribuzione Congiunta Discreta}
+Se lo spazio dei risultati $R_{X,Y}$ è finito o numerabile, si definisce la \textbf{Funzione di Probabilità Congiunta}:
+$$ p_{X,Y}(x,y) = P(X=x, Y=y) = P(\{\omega : X(\omega)=x\} \cap \{\omega : Y(\omega)=y\}) $$
+Per essere valida, le probabilità devono essere non negative e sommare a 1 sull'intero spazio discreto:
+$$ \sum_{x \in R_X} \sum_{y \in R_Y} p_{X,Y}(x,y) = 1 $$
+
+\subsection{Distribuzioni Marginali}
+Le distribuzioni del singolo elemento si "estraggono" dalla tabella congiunta saturando (sommando) sull'altra variabile.
+La probabilità marginale di $X$ si ottiene sommando le righe della matrice:
+$$ p_X(x) = \sum_{y \in R_Y} p_{X,Y}(x,y) $$
+
+\subsection{Distribuzioni Condizionate}
+Sfruttando la consueta formula della probabilità condizionata $P(A|B) = \frac{P(A \cap B)}{P(B)}$, la densità di $X$ sapendo che $Y$ ha assunto il valore $y$ è:
+$$ p_{X|Y}(x|y) = \frac{p_{X,Y}(x,y)}{p_Y(y)} \quad \forall y \text{ tale che } p_Y(y) > 0 $$
+Se le variabili sono \textbf{stocasticamente indipendenti}, conoscere il valore di $Y$ non aggiunge alcuna informazione, pertanto: $p_{X|Y}(x|y) = p_X(x)$ per ogni coppia.
+
+\subsection{Valore Atteso e Momenti Condizionati}
+La speranza matematica di $X$ dato un valore noto $y$ di $Y$ è la somma pesata rispetto alla densità condizionata:
+$$ \mathbb{E}(X | Y=y) = \sum_{x \in R_X} x \cdot p_{X|Y}(x|y) $$
+Allo stesso modo si definisce la varianza condizionata:
+$$ Var(X | Y=y) = \sum_{x \in R_X} (x - \mathbb{E}(X|Y=y))^2 \cdot p_{X|Y}(x|y) $$
+
+\newpage
+
+
+\section{Lezione 15: Teoremi di Scomposizione per Variabili Bivariate}
+
+\subsection{La Legge delle Aspettative Iterate (Valore Atteso Globale)}
+L'operatore di valore atteso condizionato mappa ogni possibile realizzazione $y \in R_Y$ in un nuovo numero $\mathbb{E}(X|Y=y)$. Tale operazione genera una nuova variabile aleatoria discreta indicata come $\mathbb{E}(X|Y)$.
+Se ne calcoliamo a sua volta la media pesando questi risultati per la marginale $p_Y(y)$, otteniamo la \textbf{Speranza Matematica della Speranza Matematica Condizionata}:
+$$ \mathbb{E}[\mathbb{E}(X|Y)] = \sum_{y \in R_Y} \mathbb{E}(X|Y=y) \cdot p_Y(y) $$
+Esplodendo il termine interno per la definizione condizionata e riaggregando per la densità congiunta e poi marginale di $X$, si dimostra l'importante Teorema:
+$$ \mathbb{E}[\mathbb{E}(X|Y)] = \mathbb{E}(X) $$
+
+\subsection{Teorema di Scomposizione della Varianza Totale}
+Analogamente a come si ricostruisce la media, possiamo scomporre e ricostruire la Varianza totale di $X$.
+La scomposizione avviene su due livelli di aggregazione: la variazione "fra" i gruppi (dovuta ai cambiamenti di $Y$) e la variazione "interna" ai gruppi (per un dato $Y$).
+$$ Var(X) = \mathbb{E}(Var(X|Y)) + Var(\mathbb{E}(X|Y)) $$
+Questa decomposizione (nota in Statistica Applicata come Analisi della Varianza ANOVA, EVVE - \textit{Expected Value of Variance + Variance of Expected Value}) è estremamente potente per risolvere complessi scenari probabilistici senza dover transitare tramite il calcolo completo dei momenti doppi incrociati.
+
+
+\section{Lezione 16: Misure di Associazione: Covarianza e Correlazione}
+
+Perché due v.a. $X$ e $Y$ siano \textbf{stocasticamente indipendenti}, la loro densità congiunta deve fattorizzare nel prodotto esatto delle due densità marginali ($F_{X,Y}(x,y) = F_X(x)F_Y(y)$ o $p_{X,Y}(x,y) = p_X(x)p_Y(y)$) \textbf{per ogni singola coppia nel supporto}.
+Tuttavia, le variabili del mondo reale presentano spesso legami parziali di diversa forma e intensità. 
+
+\newpage
+
+\subsection{Momenti Misti e Covarianza}
+Per valutare matematicamente la concordanza o discordanza dei movimenti di due variabili si introduce il concetto di \textbf{Covarianza}, ovvero il momento misto (centrato rispetto alle singole medie):
+$$ Cov(X,Y) = \mathbb{E}[(X - \mathbb{E}(X))(Y - \mathbb{E}(Y))] = \mathbb{E}(XY) - \mathbb{E}(X)\mathbb{E}(Y) $$
+
+\textbf{Proprietà della Covarianza:}
+1. È simmetrica: $Cov(X,Y) = Cov(Y,X)$.
+2. La covarianza di una variabile con sé stessa coincide con la varianza: $Cov(X,X) = \mathbb{E}(X^2) - \mathbb{E}(X)^2 = Var(X)$.
+3. È un operatore bilineare. Ad esempio per traslazioni e scale: $Cov(aX+b, cY+d) = ac \cdot Cov(X,Y)$.
+4. Se due variabili sono \textbf{Stocasticamente Indipendenti}, la loro covarianza è esattamente zero ($Cov=0$, per l'annullamento dei momenti).
+5. \textit{Attenzione:} Se $Cov(X,Y)=0$, diciamo che le variabili sono \textbf{Incorrelate}, ma questo \textit{non implica necessariamente} che esse siano stocasticamente indipendenti (potrebbero avere legami di tipo non lineare simmetrico, come distribuzioni a croce).
+
+\subsection{Correlazione (Indice di Pearson $\rho$)}
+La covarianza dipende dall'unità di misura delle due grandezze (es. Kg e Metri restituiscono un ibrido Kg$\cdot$Metri, difficile da valutare in modulo assoluto). Si normalizza dividendo per la deviazione standard del sistema per ottenere un indice dimensionato:
+$$ \rho(X,Y) = \frac{Cov(X,Y)}{\sqrt{Var(X)Var(Y)}} $$
+L'indice di Pearson varia rigorosamente nell'intervallo \textbf{$[-1, +1]$}.
+\begin{itemize}
+    \item Se $\rho = +1$: Perfetta correlazione lineare \textbf{positiva} (al crescere dell'una cresce rigorosamente in modo lineare l'altra).
+    \item Se $\rho = -1$: Perfetta correlazione lineare \textbf{negativa} (al crescere dell'una decresce proporzionalmente l'altra).
+    \item Se $\rho = 0$: Assenza totale di correlazione lineare (Incorrelazione).
+\end{itemize}
+
+
+\section{Lezione 17: Disuguaglianze Notevoli per Bound Probabilistici}
+
+Le disuguaglianze di Markov e Chebychev sono teoremi formidabili nella Teoria della Probabilità. Permettono di tracciare limiti massimi o minimi (upper o lower bounds) per determinati eventi, anche quando non conosciamo assolutamente nulla della reale funzione di densità o distribuzione sottostante. L'unica informazione che ci serve è il comportamento dei "primi due" momenti della variabile.
+
+\newpage
+
+\subsection{Disuguaglianza di Markov}
+La disuguaglianza si applica a \textbf{Variabili Aleatorie Non Negative} ($P(Y < 0) = 0$). Sfrutta la sola conoscenza del valore atteso $\mathbb{E}(Y)$.
+
+\textbf{Teorema (Markov):} Per una V.A. non negativa $Y$ e un parametro $a > 0$:
+$$ P(Y \ge a) \le \frac{\mathbb{E}(Y)}{a} $$
+
+\textit{Dimostrazione rapida:}
+$$ \mathbb{E}(Y) = \int_0^{+\infty} y f_Y(y) dy \ge \int_a^{+\infty} y f_Y(y) dy \ge \int_a^{+\infty} a f_Y(y) dy = a P(Y \ge a) $$
+
+La potenza del teorema è che stabilisce un "tetto". Per esempio, se conosciamo che un macchinario dura in media 50 ore, la probabilità che possa durare per almeno 100 ore non potrà MAI eccedere $\frac{50}{100} = 50\%$.
+
+\subsection{Disuguaglianza di Chebychev}
+Questa disuguaglianza si applica a \textbf{Qualsiasi Variabile Aleatoria} (anche a supporto negativo) di cui conosciamo sia il valore atteso $\mu$ sia la Varianza $\sigma^2$. Misura la dispersione ai margini.
+
+\textbf{Teorema (Chebychev):} Fissato uno scostamento $\epsilon > 0$, la probabilità che la variabile si allontani dalla sua media aritmetica di una distanza pari o superiore a $\epsilon$ è vincolata dalla formula:
+$$ P(|Y - \mu| \ge \epsilon) \le \frac{\sigma^2}{\epsilon^2} $$
+
+\textit{Dimostrazione rapida:}
+Basta applicare Markov alla nuova v.a. deterministica non-negativa $X = (Y - \mu)^2$.
+Ponendo la soglia limite di Markov a $a = \epsilon^2$. Essendo $\mathbb{E}(X) = Var(Y) = \sigma^2$, ne discende direttamente $P((Y-\mu)^2 \ge \epsilon^2) \le \frac{\sigma^2}{\epsilon^2}$.
+
+L'utilità della disuguaglianza è immensa. Fissando $\epsilon = k\sigma$, il teorema ci garantisce che per \textit{qualsiasi e qualunque} distribuzione, la quantità di popolazione o probabilità che cade oltre $k$ deviazioni standard dalla media è sempre minore o uguale a $\frac{1}{k^2}$. Per $k=3$, al massimo l'$11.1\%$ dei campioni può allontanarsi dalla media di $\pm 3\sigma$.
+
+
+\section{Lezione 18: Teoremi Limite di Convergenza e TLC}
+
+Per studiare il comportamento asintotico di grandi quantità di estrazioni campionarie (la successione di v.a. $X_n$), la Teoria offre due insiemi di paradigmi formali: i teoremi di convergenza.
+
+\subsection{Legge debole dei Grandi Numeri (LLN)}
+Data una successione infinita di estrazioni i.i.d. $X_1, X_2, \dots$ aventi media $\mu$ e varianza $\sigma^2$ finita. Si definisce $\bar{X}_n = \frac{1}{n} \sum X_i$ la media del campione di grandezza $n$.
+
+Applicando le proprietà di linearità:
+$$ \mathbb{E}(\bar{X}_n) = \mu \quad \text{e} \quad Var(\bar{X}_n) = \frac{\sigma^2}{n} $$
+
+Applicando Chebychev alla v.a. campionaria $\bar{X}_n$:
+$$ P(|\bar{X}_n - \mu| \ge \epsilon) \le \frac{\sigma^2}{n \epsilon^2} $$
+Se prendiamo il limite per la dimensione del campione $n \to \infty$, il termine di destra scende a zero.
+Ne consegue la \textbf{Legge debole dei Grandi Numeri}:
+$$ \lim_{n \to \infty} P(|\bar{X}_n - \mu| \ge \epsilon) = 0 $$
+Ovvero, \textbf{la media campionaria converge in probabilità verso la media vera della popolazione $\mu$} per un numero di campioni infinito. Questa è la giustificazione teorica sul perché all'aumentare dei campioni le nostre misurazioni statistiche diventano "sempre più sicure ed esatte".
+
+\subsection{Il Teorema Centrale del Limite (TLC o CLT)}
+La Legge debole dice "dove" va a convergere il campione, ma non dice nulla sulla "forma" della distribuzione degli errori e delle medie durante il tragitto.
+
+\textbf{Teorema (TLC):} Data la medesima sequenza infinita di V.A. $X_i$ identicamente e indipendentemente distribuite, di cui non ci interessa e non conosciamo affatto la distribuzione originale. Quale che sia la loro distribuzione di partenza (esponenziale, bernoulliana, storta a dx, a due picchi, a vasca da bagno, lognormale), se eseguiamo la media del blocco estrattivo $\bar{X}_n$, questa media tenderà asintoticamente ad assumere una forma a campana, una \textbf{Gaussiana}.
+Standardizzando la media campionaria per avere momento zero e varianza 1:
+$$ Z_n = \frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \xrightarrow{d} N(0,1) $$
+in simboli, la v.a. empirica \textbf{converge in distribuzione} ($\xrightarrow{d}$) verso una Normale Standard. 
+Approssimativamente, la media campionaria è distribuita come:
+$$ \bar{X}_n \sim N\left(\mu, \frac{\sigma^2}{n}\right) $$
+Questo rende la Distribuzione Normale Gaussiana la "Regina" della natura per gestire e misurare l'incertezza legata alla sovrapposizione di innumerevoli eventi scorrelati.
+
+
+\newpage
+
+\section{Lezione 19: Inferenza Statistica - Stimatori Puntuali e Proprietà}
+
+Entriamo nel secondo troncone (30\%) del corso: la \textbf{Statistica Inferenziale}.
+Mentre la Statistica Descrittiva enumera fatti certi sull'intera popolazione (che si presuppone interamente misurata), l'Inferenza si propone di "indovinare" o ricostruire matematicamente le dinamiche intrinseche che hanno generato quei dati, guardando solo a una frazione limitata dell'universo (il Campione Estratto).
+
+\subsection{Stima vs Stimatore}
+Un parametro $\theta$ (come la media $\mu$ o la varianza $\sigma^2$ vere dell'intera popolazione) è sconosciuto. Dobbiamo dedurlo usando una formula (funzione).
+
+\textbf{Definizione (Stimatore):} È la formula algebrica astratta, o meglio la \textit{Variabile Aleatoria} che sintetizza i dati presi prima della misurazione vera e propria (es: la "media campionaria" intesa come $\bar{X}_n = \frac{1}{n}\sum X_i$).
+\textbf{Definizione (Stima):} È il numero reale finale. Il risultato deterministico, il numero fisso, una volta che la formula viene materialmente eseguita sui dati campionati.
+
+\subsection{Proprietà di uno Stimatore: Distorsione (Bias)}
+Essendo lo stimatore una variabile aleatoria $T$, produrrà stime "danzanti" se proviamo a estrarre centinaia di campioni diversi dalla stessa città. 
+
+Il valore di centratura medio di questi infiniti lanci $\mathbb{E}(T)$ coinciderà sempre col vero "valore segreto e astratto" della popolazione reale che il demiurgo ha creato $\theta$?
+La discrepanza sistemica tra il valore calcolato in media e la realtà è chiamata \textbf{Distorsione o Bias}.
+$$ Bias(T, \theta) = \mathbb{E}(T) - \theta $$
+Se $Bias(T, \theta) = 0$, diremo che $T$ è uno \textbf{Stimatore Corretto o Non Distorto} per $\theta$.
+(Esempio noto: la Varianza campionaria cruda divisa per $n$ sconta un Bias negativo tendendo a misurare la variabilità dei gruppi campionati in maniera troppo "compatta e ottimistica", necessitando perciò di una correzione moltiplicativa con fattore asintotico di Bessel $n/(n-1)$).
+
+\subsection{Errore Quadratico Medio (MSE) e Varianza}
+Il Bias misura l'eventuale errore sistematico (in stile dardo "centrato" al bersaglio).
+La Varianza dello stimatore ($Var(T)$) ne misura invece l'efficienza. I dardi possono cadere lontani l'uno dall'altro creando variabilità del risultato estratto, pur essendo mediamente centrati al giusto baricentro.
+
+L'\textbf{Errore Quadratico Medio (MSE)} racchiude simultaneamente ambo le metriche valutative ed esprime l'errore vero della singola estrazione:
+$$ MSE(T, \theta) = \mathbb{E}((T - \theta)^2) = Var(T) + (Bias(T, \theta))^2 $$
+
+Nelle decisioni statistiche, a parità di stimatori non distorti (Bias nullo e quindi $MSE = Var$), la Comunità Scientifica preferisce lo stimatore con Varianza minima (ovvero lo stimatore più \textbf{Efficiente}).
+
+
+\section{Lezione 20: Il Metodo della Massima Verosimiglianza (MLE)}
+
+Finora abbiamo utilizzato stimatori naturali (le medie empiriche per estrarre la media, varianze empiriche per estrarre le varianze, ecc.). Esiste tuttavia un metodo generale potente per ricostruire analiticamente la formula del "Miglior Stimatore Assoluto" possibile per qualsiasi famiglia probabilistica (Gaussiana, Esponenziale, Weibull) di fronte all'estrazione di un campione ignoto: l'estrazione di Massima Verosimiglianza.
+
+\subsection{La Funzione Likelihood (Verosimiglianza)}
+Data un'estrazione casuale di $n$ unità $x_1, \dots, x_n$ indipendenti derivate da una determinata forma (Modello Probabilistico) definita dalla PDF f e dal parametro ignoto $\theta$: $\mathcal{F} = \{f(x; \theta)\}$.
+Essendo eventi indipendenti, la probabilità o "densità" astratta che *esattamente* quella sequela preordinata si sia verificata è definita dal prodotto delle densità marginali:
+$$ L(\theta; x_1, \dots, x_n) = \prod_{i=1}^n f(x_i; \theta) $$
+La "Likelihood" \textbf{non è una probabilità} su $x$ a parametro fisso, bensì si interpreta come una \textbf{funzione esplorativa sul parametro astratto $\theta$} a dati pregressi ormai fissati nel ghiaccio dall'esperimento in corso. 
+Si va alla ricerca della curva per cui quel valore di $\theta$ "massimizza" e garantisce una spiegazione di plausibilità massima sui dati osservati. 
+Se osserviamo ripetutamente tempeste sul mare o decessi rari, è altamente implausibile che provengano da una Poisson avente media $\lambda=0.01$. $\lambda$ deve essere decisamente maggiore affinché l'osservazione dei campioni esibiti resti plausibile. Si ricerca l'\textbf{arg max}.
+
+\subsection{Procedura di Massimizzazione Analitica}
+Poiché calcolare l'arg max sui prodotti grezzi genera potenze e prodotti difficili in termini differenziali, è prassi standard adottare il \textbf{Logaritmo Naturale della Verosimiglianza} (la "Log-Likelihood" $\ell(\theta)$), che sfrutta le proprietà del logaritmo e preserva monoticamente il punto di concavità massima in $\theta$:
+$$ \ell(\theta) = \ln(L(\theta)) = \sum_{i=1}^n \ln(f(x_i; \theta)) $$
+Successivamente si pone il differenziale (la derivata nota in accademia come \textit{Score Function}) a zero:
+$$ S(\theta) = \frac{\partial}{\partial\theta} \ell(\theta) = 0 $$
+Isolando e risolvendo rispetto al parametro fittizio derivativo $\theta$ si dedurrà finalmente l'assetto matematico ottimale per $\hat{\theta}_{ML}$.
+
+
+\newpage
+
+\section{Lezione 21: Stima Intervallare (Intervalli di Confidenza di Wald)}
+
+Finora abbiamo prodotto una "stima puntuale". Purtroppo la probabilità esatta che un parametro $\theta$ sia "matematicamente identico" alla nostra stima in virgola mobile estratta dai dati reali è ovviamente 0. 
+
+Ciò che risulta fondamentale nelle applicazioni tecniche o biologiche non è fornire un singolo parametro netto, ma un **Intervallo di Confidenza** numerico in cui si garantisce, con una certa percentuale di probabilità cautelativa, la potenziale giacenza del "vero parametro occulto e incognito della popolazione intera".
+
+\subsection{Costruzione degli Intervalli di Confidenza (Normale con Varianza Nota)}
+Sia estratto un campione i.i.d. di una distribuzione $X \sim N(\mu, \sigma^2)$, ove l'ampiezza di errore o precisione del macchinario ($\sigma^2$) \textbf{sia esplicitamente conosciuta}. Noi indaghiamo solamente la media vera di allineamento del campione ($\mu$).
+
+Applicando l'estrazione ottimizzata MLE, lo stimatore per eccellenza per la media teorica sfocia nel baricentro campionario semplice $\bar{X}_n \sim N(\mu, \frac{\sigma^2}{n})$.
+Se si standardizza lo stimatore per avere una base di reiezione generica $Z_n \sim N(0, 1)$, l'impostazione per un livello di confidenza $(1-\alpha)$ sarà delimitata a destra e sinistra tra due poli (i percentili $z_{\alpha/2}$ e $z_{1-\alpha/2}$ prelevati dalle canoniche Tavole della Distribuzione di Gauss). 
+Nel caso tipico al $95\%$, $\alpha=0.05 \implies z \approx \pm 1.96$:
+$$ P\left(-z_{1-\alpha/2} \le \frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}} \le z_{1-\alpha/2}\right) = 1-\alpha $$
+Dissezionando le limitazioni dell'inequazione a vantaggio di un confinamento algebrico del termine fisso e reale $\mu$, si estrae il bound per gli intervalli simmetrici:
+$$ P\left(\bar{X}_n - z_{1-\alpha/2} \frac{\sigma}{\sqrt{n}} \le \mu \le \bar{X}_n + z_{1-\alpha/2} \frac{\sigma}{\sqrt{n}}\right) = 1-\alpha $$
+Che riassunto nel tipico gergo operativo porta la costruzione dell'intervallo asintotico di Wald per stima fidata: $\left[ \hat{\mu} \pm z \cdot \text{Er.Standard}(\hat{\mu}) \right]$.
+
+
+\section{Lezione 22: Distribuzioni t-Student, Chi-Quadro e Varianza Ignota}
+
+Come gestire l'approssimazione reale e i limiti fiduciari quando la varianza globale della fabbrica o dell'ambiente in test \textbf{non è un dato fornito dall'alto} ma dobbiamo interpolarla "sul campo" sfruttando la varianza grezza dei soli limitati elementi misurati nel campione?
+
+Sorgono in inferenza altre due celebri distribuzioni d'appoggio per gestire il livello di indecisione strutturale dei sample-size ridotti $n$.
+
+\newpage
+
+\subsection{La Distribuzione Chi-quadro ($\chi^2$)}
+Se eseguiamo stime al quadrato da campioni Normali Standard i.i.d ($Z_1, \dots, Z_n \sim N(0,1)$), definiamo il cumulato degli errori $W = \sum_{i=1}^n Z_i^2$. 
+$W$ assume distribuzioni probabilistiche asimmetriche a Coda Destra, le V.A. Chi-quadro di base (spesso notate come $\chi^2_n$).
+Tali distribuzioni (con un picco prima e una decrescita poi) avranno valore atteso dipendente inesorabilmente dai "Gradi di Libertà" estrattivi $\mathbb{E}(W) = n$ e Varianza strutturata dipendente $Var(W) = 2n$.
+Questa distribuzione governa matematicamente la Stima Intervallare per il parametro "Varianza" ($\sigma^2$), fornendo bound asimmetrici.
+
+\subsection{La V.A. $t$ di Student e l'Intervallo a Varianza Ignota}
+Se si esegue una stima campionaria media in cui a denominatore dobbiamo innestare forzatamente lo \textit{Stimatore Indipendente Standardizzato Non Distorto della Varianza Campionaria} $S^2 = \frac{1}{n-1} \sum (Y_i - \bar{Y}_n)^2$, stiamo unendo per approssimazione il dividendo tra una Normale al numerator e il "peso d'imprecisione" derivato da una Chi-quadro ($W \sim \chi^2_{n-1}$) estrapolata a radice al denominatore.
+
+Il rapporto assume forma $t = \frac{Z}{\sqrt{W/(n-1)}}$. 
+Questa V.A. $t$ si diparte leggermente dalla stretta campana perfetta Normale esibendo \textbf{code appiattite e appesantite} (i c.d. *heavy tails*): il famosissimo modello Inferenziale $\boldsymbol{t}$ **di Student**. 
+All'aumentare dei gradi di libertà $n$, grazie alle disuguaglianze in Convergenza Analitica e al \textit{TLC}, la curva di "Student" si compatta e svetta sempre più identicamente appaiando e raggiungendo visivamente l'Asintoto della Normale perfetta Standardizzata $\sim N(0,1)$.
+
+Sostituendo operativamente per un campionamento modesto ($n < 30$), l'intervallo fiduciario per la Media a limitata Varianza Ignota utilizzerà i quantili dilatati $t$ e l'Errore Standard basato sullo stimatore campionario:
+$$ \left[ \bar{X}_n - t_{n-1, 1-\alpha/2} \frac{S}{\sqrt{n}} \quad , \quad \bar{X}_n + t_{n-1, 1-\alpha/2} \frac{S}{\sqrt{n}} \right] $$
 
 
 \end{document}
