@@ -1,0 +1,767 @@
+\documentclass[12pt, a4paper]{article}
+
+\def\islight{true} 
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{eurosym}
+\usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{datetime} 
+\usepackage{array}
+\usepackage{float}
+
+\newcommand{\myfootertext}{}
+\newcommand{\myicon}{}
+
+\ifx\islight\undefined
+    \definecolor{lightergray}{gray}{0.85}
+    \definecolor{tocsec}{gray}{0.85}
+    \definecolor{tocsubsec}{gray}{0.75}
+    \renewcommand{\myicon}{logo_unitn_scuro.png}
+    \renewcommand{\myfootertext}{Appunti redatti per gli studenti del DISI. \\ Eventuali errori possono essere segnalati su \href{https://github.com/mirconegri/University/tree/main/2nd_semester/fondamenti/schemi/}{GitHub}.}
+    \pagecolor{black}
+    \color{white}
+\else
+    \definecolor{lightergray}{gray}{0.35}
+    \definecolor{tocsec}{gray}{0.35}
+    \definecolor{tocsubsec}{gray}{0.45}
+    \renewcommand{\myicon}{logo_unitn_chiaro.png}
+    \renewcommand{\myfootertext}{Versione Light Mode. Disponibile anche la \href{https://github.com/mirconegri/University/tree/main/2nd_semester/fondamenti/schemi/}{versione Dark Mode}.}    \pagecolor{white}
+    \color{black}
+\fi
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=lightergray,
+    urlcolor=cyan,
+    pdftitle={Appunti di Probabilità - Secondo Parziale},
+    pdfauthor={Mirco Negri}
+}
+
+\renewcommand{\cftsecfont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecpagefont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecleader}{\color{tocsubsec}\cftdotfill{\cftdotsep}}
+
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    
+    
+    
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://www.unitn.it/}{%
+        \begin{tabular}{@{}c@{}}
+            {\includegraphics[width=0.25\textwidth]{\myicon}} \\[1cm]
+            {\scshape\LARGE Università degli Studi di Trento} \\[0.4cm]
+            {\large Dipartimento di Ingegneria e Scienza dell'Informazione}
+        \end{tabular}%
+    }\par
+    \endgroup
+    
+    \vspace{2cm}
+
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://github.com/mirconegri/University}{%
+        \begin{tabular}{@{}c@{}}
+            {\color{cyan}\rule{\textwidth}{1pt}} \\[0.5cm]
+            {\Huge\bfseries Appunti di Fondamenti matematici}\\ [0.2cm] {\Huge\bfseries per l'informatica}  \\[0.4cm]
+            {\color{cyan}\rule{\textwidth}{1pt}}
+        \end{tabular}%
+    }\par
+    \endgroup
+
+    \vspace{2.5cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\small \textit{\myfootertext} \par}
+    \vspace{0.8cm}
+    
+    {\large \monthname\ \the\year \par}
+\end{titlepage}
+
+\newpage
+\begingroup
+\hypersetup{hidelinks}
+\tableofcontents
+\endgroup
+\newpage
+
+\section{Teoria degli Insiemi}
+
+\subsection{Concetti Introduttivi e Appartenenza}
+Nella teoria degli insiemi, le nozioni di \emph{insieme} e di \emph{elemento} sono assunte come concetti primitivi. Il fondamento della teoria si basa sulla nozione di \emph{appartenenza}.
+Dato un insieme $A$ e un elemento $x$, scriviamo:
+\begin{itemize}
+    \item $x \in A$ per indicare che $x$ appartiene ad $A$;
+    \item $x \notin A$ per indicare che $x$ non appartiene ad $A$.
+\end{itemize}
+La proprietà essenziale che caratterizza un insieme è la seguente: per ogni elemento $x$, deve essere possibile stabilire in modo inequivocabile se esso appartiene o meno all'insieme. (In riferimento al Paradosso di Russell: l'insieme di tutti gli insiemi che non appartengono a sé stessi non è un insieme ben definito).
+
+\subsection{Operazioni tra Insiemi}
+Siano $X$ e $Y$ due insiemi. Definiamo le seguenti operazioni basilari:
+\begin{itemize}
+    \item \textbf{Unione:} L'insieme degli elementi che appartengono a $X$ oppure a $Y$ (o ad entrambi).
+    \[ X \cup Y = \{x \mid x \in X \lor x \in Y\} \]
+    \item \textbf{Intersezione:} L'insieme degli elementi che appartengono sia a $X$ che a $Y$.
+    \[ X \cap Y = \{x \mid x \in X \land x \in Y\} \]
+    \item \textbf{Differenza:} L'insieme degli elementi che appartengono a $X$ ma non a $Y$.
+    \[ X \setminus Y = \{x \mid x \in X \land x \notin Y\} \]
+    \item \textbf{Complementare:} Se $Y \subseteq X$, la differenza $X \setminus Y$ viene detta complementare di $Y$ in $X$ e si indica tipicamente con $\complement_X(Y)$.
+\end{itemize}
+
+\subsection{Prodotto Cartesiano}
+Dati due insiemi $X$ e $Y$, la coppia ordinata si definisce formalmente come $(x, y) = \{\{x\}, \{x, y\}\}$. Il prodotto cartesiano tra $X$ e $Y$ è l'insieme di tutte le possibili coppie ordinate formate prendendo il primo elemento da $X$ e il secondo da $Y$:
+\[ X \times Y = \{(x, y) \mid x \in X, y \in Y\} \]
+
+\section{Relazioni e Funzioni}
+
+\subsection{Relazioni}
+Siano $X$ e $Y$ due insiemi. Un sottoinsieme $R \subseteq X \times Y$ si dice \emph{relazione} tra $X$ e $Y$. Se la coppia ordinata $(x, y)$ appartiene ad $R$, scriveremo $x R y$ per indicare che $x$ è in relazione con $y$.
+
+\subsection{Definizione di Funzione}
+Siano $X$ e $Y$ due insiemi e sia $f \subseteq X \times Y$ una relazione tra di essi. Diciamo che $f$ è una \emph{funzione} (o applicazione) da $X$ in $Y$ se soddisfa la seguente proprietà:
+\[ \forall x \in X, \exists! y \in Y \text{ tale che } (x, y) \in f \]
+Ovvero, ad ogni elemento $x \in X$ è associato un unico elemento $y \in Y$. In tal caso scriveremo $f: X \to Y$ e definiremo:
+\begin{itemize}
+    \item $X$ come il \textbf{dominio} della funzione $f$.
+    \item $Y$ come il \textbf{codominio} della funzione $f$.
+\end{itemize}
+
+\subsection{Immagine e Controimmagine}
+Sia $f: X \to Y$ una funzione.
+\begin{itemize}
+    \item \textbf{Immagine:} Dato un sottoinsieme $A \subseteq X$, l'immagine di $A$ tramite $f$ è l'insieme:
+    \[ f(A) = \{f(x) \in Y \mid x \in A\} \]
+    \item \textbf{Controimmagine:} Dato un sottoinsieme $B \subseteq Y$, la controimmagine di $B$ tramite $f$ è l'insieme:
+    \[ f^{-1}(B) = \{x \in X \mid f(x) \in B\} \]
+\end{itemize}
+
+\subsection{Composizione di Funzioni}
+Siano $X, Y, Z$ tre insiemi non vuoti e siano $f: X \to Y$ e $g: Y \to Z$ due funzioni. Definiamo la \emph{composizione} $g \circ f: X \to Z$:
+\[ (g \circ f)(x) := g(f(x)) \]
+
+
+\subsection{Proprietà delle Funzioni: Iniettività, Surgettività e Bigettività}
+Le proprietà di una funzione $f: X \to Y$ definiscono come gli elementi del dominio vengono distribuiti nel codominio. Queste definizioni sono fondamentali per la risoluzione di quesiti teorici negli esami di Fondamenti.
+
+\begin{itemize}
+    \item \textbf{Iniettività:} $f$ si dice iniettiva se ad elementi distinti del dominio corrispondono elementi distinti del codominio.
+    \[ \forall x_1, x_2 \in X, \quad x_1 \neq x_2 \implies f(x_1) \neq f(x_2) \]
+    \item \textbf{Surgettività:} $f$ si dice surgettiva se ogni elemento del codominio è immagine di almeno un elemento del dominio.
+    \[ \forall y \in Y, \quad \exists x \in X \text{ tale che } f(x) = y \]
+    In altre parole, l'immagine della funzione coincide con il codominio ($f(X) = Y$).
+    \item \textbf{Bigettività:} $f$ si dice bigettiva se è contemporaneamente iniettiva e surgettiva. Una funzione bigettiva è invertibile.
+\end{itemize}
+
+
+\subsection{Immagine di Famiglie di Insiemi}
+Siano $X$ e $Y$ due insiemi non vuoti, sia $f: X \to Y$ una funzione e sia $\{A_i\}_{i \in I}$ una famiglia di sottoinsiemi di $X$. Valgono le seguenti proprietà fondamentali che legano l'immagine della funzione alle classiche operazioni insiemistiche:
+
+\begin{itemize}
+    \item \textbf{Immagine dell'intersezione:} L'immagine dell'intersezione di una famiglia di insiemi è sempre sottoinsieme dell'intersezione delle immagini:
+    \[ f\left(\bigcap_{i \in I} A_i\right) \subseteq \bigcap_{i \in I} f(A_i) \]
+    \emph{Nota bene per l'esame:} In generale, l'uguaglianza stretta non vale a meno che non si sappia a priori che la funzione $f$ è iniettiva.
+    \item \textbf{Immagine dell'unione:} L'immagine dell'unione di una famiglia di insiemi coincide esattamente con l'unione delle immagini:
+    \[ f\left(\bigcup_{i \in I} A_i\right) = \bigcup_{i \in I} f(A_i) \]
+\end{itemize}
+
+
+\subsubsection{Composizione e Conservazione delle Proprietà}
+Siano $f: X \to Y$ e $g: Y \to Z$ due funzioni. Valgono i seguenti teoremi (richiesti spesso nelle domande di teoria):
+\begin{enumerate}
+    \item Se $f$ e $g$ sono iniettive, allora $g \circ f$ è iniettiva.
+    \item Se $f$ e $g$ sono surgettive, allora $g \circ f$ è surgettiva.
+    \item Se $f$ e $g$ sono bigettive, allora $g \circ f$ è bigettiva.
+\end{enumerate}
+
+\section{Cardinalità e Induzione Matematica}
+
+\subsection{Equipotenza}
+Due insiemi $X$ e $Y$ si dicono \textbf{equipotenti} (e scriviamo $|X| = |Y|$) se esiste una funzione bigettiva $f: X \to Y$. 
+Un insieme si dice \textbf{numerabile} se è equipotente all'insieme dei numeri naturali $\mathbb{N}$.
+
+\subsection{I Numeri Naturali e gli Assiomi di Peano}
+L'insieme $\mathbb{N}$ è costruito formalmente attraverso gli Assiomi di Peano. Si assume l'esistenza di un elemento $0 \in \mathbb{N}$ e di una funzione \emph{successivo} $s: \mathbb{N} \to \mathbb{N}$ che soddisfa:
+\begin{enumerate}[label=P\arabic*)]
+    \item $s$ è una funzione iniettiva.
+    \item $0$ non è nell'immagine di $s$ ($\forall n \in \mathbb{N}, s(n) \neq 0$).
+    \item \textbf{Assioma di Induzione:} Sia $A \subseteq \mathbb{N}$. Se $0 \in A$ e ($\forall n \in A \implies s(n) \in A$), allora $A = \mathbb{N}$.
+\end{enumerate}
+
+\subsection{Il Principio di Induzione}
+Il principio di induzione è lo strumento principale per risolvere il primo esercizio d'esame. Per dimostrare che una proprietà $P(n)$ è vera per ogni $n \in \mathbb{N}$ (o $n \geq n_0$), si segue il procedimento:
+\begin{enumerate}
+    \item \textbf{Base dell'induzione:} Si verifica che $P(n_0)$ sia vera.
+    \item \textbf{Passo induttivo:} Si assume come vera la proprietà per un generico $n$ (Ipotesi Induttiva) e si dimostra che la proprietà vale per $n+1$.
+\end{enumerate}
+
+
+
+\subsubsection{Esempio: Somma dei primi $n$ numeri naturali}
+Si dimostri che $\sum_{i=0}^{n} i = \frac{n(n+1)}{2}$.
+\begin{itemize}
+    \item \textbf{Base ($n=0$):} $0 = \frac{0(1)}{2} = 0$. (Verificato).
+    \item \textbf{Passo induttivo:} Supponiamo $\sum_{i=0}^{n} i = \frac{n(n+1)}{2}$. \\ Vogliamo dimostrare che $\sum_{i=0}^{n+1} i = \frac{(n+1)(n+2)}{2}$.
+    \item \textbf{Calcolo:} $\sum_{i=0}^{n+1} i = \left(\sum_{i=0}^{n} i\right) + (n+1) = \frac{n(n+1)}{2} + (n+1) = \frac{n(n+1) + 2(n+1)}{2} = \frac{(n+1)(n+2)}{2}$. (Verificato).
+\end{itemize}
+
+
+\subsection{Dimostrazione del Principio di Induzione}
+Il Principio d'Induzione (prima forma) può essere rigorosamente dimostrato a partire dagli Assiomi di Peano. 
+Sia $P(n)$ una famiglia di proposizioni indicizzate su $\mathbb{N}$. Definiamo l'insieme:
+\[ A := \{n \in \mathbb{N} \mid P(n) \text{ è vera}\} \]
+Vogliamo dimostrare che $A = \mathbb{N}$.
+\begin{enumerate}
+    \item Dalla \textbf{base induttiva}, sappiamo che $P(0)$ è vera, quindi $0 \in A$.
+    \item Dal \textbf{passo induttivo}, sappiamo che se $n \in A$ (ovvero $P(n)$ è vera), allora anche $P(\text{succ}(n))$ è vera, quindi $\text{succ}(n) \in A$.
+\end{enumerate}
+Per l'Assioma di Induzione di Peano, se un sottoinsieme di $\mathbb{N}$ contiene lo $0$ ed è chiuso rispetto all'operazione di passaggio al successivo, allora esso coincide con $\mathbb{N}$ stesso. Pertanto, $A = \mathbb{N}$, e la proposizione è vera per ogni numero naturale.
+
+\subsection{Teorema di Ricorsione}
+Il Teorema di Ricorsione è fondamentale per garantire l'esistenza e l'unicità di funzioni definite "per passi successivi" su $\mathbb{N}$.
+Sia $X$ un insieme non vuoto, sia $c \in X$ e sia $h: \mathbb{N} \times X \to X$ una funzione. Allora esiste ed è unica una funzione $f: \mathbb{N} \to X$ tale che:
+\begin{enumerate}
+    \item $f(0) = c$ \quad (Condizione iniziale)
+    \item $\forall n \in \mathbb{N}, \quad f(\text{succ}(n)) = h(n, f(n))$ \quad (Passo ricorsivo)
+\end{enumerate}
+
+\subsubsection{Applicazioni: Addizione e Moltiplicazione}
+Sfruttando il Teorema di Ricorsione, è possibile definire in modo assiomatico le operazioni aritmetiche fondamentali in $\mathbb{N}$:
+\begin{itemize}
+    \item \textbf{Addizione (somma a sinistra con $m$):} Fissato $m \in \mathbb{N}$, si definisce la funzione "somma" $f(n) = m + n$ ponendo:
+    \begin{align*}
+        m + 0 &= m \\
+        m + \text{succ}(n) &= \text{succ}(m + n)
+    \end{align*}
+    \item \textbf{Moltiplicazione (prodotto a sinistra con $m$):} Fissato $m \in \mathbb{N}$, si definisce la funzione "prodotto" $g(n) = m \cdot n$ ponendo:
+    \begin{align*}
+        m \cdot 0 &= 0 \\
+        m \cdot \text{succ}(n) &= m + (m \cdot n)
+    \end{align*}
+\end{itemize}
+
+
+\section{Relazioni d'Ordine}
+
+\subsection{Ordinamento Parziale e Totale}
+Sia $X$ un insieme non vuoto e $R \subseteq X \times X$ una relazione binaria su $X$ (scriveremo $x \mathrel{R} y$ per indicare $(x,y) \in R$). La relazione $R$ si dice un \textbf{ordinamento parziale} se soddisfa le seguenti tre proprietà:
+\begin{enumerate}
+    \item \textbf{Riflessiva:} $\forall x \in X, \quad x \mathrel{R} x$.
+    \item \textbf{Antisimmetrica:} $\forall x, y \in X, \quad (x \mathrel{R} y \land y \mathrel{R} x) \implies x = y$.
+    \item \textbf{Transitiva:} $\forall x, y, z \in X, \quad (x \mathrel{R} y \land y \mathrel{R} z) \implies x \mathrel{R} z$.
+\end{enumerate}
+Un insieme $X$ dotato di una relazione di ordinamento parziale si dice \emph{parzialmente ordinato} e la relazione si denota spesso col simbolo $\leq$.
+Se, in aggiunta, la relazione soddisfa la proprietà di \textbf{Tricotomia} (o totalità):
+\[ \forall x, y \in X, \quad x \mathrel{R} y \lor y \mathrel{R} x \]
+allora $R$ è un \textbf{ordinamento totale} e l'insieme si dice \emph{totalmente ordinato}.
+
+\subsection{L'ordinamento sui Numeri Naturali}
+Sui numeri naturali $\mathbb{N}$ si definisce la relazione $\leq$ nel seguente modo:
+\[ n \leq m \iff \exists k \in \mathbb{N} \text{ tale che } n + k = m \]
+Il teorema fondamentale associato a questa definizione afferma che la struttura $(\mathbb{N}, \leq)$ costituisce un insieme \textbf{totalmente ordinato}.
+
+\subsection{Principio di Induzione "Shiftato" (Generalizzato)}
+Spesso una proprietà $P(n)$ non è vera o non ha senso a partire da $0$, ma a partire da un certo intero $k \ge 0$. In questo caso si utilizza la forma shiftata dell'induzione.
+Sia $\{P(n)\}_{n \geq k}$ una famiglia di proposizioni indicizzate sui naturali $n \ge k$. Supponiamo che:
+\begin{enumerate}
+    \item \textbf{Base Induttiva:} $P(k)$ è vera.
+    \item \textbf{Passo Induttivo:} $\forall n \ge k, \quad P(n) \implies P(n+1)$ è vera.
+\end{enumerate}
+Allora, il principio garantisce che $P(n)$ è vera per ogni numero naturale $n \ge k$.
+
+\section{Aritmetica Modulare}
+
+\subsection{Congruenza Modulo $n$ e Classi di Resto}
+Fissato un intero $n \ge 2$, si definisce su $\mathbb{Z}$ la relazione di \emph{congruenza modulo $n$}. Dati due interi $a$ e $b$, diciamo che $a$ è congruo a $b$ modulo $n$, e scriviamo $a \equiv b \pmod n$, se $n$ divide la differenza $(a - b)$. In formule:
+\[ a \equiv b \pmod n \iff n \mid (a - b) \iff \exists k \in \mathbb{Z} \text{ tale che } a - b = k \cdot n \]
+Si dimostra facilmente che la congruenza modulo $n$ è una \textbf{relazione di equivalenza} (gode delle proprietà riflessiva, simmetrica e transitiva).
+L'insieme quoziente di $\mathbb{Z}$ rispetto a questa relazione prende il nome di insieme delle \textbf{classi di resto modulo $n$}, e si denota con $\mathbb{Z}_n$.
+Per il Teorema della Divisione Euclidea, ogni intero è congruo al suo resto nella divisione per $n$. Di conseguenza, ci sono esattamente $n$ classi di equivalenza distinte:
+\[ \mathbb{Z}_n = \{[0]_n, [1]_n, \ldots, [n-1]_n\} \]
+
+\subsection{Struttura Algebrica e Operazioni in $\mathbb{Z}_n$}
+L'insieme delle classi di resto $\mathbb{Z}_n$ possiede una struttura di \textbf{anello commutativo con unità}. Le operazioni di somma e prodotto sono ereditate da $\mathbb{Z}$ e sono \textit{ben definite}:
+\begin{itemize}
+    \item \textbf{Somma:} $[a]_n \oplus [b]_n = [a + b]_n$
+    \item \textbf{Prodotto:} $[a]_n \odot [b]_n = [a \cdot b]_n$
+\end{itemize}
+
+\subsubsection*{Proprietà Fondamentali}
+Per ogni $[a]_n, [b]_n, [c]_n \in \mathbb{Z}_n$, valgono:
+\begin{itemize}
+    \item \textbf{Associatività e Commutatività} sia per la somma che per il prodotto.
+    \item \textbf{Elementi Neutri:} $[0]_n$ per la somma, $[1]_n$ per il prodotto.
+    \item \textbf{Esistenza dell'Opposto:} Per ogni $[a]_n$, esiste $[-a]_n = [n-a]_n$ tale che la loro somma sia $[0]_n$.
+    \item \textbf{Proprietà Distributiva} del prodotto rispetto alla somma.
+\end{itemize}
+
+\subsection{Elementi Invertibili e Calcolo dell'Inverso}
+Diciamo che un elemento $[a]_n \in \mathbb{Z}_n$ è \textbf{invertibile} se esiste una classe $[x]_n \in \mathbb{Z}_n$ tale che:
+\[ [a]_n \odot [x]_n = [1]_n \]
+In tal caso, $[x]_n$ è l'\textbf{inverso moltiplicativo} di $[a]_n$ e si indica con $[a]_n^{-1}$.
+
+\subsubsection*{Condizione di Invertibilità}
+Il criterio fondamentale per l'esistenza dell'inverso è basato sulla coprimarità:
+\[ [a]_n \text{ è invertibile in } \mathbb{Z}_n \iff \text{MCD}(a, n) = 1 \]
+\emph{Conseguenza:} $\mathbb{Z}_n$ è un \textbf{campo} (ogni elemento non nullo è invertibile) se e solo se $n$ è un \textbf{numero primo}. Se $n$ è composto, esistono dei \textbf{divisori dello zero}.
+
+\subsubsection*{Metodo di Calcolo (Algoritmo di Euclide Esteso)}
+Per calcolare l'inverso di $[a]_n$ modulo $n$:
+\begin{enumerate}
+    \item Si applica l'algoritmo di Euclide per trovare $1 = \text{MCD}(a, n)$.
+    \item Si risale l'algoritmo (Identità di Bézout) per scrivere: $1 = s \cdot a + t \cdot n$.
+    \item L'inverso cercato è $[a]_n^{-1} = [s]_n$.
+\end{enumerate}
+
+\paragraph{Esercizio Tipo: Calcolo dell'inverso di $[8]_{35}$}
+\begin{enumerate}
+    \item \textbf{Verifica:} $\text{MCD}(8, 35) = 1$. L'inverso esiste.
+    \item \textbf{Euclide:} 
+    $35 = 4 \cdot 8 + 3 \implies 3 = 35 - 4 \cdot 8$ \\
+    $8 = 2 \cdot 3 + 2 \implies 2 = 8 - 2 \cdot 3$ \\
+    $3 = 1 \cdot 2 + 1 \implies 1 = 3 - 1 \cdot 2$
+    \item \textbf{Bézout (Risalita):} 
+    $1 = 3 - 1 \cdot (8 - 2 \cdot 3) = 3 \cdot 3 - 8$ \\
+    $1 = 3 \cdot (35 - 4 \cdot 8) - 8 = 3 \cdot 35 - 13 \cdot 8$
+    \item \textbf{Risultato:} $1 \equiv -13 \cdot 8 \pmod{35}$. L'inverso è $[-13]_{35}$. \\
+    In forma positiva: $-13 + 35 = 22$. Quindi $[8]_{35}^{-1} = [22]_{35}$.
+\end{enumerate}
+
+\subsection{Equazioni Congruenziali Lineari}
+Un'equazione congruenziale lineare si presenta nella forma:
+\[ a x \equiv b \pmod n \]
+che, nel linguaggio delle classi di resto, equivale a risolvere l'equazione $[a]_n \odot [x]_n = [b]_n$ all'interno di $\mathbb{Z}_n$.
+Questa equazione ammette soluzioni se e solo se il Massimo Comun Divisore tra il coefficiente $a$ e il modulo $n$ divide il termine noto $b$:
+\[ \exists \text{ soluzioni per } ax \equiv b \pmod n \iff \text{MCD}(a, n) \mid b \]
+
+\subsection{Sistemi di Congruenze e Teorema Cinese dei Resti}
+Il Teorema Cinese dei Resti (TCR) è uno strumento matematico per risolvere sistemi di equazioni congruenziali lineari.
+Dato un sistema di due equazioni:
+\[
+\begin{cases}
+    x \equiv a \pmod n \\
+    x \equiv b \pmod m
+\end{cases}
+\]
+\subsubsection*{Condizione di Compatibilità}
+Un sistema ammette soluzioni (è \textbf{compatibile}) se e solo se:
+\[ a \equiv b \pmod{\text{MCD}(n, m)} \iff \text{MCD}(n, m) \mid (a - b) \]
+Se i due moduli sono coprimi ($\text{MCD}(n, m) = 1$), la condizione è sempre verificata e il sistema ammette sempre soluzione.
+
+\subsubsection*{Risoluzione e Insieme delle Soluzioni}
+Una volta verificata la compatibilità, la soluzione si ricava tramite l'Identità di Bézout: $\text{MCD}(n, m) = s \cdot n + t \cdot m$.
+Costruita una soluzione particolare $x_0$, il teorema afferma che l'insieme di tutte le soluzioni $S$ è unico modulo $\text{m.c.m.}(n, m)$:
+\[ S = \{ x_0 + k \cdot \text{m.c.m.}(n, m) \mid k \in \mathbb{Z} \} \]
+
+
+\section{Complementi ed Esercizi Svolti}
+
+\subsection{Esercizio Tipo sull'Induzione Matematica}
+Negli scritti d'esame è frequentissima la richiesta di dimostrare un'uguaglianza con sommatorie o produttorie tramite il Principio di Induzione. Vediamo un caso classico con potenze a denominatore.
+
+\textbf{Testo:} Si dimostri per induzione su $n \in \mathbb{N}$ (con $n \ge 1$) la seguente uguaglianza:
+\[ \sum_{k=1}^{n} \frac{k}{2^k} = 2 - \frac{n+2}{2^n} \]
+
+\textbf{Dimostrazione:}
+\begin{enumerate}
+    \item \textbf{Base dell'induzione ($n=1$):}
+    Calcoliamo separatamente il primo e il secondo membro per $n=1$.
+    \begin{itemize}
+        \item Primo membro: $\sum_{k=1}^{1} \frac{k}{2^k} = \frac{1}{2^1} = \frac{1}{2}$
+        \item Secondo membro: $2 - \frac{1+2}{2^1} = 2 - \frac{3}{2} = \frac{1}{2}$
+    \end{itemize}
+    Poiché i due membri coincidono, la base induttiva è verificata.
+
+    \item \textbf{Passo induttivo:}
+    Assumiamo per Ipotesi Induttiva (I.I.) che l'uguaglianza sia vera per un generico intero $n \ge 1$:
+    \[ \sum_{k=1}^{n} \frac{k}{2^k} = 2 - \frac{n+2}{2^n} \]
+    Vogliamo dimostrare che la tesi è valida per il successivo $n+1$, ovvero che:
+    \[ \sum_{k=1}^{n+1} \frac{k}{2^k} = 2 - \frac{(n+1)+2}{2^{n+1}} = 2 - \frac{n+3}{2^{n+1}} \]
+    Procediamo esplicitando l'ultimo termine della sommatoria e sfruttando l'I.I.:
+    \begin{align*}
+        \sum_{k=1}^{n+1} \frac{k}{2^k} &= \left( \sum_{k=1}^{n} \frac{k}{2^k} \right) + \frac{n+1}{2^{n+1}} \\
+        &= \left( 2 - \frac{n+2}{2^n} \right) + \frac{n+1}{2^{n+1}} \quad \text{(Sostituzione tramite Ipotesi Induttiva)} \\
+        &= 2 - \left( \frac{n+2}{2^n} - \frac{n+1}{2^{n+1}} \right) \\
+        &= 2 - \left( \frac{2(n+2) - (n+1)}{2^{n+1}} \right) \quad \text{(m.c.m. a denominatore)} \\
+        &= 2 - \left( \frac{2n + 4 - n - 1}{2^{n+1}} \right) \\
+        &= 2 - \frac{n+3}{2^{n+1}}
+    \end{align*}
+    Abbiamo ottenuto esattamente l'espressione della tesi. Pertanto, per il Principio di Induzione, l'uguaglianza iniziale è vera per ogni $n \ge 1$.
+\end{enumerate}
+
+\section{Insiemi Finiti, Infiniti e Cardinalità}
+
+\subsection{L'insieme delle funzioni $Y^X$}
+Dati due insiemi $X$ e $Y$, si denota comunemente con $Y^X$ l'insieme di tutte le possibili funzioni aventi dominio $X$ e codominio $Y$:
+\[ Y^X = \{f \mid f \text{ è una funzione da } X \text{ a } Y\} \]
+Nello studio di questi insiemi, specialmente per la risoluzione di quesiti teorici e test a risposta multipla, occorre prestare attenzione a due casi limite:
+\begin{itemize}
+    \item Se il dominio è vuoto ($X = \emptyset$), allora per qualsiasi insieme $Y$ esiste un'unica funzione possibile (la cosiddetta funzione vuota). Pertanto, vale sempre: $Y^\emptyset = \{\emptyset\}$.
+    \item Se il codominio è vuoto ($Y = \emptyset$) ma il dominio non lo è ($X \neq \emptyset$), è impossibile assegnare un'immagine agli elementi del dominio. Di conseguenza, non esiste alcuna funzione: $\emptyset^X = \emptyset$.
+\end{itemize}
+
+\subsection{Definizione Formale di Insieme Finito}
+Per trattare rigorosamente il numero di elementi di un insieme, definiamo per ogni intero $n \in \mathbb{N}$ (con $n > 0$) l'insieme "campione" composto dai primi $n$ numeri naturali:
+\[ I_n := \{0, 1, \dots, n-1\} \]
+Si pone per convenzione $I_0 := \emptyset$.
+Un insieme $X$ si dice \textbf{finito} se esiste un numero naturale $n$ tale che $X$ è equipotente a $I_n$ (ovvero, se $X \sim I_n$, il che significa che esiste una funzione bigettiva tra $X$ e $I_n$). Se tale intero $n$ non esiste, l'insieme $X$ si dice \textbf{infinito}.
+
+\subsection{Il Lemma dei Cassetti (Pigeonhole Principle)}
+Il Teorema noto come Lemma dei Cassetti è uno strumento cardine per la dimostrazione di proprietà sulle funzioni tra insiemi finiti.
+\textbf{Enunciato:} Siano $X$ e $Y$ due insiemi e siano $n, m \in \mathbb{N}$ tali che $X \sim I_n$ e $Y \sim I_m$. Se $n < m$ (cioè il dominio $Y$ "ha più elementi" del codominio $X$), allora \textbf{non esiste alcuna funzione iniettiva} $f: Y \to X$.
+
+\subsection{Proprietà della Cardinalità e Sottoinsiemi}
+Dal Lemma dei Cassetti discende un corollario fondamentale: se un insieme $X$ è equipotente sia a $I_n$ che a $I_m$, allora necessariamente $n = m$. Questo garantisce che il numero di elementi di un insieme finito sia unico e ci permette di definire rigorosamente la \textbf{cardinalità} di $X$:
+\[ |X| = n \iff X \sim I_n \]
+
+Sia $X$ un insieme finito e sia $Y$ un suo sottoinsieme ($Y \subseteq X$). Valgono i seguenti risultati:
+\begin{enumerate}
+    \item $Y$ è anch'esso un insieme finito e la sua cardinalità è minore o uguale a quella di $X$ ($|Y| \le |X|$).
+    \item Se $Y$ è un sottoinsieme \emph{proprio} di $X$ ($Y \subsetneq X$), allora la sua cardinalità è strettamente minore ($|Y| < |X|$).
+\end{enumerate}
+
+\subsubsection*{Caratterizzazione degli Insiemi Infiniti}
+Una diretta conseguenza (estremamente utile per i quesiti d'esame) della proprietà precedente è che \textbf{un insieme finito non è mai equipotente a un suo sottoinsieme proprio}. 
+Ciò evidenzia una proprietà caratteristica degli insiemi infiniti: l'insieme dei numeri naturali $\mathbb{N}$, ad esempio, è infinito proprio perché può essere messo in corrispondenza biunivoca con un suo sottoinsieme proprio (come $\mathbb{N} \setminus \{0\}$) tramite la funzione iniettiva "successivo".
+
+\subsection{Risoluzione Pratica di Sistemi di Congruenze}
+Negli esercizi d'esame è spesso richiesto di determinare le soluzioni di un sistema di congruenze lineari del tipo:
+\[
+\begin{cases}
+    x \equiv a \pmod n \\
+    x \equiv b \pmod m
+\end{cases}
+\]
+La risoluzione algoritmica si articola generalmente in due passi:
+
+\subsubsection*{Passo 1: Verifica della Compatibilità}
+Si calcola in primo luogo il Massimo Comun Divisore tra i due moduli: $d = \text{MCD}(n, m)$.
+Il sistema ammette soluzioni (ossia è \emph{compatibile}) se e solo se $d$ divide la differenza dei termini noti:
+\[ d \mid (a - b) \]
+(Se $\text{MCD}(n, m) = 1$, il Teorema Cinese dei Resti garantisce sempre la compatibilità).
+
+\subsubsection*{Passo 2: Calcolo della Soluzione tramite l'Algoritmo di Euclide}
+Una volta verificata la compatibilità, occorre determinare i coefficienti dell'Identità di Bézout. Si applica l'\textbf{Algoritmo di Euclide} (delle divisioni successive) ai moduli $n$ e $m$. 
+Successivamente, si procede con la \textbf{sostituzione a ritroso}: ripercorrendo l'algoritmo dal basso verso l'alto, si esprime il MCD come combinazione lineare di $n$ e $m$:
+\[ \text{MCD}(n, m) = s \cdot n + t \cdot m \quad \text{con } s, t \in \mathbb{Z} \]
+I coefficienti $s$ e $t$ così trovati permettono di costruire una soluzione particolare $x_0$ del sistema. L'insieme completo delle soluzioni sarà poi dato dalla classe di resto modulo il minimo comune multiplo tra $n$ e $m$:
+\[ x \equiv x_0 \pmod{\text{m.c.m.}(n, m)} \]
+
+\subsection{Esercizio Tipo sui Sistemi di Congruenze e Divisibilità}
+Di seguito viene riportato lo svolgimento passo-passo di un tipico esercizio d'esame relativo all'Aritmetica Modulare (tratto dall'appello del 19/06/2014).
+
+\textbf{Testo:} 
+Si determinino tutte le soluzioni del seguente sistema di congruenze:
+\[
+\begin{cases}
+    x \equiv 9 \pmod{162} \\
+    x \equiv -9 \pmod{114}
+\end{cases}
+\]
+Si dica inoltre se tale sistema possiede una soluzione divisibile per $17$.
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item \textbf{Passo 1: Compatibilità del sistema}
+    Sia $S$ l'insieme delle soluzioni. Calcoliamo il Massimo Comun Divisore tra i moduli con l'algoritmo di Euclide (o per fattorizzazione: $162 = 2 \cdot 3^4$, $114 = 2 \cdot 3 \cdot 19$).
+    \[ \text{MCD}(162, 114) = 2 \cdot 3 = 6 \]
+    Verifichiamo la condizione di compatibilità: il MCD deve dividere la differenza dei termini noti.
+    \[ 9 - (-9) = 18 \quad \text{e} \quad 6 \mid 18 \]
+    Poiché $18 = 3 \cdot 6$, il teorema di compatibilità è soddisfatto e il sistema ammette infinite soluzioni.
+
+    \item \textbf{Passo 2: Calcolo di una soluzione particolare}
+    Applichiamo l'Algoritmo di Euclide esteso (sostituzione a ritroso) per trovare l'Identità di Bézout tra $162$ e $114$:
+    \begin{align*}
+        162 &= 1 \cdot 114 + 48 \implies 48 = 162 - 114 \\
+        114 &= 2 \cdot 48 + 18 \implies 18 = 114 - 2 \cdot 48 \\
+        48 &= 2 \cdot 18 + 12 \implies 12 = 48 - 2 \cdot 18 \\
+        18 &= 1 \cdot 12 + 6 \implies 6 = 18 - 12
+    \end{align*}
+    Risalendo per trovare i coefficienti di $162$ e $114$:
+    \begin{align*}
+        6 &= 18 - (48 - 2 \cdot 18) = 3 \cdot 18 - 48 \\
+        &= 3(114 - 2 \cdot 48) - 48 = 3 \cdot 114 - 7 \cdot 48 \\
+        &= 3 \cdot 114 - 7(162 - 114) = 10 \cdot 114 - 7 \cdot 162
+    \end{align*}
+    Dunque, $\text{MCD} = 6 = 10(114) - 7(162)$.
+    Moltiplicando l'intera equazione per $3$ (poiché la differenza dei resti è $18 = 3 \cdot 6$), otteniamo:
+    \[ 18 = 30(114) - 21(162) \]
+    Riscriviamo la differenza dei resti:
+    \[ 9 - (-9) = 30(114) - 21(162) \implies 9 + 21(162) = -9 + 30(114) = 3411 \]
+    Abbiamo trovato una soluzione particolare: $x_0 = 3411$.
+
+    \item \textbf{Passo 3: Calcolo dell'insieme delle soluzioni}
+    Le soluzioni del sistema formano una singola classe di congruenza modulo il minimo comune multiplo tra i due moduli originari.
+    \[ \text{m.c.m.}(162, 114) = \frac{162 \cdot 114}{\text{MCD}(162, 114)} = \frac{162 \cdot 114}{6} = 3078 \]
+    Quindi le soluzioni sono della forma $x \equiv 3411 \pmod{3078}$.
+    Riducendo $3411$ modulo $3078$, otteniamo il resto $333$. L'insieme delle soluzioni è:
+    \[ S = [333]_{3078} = \{ 333 + 3078k \mid k \in \mathbb{Z} \} \]
+
+    \item \textbf{Passo 4: Ricerca di una soluzione divisibile per 17}
+    Ci chiediamo se esista un $x \in S$ tale che $17 \mid x$, ovvero $x \equiv 0 \pmod{17}$.
+    Questo equivale a risolvere un nuovo sistema:
+    \[
+    \begin{cases}
+        x \equiv 333 \pmod{3078} \\
+        x \equiv 0 \pmod{17}
+    \end{cases}
+    \]
+    Calcoliamo la compatibilità. Poiché $17$ è un numero primo e non divide $3078$ (facendo la divisione $3078 = 17 \cdot 181 + 1$), il $\text{MCD}(3078, 17) = 1$.
+    Essendo i moduli coprimi, il Teorema Cinese dei Resti garantisce che \textbf{il sistema è sempre compatibile}. Di conseguenza, esiste certamente almeno una soluzione del sistema originale che sia multipla di $17$.
+    
+    \emph{Nota operativa:} Per trovarla esplicitamente, basta sostituire la forma generale $x = 333 + 3078k$ nell'equazione modulo $17$:
+    \[ [333 + 3078k]_{17} = [0]_{17} \implies [10 + 1 \cdot k]_{17} = [0]_{17} \implies k \equiv -10 \equiv 7 \pmod{17} \]
+    Sostituendo $k=7$ in $x = 333 + 3078k$, si ottiene l'effettiva soluzione cercata: $x = 21879$.
+\end{enumerate}
+
+\section{Buon Ordinamento e Induzione di Seconda Forma}
+
+\subsection{Assioma di Buon Ordinamento}
+Sia $X$ un insieme e sia $\le$ un ordinamento parziale su $X$. Dato un sottoinsieme non vuoto $A \subseteq X$, diciamo che un elemento $z \in A$ è un \textbf{minimo} di $A$ se:
+\[ \forall x \in A, \quad z \le x \]
+Se tale minimo esiste, è unico e scriveremo $z = \min(A)$.
+
+Un ordinamento totale su un insieme $X$ si dice essere un \textbf{buon ordinamento} se ogni sottoinsieme non vuoto di $X$ ammette minimo. In tal caso, l'insieme $(X, \le)$ si dice \emph{ben ordinato}.
+
+\textbf{Teorema (Buon Ordinamento dei Numeri Naturali):}
+L'insieme dei numeri naturali $(\mathbb{N}, \le)$, dotato dell'ordinamento usuale, è un insieme ben ordinato.
+
+\subsection{Principio di Induzione (Seconda Forma / Induzione Forte)}
+Sia $\{P(n)\}$ una famiglia di proposizioni indicizzate su $\mathbb{N}$. Il principio d'induzione di seconda forma (o induzione forte) stabilisce che se valgono le seguenti due condizioni:
+\begin{enumerate}
+    \item \textbf{Base dell'induzione:} $P(0)$ è vera.
+    \item \textbf{Passo induttivo forte:} Per ogni $n > 0$, supponendo per Ipotesi Induttiva che $P(k)$ sia vera per ogni $k \in \mathbb{N}$ tale che $0 \le k < n$, si dimostra che $P(n)$ è vera.
+\end{enumerate}
+Allora $P(n)$ è vera per ogni $n \in \mathbb{N}$. \\
+\emph{Nota teorica:} L'equivalenza tra le varie forme del Principio di Induzione e l'Assioma del Buon Ordinamento è una proprietà fondamentale di $\mathbb{N}$.
+
+
+\section{Divisione Euclidea negli Interi}
+
+\subsection{Esistenza e Unicità della Divisione}
+Il Teorema della Divisione Euclidea è un pilastro per l'aritmetica su $\mathbb{Z}$.
+Siano $n, m \in \mathbb{Z}$ con $m \neq 0$. Allora esistono e sono unici due interi $q$ e $r$ tali che:
+\[ n = q \cdot m + r \]
+con la condizione fondamentale sul resto:
+\[ 0 \le r < |m| \]
+I due interi $q$ ed $r$ prendono il nome, rispettivamente, di \textbf{quoziente} e \textbf{resto} della divisione di $n$ per $m$.
+
+\subsubsection*{Calcolo di Quoziente e Resto con Numeri Negativi}
+Negli esercizi d'esame in cui è richiesto il calcolo di quoziente e resto in presenza di dividendi o divisori negativi, è cruciale ricordare che \textbf{il resto non può mai essere negativo}.
+
+\textbf{Esempio di esame:} Divisione di $n = -16$ per $m = 5$.
+\begin{itemize}
+    \item \emph{Svolgimento scorretto:} $-16 = -3 \cdot 5 - 1$. (Scorretto perché il resto non può essere $-1$).
+    \item \emph{Svolgimento corretto:} Si abbassa il quoziente di una unità per ottenere un resto positivo:
+    \[ -16 = -4 \cdot 5 + 4 \]
+\end{itemize}
+In questo caso corretto, il quoziente è $q = -4$ e il resto è $r = 4$, il quale soddisfa rigorosamente la limitazione $0 \le 4 < 5$.
+
+\section{Aritmetica negli Interi e Numeri Primi}
+
+\subsection{Massimo Comun Divisore e Algoritmo di Euclide}
+Dati due numeri interi $n, m \in \mathbb{Z}$ non entrambi nulli, il calcolo del Massimo Comun Divisore, indicato con $\text{MCD}(n, m)$ o semplicemente $(n, m)$, si basa sul seguente principio: se $r$ è il resto della divisione euclidea di $n$ per $m$, allora l'insieme dei divisori comuni di $n$ e $m$ coincide con l'insieme dei divisori comuni di $m$ e $r$. Ne consegue che:
+\[ (n, m) = (m, r) \]
+Questo risultato fonda l'\textbf{Algoritmo di Euclide} (o delle divisioni successive). Supponendo senza perdita di generalità $n \ge m > 0$, si procede iterativamente dividendo il divisore precedente per il resto precedente:
+\begin{align*}
+    n &= q_1 m + r_1 \\
+    m &= q_2 r_1 + r_2 \\
+    r_1 &= q_3 r_2 + r_3 \\
+    &\vdots \\
+    r_{k-2} &= q_k r_{k-1} + r_k \\
+    r_{k-1} &= q_{k+1} r_k + 0
+\end{align*}
+L'algoritmo termina quando si ottiene resto nullo. L'ultimo resto non nullo ($r_k$) corrisponde esattamente al $\text{MCD}(n, m)$.
+
+\subsection{Identità di Bézout}
+L'algoritmo di Euclide permette non solo di trovare il MCD, ma anche di esprimerlo come combinazione lineare dei due numeri di partenza. Esistono infatti sempre due interi $x, y \in \mathbb{Z}$ tali che:
+\[ x \cdot n + y \cdot m = \text{MCD}(n, m) \]
+I coefficienti $x$ e $y$ si trovano ripercorrendo a ritroso i passaggi dell'algoritmo, in un procedimento noto come \emph{sostituzione a ritroso}.
+
+\subsubsection*{Esempio Pratico: Algoritmo di Euclide e Bézout}
+Calcoliamo il MCD tra $54$ e $39$ e la relativa identità di Bézout.
+\begin{enumerate}
+    \item \textbf{Algoritmo di Euclide:}
+    \begin{align*}
+        54 &= 1 \cdot 39 + 15 \implies 15 = 54 - 1 \cdot 39 \\
+        39 &= 2 \cdot 15 + 9 \implies 9 = 39 - 2 \cdot 15 \\
+        15 &= 1 \cdot 9 + 6 \implies 6 = 15 - 1 \cdot 9 \\
+        9 &= 1 \cdot 6 + 3 \implies 3 = 9 - 1 \cdot 6 \\
+        6 &= 2 \cdot 3 + 0
+    \end{align*}
+    Il MCD è l'ultimo resto non nullo, ovvero $3$.
+    \item \textbf{Sostituzione a ritroso:}
+    Partiamo dall'equazione del resto $3$ e sostituiamo iterativamente i resti precedenti al contrario:
+    \begin{align*}
+        3 &= 9 - 1 \cdot \underline{6} \\
+        &= 9 - 1 \cdot (\underline{15 - 1 \cdot 9}) = 2 \cdot \underline{9} - 1 \cdot 15 \\
+        &= 2 \cdot (\underline{39 - 2 \cdot 15}) - 1 \cdot 15 = 2 \cdot 39 - 5 \cdot \underline{15} \\
+        &= 2 \cdot 39 - 5 \cdot (\underline{54 - 1 \cdot 39}) = 7 \cdot 39 - 5 \cdot 54
+    \end{align*}
+    L'identità cercata è quindi $3 = (-5) \cdot 54 + 7 \cdot 39$.
+\end{enumerate}
+
+\subsection{Proprietà dei Numeri Coprimi}
+Due numeri $n, m \in \mathbb{Z}$ si dicono \textbf{coprimi} se il loro $\text{MCD}(n, m) = 1$. In questo caso, per l'identità di Bézout, esisteranno $x, y \in \mathbb{Z}$ tali che $x \cdot n + y \cdot m = 1$.
+Se $n$ ed $m$ sono coprimi, valgono le seguenti proprietà fondamentali della divisibilità:
+\begin{itemize}
+    \item Se $n$ divide il prodotto $m \cdot q$ ($n \mid mq$), allora necessariamente $n$ divide $q$ ($n \mid q$).
+    \item Se $n$ divide $q$ e $m$ divide $q$, allora il loro prodotto divide $q$ ($(n \cdot m) \mid q$).
+\end{itemize}
+
+\subsection{Numeri Primi}
+Un intero $p \in \mathbb{Z}$ con $p \ge 2$ si dice \textbf{primo} se i suoi unici divisori sono quelli banali (ovvero $\pm 1$ e $\pm p$).
+Un corollario fondamentale caratterizza i numeri primi unicamente attraverso la divisibilità di un prodotto:
+\[ p \text{ è primo} \iff \forall n, m \in \mathbb{Z}, \quad \big(p \mid (n \cdot m) \implies p \mid n \lor p \mid m \big) \]
+In altre parole, se un numero primo divide un prodotto, deve necessariamente dividere almeno uno dei fattori. 
+\emph{Nota per l'esame:} Questa implicazione fallisce miseramente se il numero non è primo. Ad esempio, $p = 4$ non è primo: $4 \mid 12$ (poiché $12 = 2 \cdot 6$), tuttavia $4 \nmid 2$ e $4 \nmid 6$.
+
+\subsection{Minimo Comune Multiplo (m.c.m.)}
+Dati due interi $n, m \in \mathbb{Z}$, si definisce \textbf{minimo comune multiplo} (e si indica con $\text{m.c.m.}(n, m)$ o $[n, m]$) un intero $M \ge 0$ che soddisfa le seguenti due proprietà formali:
+\begin{enumerate}
+    \item \textbf{È un multiplo comune:} $n \mid M$ e $m \mid M$.
+    \item \textbf{Minima estensione:} Se $c \in \mathbb{Z}$ è un qualsiasi intero tale che $n \mid c$ e $m \mid c$, allora $M \mid c$.
+\end{enumerate}
+Se $n = 0$ o $m = 0$, per convenzione si pone $[n, m] = 0$.
+
+\subsubsection*{Relazione Fondamentale tra MCD e m.c.m.}
+Un teorema cruciale per gli esercizi d'esame stabilisce un legame diretto tra il Massimo Comun Divisore e il minimo comune multiplo di due numeri interi $n$ e $m$ non entrambi nulli:
+\[ [n, m] = \frac{|n \cdot m|}{(n, m)} \]
+\emph{Nota operativa per l'esame:} Quando si affrontano equazioni congruenziali o il Teorema Cinese dei Resti con numeri grandi, la fattorizzazione per trovare il m.c.m. può essere troppo dispendiosa in termini di tempo. La strategia vincente consiste nel calcolare prima il MCD tramite l'Algoritmo di Euclide (molto veloce) e poi ricavare il m.c.m. applicando direttamente questa formula.
+
+\subsection{Il Teorema Fondamentale dell'Aritmetica}
+Il Teorema Fondamentale dell'Aritmetica è alla base dello studio delle proprietà moltiplicative di $\mathbb{Z}$.
+\textbf{Enunciato:} Ogni numero intero $n > 1$ può essere espresso come prodotto di numeri primi. Tale scomposizione è \textbf{unica} a meno dell'ordine dei fattori.
+
+In termini formali, se $n > 1$, esistono dei numeri primi $p_1, p_2, \dots, p_k$ tali che:
+\[ n = p_1 \cdot p_2 \cdot \dots \cdot p_k \]
+Se supponiamo l'esistenza di un'altra fattorizzazione in primi $n = q_1 \cdot q_2 \cdot \dots \cdot q_h$, il teorema garantisce che il numero dei fattori è lo stesso ($k = h$) e che, a meno di una riorganizzazione degli indici, ogni fattore primo $p_i$ coincide con un fattore primo $q_i$.
+
+\subsubsection*{Implicazioni nelle Dimostrazioni (Passo Induttivo)}
+Negli scritti di Fondamenti, le dimostrazioni teoriche legate ai numeri primi spesso richiedono di sfruttare l'unicità di questa fattorizzazione tramite procedimenti induttivi. 
+Ad esempio, se un numero primo $p$ divide un prodotto $q_1 \cdot q_2 \cdot \dots \cdot q_b$ di numeri primi, allora $p$ deve necessariamente coincidere con uno di quei fattori. Questo principio si usa per dimostrare l'unicità stessa della scomposizione: se si eguagliano due fattorizzazioni distinte $p_1 \dots p_a = q_1 \dots q_b$, si divide progressivamente per i primi comuni riducendo l'equazione fino a provare che gli insiemi dei fattori coincidono perfettamente.
+
+
+\section{Esercitazione: Tipologie d'Esame Risolte}
+
+\subsection{Divisione Euclidea con Interi Negativi}
+Negli esercizi sulla divisione euclidea $n = q \cdot m + r$, è fondamentale ricordare la condizione sul resto: $0 \le r < |m|$. Questo è particolarmente importante quando il dividendo è negativo.
+
+\textbf{Esercizio:} Calcolare quoziente $q$ e resto $r$ della divisione di $n$ per $m$ nei seguenti casi:
+\begin{enumerate}
+    \item $n = 16, \quad m = 5$
+    \item $n = -16, \quad m = 5$
+\end{enumerate}
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item Nel primo caso, essendo entrambi positivi, si ha banalmente:
+    \[ 16 = 3 \cdot 5 + 1 \]
+    Poiché $0 \le 1 < 5$, si ha $q = 3$ e $r = 1$.
+    
+    \item Nel secondo caso, partendo dall'uguaglianza precedente e cambiando di segno otteniamo:
+    \[ -16 = -3 \cdot 5 - 1 \]
+    Tuttavia, $-1$ non è un resto ammissibile in quanto negativo. Per correggere, si sottrae e si aggiunge $5$:
+    \[ -16 = (-3) \cdot 5 - 5 + 5 - 1 = (-3 - 1) \cdot 5 + (5 - 1) = -4 \cdot 5 + 4 \]
+    Poiché ora $0 \le 4 < 5$, la forma è corretta. Il quoziente è $q = -4$ e il resto è $r = 4$.
+\end{enumerate}
+
+\subsection{Induzione e Divisibilità: Proprietà dei Numeri Primi}
+\textbf{Esercizio:} Sia $k \ge 1$ un intero, siano $n_1, \dots, n_k \in \mathbb{Z}$ e sia $p$ un numero primo. Si dimostri per induzione su $k$ che se $p \mid (n_1 \cdot n_2 \dots n_k)$, allora esiste un indice $i \in \{1, \dots, k\}$ tale che $p \mid n_i$.
+
+\textbf{Svolgimento:} Procediamo per induzione su $k \ge 1$.
+\begin{enumerate}
+    \item \textbf{Base dell'induzione ($k=1$):} Se $p \mid n_1$, allora banalmente esiste l'indice $i=1$ tale che $p \mid n_1$.
+    \item \textbf{Passo induttivo:} Assumiamo che l'asserto sia vero per un generico $k$ (Ipotesi Induttiva). Vogliamo dimostrarlo per $k+1$. Supponiamo dunque che:
+    \[ p \mid (n_1 \cdot n_2 \dots n_k \cdot n_{k+1}) \]
+    Possiamo riscrivere il prodotto come $(n_1 \dots n_k) \cdot n_{k+1}$. Poiché $p$ è un numero primo, se esso divide il prodotto di due fattori, deve dividere almeno uno dei due. Si presentano due casi:
+    \begin{itemize}
+        \item Se $p \mid n_{k+1}$, allora abbiamo trovato l'indice ($i = k+1$) e l'asserto è dimostrato.
+        \item Se $p \mid (n_1 \dots n_k)$, per l'Ipotesi Induttiva applicata ai $k$ fattori, esiste un indice $i \in \{1, \dots, k\}$ tale che $p \mid n_i$, e l'asserto è nuovamente dimostrato.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Induzione Matematica con Sommatorie}
+\textbf{Esercizio:} Si dimostri per induzione che per ogni intero $m \ge 0$ vale:
+\[ \sum_{k=0}^{m} 5^k k = \frac{5 + 5^{m+1}(4m - 1)}{16} \]
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item \textbf{Base dell'induzione ($m=0$):}
+    Primo membro: $\sum_{k=0}^{0} 5^k k = 5^0 \cdot 0 = 0$.
+    Secondo membro: $\frac{5 + 5^{0+1}(4(0) - 1)}{16} = \frac{5 + 5(-1)}{16} = 0$.
+    I due membri coincidono, la base è verificata.
+    
+    \item \textbf{Passo induttivo:} Supponiamo l'uguaglianza vera per $m$ e dimostriamola per $m+1$:
+    \[ \sum_{k=0}^{m+1} 5^k k = \left( \sum_{k=0}^{m} 5^k k \right) + 5^{m+1}(m+1) \]
+    Sostituendo l'Ipotesi Induttiva:
+    \[ = \frac{5 + 5^{m+1}(4m - 1)}{16} + 5^{m+1}(m+1) = \frac{5 + 5^{m+1}(4m - 1) + 16 \cdot 5^{m+1}(m+1)}{16} \]
+    Raccogliamo $5^{m+1}$ a numeratore:
+    \[ = \frac{5 + 5^{m+1}[4m - 1 + 16m + 16]}{16} = \frac{5 + 5^{m+1}[20m + 15]}{16} \]
+    Possiamo raccogliere un $5$ dal termine in parentesi quadra:
+    \[ = \frac{5 + 5^{m+1} \cdot 5(4m + 3)}{16} = \frac{5 + 5^{m+2}(4(m+1) - 1)}{16} \]
+    Il risultato coincide con la formula valutata in $m+1$, confermando il passo induttivo.
+\end{enumerate}
+
+\subsection{Risoluzione di un Sistema di Congruenze (Teorema Cinese dei Resti)}
+\textbf{Esercizio:} Si determinino le soluzioni del seguente sistema e la minima soluzione positiva:
+\[
+\begin{cases}
+    x \equiv 86 \pmod{138} \\
+    x \equiv 74 \pmod{81}
+\end{cases}
+\]
+
+\textbf{Svolgimento:}
+\begin{enumerate}
+    \item \textbf{Compatibilità:} Calcoliamo il $\text{MCD}(138, 81)$ con l'algoritmo di Euclide:
+    \begin{align*}
+        138 &= 1 \cdot 81 + 57 \\
+        81 &= 1 \cdot 57 + 24 \\
+        57 &= 2 \cdot 24 + 9 \\
+        24 &= 2 \cdot 9 + 6 \\
+        9 &= 1 \cdot 6 + 3 \\
+        6 &= 2 \cdot 3 + 0
+    \end{align*}
+    Il $\text{MCD}$ è $3$. Poiché la differenza dei termini noti è $86 - 74 = 12$, e si ha che $3 \mid 12$, il sistema è compatibile.
+    
+    \item \textbf{Identità di Bézout (a ritroso):}
+    Ripercorriamo l'algoritmo per scrivere $3$ come combinazione lineare di $138$ e $81$. Svolgendo i calcoli si ottiene l'identità:
+    \[ 3 = 10 \cdot 138 - 17 \cdot 81 \]
+    Moltiplicando tutto per $4$ (in modo da ottenere $12$, la differenza dei resti):
+    \[ 12 = 40 \cdot 138 - 68 \cdot 81 \]
+    Questa equazione è equivalente a $86 - 74 = 40(138) - 68(81)$, da cui si ricava una soluzione particolare raggruppando i termini:
+    \[ x_0 = 86 - 40(138) = 74 - 68(81) = -5434 \]
+    
+    \item \textbf{Insieme delle Soluzioni:}
+    Il modulo del sistema unificato è il $\text{m.c.m.}(138, 81) = \frac{138 \cdot 81}{3} = 3726$.
+    La soluzione generale è dunque:
+    \[ x \equiv -5434 \pmod{3726} \]
+    Per trovare la minima soluzione positiva, si aggiunge un multiplo adeguato di $3726$ al numero $-5434$.
+    \[ -5434 + 2 \cdot 3726 = -5434 + 7452 = 2018 \]
+    L'insieme di tutte le soluzioni è $S = \{ 2018 + 3726k \mid k \in \mathbb{Z} \}$.
+\end{enumerate}
+
+\end{document}
