@@ -1,0 +1,2113 @@
+\documentclass[12pt, a4paper]{article}
+
+%\def\islight{true} 
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{eurosym}
+\usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{datetime} 
+\usepackage{array}
+\usepackage{float}
+
+\newcommand{\myfootertext}{}
+\newcommand{\myicon}{}
+
+\ifx\islight\undefined
+    \definecolor{lightergray}{gray}{0.85}
+    \definecolor{tocsec}{gray}{0.85}
+    \definecolor{tocsubsec}{gray}{0.75}
+    \renewcommand{\myicon}{logo_unitn_scuro.png}
+    \renewcommand{\myfootertext}{Appunti redatti per gli studenti del DISI. \\ Eventuali errori possono essere segnalati su \href{https://github.com/mirconegri/University/tree/main/2nd_semester/funzionale/schemi/}{GitHub}.}
+    \pagecolor{black}
+    \color{white}
+\else
+    \definecolor{lightergray}{gray}{0.35}
+    \definecolor{tocsec}{gray}{0.35}
+    \definecolor{tocsubsec}{gray}{0.45}
+    \renewcommand{\myicon}{logo_unitn_chiaro.png}
+    \renewcommand{\myfootertext}{Versione Light Mode. Disponibile anche la \href{https://github.com/mirconegri/University/tree/main/2nd_semester/funzionale/schemi/}{versione Dark Mode}.}    \pagecolor{white}
+    \color{black}
+\fi
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=lightergray,
+    urlcolor=cyan,
+    pdftitle={Appunti di Funzionale},
+    pdfauthor={Mirco Negri}
+}
+
+\renewcommand{\cftsecfont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecpagefont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecleader}{\color{tocsubsec}\cftdotfill{\cftdotsep}}
+
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    
+    
+    
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://www.unitn.it/}{%
+        \begin{tabular}{@{}c@{}}
+            {\includegraphics[width=0.25\textwidth]{\myicon}} \\[1cm]
+            {\scshape\LARGE Università degli Studi di Trento} \\[0.4cm]
+            {\large Dipartimento di Ingegneria e Scienza dell'Informazione}
+        \end{tabular}%
+    }\par
+    \endgroup
+    
+    \vspace{2cm}
+
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://github.com/mirconegri/University}{%
+        \begin{tabular}{@{}c@{}}
+            {\color{cyan}\rule{\textwidth}{1pt}} \\[0.5cm]
+            {\Huge\bfseries Appunti di Programmazione}\\ [0.3cm] {\Huge\bfseries Funzionale}  \\[0.4cm]
+            {\color{cyan}\rule{\textwidth}{1pt}}
+        \end{tabular}%
+    }\par
+    \endgroup
+
+    \vspace{2.5cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\small \textit{\myfootertext} \par}
+    \vspace{0.8cm}
+    
+    {\large \monthname\ \the\year \par}
+\end{titlepage}
+
+\newpage
+\begingroup
+\hypersetup{hidelinks}
+\tableofcontents
+\endgroup
+\newpage
+
+\section{Introduzione alla Programmazione Funzionale}
+
+\subsection{Spiegazione teorica}
+La prima lezione del corso è introduttiva e mira a fornire una panoramica sugli argomenti trattati, le modalità di svolgimento e un inquadramento storico dei linguaggi di programmazione.
+
+Il paradigma funzionale si distingue da quello imperativo e orientato agli oggetti per il suo approccio matematico alla computazione, basato sulla valutazione di espressioni e sull'uso di funzioni pure. 
+
+I punti chiave affrontati in questa introduzione includono:
+\begin{itemize}
+    \item \textbf{Obiettivi del corso:} Comprendere i principi base della programmazione funzionale, studiare il sistema dei tipi, le funzioni di ordine superiore, l'astrazione dei dati e il polimorfismo. Verranno inoltri introdotti il Lambda Calcolo, la programmazione logica (Prolog) e accenni a Scala.
+    \item \textbf{Storia dei linguaggi funzionali e logici:}
+    \begin{itemize}
+        \item \textbf{Anni '50 - '70:} Nascita del LISP (lista processing), capostipite dei linguaggi funzionali (untyped), seguito dalle sue evoluzioni come Scheme e Racket.
+        \item \textbf{Anni '70 - '80:} Sviluppo dei theorem prover (LCF) da cui deriva la famiglia ML (Meta Language), caratterizzata da \textit{call-by-value}, tipizzazione forte e polimorfismo. Nascono Caml e Miranda.
+        \item \textbf{Anni '90 - oggi:} Consolidamento di Standard ML, OCaml e nascita di Haskell (linguaggio funzionale puro \textit{lazy}). Più recentemente, la programmazione funzionale ha influenzato linguaggi moderni come Scala e F\#.
+        \item Sviluppo di strumenti basati sui tipi dipendenti (come Coq) nati negli anni '80.
+    \end{itemize}
+\end{itemize}
+
+Trattandosi di una lezione introduttiva sul contesto e sulla storia del paradigma, non sono stati affrontati esercizi pratici o costrutti sintattici del linguaggio ML.
+
+\section{Espressioni e tipi}
+
+\subsection{Introduzione a ML}
+ML (Meta Language) è un linguaggio di programmazione general-purpose, nato originariamente come metalinguaggio per sistemi di verifica formale (come il theorem prover LCF negli anni '70). Esistono diversi dialetti derivati, tra cui Standard ML, OCaml, F\#, ed elementi che hanno influenzato linguaggi come Scala e Haskell.  
+
+\textbf{Perché studiare ML?}
+Studiare la programmazione funzionale impone un cambio di paradigma: i linguaggi mainstream si concentrano sulla gestione degli "stati", mentre la programmazione funzionale si concentra sui \textbf{valori}. ML è un linguaggio pratico e compatto le cui idee possono rendere programmatori migliori in qualsiasi linguaggio.  
+
+\textbf{Caratteristiche principali della Programmazione Funzionale in ML:}
+\begin{enumerate}
+
+\newpage
+
+\item \textbf{Linguaggio funzionale:} Il modello di calcolo di base si fonda sulla definizione e sull'applicazione di funzioni. Le funzioni sono trattate come valori (cittadini di prima classe) e possono essere passate come parametri ad altre funzioni, supportando nativamente le \textit{funzioni di ordine superiore} (Higher-order functions).
+\item \textbf{Ricorsione:} Fortemente incoraggiata rispetto ai cicli \texttt{while} (costrutti iterativi sono disponibili, ma secondari).
+\item \textbf{Programmazione basata su regole:} Costrutti come \texttt{if-then-else} sono spesso implementati o sostituiti dal \textit{pattern matching}.
+\item \textbf{Nessun side effect (effetti collaterali):} La computazione procede per valutazione di espressioni, non tramite l'assegnazione di valori a variabili che mutano lo stato. Se in C \texttt{a = b + c} modifica lo stato di \texttt{a}, in ML \texttt{b + c} crea un nuovo elemento. Gli effetti collaterali (es. stampare a video) sono permessi ma non sono il mezzo principale di calcolo.
+\item \textbf{Strong typing (Tipizzazione forte):} Tutti i valori e le variabili hanno tipi determinabili a "tempo di compilazione" (\textit{compile-time}). Rileva errori semantici preziosi; inoltre, non è solitamente necessaria la dichiarazione esplicita del tipo grazie alla \textit{Type Inference}.
+\item \textbf{Polimorfismo:} Una funzione può accettare argomenti di tipi differenti (es. una funzione di ordinamento generica).
+\item \textbf{Abstract Data Types (Strutture):} Sistema di tipi elegante con la capacità di costruire nuovi tipi complessi.
+\end{enumerate}  
+
+\textbf{Eseguire ML:}
+L'interprete interattivo PolyML si avvia da linea di comando digitando \texttt{poly} (o \texttt{rlwrap poly} in Linux per avere la cronologia dei comandi). All'interno dell'ambiente interattivo (indicato dal prompt \texttt{>}), si possono valutare le espressioni chiudendole con il punto e virgola \texttt{;}. Per caricare un file esterno si usa \texttt{use "foo";}. Per uscire \texttt{CTRL+D}, per interrompere \texttt{CTRL+C}.  
+
+\subsection{Espressioni e Comandi}
+Vi è una netta separazione tra espressioni e comandi:
+\begin{itemize}
+\item \textbf{Espressioni:} Entità sintattiche la cui valutazione restituisce un valore o non termina (espressione indefinita). Sono composte da costanti, variabili o operatori applicati a ulteriori espressioni. Notazioni utilizzabili: infissa (\texttt{a + b}), prefissa o polacca (\texttt{+ a b}), suffissa (\texttt{a b +}).
+\item \textbf{Comandi:} Entità sintattiche la cui valutazione non restituisce necessariamente un valore, ma provoca un effetto collaterale (modifica dello stato). Tipici dei linguaggi imperativi, sono del tutto assenti nei paradigmi puramente funzionali o logici.
+\end{itemize}  
+
+\newpage
+
+\textbf{Strategie di valutazione delle espressioni:}
+\begin{itemize}
+\item \textbf{Eager evaluation (Valutazione ansiosa):} Si valutano prima tutti gli operandi, poi si applica l'operatore ai risultati.
+\item \textbf{Lazy evaluation (Valutazione pigra):} Gli operandi vengono valutati solo se e quando il loro valore è effettivamente necessario per il calcolo. Questo approccio previene errori in espressioni come \texttt{a == 0 ? b : b/a} (se \texttt{a} è 0, valutare ansiosamente \texttt{b/a} causerebbe una divisione per zero). Viene usata per operatori booleani (short-circuit evaluation), dove il risultato finale può essere noto prima di valutare tutti gli operandi.
+\end{itemize}
+In ML si utilizza principalmente la \textbf{eager evaluation}, tranne che per alcuni specifici costrutti come \texttt{andalso}, \texttt{orelse} e \texttt{if-then-else} che adottano una valutazione \textit{lazy}.  
+
+\subsection{Tipi di dato e astrazione}
+Un \textbf{tipo di dato} è una collezione di valori (omogenei) dotata di un insieme di operatori applicabili.
+I tipi servono a tre scopi principali:
+\begin{enumerate}
+\item \textbf{Livello concettuale (Design):} Organizzare l'informazione e documentare il codice (es. distinguere un \texttt{prezzo} da un \texttt{numero di stanza}).
+\item \textbf{Livello di programma (Correctness):} Identificare ed evitare errori. I compilatori eseguono il type-checking: assegnare una stringa a un intero (\texttt{3 + "pippo"}) solleverà un errore semantico.
+\item \textbf{Livello implementativo:} Permettere al compilatore ottimizzazioni. Conoscere il tipo permette di sapere quanta memoria allocare (un booleano occupa meno di un double) e calcolare gli offset di memoria per l'accesso ai campi di una struct.
+\end{enumerate}  
+
+\subsection{Espressioni, tipi e operatori in ML}
+In ML, le espressioni possono essere valori o funzioni applicate a valori.
+Ogni espressione in PolyML termina con \texttt{;}.
+Esempio:
+\begin{verbatim}  
+
+    1 + 2 * 3;
+    val it = 7: int
+    \end{verbatim}
+
+\newpage
+
+    In questo output: \texttt{val} indica il valore dell'espressione, \texttt{it} è il nome automatico associato al risultato, e \texttt{int} è il tipo dedotto automaticamente.  
+
+\textbf{Tipi Base in ML:}
+\begin{itemize}
+\item \texttt{int}: Interi positivi e negativi. L'operatore unario per il negativo è la tilde \texttt{\~{}} (es. \texttt{\~{}3}). Supporta esadecimali (es. \texttt{0x124}).
+\item \texttt{real}: Numeri reali. Richiedono il punto decimale o la notazione esponenziale \texttt{E}/\texttt{e} (es. \texttt{\~{}123.0}, \texttt{3.14e12}).
+\item \texttt{bool}: \texttt{true} o \texttt{false} (rigorosamente minuscoli, ML è case-sensitive).
+\item \texttt{char}: Singolo carattere indicato dal prefisso \texttt{\#} (es. \texttt{\#"a"}).
+\item \texttt{string}: Doppi apici (es. \texttt{"foo"}). Caratteri speciali supportati: \texttt{\textbackslash n} (newline), \texttt{\textbackslash t} (tab), \texttt{\textbackslash\textbackslash}, \texttt{\textbackslash"}.
+\item \texttt{unit}: Possiede un unico valore \texttt{()}, utilizzato per indicare le espressioni che non restituiscono un valore utile (analogo a \texttt{void}).
+\end{itemize}  
+
+\textbf{Operatori:}
+\begin{itemize}
+\item \textbf{Aritmetici:} \texttt{+}, \texttt{-}, \texttt{*} per int e real. La divisione per reali è \texttt{/}, mentre per gli interi si usano \texttt{div} (divisione troncata all'intero inferiore) e \texttt{mod} (resto).
+\item \textbf{Forma Infissa/Prefissa:} In ML, un operatore come \texttt{+} è di fatto una funzione prefissa che riceve in input una tupla numerica \texttt{+(1,2)}, ma consente la notazione infissa per comodità.
+\item \textbf{Stringhe:} La concatenazione avviene tramite l'operatore \texttt{\^} (es. \texttt{"house" \^{} "cat"} → \texttt{"housecat"}).
+\item \textbf{Confronto:} \texttt{=}, \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}, \texttt{<>} (diverso). Valgono per interi, caratteri e stringhe (ordine lessicografico). \textbf{Attenzione:} in ML non è permesso testare l'uguaglianza (o la disuguaglianza \texttt{<>}) tra due valori \texttt{real}, per prevenire problemi di approssimazione \textit{floating-point}.
+\item \textbf{Logici:} \texttt{not}, \texttt{andalso} (AND lazy), \texttt{orelse} (OR lazy). \texttt{andalso} ha precedenza su \texttt{orelse}.
+\end{itemize}  
+
+\textbf{Costrutto If-then-else:}
+\begin{verbatim}
+if  then  else ;
+\end{verbatim}
+Poiché in ML tutto è un'espressione, l'utilizzo di \texttt{if} richiede \textbf{obbligatoriamente} la presenza del ramo \texttt{else}. Inoltre, per preservare la \textit{type safety}, \texttt{} e \texttt{} devono avere lo stesso tipo ben definito. Un'espressione come \texttt{if 5<6 then 5 else 6.0;} solleva un \textit{Type mismatch error} statico in compilazione.  
+
+\subsection{Sistemi di tipi: Sicurezza e Controlli}
+I linguaggi di programmazione adottano strategie diverse per il \textit{Type Checking}:
+\begin{itemize}
+\item \textbf{Static Type Checking:} Effettuato a tempo di compilazione (es. C, Java, Haskell, ML) prima dell'esecuzione. Vantaggi: maggiore efficienza a runtime e blocco preventivo di errori. Svantaggi: design del linguaggio più complesso e regole spesso molto rigide.
+\item \textbf{Dynamic Type Checking:} Eseguito durante l'esecuzione del codice (es. Python, JavaScript, Lisp). Vantaggi: massima flessibilità, non servono dichiarazioni di tipo. Svantaggi: gli errori di tipo vengono identificati solo a runtime, e causano perdita di efficienza dovuta ai continui controlli dinamici.
+\end{itemize}  
+
+Inoltre, i linguaggi si dividono in:
+\begin{itemize}
+\item \textbf{Strongly typed (Tipizzazione forte):} Molto severi sui tipi. Il tipo di un valore non cambia in modo inaspettato. Le conversioni di tipo implicite (coercion) sono vietate (es. ML).
+\item \textbf{Weakly typed (Tipizzazione debole):} Molto flessibili, permettono la conversione implicita tra tipi differenti a runtime (es. JavaScript: \texttt{4 + "2" = "42"}, PHP, C/C++).
+\end{itemize}
+ML, a garanzia della sua \textbf{Type Safety}, è un linguaggio \textbf{fortemente e staticamente tipizzato} (statically and strongly typed). Tenta di risolvere l'inconveniente della verbosità grazie al potente meccanismo della \textit{Type Inference} (in cui il compilatore deduce il tipo in automatico), rifiutandosi categoricamente di effettuare coercion nascoste (come \texttt{1 + 2.0} che genererà un errore).
+
+\section{Sistemi di tipi, variabili e funzioni}
+
+\subsection{Spiegazione teorica}
+Il sistema dei tipi di un linguaggio è definito dai suoi tipi predefiniti, dai meccanismi per crearne di nuovi, dalle regole per determinare se il controllo è statico o dinamico e dalle regole di equivalenza, compatibilità e inferenza.
+
+\textbf{Static e Dynamic Type Checking:}
+\begin{itemize}
+    \item \textbf{Controllo Statico:} Avviene a tempo di compilazione (es. ML, Java, C). Previene l'esecuzione di codice con errori di tipo ed è molto efficiente a runtime, sebbene renda la progettazione e la scrittura del codice più rigida.
+    \item \textbf{Controllo Dinamico:} Avviene durante l'esecuzione (es. Python, JavaScript). Garantisce grande flessibilità, ma gli errori vengono scoperti solo a runtime, impattando sulle prestazioni.
+\end{itemize}
+
+I linguaggi si dividono inoltre in \textbf{fortemente tipizzati} (strongly typed), dove il tipo di un valore non cambia in modo inaspettato (niente conversioni implicite, come in ML), e \textbf{debolmente tipizzati} (weakly typed), dove le conversioni implicite (coercion) sono permesse (es. \texttt{4 + "2" = "42"} in JavaScript). ML assicura un alto livello di \textit{Type Safety}, ovvero previene la presenza di errori di tipo inosservati a runtime.
+
+\textbf{Equivalenza e Compatibilità:}
+Due tipi possono essere considerati equivalenti per \textbf{nome} (se hanno letteralmente lo stesso nome) o per \textbf{struttura} (se, analizzando le definizioni, la struttura di base è identica). ML utilizza principalmente l'equivalenza strutturale (fatta eccezione per i tipi definiti con \texttt{datatype}).
+
+In ML \textbf{non esistono conversioni automatiche} (coercion). Se si valuta \texttt{1 + 2.0}, il compilatore non converte automaticamente l'intero in reale, ma restituisce un errore di tipo statico. È necessario eseguire una conversione esplicita tramite apposite funzioni di sistema.
+
+\textbf{Nomi, Variabili e Ambiente (Environment):}
+L'\textbf{Environment} è l'insieme delle associazioni tra identificatori (nomi) e valori. In ML, a differenza dei linguaggi imperativi come il C, \textbf{le variabili non sono modificabili}. Una variabile è semplicemente un identificatore legato a un valore matematico.
+Tramite il costrutto \texttt{val}, non si assegna un nuovo valore a una locazione di memoria, ma si crea un nuovo legame (binding) nell'ambiente. Se si riutilizza lo stesso nome, la nuova dichiarazione oscura la precedente (\textit{shadowing}), ma il valore originale non viene sovrascritto.
+
+\textbf{Tipi Complessi: Tuple e Liste:}
+\begin{itemize}
+    \item \textbf{Tuple:} Aggregati di dimensione fissa che possono contenere tipi eterogenei. Esempio: \texttt{(4, 5.0, "sei")} è di tipo \texttt{int * real * string}. Si accede all'n-esimo elemento tramite l'operatore \texttt{\#n}.
+    \item \textbf{Liste:} Aggregati di dimensione variabile, ma rigorosamente omogenei (tutti gli elementi devono avere lo stesso tipo). Esempio: \texttt{[1, 2, 3]} è di tipo \texttt{int list}. 
+\end{itemize}
+
+\textbf{Funzioni come valori:}
+In ML le funzioni sono trattate come "cittadini di prima classe", ovvero come normali valori. Possono essere anonime tramite il costrutto \texttt{fn} (che riflette il lambda calcolo), o associate a un nome con il costrutto \texttt{fun}. Una particolarità di ML è che \textbf{tutte le funzioni accettano esattamente un solo parametro}. Per simulare più parametri, si passa semplicemente una singola tupla contenente i vari argomenti.
+
+\newpage
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Conversioni di tipo esplicite in ML}
+\begin{verbatim}
+> real(4);           (* Da intero a reale *)
+val it = 4.0: real
+
+> floor(3.5);        (* Arrotondamento per difetto *)
+val it = 3: int
+
+> ceil(3.5);         (* Arrotondamento per eccesso *)
+val it = 4: int
+
+> round(3.5);        (* Arrotondamento al pari più vicino *)
+val it = 4: int
+
+> trunc(3.5);        (* Troncamento *)
+val it = 3: int
+
+> ord(#"a");         (* Da char ad ASCII *)
+val it = 97: int
+
+> chr(97);           (* Da ASCII a char *)
+val it = #"a": char
+
+> str(#"a");         (* Da char a string *)
+val it = "a": string
+\end{verbatim}
+
+\subsubsection{Ambiente e Shadowing}
+\begin{verbatim}
+> val pi = 3.14159;
+val pi = 3.14159: real
+
+> val pi = 3; 
+val pi = 3: int
+(* Crea un nuovo 'pi' di tipo intero che nasconde il precedente, 
+   ma non lo sovrascrive fisicamente *)
+\end{verbatim}
+
+\subsubsection{Manipolazione di Liste e Stringhe}
+\begin{verbatim}
+> val L = [2, 3, 4];
+> hd(L);             (* Head: estrae il primo elemento *)
+val it = 2 : int
+
+> tl(L);             (* Tail: estrae il resto della lista *)
+val it = [3, 4] : int list
+
+> [1, 2] @ [3, 4];   (* Concatenazione di liste, stesso tipo! *)
+val it = [1, 2, 3, 4] : int list
+
+> 1 :: [2, 3];       (* Cons: aggiunge l'elemento in testa alla lista *)
+val it = [1, 2, 3] : int list
+
+> explode("abcd");   (* Da stringa a lista di caratteri *)
+val it = [#"a", #"b", #"c", #"d"] : char list
+
+> implode([#"a", #"b"]); (* Da lista di caratteri a stringa *)
+val it = "ab" : string
+\end{verbatim}
+
+\subsubsection{Dichiarazione e uso di funzioni}
+\begin{verbatim}
+(* Sintassi della funzione anonima associata a una variabile *)
+> val increment = fn n => n + 1;
+val increment = fn: int -> int
+
+(* Zucchero sintattico (più comune) *)
+> fun increment n = n + 1;
+val increment = fn: int -> int
+
+(* Funzione a finti "parametri multipli" (prende in realtà una tupla) *)
+> fun max3(a:real, b, c) = 
+    if a > b then 
+        if a > c then a else c
+    else 
+        if b > c then b else c;
+val max3 = fn: real * real * real -> real
+\end{verbatim}
+
+
+\section{Laboratorio ML 1}
+
+Nel primo laboratorio si mette in pratica la sintassi base affrontata nelle lezioni teoriche, concentrandosi sulla correzione dei "Type Mismatch" e sulla familiarizzazione con i tipi complessi (\texttt{list}, \texttt{tuple} e relative combinazioni).
+
+\subsection{Correzione di Type Errors (Esercizi 1.3 - 1.5)}
+ML è un linguaggio in cui la correttezza del tipo (\textit{Type Safety}) viene imposta in modo rigoroso. Analizziamo come correggere espressioni sintatticamente o logicamente invalide.
+
+\newpage
+
+\begin{verbatim}
+(* ERRORE: ceil accetta solo real, non int *)
+ceil(4); 
+(* CORREZIONE *)
+ceil(4.0);
+
+(* ERRORE: i rami dell'if devono restituire esattamente lo stesso tipo *)
+if true then 5 + 6 else 7.0; 
+(* CORREZIONE (converto l'intero in reale) *)
+if true then real(5 + 6) else 7.0;
+
+(* ERRORE: la condizione dell'if deve essere strettamente di tipo bool *)
+if 0 then 1 else 2; 
+(* CORREZIONE *)
+if false then 1 else 2;
+
+(* ERRORE: ord si applica ai caratteri (prefisso #), non alle stringhe *)
+ord("a"); 
+(* CORREZIONE *)
+ord(#"a");
+
+(* ERRORE: explode prende in input una singola stringa, non una lista *)
+explode ["bar"]; 
+(* CORREZIONE *)
+explode("bar");
+
+(* ERRORE: implode accetta una lista di char, non una tupla *)
+implode (#"a", #"b"); 
+(* CORREZIONE (sostituisco le parentesi tonde con le quadre) *)
+implode ([#"a", #"b"]);
+
+(* ERRORE: :: (cons) unisce UN elemento a una LISTA. 
+   Qui a sinistra c'è una lista e a destra un'altra lista *)
+["r"]::["a","t"]; 
+(* CORREZIONE: (rimuovo le parentesi a sinistra) *)
+"r"::["a","t"];
+\end{verbatim}
+
+\newpage
+
+\subsection{Istanze di Tipi Complessi (Esercizio 1.6 - 1.7)}
+Si richiede di creare valori legali per le seguenti firme di tipo, dimostrando di saper annidare correttamente tuple (parentesi tonde) e liste (parentesi quadre).
+
+\begin{verbatim}
+(* TIPO: int list list list *)
+(* Una lista che contiene liste di liste di interi *)
+val es1 = [[[1, 2]], [[3]]];
+
+(* TIPO: (int * char) list *)
+(* Una lista di tuple formate da intero e carattere *)
+val es2 = [(1, #"a"), (2, #"b")];
+
+(* TIPO: string list * (int * (real * string)) *)
+(* Una macro-tupla contenente una lista di stringhe e un'altra tupla *)
+val es3 = (["ciao", "mondo"], (42, (3.14, "pi")));
+
+(* TIPO: ((int * int) * (bool list) * real) * (real * string) *)
+val es4 = (((1, 2), [true, false], 5.0), (3.14, "test"));
+\end{verbatim}
+
+\section{Regole di scope}
+
+\subsection{Funzioni e inferenza di tipi}
+In ML, le funzioni sono considerate valori (cittadini di prima classe) a tutti gli effetti. Sono rappresentate tramite espressioni parametrizzate.
+\begin{itemize}
+    \item \textbf{Sintassi base (\texttt{fn}):} La definizione di una funzione anonima si basa sulla sintassi \texttt{fn <parametro> => <espressione>}, che corrisponde concettualmente all'astrazione $\lambda$ nel lambda calcolo. Esempio: \texttt{fn n => n + 1}.
+    \item \textbf{Dichiarazioni con nome:} È possibile associare una funzione a un identificatore usando la parola chiave \texttt{val} (es. \texttt{val increment = fn n => n + 1}) , ma ML offre anche un costrutto semplificato (zucchero sintattico) estremamente comune: \texttt{fun increment n = n + 1}.
+    \item \textbf{Singolo parametro e Tuple:} In ML, \textbf{tutte le funzioni hanno esattamente un solo parametro}. Tuttavia, se abbiamo bisogno di passare molteplici argomenti logici, il parametro può essere strutturato come una tupla. Ad esempio, \texttt{fun max3(a:real, b, c) = ...} accetta in input un'unica tupla contenente tre elementi di tipo \texttt{real}.
+\end{itemize}
+
+\newpage
+
+\textbf{Type Inference (Inferenza dei tipi):}
+Il compilatore di ML deduce automaticamente i tipi delle variabili basandosi sul contesto delle espressioni:
+\begin{itemize}
+    \item In un'espressione aritmetica come \texttt{(a + b) * 2.0}, sapendo che \texttt{2.0} è reale e l'operatore \texttt{*} impone operandi compatibili, il risultato di \texttt{a+b} e, di conseguenza, le variabili \texttt{a} e \texttt{b} vengono forzate e dedotte come tipo \texttt{real}.
+    \item In presenza di costrutti condizionali, le espressioni associate ai rami \texttt{then} ed \texttt{else} e all'intera espressione condizionale stessa devono rigorosamente possedere lo stesso tipo.
+    \item Qualora non vi siano operatori che forzino un tipo specifico e non vi sia alcun modo per determinarne il tipo, il compilatore assegna un \textbf{tipo generico} (indicato per esempio con \texttt{'a} e \texttt{'b}).
+\end{itemize}
+
+\subsection{Ambiente (Environment) e Blocchi}
+L'\textbf{Environment} (ambiente) è la collezione delle associazioni tra identificatori (nomi) e oggetti denotabili che si viene a creare a runtime in uno specifico momento del programma. Una \textit{dichiarazione} è il meccanismo che crea tale associazione all'interno dell'ambiente.
+L'ambiente può essere logicamente suddiviso in:
+\begin{itemize}
+    \item \textbf{Ambiente locale:} Variabili dichiarate internamente e parametri formali creati all'ingresso di un blocco.
+    \item \textbf{Ambiente non-locale:} Associazioni ereditate da blocchi gerarchicamente esterni a quello corrente.
+    \item \textbf{Ambiente globale:} Costituisce quella porzione dell'ambiente non-locale che contiene associazioni e dichiarazioni visibili in tutti i blocchi.
+\end{itemize}
+I \textbf{blocchi} (in ML definiti dal costrutto \texttt{let ... in ... end}) gestiscono l'organizzazione dell'ambiente. Una dichiarazione locale in un blocco è visibile nel blocco stesso e in tutti i blocchi annidati all'interno, a patto che in questi ultimi non vi sia un'ulteriore dichiarazione con il medesimo nome che ne occulta (shadowing) la precedente.
+
+\subsection{Scoping Statico vs Dinamico}
+Come viene risolto il riferimento a una variabile "non locale"? La letteratura dei linguaggi di programmazione definisce due approcci fondamentali:
+\begin{itemize}
+    \item \textbf{Scoping Statico (o Lexical):} Il riferimento viene risolto nel blocco che \textbf{include testualmente (sintatticamente)} la chiamata. Si basa esclusivamente sulla struttura del codice scritto ed è indipendente dai nomi locali del blocco chiamante. I vantaggi dello scoping statico includono una maggiore facilità di lettura da parte del programmatore, migliore efficienza a runtime, e la possibilità per il compilatore di effettuare stringenti controlli di correttezza e ottimizzazioni. È adottato in linguaggi come C, Java, Pascal e dallo stesso ML.
+
+\newpage
+    
+    \item \textbf{Scoping Dinamico:} Il riferimento a un nome non-locale viene risolto all'interno del blocco che \textbf{è stato attivato per ultimo} durante il flusso di esecuzione (a runtime) e non ancora terminato. Tale approccio consente di alterare il comportamento di una funzione semplicemente modificando l'ambiente del chiamante, ma genera architetture fragili in cui i programmi diventano ostici da comprendere e meno efficienti.
+\end{itemize}
+
+\section{Laboratorio ML 2}
+
+Nel secondo laboratorio si prendono i primi passi pratici scrivendo funzioni pure per elaborare primitive di ML e strutture complesse quali Tuple e Liste, verificandone il corretto type checking.
+
+\subsection{Esercizi base sulle Tuple}
+
+\textbf{Esercizio L2.2 - Minimo di una tupla:}
+Scrivere una funzione \texttt{min3} che restituisca l'elemento più piccolo all'interno di una tupla composta da tre numeri interi.
+\begin{verbatim}
+fun min3 (a: int, b: int, c: int) =
+    if a < b andalso a < c then a
+    else if b < c then b
+    else c;
+\end{verbatim}
+
+\textbf{Esercizio L2.4 - Inversione di Tupla:}
+Scrivere una funzione \texttt{reverse} che prenda in ingresso una tupla di 3 elementi invertendone gli oggetti (la funzione deve poter accettare Tuple eterogenee, es. \texttt{reverse(1.0, 2, "a")}).
+\begin{verbatim}
+fun reverse (a, b, c) = (c, b, a);
+\end{verbatim}
+
+\textbf{Esercizi L2.7 e L2.8 - Identificazione ed Ordinamento:}
+Scrivere una funzione \texttt{min\_max\_pair} che data una tupla di 3 interi restituisca in uscita una nuova tupla (coppia) limitata al valore più piccolo e al valore più grande estratti. Successivamente, implementare una funzione \texttt{sort} in grado di restituire una lista ordinata degli elementi.
+\begin{verbatim}
+fun min_max_pair (a:int, b, c) =
+    let
+        val minimo = if a<b andalso a<c then a else if b<c then b else c
+        val massimo = if a>b andalso a>c then a else if b>c then b else c
+    in
+        (minimo, massimo)
+    end;
+
+fun sort (a:int, b, c) =
+    let
+        val (minimo, massimo) = min_max_pair(a, b, c)
+        val mediano = if (a <> minimo andalso a <> massimo) then a 
+                      else if (b <> minimo andalso b <> massimo) then b 
+                      else c
+    in
+        [minimo, mediano, massimo]
+    end;
+\end{verbatim}
+
+\subsection{Esercizi base sulle Liste e sulle Stringhe}
+
+\textbf{Esercizio L2.3 - Terzo elemento:}
+Estrarre il terzo elemento da una lista di dati. L'esercizio prevede l'uso in sequenza delle primitive \texttt{hd} (head) e \texttt{tl} (tail) senza la necessità, in questa fase, di far operare correttamente la funzione su liste inferiori alla lunghezza prevista.
+\begin{verbatim}
+fun third L = hd(tl(tl(L)));
+\end{verbatim}
+
+\textbf{Esercizio L2.6 - Cycle:}
+Scrivere una funzione \texttt{cycle} che prende una lista originaria \texttt{[a1, ..., an]} ed esegue un "giro", producendo come risultato la dislocazione \texttt{[a2, ..., an, a1]} (l'esercizio assume liste non vuote).
+\begin{verbatim}
+fun cycle L = tl(L) @ [hd(L)];
+\end{verbatim}
+
+\textbf{Esercizio L2.10 - Rimuovere il secondo elemento:}
+Scrivere la funzione \texttt{rem} in grado di accettare in ingresso una lista e ritornare la struttura inalterata privata del secondo elemento (ad esempio, la lista \texttt{[1,2,3,4]} si traduce in \texttt{[1,3,4]}).
+\begin{verbatim}
+fun rem L = hd(L) :: tl(tl(L));
+\end{verbatim}
+
+\section{Astrazione del controllo e ricorsione}
+
+\subsection{Spiegazione teorica}
+L'astrazione del controllo riguarda i meccanismi che i linguaggi di programmazione offrono per gestire il flusso di esecuzione (come blocchi condizionali, cicli e chiamate a sottoprogrammi). In ML, essendo un linguaggio funzionale, il controllo del flusso si basa pesantemente sulla \textbf{valutazione delle espressioni} e sulla \textbf{ricorsione}, a differenza dei linguaggi imperativi che si basano su costrutti iterativi (come il \texttt{while} o il \texttt{for}).
+
+\textbf{Metodi di passaggio dei parametri:}
+Quando una funzione viene invocata, l'ambiente locale deve essere popolato associando i parametri formali ai parametri attuali. Esistono storicamente diverse strategie:
+\begin{itemize}
+    \item \textbf{Call by value (Passaggio per valore):} I parametri attuali vengono valutati \textit{prima} che la funzione venga chiamata. Il risultato viene copiato nel parametro formale. È un meccanismo sicuro e senza side-effect diretti sulle variabili esterne, ed è la strategia di default adottata da ML (eager evaluation).
+    \item \textbf{Call by reference (Passaggio per riferimento):} Viene passato l'indirizzo di memoria del parametro attuale. Modificare il parametro formale nella funzione modifica la variabile originale (side-effect). Non è il meccanismo predefinito nei linguaggi funzionali puri.
+    \item \textbf{Call by name / Call by need:} Il parametro non viene valutato finché non è strettamente necessario all'interno del corpo della funzione (lazy evaluation). Se non viene mai usato, non viene mai valutato, risparmiando computazione e prevenendo errori (come la divisione per zero).
+\end{itemize}
+
+\newpage
+
+\textbf{Ricorsione:}
+In assenza di cicli iterativi standard, la ricorsione è l'unico modo per compiere iterazioni in un linguaggio puramente funzionale. Il programmatore definisce un caso base (condizione di terminazione) e un passo ricorsivo (in cui la funzione invoca se stessa su un input ridotto).
+Un concetto fondamentale legato all'ottimizzazione è la \textbf{Tail Recursion} (Ricorsione in coda): si ha quando la chiamata ricorsiva è l'ultimissima operazione eseguita nel corpo della funzione. Questo permette al compilatore di riutilizzare lo stesso record di attivazione (Stack Frame) senza saturare la memoria (evitando lo Stack Overflow).
+
+\textbf{Mutua Ricorsione:}
+Si verifica quando due o più funzioni si chiamano a vicenda. Nei linguaggi con regole di scope rigide (dove un nome deve essere definito prima di essere usato), definire due funzioni \texttt{A} e \texttt{B} che si chiamano a vicenda solleverebbe un errore: se dichiaro prima \texttt{A}, essa non conoscerà \texttt{B}, e viceversa.
+ML risolve elegantemente questo problema introducendo la parola chiave \textbf{\texttt{and}}, che permette di dichiarare e valutare le due funzioni contemporaneamente nello stesso blocco.
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Mutua Ricorsione in ML}
+Vogliamo scrivere due funzioni: \texttt{take}, che estrae gli elementi in posizione dispari da una lista, e \texttt{skip}, che salta gli elementi in posizione pari (concettualmente le due operazioni si alternano).
+\begin{verbatim}
+(* L'uso di 'and' permette la mutua ricorsione. 
+   Il compilatore valuta le firme di entrambe contemporaneamente. *)
+
+fun take (L) =
+    if L = nil then nil
+    else hd(L) :: skip(tl(L))
+and skip (L) =
+    if L = nil then nil
+    else take(tl(L));
+
+(* Esempio di esecuzione *)
+> take ([1, 2, 3, 4, 5]);
+val it = [1, 3, 5] : int list
+\end{verbatim}
+
+\section{Laboratorio ML 3}
+
+Nel terzo laboratorio si consolida l'utilizzo della ricorsione semplice per risolvere problemi matematici e per manipolare liste, costruendo algoritmi iterativi attraverso chiamate a funzione ricorsive in stile dichiarativo.
+
+\newpage
+
+\subsection{Esercizi base sulla Ricorsione Matematica}
+
+\textbf{Esercizio 3.1 - Fattoriale:}
+Scrivere una funzione \texttt{fact} che calcola il fattoriale di un numero $n$ (con $n \ge 1$). L'esercizio non richiede, in questa fase primaria, di gestire in modo sicuro i numeri negativi.
+\begin{verbatim}
+fun fact(n) =
+    if n = 1 then 1
+    else n * fact(n - 1);
+
+(* Utilizzo: *)
+> fact 10;
+val it = 3628800 : int
+
+(* Nota: In ML un "fact 100" genera una Exception-Overflow 
+   in quanto supera il valore massimo immagazzinabile nel tipo int.
+   Per ovviare a questo limite, si può utilizzare la struttura IntInf 
+   per operare con interi a precisione arbitraria. *)
+\end{verbatim}
+
+\textbf{Esercizio 3.11 - Potenza (Power):}
+Scrivere una funzione \texttt{power} che prenda in ingresso una tupla formata da un numero intero $x$ e un esponente $i$ (assunto non negativo) e ne calcoli la potenza $x^i$. Notare l'utilizzo del pattern matching semplificato nella firma della funzione.
+\begin{verbatim}
+fun power (x, 0) = 1
+  | power (x, i) = x * power (x, i - 1);
+
+(* Utilizzo: *)
+> power (4, 3);
+val it = 64 : int
+\end{verbatim}
+
+\subsection{Esercizi base sulla Ricorsione e Liste}
+
+\textbf{Esercizio 3.10 - Duplicazione elementi (duplicatep):}
+Scrivere una funzione che, data una lista di elementi di tipo qualsiasi, restituisca una nuova lista in cui ogni elemento originale è ripetuto consecutivamente due volte (es. da \texttt{[1,2]} a \texttt{[1,1,2,2]}). Questo esercizio introduce un'applicazione molto comune del pattern matching su liste.
+\begin{verbatim}
+(* L'uso dei pattern semplifica la scrittura rispetto all'uso degli if-else
+   e di hd() / tl() *)
+fun duplicatep (nil) = nil
+  | duplicatep (x::xs) = x :: x :: duplicatep(xs);
+
+(* Utilizzo: *)
+> duplicatep [1, 2, 3, 4];
+val it = [1, 1, 2, 2, 3, 3, 4, 4] : int list
+\end{verbatim}
+
+\newpage
+
+\textbf{Esercizio 3.12 - Massimo di una Lista (maxList):}
+Scrivere una funzione per trovare l'elemento reale più grande all'interno di una lista (assunta non vuota). 
+Questa funzione utilizza l'istruzione \texttt{let ... in ... end} per salvare il risultato della chiamata ricorsiva, evitandone il ricalcolo multiplo e ottimizzando le prestazioni (concetto propedeutico per strutture più avanzate).
+\begin{verbatim}
+fun maxList ([x:real]) = x
+  | maxList (x::xs) =
+    let 
+        val m = maxList(xs)
+    in 
+        if x > m then x else m
+    end;
+\end{verbatim}
+
+\section{Pattern ed environment locale in ML}
+
+\subsection{Spiegazione teorica}
+In ML, oltre alla dichiarazione di funzioni tramite costrutti condizionali classici (\texttt{if-then-else}), è possibile (e fortemente consigliato) utilizzare il \textbf{Pattern Matching}. Questo meccanismo ricorda i costrutti \texttt{switch-case} dei linguaggi procedurali, ma è molto più potente perché permette di "destrutturare" i dati e assegnare variabili al volo.
+
+\begin{itemize}
+    \item \textbf{Sintassi base dei pattern:} La definizione di una funzione procede elencando una sequenza di casi. Il primo pattern che corrisponde (esegue il "match") con l'argomento fornito determina quale espressione verrà valutata.
+    \begin{verbatim}
+fun f (pattern_1) = espressione_1
+  | f (pattern_2) = espressione_2
+  | f (pattern_n) = espressione_n;
+    \end{verbatim}
+    \item \textbf{Esaustività:} La lista delle alternative dovrebbe sempre coprire tutti i casi possibili. Se i pattern non sono esaustivi, il compilatore di ML genera un \textit{warning}. Se a runtime viene passato un argomento che non fa match con alcun pattern dichiarato, viene sollevata un'eccezione critica (\texttt{Exception- Match raised}).
+    \item \textbf{Pattern validi e non validi:}
+    \begin{itemize}
+        \item \textit{Consentiti:} Costanti (es. \texttt{nil}, \texttt{0}, stringhe), costruttori di liste come l'operatore cons (es. \texttt{x::xs}, \texttt{x::y::xs}), tuple (es. \texttt{(x, y, z)}) e il carattere jolly o \textit{wildcard} \texttt{\_} (usato per i valori "anonimi" che non ci interessa memorizzare né usare).
+        \item \textit{Non consentiti:} Operatori aritmetici (non si può scrivere \texttt{fun square(x+1) = ...}), concatenazione di liste tramite l'operatore \texttt{@}, numeri reali (\texttt{real}) e l'uso multiplo della stessa variabile in un singolo pattern (es. \texttt{fun uguali(n, n) = true} è illegale, la variabile \texttt{n} è già associata). L'identità logica va testata nel corpo con \texttt{if}.
+    \end{itemize}
+\end{itemize}
+
+\textbf{Il costrutto \texttt{as}:}
+Spesso è utile destrutturare un parametro (ad esempio separando testa e coda di una lista) ma al tempo stesso mantenere un riferimento "globale" all'intero oggetto originale per non doverlo ricostruire. La keyword \texttt{as} risolve questa necessità sintattica: scrivendo \texttt{L as x::xs}, la variabile \texttt{L} rappresenta la lista intera, mentre \texttt{x} e \texttt{xs} ne catturano rispettivamente testa e coda.
+
+\textbf{Costrutti \texttt{case} e \texttt{fn}:}
+La sintassi del pattern matching si applica in modo identico anche alle funzioni anonime (\texttt{fn}) e al costrutto interno \texttt{case}:
+\begin{verbatim}
+case x of
+    pattern_1 => espressione_1
+  | pattern_2 => espressione_2;
+\end{verbatim}
+La differenza architetturale è che il \texttt{case} permette di effettuare pattern matching sul risultato momentaneo di un'espressione qualsiasi nel bel mezzo di una funzione, e non soltanto sui parametri di ingresso della stessa.
+
+\textbf{Ambiente locale (\texttt{let ... in ... end}):}
+Per definire variabili temporanee, utilissime per memorizzare sotto-espressioni ricorrenti o decomporre i complessi risultati in uscita da una funzione, ML offre il costrutto \texttt{let}.
+\begin{verbatim}
+let 
+    val x = calcolo_pesante()
+    val (a, b) = scorpora_tupla() 
+in 
+    a + b + x
+end
+\end{verbatim}
+I "binding" (assegnazioni) creati tra \texttt{let} e \texttt{in} arricchiscono l'ambiente locale ma restano visibili esclusivamente all'interno del blocco di codice delimitato tra \texttt{in} ed \texttt{end}.
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Merge e uso di \texttt{as}}
+Un esempio didattico eccellente in cui \texttt{as} semplifica la stesura è l'unione ordinata di due liste.
+\begin{verbatim}
+fun merge (nil, M) = M
+  | merge (L, nil) = L
+  | merge (L as x::xs, M as y::ys) =
+      if x < y then x :: merge(xs, M)
+      else y :: merge(L, ys);
+\end{verbatim}
+Senza la keyword \texttt{as}, nel ramo \texttt{else} avremmo dovuto ricostruire a mano e sprecare risorse per ricreare la prima lista scrivendo \texttt{merge(x::xs, ys)}.
+
+\subsubsection{Utilizzo del \texttt{case} e \textit{wildcard}}
+\begin{verbatim}
+val is_one = fn x =>
+    case x of
+        1 => "one"
+      | _ => "anything else";
+\end{verbatim}
+
+
+\section{Laboratorio ML 4}
+
+Il quarto laboratorio e i relativi esercizi di tutorato impongono l'abbandono delle funzioni primitive \texttt{hd} e \texttt{tl} viste all'inizio del corso, in favore dell'uso sistematico e ricorsivo del pattern matching. Le tecniche apprese qui costituiscono la base per affrontare le prove d'esame.
+
+\subsection{Destrutturazione avanzata di liste e tuple}
+
+\textbf{Esercizio L4.1 - Flip alternato:}
+Scrivere una funzione \texttt{flip} che inverte a due a due gli elementi di una lista e, se dispari, lascia l'ultimo elemento inalterato alla fine.
+\begin{verbatim}
+fun flip ([]) = []
+  | flip ([x]) = [x]
+  | flip (x::y::zs) = y :: x :: flip(zs);
+\end{verbatim}
+
+\textbf{Esercizio L4.4 - Flip di tuple in lista:}
+Applicazione combinata di pattern matching su liste e tuple che sfrutta il costrutto \texttt{as} per risparmiare allocazioni di memoria.
+\begin{verbatim}
+fun flip (nil) = nil
+  | flip ((x as (a:int, b)) :: xs) = 
+      if a < b then x :: flip(xs) 
+      else (b, a) :: flip(xs);
+\end{verbatim}
+\textbf{Nota per l'esame:} Se la tupla \texttt{(a,b)} è già posizionata nell'ordine corretto (\texttt{a < b}), inseriamo nella chiamata ricorsiva direttamente \texttt{x} (l'intera tupla catturata inalterata con \texttt{as}) senza sprecare risorse della macchina per ricreare inutilmente una nuova tupla \texttt{(a,b)}.
+
+\textbf{Esercizio dal Tutorato 3 - Separazione e Let-Val:}
+Un grande classico d'esame: dividere una lista in due liste separate (una per i pari, una per i dispari), mantenendo l'ordine, esplorandola una sola volta.
+\begin{verbatim}
+fun separaPariDispari (nil) = (nil, nil)
+  | separaPariDispari (x::xs) =
+    let
+        (* Decompone elegantemente la tupla restituita dalla ricorsione *)
+        val (pari, dispari) = separaPariDispari (xs)
+    in
+        if x mod 2 = 0 then (x::pari, dispari)
+        else (pari, x::dispari)
+    end;
+\end{verbatim}
+In questo frammento logico, il \texttt{let} evita la disastrosa pratica di calcolare due volte la ricorsione \texttt{separaPariDispari(xs)} (una volta per la testa e una volta per la coda).
+
+\newpage
+
+\subsection{Insiemi Logici tramite Liste (Esercizi L4.6 - L4.8)}
+Nel corso non esistono strutture dati pre-fabbricate per gli "Insiemi" (Set). Devono essere simulati e controllati manualmente garantendo l'assenza di duplicati logici.
+
+\textbf{Appartenenza (member) ed Eliminazione (delete):}
+L'uso della \textit{wildcard} \texttt{\_} per il parametro non utilizzato ("x") nel caso base previene i \textit{warning} di tipo.
+\begin{verbatim}
+fun member (_, nil) = false
+  | member (x, y::ys) = (x = y orelse member(x, ys));
+
+fun delete (a, []) = []
+  | delete (b, c::ys) = 
+      if b = c then ys 
+      else c :: delete(b, ys);
+\end{verbatim}
+
+\textbf{Inserimento con controllo di univocità (insert):}
+Anche qui l'efficienza si ottiene combinando l'ambiente locale tramite l'identificatore strutturato.
+\begin{verbatim}
+fun insert (x, nil) = [x]
+  | insert (x, S as y::ys) = 
+      if x = y then S 
+      else y :: insert(x, ys);
+\end{verbatim}
+
+
+\section{Input-output, eccezioni e funzioni polimorfe}
+
+\subsection{Spiegazione teorica}
+Questa sezione affronta la gestione delle operazioni di input/output, il sistema di controllo e recupero degli errori a runtime tramite le eccezioni, e i fondamenti del polimorfismo nel sistema di tipi di ML.
+
+\textbf{Input e Output in ML:}
+A differenza della valutazione pura di espressioni matematiche, le operazioni di I/O introducono nel linguaggio il concetto di \textbf{effetto collaterale} (side-effect), modificando lo stato dei canali di comunicazione standard o dei file memorizzati su disco.
+\begin{itemize}
+    \item \textbf{Output basico:} La funzione predefinita \texttt{print} accetta come argomento una stringa e la stampa sullo standard output. La funzione possiede la firma \texttt{string -> unit}; restituisce l'unico valore del tipo unit, ovvero la tupla vuota \texttt{()}, indicando che l'espressione ha esaurito la sua computazione producendo unicamente un effetto collaterale a video.
+    \item \textbf{Espressioni composte:} Per eseguire una sequenza ordinata di operazioni che causano effetti collaterali, ML permette l'uso di espressioni composte separate dal punto e virgola e racchiuse tra parentesi tonde: \texttt{(exp1; exp2; ...; expn)}. Il tipo e il valore finale dell'intera macro-espressione sono determinati unicamente dall'ultima sotto-espressione valutata (\texttt{expn}). Le istruzioni intermedie servono esclusivamente per i loro effetti collaterali e l'ultima istruzione non necessita del punto e virgola di chiusura.
+
+\newpage
+    
+    \item \textbf{Gestione dei File (\texttt{TextIO}):} ML offre supporto linguistico all'interazione con il file system tramite la struttura standard \texttt{TextIO}. I canali di lettura vengono gestiti tramite oggetti di tipo \texttt{TextIO.instream}. Le funzioni principali includono:
+    \begin{itemize}
+        \item \texttt{TextIO.openIn(filename)}: Apre un file di testo in modalità lettura e restituisce un canale \texttt{instream}.
+        \item \texttt{TextIO.endOfStream(infile)}: Restituisce un valore booleano che indica se si è raggiunta la fine del file.
+        \item \texttt{TextIO.inputN(infile, n)}: Legge una quantità fissa pari a \texttt{n} caratteri dal file, restituendoli sotto forma di stringa.
+        \item \texttt{TextIO.input(infile)}: Legge l'intero contenuto rimanente del file come un'unica stringa.
+        \item \texttt{TextIO.inputLine(infile)}: Legge una riga di testo comprensiva del carattere di newline \texttt{\textbackslash n}. Restituisce un tipo speciale costruttore denominato \textbf{\texttt{option}}.
+    \end{itemize}
+\end{itemize}
+
+\textbf{Il tipo costruttore \texttt{option}:}
+In presenza di funzioni che possono non restituire un valore valido (come la lettura oltre la fine di un file o la ricerca in un dizionario), ML evita l'uso di puntatori nulli fragili introducendo il tipo parametrico \texttt{'a option}. Un oggetto di tipo option può assumere due forme:
+\begin{itemize}
+    \item \texttt{SOME v}: Contiene il valore effettivo \texttt{v} di tipo \texttt{'a}.
+    \item \texttt{NONE}: Indica l'assenza di un valore valido (es. fine del file raggiunta).
+\end{itemize}
+Per estrarre il valore da una variabile option forzandone il tipo da \texttt{'a option} ad \texttt{'a}, si utilizza la funzione di sistema \texttt{valOf}. Se applicata su un elemento che contiene \texttt{SOME v}, restituisce \texttt{v}; se applicata su \texttt{NONE}, interrompe il programma sollevando l'eccezione \texttt{Option}.
+
+\textbf{Eccezioni in ML:}
+Le eccezioni sono costrutti linguistici semantici per interrompere il flusso normale del programma in presenza di errori a runtime.
+\begin{itemize}
+    \item \textbf{Eccezioni di sistema:} Sollevate automaticamente dalla macchina astratta di ML. Esempi comuni sono \texttt{Div} (divisione per zero), \texttt{Empty} (applicazione di \texttt{hd} o \texttt{tl} su liste vuote) e \texttt{Chr} (conversione ASCII fuori range).
+    \item \textbf{Eccezioni utente e parole chiave:} Il programmatore può definire nuove eccezioni nell'ambiente tramite la keyword \texttt{exception Nome}. Le eccezioni possiedono un tipo primitivo dedicato chiamato \texttt{exn}. Per innescare materialmente un errore si usa la keyword \texttt{raise Nome}.
+    \item \textbf{Eccezioni con parametri:} È possibile associare un contenuto informativo all'eccezione definendola tramite la sintassi \texttt{exception Nome of tipo}. In questo caso l'identificatore agisce da costruttore (es. \texttt{exception Errore di int}, lanciata con \texttt{raise Errore(42)}).
+    \item \textbf{Gestione delle eccezioni (\texttt{handle}):} Per intercettare un errore e ripristinare il flusso si appone l'operatore \texttt{handle} a valle di un'espressione, implementando una sintassi analoga al pattern matching: \texttt{<espressione> handle PatternEccezione => espressione\_di\_recupero}.
+\end{itemize}
+
+\textbf{Funzioni polimorfe in ML:}
+Il termine polimorfismo indica la capacità di un frammento di codice di operare su molteplici forme e tipi di dato. ML adotta un approccio statico rigoroso (\textit{compile-time strong typing}), ma implementa il polimorfismo parametrico: se una funzione non esegue operazioni esclusive di un tipo specifico, il compilatore le assegna una variabile di tipo generica indicata con un singolo apice iniziale (\texttt{'a}, \texttt{'b}).
+
+\textbf{Interazione tra Operatori e Polimorfismo:}
+\begin{itemize}
+    \item \textbf{Operatori che restringono il polimorfismo:} Gli operatori aritmetici classici (\texttt{+}, \texttt{-}, \texttt{*}), gli operatori di divisione (\texttt{/}, \texttt{div}, \texttt{mod}), i confronti di disuguaglianza (\texttt{<}, \texttt{>}), i connettivi booleani e le funzioni di conversione esplicita forzano i parametri ad assumere tipi primitivi rigidi (es. \texttt{int} o \texttt{real}), inibendo il polimorfismo.
+    \item \textbf{Operatori che preservano il polimorfismo:} Gli operatori sulle tuple (creazione e proiezioni \texttt{\#n}), gli operatori nativi sulle liste (\texttt{::}, \texttt{@}, \texttt{hd}, \texttt{tl}, \texttt{nil}) e gli operatori di uguaglianza logica consentono l'uso di tipi generici parametrici.
+    \item \textbf{Tipi di uguaglianza (Equality types):} Gli operatori \texttt{=} e \texttt{<>} richiedono che i tipi messi a confronto supportino la verifica di uguaglianza. Sono considerati tipi di uguaglianza gli interi, i booleani, i caratteri, le stringhe e le tuple/liste composte dagli stessi. Sono strutturalmente \textbf{esclusi} i numeri reali (\texttt{real}) e tutte le funzioni. 
+    Le variabili di tipo generico vincolate a supportare esclusivamente l'uguaglianza vengono identificate dal compilatore con un \textbf{doppio apice iniziale} (\texttt{''a}). Cercare di applicare funzioni con vincolo \texttt{''a} su numeri reali genera un errore statico di unificazione del tipo.
+    \item \textbf{Osservazione critica sull'inversione di liste:} Se si scrive una funzione di inversione testando la fine della lista tramite il controllo booleano \texttt{if L = nil then ...}, l'uso dell'operatore \texttt{=} costringe il compilatore ad assegnare alla funzione il tipo vincolato \texttt{''a list -> ''a list}. Di conseguenza, la funzione fallirà il controllo dei tipi se applicata a liste di numeri reali o di funzioni. Per preservare il polimorfismo puro (\texttt{'a list -> 'a list}), si deve ricorrere al pattern matching sui costruttori della lista o utilizzare la funzione predefinita \texttt{null(L)}.
+\end{itemize}
+
+\newpage
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Esempio di I/O e gestione dei flussi di lettura da File}
+\begin{verbatim}
+(* Funzione ricorsiva ausiliaria che consuma lo stream carattere 
+ per carattere *)
+ 
+fun makeList1 (infile, NONE) = nil
+  | makeList1 (infile, SOME c) = 
+        c :: makeList1(infile, TextIO.input1(infile));
+
+(* Inizializza la lettura estraendo il primo carattere *)
+fun makeList (infile) = makeList1(infile, TextIO.input1(infile));
+
+(* Utilizzo completo con apertura e chiusura del canale *)
+fun readFileAndConvert (filename) =
+    let
+        val instream = TextIO.openIn(filename)
+        val charList = makeList(instream)
+    in
+        TextIO.closeIn(instream); (* Effetto collaterale di chiusura *)
+        charList                  (* Restituisce la lista di caratteri *)
+    end;
+\end{verbatim}
+
+\subsubsection{Eccezioni personalizzate e meccanismi di recupero (\texttt{handle})}
+\begin{verbatim}
+exception OutOfRange of int * int;
+
+fun comb1 (n, m) =
+    if n <= 0 then raise OutOfRange(n, m)
+    else if m < 0 orelse m > n then raise OutOfRange(n, m)
+    else if m = 0 orelse m = n then 1
+    else comb1(n - 1, m) + comb1(n - 1, m - 1);
+
+(* La funzione comb fa da wrapper gestendo l'eccezione tramite handle *)
+fun comb (n, m) = 
+    comb1(n, m) 
+    handle OutOfRange(0, 0) => 1
+         | OutOfRange(n, m) => 
+            (print("Error: values out of range. n=" ^ Int.toString(n) ^ 
+                   " m=" ^ Int.toString(m) ^ "\n"); 
+             0);
+\end{verbatim}
+
+\newpage
+
+\subsubsection{Polimorfismo puro vs Polimorfismo di uguaglianza}
+\begin{verbatim}
+(* Funzione con polimorfismo puro: accetta qualsiasi tipo *)
+fun identity (x) = x;
+(* Tipo assegnato: val identity = fn: 'a -> 'a *)
+
+(* Funzione con polimorfismo vincolato all'uguaglianza *)
+fun identity_eq (x) = if (x = x) then x else x;
+(* Tipo assegnato: val identity_eq = fn: ''a -> ''a *)
+
+(* Funzione di inversione che preserva il polimorfismo totale *)
+fun rev_polymorphic (nil) = nil
+  | rev_polymorphic (x::xs) = rev_polymorphic(xs) @ [x];
+(* Tipo assegnato: val rev_polymorphic = fn: 'a list -> 'a list *)
+\end{verbatim}
+
+\section{Laboratorio ML 5}
+
+Il quinto laboratorio si concentra sull'ottimizzazione delle funzioni ricorsive tramite l'uso efficiente dell'ambiente locale (\texttt{let val}), sull'analisi delle espressioni di controllo condizionale annidate (\texttt{case}) e sull'implementazione pratica di funzioni che generano effetti collaterali tramite la stampa a video.
+
+\subsection{Ottimizzazione dell'Ambiente Locale (\texttt{let val})}
+
+\textbf{Esercizio L5.4 - Insieme delle parti (powerSet) efficiente:}
+Rispetto alla versione base in cui la chiamata ricorsiva sulla coda della lista veniva calcolata due volte raddoppiando la complessità a ogni passo, l'introduzione di un legame temporaneo nel \texttt{let} riduce drasticamente i tempi di calcolo memorizzando il risultato parziale.
+\begin{verbatim}
+(* Funzione di supporto per inserire un elemento in tutte le sotto-liste *)
+fun insertAll (x, nil) = nil
+  | insertAll (x, y::ys) = (x::y) :: insertAll(x, ys);
+
+fun powerSet (nil) = [nil]
+  | powerSet (x::xs) =
+    let
+        val tailPowerSet = powerSet(xs) (* Calcolata una sola volta *)
+    in
+        tailPowerSet @ insertAll(x, tailPowerSet)
+    end;
+\end{verbatim}
+
+\newpage
+
+\textbf{Esercizio L5.7 - Computazione efficiente di $x^{2^i}$ (\texttt{doubleExp}):}
+Scrivere un programma che calcoli la potenza doppia effettuando una sola chiamata ricorsiva per ogni decremento dell'indice $i$.
+\begin{verbatim}
+fun doubleExp (x: real, 0) = x
+  | doubleExp (x, i) =
+    let
+        val y = doubleExp(x, i - 1)
+    in
+        y * y
+    end;
+\end{verbatim}
+
+\textbf{Esercizio L5.3 - Destrutturazione di Tuple senza Pattern Matching diretto:}
+Scrivere la funzione \texttt{split} estraendo i valori della tupla risultante tramite l'uso esplicito delle funzioni di proiezione \texttt{\#1} e \texttt{\#2} all'interno del blocco locale.
+\begin{verbatim}
+fun split (nil) = (nil, nil)
+  | split ([a]) = ([a], nil)
+  | split (a::b::cs) =
+    let
+        val tuplaRisultato = split(cs)
+        val M = #1 tuplaRisultato
+        val N = #2 tuplaRisultato
+    in
+        (a::M, b::N)
+    end;
+\end{verbatim}
+
+\subsection{Uso delle espressioni \texttt{case}}
+
+\textbf{Esercizio L5.1 - Simulazione dell'if-then-else tramite \texttt{case}:}
+Implementare la funzione \texttt{is\_lower\_than5} verificando la validità della condizione logica booleana tramite pattern matching interno.
+\begin{verbatim}
+fun is_lower_than5 n =
+    case (n < 5) of
+        true => 1
+      | false => 2;
+\end{verbatim}
+
+\subsection{Esercizi di Input/Output e Stampa}
+
+\textbf{Esercizio L5.9 - Stampa di una lista (\texttt{printList}):}
+Scrivere una funzione che accetti una lista di interi e la stampi riga per riga sullo standard output.
+\begin{verbatim}
+fun printList (nil) = ()
+  | printList (x::xs) =
+    (
+        print(Int.toString(x));
+        print("\n");
+        printList(xs)
+    );
+\end{verbatim}
+
+\textbf{Esercizio L5.10 - Calcolo e Formattazione Combinazioni (\texttt{comb}):}
+Scrivere una funzione che calcoli il coefficiente binomiale stampando a video in modo strutturato i parametri inseriti e il risultato finale ottenuto.
+\begin{verbatim}
+fun factorial 0 = 1
+  | factorial n = n * factorial(n - 1);
+
+fun comb (n, m) =
+    (
+        print("n is ");
+        print(Int.toString(n));
+        print("\n");
+        print("m is ");
+        print(Int.toString(m));
+        print("\n");
+        print("Result is ");
+        print(Int.toString(factorial(n) div (factorial(m) * factorial(n - m))));
+        print("\n")
+    );
+\end{verbatim}
+
+\section{Funzioni di ordine superiore e curried}
+
+\subsection{Spiegazione teorica}
+In ML le funzioni sono trattate come "cittadini di prima classe", il che significa che possono essere assegnate a variabili, passate come argomenti ad altre funzioni o restituite come risultato. Una funzione che accetta o restituisce un'altra funzione prende il nome di \textbf{Funzione di Ordine Superiore} (Higher-Order Function).
+
+\textbf{Gestione dell'Ambiente e Binding:}
+Quando si passa una funzione come parametro o la si restituisce in uscita, sorge un problema architetturale: quale ambiente non-locale deve essere utilizzato durante la sua futura esecuzione?
+\begin{itemize}
+    \item \textbf{Deep binding:} L'ambiente non-locale viene "congelato" al momento della \textit{creazione} (o passaggio) della funzione. È l'approccio adottato in accoppiata allo \textit{Scoping Statico}.
+    \item \textbf{Shallow binding:} L'ambiente non-locale viene valutato solo al momento in cui la funzione viene effettivamente \textit{chiamata}.
+\end{itemize}
+Come già visto, ML utilizza rigorosamente lo \textbf{Scoping Statico} abbinato al \textbf{Deep binding}. Questa combinazione viene tecnicamente implementata attraverso le \textit{Closure}, ovvero strutture dati nascoste che memorizzano il codice della funzione e l'ambiente al momento della sua definizione, garantendone la robustezza e la prevedibilità.
+
+\newpage
+
+\textbf{Funzioni Curried (Currying):}
+A livello formale e sintattico, \textbf{ogni funzione in ML accetta uno e un solo argomento}. Fino a questo momento abbiamo aggirato questo limite matematico passando argomenti multipli impacchettati all'interno di una tupla (es. \texttt{fun max(x, y)}).
+Un approccio alternativo, proprio dei linguaggi puramente funzionali, è la \textbf{forma Curried} (in onore del logico Haskell Curry). Una funzione a due argomenti viene progettata in modo tale da prendere il primo argomento e \textit{restituire una nuova funzione} che attenderà il secondo.
+\begin{itemize}
+    \item \textit{Sintassi Tupla:} \texttt{fun exp1(x, y) = ...} ha tipo \texttt{real * int -> real}.
+    \item \textit{Sintassi Curried:} \texttt{fun exp2 x y = ...} ha tipo \texttt{real -> int -> real} (valutato a destra come \texttt{real -> (int -> real)}).
+    \item \textbf{Vantaggio: Applicazione Parziale (Partial Instantiation).} Le funzioni curried permettono di fornire soltanto una parte degli argomenti richiesti, generando istantaneamente una nuova funzione "specializzata" da riutilizzare a runtime. Ad esempio, potremmo fissare la base di una potenza a 3.0 e usare la nuova funzione creata solo per far variare l'esponente.
+\end{itemize}
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Funzioni di Ordine Superiore Classiche (Implementate a mano)}
+Costruiamo le versioni semplificate delle classiche funzioni funzionali per comprendere il loro comportamento interno (il linguaggio ML dispone già di versioni built-in altamente ottimizzate).
+
+\begin{verbatim}
+(* 1. simpleMap: applica la funzione F a tutti gli elementi di una lista *)
+fun simpleMap (F, nil) = nil
+  | simpleMap (F, x::xs) = F(x) :: simpleMap(F, xs);
+(* Tipo: ('a -> 'b) * 'a list -> 'b list *)
+
+(* 2. filter: mantiene solo gli elementi che soddisfano il predicato P *)
+fun filter (P, nil) = nil
+  | filter (P, x::xs) = 
+        if P(x) then x :: filter(P, xs) 
+        else filter(P, xs);
+(* Tipo: ('a -> bool) * 'a list -> 'a list *)
+
+(* 3. reduce: collassa la lista applicando ricorsivamente la funzione F *)
+exception EmptyList;
+fun reduce (F, nil) = raise EmptyList
+  | reduce (F, [a]) = a
+  | reduce (F, x::xs) = F(x, reduce(F, xs));
+(* Tipo: ('a * 'a -> 'a) * 'a list -> 'a *)
+\end{verbatim}
+
+\newpage
+
+\subsubsection{Currying e Applicazione Parziale}
+\begin{verbatim}
+(* Funzione in forma Curried, notare l'assenza di virgole e parentesi *)
+fun exponent2 x 0 = 1.0
+  | exponent2 x y = x * exponent2 x (y - 1);
+
+(* Possiamo chiamarla fornendo subito entrambi i parametri... *)
+> exponent2 3.0 4;
+val it = 81.0 : real
+
+(* ...oppure possiamo fornire solo il primo parametro (la base 3.0),
+   ottenendo in ritorno una NUOVA funzione pronta a ricevere un esponente *)
+> val powerOfThree = exponent2 3.0;
+val powerOfThree = fn : int -> real
+
+> powerOfThree 4;
+val it = 81.0 : real
+\end{verbatim}
+
+
+\section{Laboratorio ML 6}
+
+Nel sesto laboratorio si fondono le nozioni di I/O (File e testuali) introdotte marginalmente nella Lezione 7, assieme alle Funzioni di Ordine Superiore, per costruire elaboratori dati puramente funzionali.
+
+\subsection{Elaborazione di Flussi di Testo (I/O)}
+Viene esplorata l'interazione con l'esterno usando la struttura \texttt{TextIO}, supportata dai tipi costruttori come \texttt{option} (per gestire letture di fine file che restituiranno \texttt{NONE}) e dal pattern matching per il disinnesco degli errori.
+
+\textbf{Esercizio base: Primitive \texttt{TextIO}}
+\begin{verbatim}
+(* 1. Aprire un file in lettura (restituisce un instream) *)
+val input = TextIO.openIn("file.txt");
+
+(* 2. Leggere i successivi 5 caratteri (restituisce string) *)
+TextIO.inputN(input, 5);
+
+(* 3. Leggere una riga intera (restituisce string option) *)
+TextIO.inputLine(input); 
+
+(* 4. Leggere il prossimo carattere senza consumarlo dal flusso *)
+TextIO.lookahead(input);
+
+(* 5. Chiudere rigorosamente il flusso per liberare la risorsa *)
+TextIO.closeIn(input);
+\end{verbatim}
+
+\subsection{Esercizi dal Tutorato: I/O Sicuro ed Eccezioni}
+Nel tutorato viene richiesto di costruire dei gestori di file incapsulati che intercettano gli errori di sistema per lanciare eccezioni di dominio semantiche. 
+
+\textbf{Esercizio: Leggere la prima riga in sicurezza}
+Scrivere una funzione che tenti di leggere la prima riga di un file. Se il file non esiste, bisogna catturare l'eccezione di sistema di basso livello (\texttt{Io}) per sollevarne una propria (\texttt{FileNotFound}). Se il file esiste ma è vuoto, lanciare \texttt{EmptyFile}.
+
+\begin{verbatim}
+exception FileNotFound of string;
+exception EmptyFile;
+fun readFirstLine(filename) =
+    let 
+        (* Tentativo di apertura controllato tramite handle *)
+        val file = TextIO.openIn(filename) 
+                   handle Io => raise FileNotFound(filename)
+        val lineOpts = TextIO.inputLine(file)
+    in
+        TextIO.closeIn(file);
+        (* Valutazione polimorfica dell'option per l'esito della lettura *)
+        case lineOpts of
+            NONE => raise EmptyFile
+          | SOME(line) => line
+    end;
+\end{verbatim}
+
+\subsection{Combinare I/O e Ordine Superiore}
+
+\textbf{Esercizio L6.9 - Lettura e Somma (readAndSum):}
+Scrivere una funzione che legga un file di testo contenente un numero (stringa) per ogni riga, ne esegua il parsing ad intero e ne calcoli la somma totale. Si richiede l'uso della funzione nativa \texttt{Int.fromString} che trasforma stringhe in interi, restituendo un \texttt{int option} di sicurezza.
+
+\begin{verbatim}
+fun readAndSum1 file =
+    if TextIO.endOfStream(file) then 0
+    else (* valOf forza l'estrazione "scartando" il costruttore SOME, 
+           estraendo il valore reale. Si usa due volte: 
+           per l'inputLine e per fromString. Nota: l'uso di valOf è 
+           considerato "unsafe" (può lanciare eccezioni); in produzione 
+           si predilige sempre l'uso del pattern matching o del case.*)
+           
+        valOf(Int.fromString(valOf(TextIO.inputLine(file)))) 
+        + readAndSum1(file);
+fun readAndSum filename =
+    let
+        val f = TextIO.openIn(filename)
+        val res = readAndSum1(f)
+    in
+        TextIO.closeIn(f); (* Chiusura garantita *)
+        res
+    end;
+\end{verbatim}
+
+\textbf{Esercizio L6.10 - Lista di funzioni curried (applyList):}
+Un eccellente esercizio in forma curried: scrivere una funzione che accetti prima una lista di funzioni (es. elevamento al quadrato, al cubo) e in seguito un valore \texttt{a}, restituendo una lista in cui ogni funzione è stata iterativamente applicata al valore di partenza.
+
+\begin{verbatim}
+(* Funzione Curried: prende prima la lista Fs, poi si "congela"
+   aspettando che venga fornito il valore 'a' *)
+fun applyList nil a = nil
+  | applyList (F::Fs) a = F(a) :: (applyList Fs a);
+
+(* Esempio di utilizzo con istanziazione finale: *)
+> applyList [fn x => x * 2, fn x => x * x * x] 4;
+val it = [8, 64] : int list
+\end{verbatim}
+
+\section{Tipi di dati e composizione di funzioni}
+
+\subsection{Spiegazione teorica}
+In questa lezione si conclude la panoramica sulle funzioni di ordine superiore esaminando le primitive di libreria, l'operatore di composizione e, soprattutto, l'architettura per la definizione di nuovi tipi di dato e strutture ricorsive.
+
+\textbf{Funzioni di Ordine Superiore di Sistema (Built-in):}
+Le funzioni di ordine superiore fornite nativamente da ML (come \texttt{map}, \texttt{foldr} e \texttt{foldl}) sono \textbf{curried}, ovvero si aspettano gli argomenti passati in sequenza (separati da spazio) e non raggruppati in una singola tupla.
+\begin{itemize}
+    \item \textbf{map:} Applica una determinata funzione a ciascun elemento di una lista, restituendo una nuova lista con i risultati.
+    \item \textbf{foldr (Fold Right):} "Collassa" una lista in un singolo valore combinando gli elementi da destra verso sinistra, partendo da un valore iniziale base. Corrisponde logicamente all'applicazione annidata: $f(x_1, f(x_2, \dots f(x_n, c)))$.
+    \item \textbf{foldl (Fold Left):} Applica l'aggregazione partendo da sinistra verso destra. È spesso più efficiente poiché strutturabile tramite \textit{tail recursion}. Corrisponde a: $f(x_n, f(x_{n-1}, \dots f(x_1, c)))$.
+\end{itemize}
+
+\textbf{Composizione di Funzioni:}
+La composizione matematica di due funzioni, $H(x) = G(F(x))$, viene supportata in ML dall'operatore infisso \textbf{\texttt{o}} (una semplice lettera 'o' minuscola). La sintassi \texttt{G o F} crea un'unica nuova funzione in cui l'output di \texttt{F} viene reindirizzato come input di \texttt{G}. È una tecnica dichiarativa fondamentale per concatenare manipolazioni di liste ed elaborazioni dati in catene di montaggio algoritmiche (\textit{pipeline}).
+
+\textbf{Il Sistema dei Tipi in ML:}
+Per estendere i tipi predefiniti (\texttt{int}, \texttt{real}, \texttt{string}, liste e tuple), ML mette a disposizione due costrutti principali:
+\begin{itemize}
+    \item \textbf{\texttt{type} (Ridenominazione e Alias):} Permette di creare un alias per un tipo già esistente o per un'associazione complessa, con lo scopo di rendere il codice più leggibile per il programmatore. Non genera veri e propri tipi nuovi per la macchina. \\
+    Sintassi base: \texttt{type signal = int list;} oppure \texttt{type ('a, 'b) mapping = ('a * 'b) list;}
+    \item \textbf{\texttt{datatype} (Tipi e Costruttori Strutturati):} Introduce tipologie di dato interamente nuove. Costituisce la base per i \textit{Tipi Unione} (\textit{Union Types} o ADT). 
+    Un \texttt{datatype} definisce un \textbf{costruttore di tipo} (il nome generale) e uno o più \textbf{costruttori di dato} (i valori validi, separati dal pipe \texttt{|}). I costruttori di dato possono anche "trasportare" un parametro, permettendo di incapsulare valori (es. \texttt{S of 'a}).
+\end{itemize}
+
+\textbf{Tipi di dato Ricorsivi:}
+Poiché i costruttori possono riferirsi al \texttt{datatype} stesso che stanno definendo, questo strumento linguistico è ideale per implementare \textbf{Alberi Binari}, liste concatenate custom o altre strutture dati dinamiche non lineari. 
+Per generare \textbf{tipi mutuamente ricorsivi} (come un Albero la cui definizione dipende da una Foresta e viceversa), si connettono le rispettive dichiarazioni utilizzando la keyword \texttt{and}.
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Composizione e Primitive List}
+\begin{verbatim}
+(* Utilizzo di map per estrarre la lunghezza delle stringhe *)
+> map size ["La", "lezione", "nove"];
+val it = [2, 7, 4] : int list
+
+(* Utilizzo combinato di foldr per riprodurre un Logical AND su lista *)
+> val andb = foldr (fn (x,y) => x andalso y) true;
+val andb = fn : bool list -> bool
+> andb [true, false, true];
+val it = false : bool
+
+(* Composizione elegante: converte i char in stringhe e li concatena *)
+> val implode = (foldr (op ^) "") o (map str);
+val implode = fn : char list -> string
+\end{verbatim}
+
+\subsubsection{Costrutti Datatype e Union Types}
+\begin{verbatim}
+(* Tipo Unione Base: Enumerazione *)
+> datatype fruit = Apple | Pear | Grape;
+
+(* Uso pratico dell'Unione col Pattern Matching *)
+> fun isApple (x) = (x = Apple);
+val isApple = fn : fruit -> bool
+
+(* Tipo Elemento Generico: può contenere un Pair o un Valore Singolo *)
+> datatype ('a, 'b) element = P of 'a * 'b | S of 'a;
+> P("a", 1);
+val it = P ("a", 1) : (string, int) element
+
+(* Somma sicura ignorando gli elementi singoli S *)
+fun sumElList (nil) = 0
+  | sumElList (S(x)::L) = sumElList(L)
+  | sumElList (P(x,y)::L) = y + sumElList(L);
+\end{verbatim}
+
+
+\section{Laboratorio ML 7}
+
+Nel settimo laboratorio si sperimenta materialmente l'utilizzo delle funzioni curried e la definizione algoritmica di esplorazione degli Alberi Binari creati attraverso i \texttt{datatype}.
+
+\subsection{Currying e Composizione Pratica (Esercizio L7.1 - L7.4)}
+Scrivere una funzione che prende una funzione non curried (una che lavora sulle tuple) e la trasforma nella sua versione curried, separandone gli argomenti in chiamate ad anello.
+
+\begin{verbatim}
+(* Definizione di un generalizzatore Curry (arità 3) *)
+fun curry F x1 x2 x3 = F(x1, x2, x3);
+
+(* Utilizzo del trasformatore *)
+> curry (fn (x,y,z) => x * y * z);
+val it = fn : int -> int -> int -> int -> int
+
+(* Assegnazione tramite Applicazione Parziale *)
+> val G = curry (fn (x,y,z) => x * y * z) 1 2;
+> G 3;
+val it = 6 : int
+\end{verbatim}
+
+\subsection{Tipi di dato per gli Alberi Binari (Esercizi L7.5 - L7.10)}
+L'albero binario generico per tutti gli esercizi di questa sezione viene così codificato:
+\begin{verbatim}
+datatype 'a btree = Empty 
+                  | Node of 'a * 'a btree * 'a btree;
+\end{verbatim}
+
+\textbf{Esercizi L7.5 e L7.6 - Visita PostOrder e InOrder:}
+Implementare le canoniche funzioni di esplorazione degli alberi riordinando le chiamate ricorsive e ricomponendo i rami tramite concatenazione di liste (\texttt{@}).
+\begin{verbatim}
+fun postOrder (Empty) = nil
+  | postOrder (Node(a, left, right)) = 
+      postOrder(left) @ postOrder(right) @ [a];
+
+fun inOrder (Empty) = nil
+  | inOrder (Node(a, left, right)) = 
+      inOrder(left) @ [a] @ inOrder(right);
+\end{verbatim}
+
+\newpage
+
+\textbf{Esercizio L7.8 e L7.10 - Calcolo e Manipolazione (sumTree e doubleTree):}
+Sommare le componenti o alterare l'intero strato dei nodi clonando strutturalmente l'albero. Nel primo esempio si assume un albero che contiene tuple di tipo \texttt{string * int} come etichette dei nodi (\textit{mapTree}).
+\begin{verbatim}
+(* Somma la seconda componente (b) delle coppie di label *)
+fun sumTree Empty = 0
+  | sumTree (Node((a, b), left, right)) = 
+      b + sumTree(left) + sumTree(right);
+
+(* Raddoppia i valori producendo un albero binario della medesima forma *)
+fun doubleTree Empty = Empty
+  | doubleTree (Node(x, left, right)) = 
+      Node(x * 2, doubleTree(left), doubleTree(right));
+\end{verbatim}
+
+\subsection{Esercizi e approfondimenti dal tutorato: Analisi di Struttura sugli Alberi}
+Le simulazioni d'esame e le sessioni di tutorato (es. schede sugli Alberi Binari) arricchiscono le capacità di investigare la topologia dell'albero e valutarne gli attributi matematici (Alberi Bilanciati e Perfetti).
+
+\textbf{Esercizio: Altezza e Albero Perfetto (\texttt{isPerfect})}
+Un albero è perfetto se tutte le foglie giacciono sulla stessa identica profondità e ogni nodo non foglia ha precisamente due figli. Si deve valutare coerentemente l'uguaglianza tra i rami sottostanti.
+\begin{verbatim}
+(* Funzione di supporto vitale per l'analisi della topologia *)
+fun height Empty = 0
+  | height (Node(_, l, r)) = 1 + Int.max(height(l), height(r));
+
+fun isPerfect Empty = true
+  | isPerfect (Node(_, l, r)) = 
+      height(l) = height(r) andalso isPerfect(l) andalso isPerfect(r);
+\end{verbatim}
+
+\newpage
+
+\textbf{Esercizio: Albero Bilanciato (\texttt{isBalanced})}
+Un albero è bilanciato se la profondità dei due sotto-alberi relativi a un qualsiasi nodo differisce in altezza, al massimo, per un valore assoluto di 1 (analogia con gli \textit{Alberi AVL}). La soluzione proposta previene uno scorrimento inefficiente adottando la restituzione di \texttt{\~{}1} come codice di errore di sbilanciamento (Fail-Fast pattern interno).
+\begin{verbatim}
+fun isBalanced t =
+    let
+        (* Restituisce l'altezza, o ~1 nel caso un ramo fosse sbilanciato *)
+        fun checkBal Empty = 0
+          | checkBal (Node(_, l, r)) =
+            let
+                val hl = checkBal(l)
+                val hr = checkBal(r)
+            in
+                if hl = ~1 orelse hr = ~1 orelse abs(hl - hr) > 1 then ~1
+                else 1 + Int.max(hl, hr)
+            end
+    in
+        checkBal(t) <> ~1
+    end;
+\end{verbatim}
+\textbf{Nota di ottimizzazione architetturale per l'esame:} Calcolare sistematicamente \texttt{height(l)} e poi chiamare di nuovo \texttt{isBalanced(l)} provocherebbe un costo esponenziale sull'attraversamento (l'albero verrebbe scorso ripetutamente ai livelli bassi). Questa funzione annidata incapsula l'esplorazione restituendo entrambe le informazioni in una \textit{singola} passata post-order, scalando la complessità ad $O(N)$.
+
+\textbf{Esercizio: Albero Specchio (\texttt{mirrorTree})}
+Data una radice asimmetrica, restituire il corrispettivo speculare ribaltando sistematicamente l'orientamento foglia-per-foglia.
+\begin{verbatim}
+fun mirrorTree Empty = Empty
+  | mirrorTree (Node(v, l, r)) = Node(v, mirrorTree(r), mirrorTree(l));
+\end{verbatim}
+
+\section{Abstract Data Types in ML e Funtori}
+
+\subsection{Spiegazione teorica}
+Per costruire sistemi software scalabili e sicuri, i linguaggi moderni offrono meccanismi di \textbf{Astrazione dei Dati} (Data Abstraction). L'obiettivo è separare nettamente l'\textit{interfaccia} (cosa fa un tipo di dato e quali operazioni supporta) dalla sua \textit{implementazione} (come i dati sono materialmente rappresentati in memoria). 
+
+In ML, questo incapsulamento (simile al concetto di classe e interfaccia in Java) viene realizzato attraverso tre costrutti fondamentali: \textbf{Signature}, \textbf{Structure} e \textbf{Functor}.
+
+\textbf{1. Signatures (Firme):}
+Una \textit{signature} agisce come un contratto pubblico o un'interfaccia. Definisce i tipi, le eccezioni e le firme delle funzioni che una struttura dovrà obbligatoriamente implementare.
+\begin{itemize}
+    \item Sintassi: \texttt{signature NOME\_SIG = sig ... end}
+    \item Non contiene alcuna logica o codice eseguibile, ma solo dichiarazioni (\texttt{val}, \texttt{type}, \texttt{exception}).
+\end{itemize}
+
+\textbf{2. Structures (Strutture):}
+Una \textit{structure} è l'implementazione concreta (il modulo) che fornisce il codice per i tipi e i metodi. Si collega a una signature per garantirne la validità strutturale (Ascription).
+\begin{itemize}
+    \item \textbf{Ascription Trasparente (\texttt{:})}: \texttt{structure S : SIG = struct ... end}. Il compilatore controlla che \texttt{S} rispetti \texttt{SIG}. Tuttavia, l'implementazione interna dei tipi rimane visibile all'esterno (violando parzialmente l'incapsulamento).
+    \item \textbf{Ascription Opaca (\texttt{:>})}: \texttt{structure S :> SIG = struct ... end}. È l'astrazione dei dati per eccellenza. Tutto ciò che non è esplicitamente definito nella signature viene nascosto. Se il tipo interno è implementato come \texttt{int}, all'esterno verrà visto solo come tipo astratto inaccessibile, impedendo all'utente di farvi operazioni aritmetiche illecite.
+\end{itemize}
+
+\textbf{3. Functors (Funtori):}
+Un funtore è una "struttura parametrizzata", ovvero una funzione che opera a livello di moduli. Prende in input una o più \textit{structure} (che rispettano determinate \textit{signature}) e genera in output una nuova \textit{structure}.
+\begin{itemize}
+    \item Sono il meccanismo principale in ML per la riusabilità del codice. Ad esempio, si può scrivere un funtore che genera un Albero Binario di Ricerca (BST) generico, passando in input una struttura che definisce semplicemente la funzione logica di ordinamento (es. alfabetico o numerico).
+\end{itemize}
+
+\newpage
+
+\subsection{Implementazione del codice: Trasparenza vs Opacità}
+Il seguente frammento (analizzato nel Lab 9) dimostra la potenza dell'ascription opaca per proteggere l'invariante di un tipo astratto.
+
+\begin{verbatim}
+(* 1. La Firma nasconde l'implementazione del tipo 't' *)
+signature MY_INT = sig
+    type t
+    val crea: int -> t 
+end;
+
+(* 2. Struttura Trasparente: espone i dettagli *)
+structure Transparent : MY_INT = struct
+    type t = int
+    fun crea x = x 
+end;
+
+(* 3. Struttura Opaca (ADT Puro): blinda i dettagli *)
+structure Opaque :> MY_INT = struct
+    type t = int
+    fun crea x = x 
+end;
+
+(* Test di violazione dell'astrazione: *)
+> val a = Transparent.crea(5);
+> val b = a + 1; (* OK! Il compilatore sa che 'a' è un int *)
+
+> val c = Opaque.crea(5);
+> val d = c + 1; 
+(* ERRORE FATALE! Il compilatore blocca l'operazione. 
+   Per l'esterno, 'c' è di tipo astratto 't', non un 'int', 
+   quindi l'operatore '+' non è applicabile. *)
+\end{verbatim}
+
+
+\section{Laboratorio ML 8 - Alberi Binari di Ricerca}
+
+Il Laboratorio 8 e le relative schede di tutorato applicano le strutture astratte all'implementazione del \textbf{Binary Search Tree (BST)}, una struttura dati cruciale per la ricerca efficiente. La regola invariante di un BST stabilisce che per ogni nodo, tutti i valori nel sotto-albero sinistro devono essere strettamente minori del nodo, e tutti quelli nel sotto-albero destro strettamente maggiori.
+
+\newpage
+
+\subsection{Creazione di un BST tramite Functor (MakeBST)}
+
+Per rendere l'albero riutilizzabile per interi, stringhe o record personalizzati, lo si genera tramite un funtore che riceve in input l'operatore di confronto \texttt{lt} (less than).
+
+\begin{verbatim}
+(* Step 1: Signature che definisce il contratto di ordinamento *)
+signature TOTALORDER = sig
+    type t
+    val lt : t * t -> bool
+end;
+
+(* Step 2: Struttura concreta per stringhe *)
+structure StringOrder : TOTALORDER = struct
+    type t = string
+    fun lt (a, b) = a < b
+end;
+
+(* Step 3: Funtore per costruire l'albero *)
+functor MakeBST (Order : TOTALORDER) = struct
+    datatype bst = Empty 
+                 | Node of Order.t * bst * bst
+                 
+    fun insert (x, Empty) = Node(x, Empty, Empty)
+      | insert (x, T as Node(y, left, right)) =
+          if Order.lt(x, y) then 
+              Node(y, insert(x, left), right)
+          else if Order.lt(y, x) then 
+              Node(y, left, insert(x, right))
+          else T (* L'elemento esiste già, l'albero resta inalterato *)
+end;
+
+(* Step 4: Istanziazione della struttura finale *)
+structure StringBST = MakeBST(StringOrder);
+\end{verbatim}
+
+\newpage
+
+\subsection{Esercizi e approfondimenti dal tutorato (Strutture e BST)}
+
+Nelle simulazioni d'esame è frequentissima la richiesta di definire una coda o un dizionario proteggendone lo stato tramite \texttt{signature}, oppure di manipolare un BST.
+
+\textbf{Esercizio: Progettazione ADT della Coda (Queue)}
+Definire una \textit{signature} e un'implementazione opaca per una Coda FIFO.
+\begin{verbatim}
+signature QUEUE = sig
+    type 'a queue
+    exception EmptyQueue
+    val emptyQueue: 'a queue
+    val enqueue: 'a -> 'a queue -> 'a queue
+    val dequeue: 'a queue -> 'a * 'a queue
+end;
+
+structure Queue :> QUEUE = struct
+    type 'a queue = 'a list
+    exception EmptyQueue
+    
+    val emptyQueue = []
+    
+    (* Inserimento in coda (inefficiente su liste lunghe, ma didattico) *)
+    fun enqueue x [] = [x]
+      | enqueue x (y::ys) = y :: enqueue x ys
+      
+    (* Estrazione dalla testa *)
+    fun dequeue [] = raise EmptyQueue
+      | dequeue (x::xs) = (x, xs)
+end;
+\end{verbatim}
+
+\textbf{Esercizio: Estrazione del Minimo in un BST (\texttt{deletemin})}
+Poiché nel BST i valori più piccoli collassano a sinistra, per trovare e rimuovere il minimo bisogna scendere lungo il ramo sinistro finché non si trova un nodo senza figli a sinistra.
+\begin{verbatim}
+exception EmptyTree;
+
+fun deletemin Empty = raise EmptyTree
+  (* Caso base: nessun figlio sinistro, questo è il minimo! 
+     Ritorno il valore e 'aggancio' l'eventuale ramo destro *)
+  | deletemin (Node(y, Empty, right)) = (y, right)
+  
+  (* Caso ricorsivo: scendo a sinistra *)
+  | deletemin (Node(w, left, right)) =
+    let
+        val (y, new_left) = deletemin(left)
+    in
+        (y, Node(w, new_left, right))
+    end;
+\end{verbatim}
+
+\newpage
+
+\textbf{Esercizio: Ricerca di minimi e massimi in un'unica passata}
+Esercizio avanzato del tutorato che sfrutta le tuple nell'ambiente locale per esplorare simultaneamente i bordi di un albero binario.
+\begin{verbatim}
+fun find_min_max Empty = raise EmptyTree
+  | find_min_max (Node(v, Empty, Empty)) = (v, v)
+  
+  (* Ha solo il figlio sinistro *)
+  | find_min_max (Node(v, left, Empty)) =
+    let val (min_sx, max_sx) = find_min_max left
+    in (Int.min(v, min_sx), Int.max(v, max_sx)) end
+    
+  (* Ha solo il figlio destro *)
+  | find_min_max (Node(v, Empty, right)) =
+    let val (min_dx, max_dx) = find_min_max right
+    in (Int.min(v, min_dx), Int.max(v, max_dx)) end
+    
+  (* Ha entrambi i figli *)
+  | find_min_max (Node(v, left, right)) =
+    let 
+        val (min_sx, max_sx) = find_min_max left
+        val (min_dx, max_dx) = find_min_max right
+    in 
+        (Int.min(v, Int.min(min_sx, min_dx)), 
+         Int.max(v, Int.max(max_sx, max_dx))) 
+    end;
+\end{verbatim}
+
+
+\section{Lambda Calcolo}
+
+\subsection{Spiegazione teorica}
+Il \textbf{Lambda calcolo ($\lambda$-calcolo)} è un sistema formale logico-matematico sviluppato da Alonzo Church negli anni '30 per investigare i fondamenti della computazione. Sebbene sia nato decenni prima dei computer moderni, costituisce il cuore teorico e il modello di calcolo di tutti i linguaggi di programmazione funzionali (come LISP, Haskell, ML e Scala).
+
+\textbf{1. Sintassi del Lambda Calcolo:}
+L'universo del lambda calcolo puro è estremamente essenziale. Non esistono numeri, booleani, stringhe o costrutti di base; esiste solo il concetto di "funzione anonima". 
+Le espressioni (o $\lambda$-termini) si definiscono induttivamente tramite tre sole regole:
+\begin{itemize}
+    \item \textbf{Variabile:} Un identificatore $x, y, z \dots$ è un $\lambda$-termine.
+    \item \textbf{Astrazione (Creazione di una funzione):} Se $e$ è un $\lambda$-termine e $x$ è una variabile, allora $\lambda x.e$ è un $\lambda$-termine. Indica la definizione di una funzione anonima il cui parametro formale è $x$ e il cui corpo è $e$ (equivalente a \texttt{fn x => e} in ML).
+    \item \textbf{Applicazione (Invocazione di una funzione):} Se $e_1$ ed $e_2$ sono $\lambda$-termini, l'affiancamento $(e_1\; e_2)$ è un $\lambda$-termine. Rappresenta l'applicazione della funzione $e_1$ all'argomento $e_2$. L'applicazione è associativa a sinistra: $x\;y\;z$ equivale a $(x\;y)\;z$.
+\end{itemize}
+
+\textbf{2. Variabili Libere e Legate:}
+In un'astrazione $\lambda x.e$, il simbolo $\lambda$ funge da operatore di \textit{binding} (legame). 
+\begin{itemize}
+    \item La variabile $x$ è detta \textbf{legata} (bound) all'interno del corpo $e$.
+    \item Una variabile che compare in un'espressione senza essere vincolata da alcun $\lambda$ è detta \textbf{libera} (free).
+    \item Esempio: In $(\lambda x.x\; y)$, $x$ è legata dal $\lambda x$, mentre $y$ è libera.
+\end{itemize}
+
+\textbf{3. Le Regole di Riduzione (La Computazione):}
+Il calcolo progredisce attraverso riscritture sintattiche (riduzioni).
+\begin{itemize}
+    \item \textbf{Alpha-conversione ($\alpha$-riduzione):} È il rinominare in modo coerente le variabili legate per evitare "collisioni" o "catture" accidentali di nomi. 
+    Esempio: $\lambda x.x$ (la funzione identità) è $\alpha$-equivalente a $\lambda y.y$ o $\lambda z.z$.
+    \item \textbf{Beta-riduzione ($\beta$-riduzione):} È il vero motore della computazione. Definisce l'esecuzione di un'applicazione sostituendo il parametro formale con l'argomento attuale. \\
+    Sintassi formale: $(\lambda x.e_1)\; e_2 \rightarrow_{\beta} e_1[e_2/x]$ \\
+    (Si sostituiscono tutte le occorrenze \textit{libere} di $x$ all'interno di $e_1$ con il termine $e_2$, prestando attenzione ad applicare preventivamente un'$\alpha$-conversione se vi è rischio di sovrapposizioni di nomi).
+\end{itemize}
+
+\textbf{4. Forma Normale:}
+Un $\lambda$-termine si definisce in \textbf{forma normale} se non contiene più alcun \textit{redex} (radicale da ridurre). In altre parole, non è più possibile applicare alcuna $\beta$-riduzione. La forma normale rappresenta il "risultato" finale del calcolo.
+
+\textbf{5. Codifiche di Church (Encodings):}
+Poiché nel $\lambda$-calcolo puro non ci sono tipi di dato, questi vengono "emulati" strutturalmente usando solo funzioni:
+\begin{itemize}
+    \item \textbf{Booleani:} \\
+    $Vero \equiv \lambda x.\lambda y.x$ (prende due argomenti e restituisce il primo)\\
+    $Falso \equiv \lambda x.\lambda y.y$ (prende due argomenti e restituisce il secondo)
+    \item \textbf{Numeri Naturali (Church Numerals):} I numeri sono codificati come funzioni di ordine superiore che applicano una certa funzione $f$ un numero $n$ di volte a un argomento $x$. \\
+    $0 \equiv \lambda f.\lambda x.x$ \\
+    $1 \equiv \lambda f.\lambda x.f\; x$ \\
+    $2 \equiv \lambda f.\lambda x.f\; (f\; x)$
+\end{itemize}
+
+
+\subsection{Implementazione e Riduzioni Logiche}
+
+Vediamo alcuni esempi classici di $\beta$-riduzione. 
+\textit{Nota notazionale:} Negli snippet e negli esercizi pratici seguenti, per comodità di formattazione ASCII (tipica degli interpreti o dei file di testo originali), l'operatore matematico $\lambda$ viene rappresentato sintatticamente tramite il carattere backslash (\texttt{\textbackslash}).
+
+\subsubsection{Esempio 1: Applicazione di Base}
+Valutazione di un'applicazione semplice:
+\begin{verbatim}
+Termine:    (\x.(\z.x z)) y
+Regola:     Il parametro formale è x, l'argomento è y. 
+            Sostituiamo tutte le occorrenze di x nel corpo (\z.x z) con y.
+Risultato:  \z.y z
+(Il risultato è in forma normale in quanto non ci sono altre applicazioni).
+\end{verbatim}
+
+\subsubsection{Esempio 2: Valutazione di un Booleano con operatore}
+Modelliamo il costrutto \texttt{if True then A else B}:
+\begin{verbatim}
+Definizione If:    \b.\x.\y. b x y
+Definizione True:  \u.\v. u
+
+Valutazione di (If True A B):
+1. (\b.\x.\y. b x y) (\u.\v. u) A B
+2. Sostituiamo b: (\x.\y. (\u.\v. u) x y) A B
+3. Sostituiamo x con A: (\y. (\u.\v. u) A y) B
+4. Sostituiamo y con B: (\u.\v. u) A B
+5. Sostituiamo u con A: (\v. A) B
+6. Sostituiamo v con B: A 
+Risultato corretto: Il ramo "True" ha restituito A.
+\end{verbatim}
+
+\subsection{Esercizi e approfondimenti dal tutorato: Computazione in Forma Normale}
+All'esame viene spesso fornito un lungo e complesso termine di Lambda Calcolo e viene richiesto di mostrarne passo-passo la riduzione fino all'ottenimento della Forma Normale. L'accortezza fondamentale risiede nell'evitare le collisioni applicando correttamente le parente e la precedenza (associativa a sinistra).
+
+\subsubsection{Esercizio L11.12: Riduzione annidata}
+Si riduca il seguente termine a forma normale:
+\begin{verbatim}
+(\x. x z x) ((\y. y y x) z)
+\end{verbatim}
+
+\textbf{Svolgimento Passo-Passo:}
+\begin{enumerate}
+    \item Notiamo che c'è un'applicazione annidata sulla destra. Conviene prima ridurre l'argomento (\textit{Applicative Order}):
+    \begin{verbatim}
+    Sotto-termine destro: (\y. y y x) z
+    Sostituisco y con z:  z z x
+    \end{verbatim}
+    \item Il nostro termine principale è ora semplificato:
+    \begin{verbatim}
+    (\x. x z x) (z z x)
+    \end{verbatim}
+    \item Attenzione alle collisioni! C'è un rischio di cattura di variabile per la $x$ finale. Per procedere in assoluta pulizia formale (anche se qui le $x$ combaciano come variabili libere di contesto), sostituiamo l'intero blocco $(z z x)$ al posto delle $x$ legate dal primo $\lambda$:
+    \begin{verbatim}
+    (z z x) z (z z x)
+    \end{verbatim}
+\end{enumerate}
+\textbf{Risultato Finale:} $(z z x) z (z z x)$. L'espressione non contiene più alcun simbolo di astrazione $\lambda$ su cui effettuare applicazioni, pertanto è in forma normale.
+
+\subsubsection{Esercizio L11.13: Riduzione con Catture Evitate}
+Si riduca il seguente termine a forma normale:
+\begin{verbatim}
+Termine Iniziale:
+(\x. x y) (\t. t z) ((\x. \z. x y z) y x)
+\end{verbatim}
+
+\textbf{Svolgimento Passo-Passo:}
+\begin{enumerate}
+    \item Isoliamo il blocco destro e risolviamolo per semplificare il lavoro. Notiamo l'applicazione di due argomenti in cascata (\texttt{y} e poi \texttt{x}).
+    \begin{verbatim}
+    Blocco destro: ((\x. \z. x y z) y) x
+    Applico y alla x: (\z. y y z) x
+    Applico x alla z: y y x
+    \end{verbatim}
+    \item Il termine intero diventa ora un'applicazione sequenziale:
+    \begin{verbatim}
+    (\x. x y) (\t. t z) (y y x)
+    \end{verbatim}
+    \item Il Lambda calcolo è associativo a sinistra. Applichiamo quindi il primo termine al secondo:
+    \begin{verbatim}
+    Sotto-termine sinistro: (\x. x y) (\t. t z)
+    Sostituisco (\t. t z) al posto di x: (\t. t z) y
+    Applico y al posto di t: y z
+    \end{verbatim}
+    \item Reinseriamo il risultato nell'equazione principale, unendo i due blocchi:
+    \begin{verbatim}
+    (y z) (y y x)
+    \end{verbatim}
+\end{enumerate}
+\textbf{Risultato Finale:} $(y z) (y y x)$. Tutte le funzioni astratte sono state risolte.
+
+\section{Programmazione Logica e Prolog}
+
+\subsection{Spiegazione teorica}
+Il paradigma logico si discosta radicalmente sia dalla programmazione imperativa (che descrive \textit{come} eseguire un calcolo modificando lo stato) sia da quella funzionale (che valuta espressioni e funzioni). La programmazione logica è **dichiarativa**: il programmatore descrive la struttura logica del problema (le relazioni tra le entità) e il motore interno del linguaggio si occupa di trovare la soluzione.
+
+\newpage
+
+\textbf{Fondamenti del Paradigma Logico:}
+\begin{itemize}
+    \item \textbf{Relazioni vs Funzioni:} In matematica, una funzione $f(x) = y$ mappa un input a un output. Una relazione $R(x, y)$ afferma semplicemente che $x$ e $y$ sono legati in qualche modo. La programmazione logica si basa sulle relazioni.
+    \item \textbf{Prolog (Programming in Logic):} È il linguaggio di programmazione logica più celebre, basato su un sottoinsieme della logica del primo ordine (le \textit{Clausole di Horn}).
+\end{itemize}
+
+\textbf{Sintassi base di Prolog:}
+\begin{itemize}
+    \item \textbf{Atomi:} Costanti, nomi, o simboli. Iniziano rigorosamente con una lettera **minuscola** (es. \texttt{john}, \texttt{rochester}, \texttt{a}).
+    \item \textbf{Variabili:} Iniziano rigorosamente con una lettera **maiuscola** o con un underscore (es. \texttt{X}, \texttt{Person}, \texttt{\_}). L'underscore singolo \texttt{\_} è la variabile anonima (corrisponde alla wildcard in ML).
+    \item \textbf{Fatti (Facts):} Asserzioni incondizionate considerate sempre vere nel nostro "mondo" o database. 
+    Es: \texttt{padre(john, mary).}
+    \item \textbf{Regole (Rules):} Asserzioni condizionate (implicazioni logiche). Hanno la forma \texttt{Testa :- Corpo.} Il simbolo \texttt{:-} si legge "se" (if). 
+    Es: \texttt{nonno(X, Z) :- padre(X, Y), padre(Y, Z).} 
+    La virgola \texttt{,} rappresenta l'AND logico, mentre il punto e virgola \texttt{;} rappresenta l'OR.
+    \item \textbf{Query / Goal:} Interrogazioni poste al sistema (precedute dal prompt \texttt{?-}). Prolog risponde \texttt{true} (o \texttt{yes}) se la query è deducibile, \texttt{false} (o \texttt{no}) altrimenti, oppure restituisce le associazioni (binding) delle variabili che rendono vera la query.
+\end{itemize}
+
+\textbf{Unificazione e Risoluzione:}
+\begin{itemize}
+    \item L'\textbf{Unificazione} è il processo mediante il quale Prolog cerca di rendere identici due termini assegnando valori alle variabili. Ad esempio, per unificare \texttt{padre(john, X)} e \texttt{padre(Y, mary)}, Prolog istanzia \texttt{Y = john} e \texttt{X = mary}.
+    \item Il motore di \textbf{Risoluzione} esplora il database dall'alto verso il basso (top-down) e risolve le regole da sinistra verso destra (left-to-right).
+    \item \textbf{Backtracking (Ritorsione):} Se Prolog intraprende un percorso di ricerca che fallisce (arriva a un punto cieco in cui non può unificare), "torna indietro" all'ultimo punto in cui c'era un'alternativa (choice point) e tenta una strada diversa.
+\end{itemize}
+
+\textbf{Operatori Speciali:}
+\begin{itemize}
+    \item \textbf{Is (Aritmetica):} In Prolog, \texttt{X = 3 + 4} non calcola 7, ma unifica la variabile \texttt{X} con la struttura sintattica \texttt{3 + 4}. Per forzare la valutazione aritmetica si usa l'operatore \texttt{is}: \texttt{X is 3 + 4}.
+    \item \textbf{Cut (\texttt{!}) (Taglio):} È un operatore extra-logico che blocca il backtracking. Consente di ottimizzare la ricerca ("potatura dell'albero") impedendo a Prolog di esplorare alternative che sappiamo essere inutili o errate.
+    \item \textbf{Negation as Failure (\texttt{\textbackslash+} o \texttt{not}):} In Prolog, se un fatto non può essere dimostrato, viene considerato falso (Assunzione del Mondo Chiuso). \texttt{not(P)} è vero se e solo se l'esecuzione di \texttt{P} fallisce.
+\end{itemize}
+
+\textbf{Liste in Prolog:}
+Strutturalmente identiche a quelle in ML. Si indicano con le parentesi quadre \texttt{[]}. La sintassi per destrutturare una lista in Testa e Coda usa il pipe \texttt{|}: \texttt{[Head | Tail]}.
+
+
+\subsection{Implementazione del codice}
+
+\subsubsection{Liste, Ricorsione e Backtracking (\texttt{append} e \texttt{member})}
+A differenza dei linguaggi funzionali in cui le funzioni hanno input e output definiti, in Prolog una singola definizione relazionale può operare in molteplici direzioni (invertibilità).
+
+\begin{verbatim}
+% Definizione della relazione "Membro di una lista"
+% 1. Caso base: X è membro della lista se è la testa della lista.
+member(X, [X | _]).
+
+% 2. Passo ricorsivo: X è membro se è membro della coda della lista.
+member(X, [_ | Tail]) :- member(X, Tail).
+
+% Definizione dell'Append (concatenazione di liste)
+% append(L1, L2, L3) è vero se L3 è la concatenazione di L1 e L2.
+append([], L, L).
+append([H | T1], L2, [H | T3]) :- append(T1, L2, T3).
+
+% POTENZA DICHIARATIVA:
+% Interrogazione standard: ?- append([a,b], [c,d], X). 
+%   -> X = [a,b,c,d]
+% Sottrazione di liste:    ?- append(X, [c,d], [a,b,c,d]). 
+%   -> X = [a,b]
+% Generazione di pattern:  ?- append(X, Y, [a,b,c]).
+%   -> X=[], Y=[a,b,c] ; X=[a], Y=[b,c] ; ...
+\end{verbatim}
+
+\newpage
+
+\subsubsection{Tic-Tac-Toe in Prolog (Tris Interattivo)}
+Il file \texttt{tic-tac-toe-interactive.pl} fornito a lezione illustra come unire le regole dichiarative per la vittoria, il backtracking per la scelta della mossa e l'I/O (Input/Output).
+
+\begin{verbatim}
+% 1. Dichiariamo che i predicati 'o' (computer) e 'x' (giocatore) 
+% sono dinamici (il database può essere modificato a runtime)
+:- dynamic o/1.
+:- dynamic x/1.
+
+% 2. Definizione delle condizioni di vittoria (Linee vincenti)
+ordered_line(1, 2, 3).
+ordered_line(4, 5, 6).
+ordered_line(7, 8, 9).
+ordered_line(1, 4, 7).
+% ... altre combinazioni diagonali ...
+
+% Permutazioni per controllare la linea in qualsiasi ordine
+line(A, B, C) :- ordered_line(A, B, C).
+line(A, B, C) :- ordered_line(A, C, B).
+% ... (altre permutazioni delegate dal Cut o dal Backtracking)
+
+% 3. Logica di intelligenza artificiale: "Cosa è una buona mossa?"
+% Prolog tenta le regole in ordine (dall'alto verso il basso).
+move(A) :- good(A), empty(A).
+
+% Condizione 1: Cerca di vincere
+good(A) :- win(A).
+% Condizione 2: Blocca la vittoria del giocatore
+good(A) :- block_win(A).
+% Condizioni fallback: occupa il centro, poi gli angoli
+good(5).
+good(1).
+good(3).
+
+% Implementazione di 'win' e 'block_win'
+% "Vinciamo se abbiamo due 'o' su una linea e A è la terza casella vuota"
+win(A) :- o(B), o(C), line(A, B, C).
+% "Blocchiamo se l'utente 'x' ha due caselle su una linea"
+block_win(A) :- x(B), x(C), line(A, B, C).
+
+% 4. Gestione dello stato (Effetti collaterali con asserta)
+makemove :- move(X), !, asserta(x(X)). % Il Cut (!) ferma la ricerca 
+                                       % appena trova una mossa valida
+makemove :- all_full.                  % Fallback in caso di pareggio
+\end{verbatim}
+
+\newpage
+
+\textbf{Commento Architetturale per l'esame:}
+L'uso di \texttt{:- dynamic} abbinato al comando \texttt{asserta} (che inserisce dinamicamente un nuovo fatto nel database all'inizio) e \texttt{retract} (che lo elimina) permette a Prolog di mantenere uno "stato" mutevole, aggirando la pura immutabilità funzionale.
+Inoltre, il cut \texttt{!} in \texttt{makemove} è fondamentale: senza di esso, se la mossa successiva portasse a un fallimento o al backtracking, Prolog annullerebbe l'inserimento della mossa per provare il \texttt{good} successivo, generando comportamenti indesiderati nell'albero di gioco.
+
+
+\section{Simulazioni d'Esame: Preparazione Teorica}
+
+\newcounter{domandateoria}
+\setcounter{domandateoria}{0}
+
+\subsection{Ambiente, Regole di Scope e Passaggio dei Parametri}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'ambiente (o environment) è: \\
+    \textbf{Risposta esatta:} L'insieme delle associazioni (nome, entità denotabile) esistenti in uno specifico punto del programma ed in uno specifico momento durante l'esecuzione di un programma. \\
+    \textbf{Spiegazione:} Da non confondere con la "memoria" (che associa locazioni a valori). L'ambiente è una mappa logica dinamica che collega gli identificatori (variabili, funzioni, tipi) scelti dal programmatore alle rispettive entità semantiche.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Quale/i delle seguenti affermazioni sugli oggetti denotabili è vera? \\
+    \textbf{Risposta esatta:} Un oggetto denotabile è un oggetto a cui può essere associato un nome (ad es. i nomi delle variabili definiti dagli utenti). \\
+    \textbf{Spiegazione:} Qualsiasi costrutto a cui il linguaggio permette di assegnare un identificatore (una costante in ML, una funzione, una classe in Scala) è denotabile.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'ambiente non locale di un blocco di codice è: \\
+    \textbf{Risposta esatta:} L'insieme dei binding visibili dentro al blocco, ma non direttamente definiti in esso. \\
+    \textbf{Spiegazione:} Se una funzione richiama una variabile globale o una variabile definita in una funzione esterna che la avvolge, sta accedendo al suo ambiente non-locale.
+    \vspace{0.3cm}
+
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il seguente pseudocodice:
+\begin{verbatim}
+int y = 12;
+int f1(int x) { x = 12; return x / 2; }
+int f2(void) {
+    int a, c;
+    a = y / 3;
+    c = f1(a);
+    return a + c;
+}
+\end{verbatim}
+    Qual è il valore di ritorno di \texttt{f2} se i parametri sono passati \textbf{per valore}? \\
+    \textbf{Risposta esatta:} 10 \\
+    \textbf{Spiegazione:} In \texttt{f2}, si calcola \texttt{a = 12 / 3 = 4}. Chiamando \texttt{f1(a)}, viene passata una copia del valore 4. All'interno di \texttt{f1}, la variabile locale \texttt{x} sovrascrive il 4 con 12 e ritorna \texttt{12 / 2 = 6}. Dunque \texttt{c = 6}. Poiché il passaggio è avvenuto per valore, la \texttt{a} originale in \texttt{f2} è rimasta inalterata a 4. Il ritorno finale è \texttt{4 + 6 = 10}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il seguente pseudocodice:
+\begin{verbatim}
+int x = 1; int y = 2;
+void cambia() { x = x + y; }
+void bloccoA() { int y = 10; cambia(); }
+\end{verbatim}
+    Se lo scoping è \textbf{dinamico}, quanto vale \texttt{x} dopo l'esecuzione di \texttt{bloccoA()}? \\
+    \textbf{Risposta esatta:} 11 \\
+    \textbf{Spiegazione:} Lo scoping dinamico cerca il valore della variabile nell'ultimo record di attivazione impilato sullo Stack, risalendo la catena dinamica delle chiamate. Poiché \texttt{cambia()} è invocato da \texttt{bloccoA()}, esso non vedrà la \texttt{y} globale (2), ma la \texttt{y} locale di \texttt{bloccoA} (10). La variabile \texttt{x} globale viene quindi aggiornata a \texttt{1 + 10 = 11}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Quali delle seguenti affermazioni sulle binding policy sono vere? \\
+    \textbf{Risposta esatta:} Nello shallow binding l'environment da considerare è quello attivo al momento della chiamata della funzione passata come parametro. \\
+    \textbf{Spiegazione:} Questo si contrappone al \textit{Deep Binding} (tipico di ML in congiunzione con le \textit{Closures}), in cui l'ambiente viene "congelato" ed associato alla funzione nel momento in cui essa viene definita, a garanzia della sicurezza dei tipi e dello stato.
+    \vspace{0.3cm}
+\end{itemize}
+
+
+\subsection{Memoria, Macchine Astratte e Garbage Collection}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} I puntatori di catena dinamica (Dynamic Link) contenuti in un record di attivazione: \\
+    \textbf{Risposta esatta:} Permettono, a partire da un RdA, di trovare il RdA precedente sullo stack (quello della procedura chiamante). \\
+    \textbf{Spiegazione:} Formano la catena delle chiamate a funzione a runtime, essenziali sia per lo smontaggio (pop) corretto dello stack alla terminazione di una funzione, sia per la ricerca di variabili nello scoping dinamico.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La frammentazione \textbf{interna} causa: \\
+    \textbf{Risposta esatta:} Uno spreco di memoria. \\
+    \textbf{Spiegazione:} Si verifica quando il sistema operativo assegna a un processo un blocco di memoria leggermente più grande di quello richiesto; la parte inutilizzata all'interno del blocco assegnato non può essere usata da nessun altro. 
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La frammentazione \textbf{esterna} causa: \\
+    \textbf{Risposta esatta:} L'impossibilità di allocare grandi blocchi di memoria anche se la memoria libera totale è sufficiente. \\
+    \textbf{Spiegazione:} Avviene quando la memoria Heap libera è spezzettata in tanti piccoli frammenti non contigui, rendendo fallimentare una richiesta per un singolo blocco massiccio di memoria (es. un grosso array).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un Garbage Collector: \\
+    \textbf{Risposta esatta:} Gestisce in maniera automatica la deallocazione di oggetti non più utilizzati dal programma, evitando memory leak. Non è esclusiva dei linguaggi funzionali ed esistono varie tecniche (es. Mark and Sweep). \\
+    \textbf{Spiegazione:} Il suo compito primario è scandagliare la memoria Heap alla ricerca di oggetti il cui puntatore/riferimento non è più raggiungibile dallo Stack, deallocandoli in sicurezza (es. Java).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si può dire che una macchina astratta che capisce il linguaggio Java non sia implementata in modo puramente compilativo perché: \\
+    \textbf{Risposta esatta:} La macchina virtuale di Java (JVM) o JRE deve comunque essere presente per interpretare il Bytecode. \\
+    \textbf{Spiegazione:} Java utilizza un'architettura mista. Il compilatore (\texttt{javac}) non produce codice macchina nativo, ma Bytecode. È poi l'interprete (la JVM) a convertire istantaneamente il Bytecode in istruzioni macchina durante l'esecuzione (JIT compilation).
+    \vspace{0.3cm}
+\end{itemize}
+
+\subsection{Lambda Calcolo e Codifiche}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Nella sostituzione $(\lambda a.abc)[d/c]$: \\
+    \textbf{Risposta esatta:} Non c'è alcuna cattura di variabile. \\
+    \textbf{Spiegazione:} Sostituiamo la $c$ (libera) con $d$. Otteniamo $\lambda a.abd$. Non c'è collisione o cattura perché $d$ non entra nel raggio di un legame locale pre-esistente con lo stesso nome. Diverso sarebbe stato se avessimo voluto sostituire $c$ con $a$; in tal caso $a$ sarebbe stata "catturata" dal $\lambda a$, e avremmo dovuto usare un'$\alpha$-conversione (es. $\lambda z.zbc$) prima.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta-riducendo $(\lambda a. a a a) (\lambda b. b) (\lambda c. c)$ si ottiene: \\
+    \textbf{Risposta esatta:} $\lambda c. c$ \\
+    \textbf{Spiegazione:} 
+    1. Si applica il primo blocco al secondo. Tutte le $a$ diventano la funzione identità $(\lambda b. b)$. \\
+    2. Otteniamo: $(\lambda b. b) (\lambda b. b) (\lambda b. b)$ e a parte il nostro terzo termine originale $(\lambda c. c)$. \\
+    3. Riducendo la catena di identità: $(\lambda b. b)$ applicata a se stessa ridà $(\lambda b. b)$. Questa, riapplicata ancora, dà di nuovo $(\lambda b. b)$. \\
+    4. Infine, assemblando l'ultimo pezzo: $(\lambda b. b) (\lambda c. c)$. L'identità applicata al termine $\lambda c.c$ ci restituisce intatto $\lambda c.c$.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta-riducendo $(\lambda n. \lambda f. \lambda x. f((n f) x)) (\lambda f. \lambda x. f(f(fx)))$ si ottiene: \\
+    \textbf{Risposta esatta:} $\lambda f. \lambda x. f(f(f(f(fx))))$ \\
+    \textbf{Spiegazione:} Il primo termine è la funzione $SUCC$ (Successore) nella codifica dei Church Numerals. Il secondo termine è il numero $3$ di Church (la funzione $f$ applicata $3$ volte). Applicando il Successore al numero $3$, si ottiene logicamente (e sintatticamente) il numero $4$ di Church, cioè la $f$ applicata $4$ volte alla $x$.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta-riducendo $(\lambda a. ((a \lambda b. \lambda c. c) \lambda d. \lambda e. d)) (\lambda f. \lambda g. f)$ si ottiene: \\
+    \textbf{Risposta esatta:} $\lambda b. \lambda c. c$ \\
+    \textbf{Spiegazione:} Questa è la codifica condizionale Booleana (\texttt{IF-THEN-ELSE}). 
+    Il termine $(\lambda f. \lambda g. f)$ è il "TRUE" di Church (prende due argomenti e restituisce il primo). 
+    Sostituendo il True al posto della $a$ nel blocco centrale, l'espressione dice: \texttt{TRUE (False) (True)}. Poiché è True, la funzione scarta il secondo argomento e restituisce il primo, che è la funzione $(\lambda b. \lambda c. c)$ (il False di Church).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Data la lambda-espressione $\lambda a. (\lambda b. b f (\lambda c. d c a g))$, quali sono le variabili \textit{free} (libere)? \\
+    \textbf{Risposta esatta:} $f, d, g$ \\
+    \textbf{Spiegazione:} Le variabili $a, b, c$ sono strettamente vincolate ("bound") dalle relative astrazioni (rispettivamente $\lambda a, \lambda b, \lambda c$). Le lettere $f, d, g$ appaiono nel corpo ma non possiedono alcun operatore $\lambda$ che le lega nel contesto dell'espressione fornita, rendendole libere.
+    \vspace{0.3cm}
+\end{itemize}
+
+\subsection{Sistemi di Tipi, Polimorfismo e ML}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} In ML, il costrutto \texttt{:>} : \\
+    \textbf{Risposta esatta:} È usato per nascondere le componenti di una struttura che non sono visibili nella signature (Ascription opaca). \\
+    \textbf{Spiegazione:} Rappresenta l'implementazione pratica dell'\textbf{Abstract Data Type (ADT)}. Il tipo e le definizioni vengono sigillati, garantendo che gli utenti esterni possano interagire con i dati solo attraverso le funzioni esposte nella signature, garantendone la consistenza.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo dell'espressione \texttt{fn a => fn b => fn c => (a b) / c} ? \\
+
+    \newpage
+    
+    \textbf{Risposta esatta:} \texttt{fn: ('a -> real) -> 'a -> real -> real} \\
+    \textbf{Spiegazione:} Procediamo per vincoli (\textit{Type Inference}): l'operatore \texttt{/} è la divisione in virgola mobile (esclusiva dei reali in ML). Questo forza il divisore \texttt{c} a essere \texttt{real}, e forza il risultato del blocco \texttt{(a b)} a essere \texttt{real}. Di conseguenza: \texttt{b} ha un tipo generico \texttt{'a}, mentre \texttt{a} deve essere una funzione applicabile a \texttt{b} per produrre un reale, quindi \texttt{('a -> real)}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun f x y = x y;} ? \\
+    \textbf{Risposta esatta:} \texttt{fn: ('a -> 'b) -> 'a -> 'b} \\
+    \textbf{Spiegazione:} La notazione per affiancamento \texttt{x y} indica l'applicazione della funzione \texttt{x} all'argomento \texttt{y}. Se diamo a \texttt{y} il tipo generico \texttt{'a}, \texttt{x} dovrà essere una funzione che assorbe \texttt{'a} ed emette \texttt{'b}. Il risultato totale della funzione è l'output di \texttt{x}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Siano dati i tipi riferimento \texttt{A} e \texttt{B}, e i tipi generici \texttt{C<A>} e \texttt{C<B>}. Se \texttt{B} è una sottoclasse di \texttt{A}, allora \texttt{C<B>} è una sottoclasse di \texttt{C<A>}. \\
+    \textbf{Risposta esatta:} \textbf{Falso} \\
+    \textbf{Spiegazione:} I tipi generici (sia in Java che in altri ecosistemi tipizzati visti) sono \textbf{invarianti}. Una Lista di Interi non eredita e non può essere trattata direttamente come una Lista di Object (se lo fosse, si potrebbero inserire stringhe in una lista di interi sfondando la Type Safety a runtime).
+    \vspace{0.3cm}
+    
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Nel seguente programma ML:
+\begin{verbatim}
+fun pow x 0 = 1.0
+  | pow x y = x * pow x (y - 1);
+\end{verbatim}
+    Il tipo dell'espressione \texttt{pow 5.0} è: \\
+    \textbf{Risposta esatta:} \texttt{fn: int -> real} \\
+    \textbf{Spiegazione:} È un classico caso di applicazione parziale (\textit{Currying}). Il tipo originale della funzione è \texttt{real -> int -> real}. Fornendo unicamente la base (\texttt{5.0}), l'ambiente "scongela" e assorbe il primo argomento, restituendo una nuova funzione in attesa del solo esponente di tipo \texttt{int}.
+    \vspace{0.3cm}
+\end{itemize}
+
+
+\section{Simulazioni d'Esame: Esercizi Pratici in ML}
+
+In questa sezione finale raccogliamo i problemi di programmazione pratica in linguaggio Standard ML proposti durante le simulazioni ufficiali e gli appelli passati. In sede d'esame, la valutazione di questi esercizi si basa sulla corretta applicazione del paradigma funzionale: divieto assoluto di usare costrutti imperativi (come i cicli o i riferimenti mutabili), uso elegante del \textit{Pattern Matching}, corretta inferenza dei tipi e gestione efficiente dell'ambiente locale tramite i blocchi \texttt{let ... in ... end}.
+
+\subsection{Esercizio 1: Estrazione dei percorsi su Alberi (Appello 15/07/2025)}
+
+\textbf{Testo del problema:}\\
+Dato il seguente tipo di dato che rappresenta un albero di numeri interi:
+\begin{verbatim}
+datatype Tree = Leaf of int | Node of int * Tree * Tree | Empty;
+\end{verbatim}
+Scrivere due funzioni. La prima, \texttt{all\_paths (Tree -> int list list)}, deve restituire tutti i percorsi dalla radice dell'albero alle foglie (\texttt{Empty} non è considerato una foglia).
+La seconda, \texttt{filter\_paths ('a list * ('a -> bool) -> 'a list)}, prende in input una lista di path e un predicato generico, e restituisce una lista di liste contenente solo i path che soddisfano tale condizione. \textit{È ammesso l'utilizzo della funzione \texttt{map} ma non di altre funzioni di libreria.}
+
+\textbf{Soluzione (Valutata 30L):}
+\begin{verbatim}
+datatype Tree = Leaf of int | Node of int * Tree * Tree | Empty;
+fun all_paths(t: Tree) =
+let
+    fun aux (Empty) = []
+      | aux (Leaf n) = [[n]]
+      | aux (Node (n, l, r)) =
+        let
+            val left_paths = aux(l)
+            val right_paths = aux(r)
+        in
+            (* Aggiunge il nodo corrente 'n' in testa a 
+               TUTTI i percorsi calcolati dai figli *)
+            map (fn path => n::path) (left_paths @ right_paths)
+        end
+in
+    aux(t)
+end;
+
+fun filter_paths ([], f) = []
+  | filter_paths (x::xs, f) = 
+      if (f(x)) then x :: filter_paths(xs, f) 
+      else filter_paths(xs, f);
+
+(* Esempio di utilizzo (filtro basato sulla somma degli elementi): *)
+fun sum_lower_than_30 list = (foldl (op +) 0 list) < 30;
+\end{verbatim}
+\textbf{Analisi didattica:} L'utilizzo del \texttt{map} con una funzione anonima (\texttt{fn path => n::path}) per concatenare il nodo radice a \textit{tutte} le liste figlie in un colpo solo dimostra un'ottima padronanza delle funzioni di ordine superiore. Il blocco \texttt{let} evita di ricalcolare i percorsi più di una volta.
+
+\subsection{Esercizio 2: Astrazione del Controllo (Il ciclo FOR)}
+
+\textbf{Testo del problema (Prog 3):}\\
+Si consideri il tipo di dato \texttt{datatype FOR = For of int * (int -> int)}, i cui valori \texttt{For(n, f)} rappresentano funzioni che implementano un ciclo for imperativo che applica iterativamente $n$ volte la funzione $f$ all'argomento. Si scriva una funzione \texttt{eval} (avente tipo \texttt{FOR -> (int -> int)}) che riceve come argomento un valore di tipo \texttt{FOR} e ritorna una funzione curried pronta ad applicare tale ciclo.
+Se \texttt{f} moltiplica per 2, \texttt{eval (For(3, f))} ritornerà una funzione che dato un input lo moltiplicherà per 8 ($2^3$).
+
+\textbf{Soluzione:}
+\begin{verbatim}
+datatype FOR = For of int * (int -> int);
+
+(* Caso base: un ciclo che itera 0 volte restituisce la funzione Identità *)
+fun eval (For (0, f)) = (fn x => x)
+  | eval (For (n, f)) = 
+      let 
+          (* Scongela il passo successivo (n-1) *)
+          val rest_eval = eval(For(n - 1, f))
+      in 
+          (* Restituisce una closure che compone f con il resto delle 
+             iterazioni *)
+             
+          (fn x => f(rest_eval(x)))
+      end;
+
+(* Alternativa sintatticamente perfetta usando la composizione 'o': *)
+fun eval2 (For (0, f)) = (fn x => x)
+  | eval2 (For (n, f)) = f o eval2(For (n - 1, f));
+\end{verbatim}
+\textbf{Analisi didattica:} Questo esercizio testa la comprensione profonda della \textit{Partial Instantiation} e delle \textit{Closure}. La funzione \texttt{eval} non calcola il risultato finale matematico, ma si limita ad "assemblare" la catena di funzioni $f(f(f(x)))$ e la restituisce in attesa che l'utente fornisca l'input $x$.
+
+\subsection{Esercizio 3: Somma Filtrata per Parità (Prog 1)}
+
+\textbf{Testo del problema:}\\
+Si scriva una funzione \texttt{sommali} (avente tipo \texttt{int -> int list -> int}) che riceve un intero $n$ ed una lista di interi $L$. La funzione somma ad $n$ gli elementi di $L$ che hanno posizione pari (indici 0, 2, 4...). Se la lista contiene meno di 2 elementi, la logica si applica regolarmente. (Es: \texttt{sommali 2 [1,2,3,4] = 2 + 1 + 3 = 6}).
+
+\newpage
+
+\textbf{Soluzione:}
+\begin{verbatim}
+fun sommali n [] = n
+  | sommali n [x] = n + x
+  (* De-strutturiamo la lista afferrando i primi due elementi: 
+     x (pari) e y (dispari). Sommiamo x al totalizzatore, e scartiamo y. *)
+  | sommali n (x::y::xs) = sommali (n + x) xs;
+\end{verbatim}
+\textbf{Analisi didattica:} Raggiunge un'efficienza ottimale sfruttando la \textbf{Tail Recursion} (Ricorsione in coda) in modo che l'accumulatore logico venga trascinato nelle chiamate successive, non riempiendo mai il \textit{Call Stack}. L'uso del pattern \texttt{x::y::xs} permette di "saltare" le posizioni dispari con una sintassi compatta.
+
+\subsection{Esercizio 4: Manipolazione di stringhe (Prefissi e Suffissi)}
+
+\textbf{Testo del problema (Exam Examples):}\\
+Scrivere due funzioni \texttt{suffixes} e \texttt{prefixes} (tipo \texttt{string -> string list}) che, data una stringa, restituiscano la lista di tutti i suoi suffissi/prefissi, ignorando la stringa vuota. 
+Esempio: \texttt{suffixes "ciao" = ["ciao", "iao", "ao", "o"]}.
+
+\textbf{Soluzione:}
+\begin{verbatim}
+(* SUFFISSI: Semplice, poiché possiamo usare l'estrazione substring *)
+fun suffixes "" = []
+  | suffixes str = 
+      str :: suffixes (String.extract(str, 1, NONE));
+
+(* PREFISSI: Convertiamo in char list per poter comporre gli elementi *)
+fun pref_aux [] = []
+  | pref_aux (x::xs) = 
+      (* Il primo carattere si abbina a tutti i prefissi generati in coda *)
+      [x] :: map (fn p => x::p) (pref_aux xs);
+
+fun prefixes "" = []
+  | prefixes str = 
+      (* implode trasforma le char list interne di nuovo in stringhe *)
+      map implode (pref_aux (explode str));
+\end{verbatim}
+
+\subsection{Esercizio 5: Addizione Binaria Nativa su Liste}
+
+\textbf{Testo del problema (Exam Examples):}\\
+Scrivere la funzione \texttt{sum\_binary} di tipo \texttt{int list * int list -> int list} che prende in input una coppia di liste di interi (composte da 1 e 0) rappresentanti un numero binario, e ne restituisca la somma binaria.
+Esempio: \texttt{sum\_binary ([1,0], [1,0]) = [1,0,0]}.
+
+\newpage
+
+\textbf{Soluzione:}
+\begin{verbatim}
+(* Funzione ausiliaria che incapsula la logica del riporto (carry) *)
+fun sum_bin_carry ([], [], 0) = []
+  | sum_bin_carry ([], [], 1) = [1]
+  
+  (* Se una delle due liste è più corta, aggiungiamo [0] fittizi *)
+  | sum_bin_carry (x::xs, [], carry) = sum_bin_carry(x::xs, [0], carry)
+  | sum_bin_carry ([], y::ys, carry) = sum_bin_carry([0], y::ys, carry)
+  
+  (* Passo generale per l'elaborazione dei bit *)
+  | sum_bin_carry (x::xs, y::ys, carry) =
+      let
+          val sum = x + y + carry
+          val new_bit = sum mod 2   (* Se la somma è 2, il bit è 0 *)
+          val new_carry = sum div 2 (* Se la somma è 2 o 3, il carry è 1 *)
+      in
+          new_bit :: sum_bin_carry(xs, ys, new_carry)
+      end;
+
+(* Wrapper esterno che inverte le liste (Little-Endian vs Big-Endian) *)
+fun sum_binary (L1, L2) =
+    rev (sum_bin_carry (rev L1, rev L2, 0));
+\end{verbatim}
+\textbf{Analisi didattica:} In ML, l'operatore cons (\texttt{::}) permette di aggiungere elementi solo \textit{in testa} alla lista, operazione logica \textit{O(1)}. Poiché un'addizione richiede l'allineamento a destra (sui bit meno significativi), è obbligatorio ribaltare prima gli operandi con la funzione nativa \texttt{rev}, processare i carry in avanti e, infine, ribaltare il risultato. L'uso dei pattern per gestire la discrepanza di lunghezza tra gli operandi è un'altra peculiarità vitale del codice.
+
+\subsection{Esercizio 6: Aggregazione su Strutture Ramificate \\ (get\_words)}
+
+\textbf{Testo del problema (Exam Examples):}\\
+Dato il tipo \texttt{datatype ctree = Empty | Leaf of char | Node of char * ctree * ctree}. Scrivere una funzione \texttt{get\_words} che restituisce una coppia di stringhe \texttt{(string * string)}. La prima stringa è la concatenazione dei caratteri contenuti nelle foglie, la seconda stringa è la concatenazione di quelli nei nodi interni.
+(Es: \texttt{get\_words Node(\#"a", Leaf \#"b", Leaf \#"c") = ("bc", "a")}).
+
+\newpage
+
+\textbf{Soluzione:}
+\begin{verbatim}
+datatype ctree = Empty | Leaf of char | Node of char * ctree * ctree;
+
+fun get_words Empty = ("", "")
+  | get_words (Leaf c) = (str(c), "")
+  | get_words (Node (c, left, right)) =
+      let
+          (* Estraiamo i risultati pre-calcolati dai sotto-alberi *)
+          val (leavesL, nodesL) = get_words(left)
+          val (leavesR, nodesR) = get_words(right)
+      in
+          (* Ricomponiamo la tupla assemblando i rispettivi domini *)
+          (leavesL ^ leavesR, str(c) ^ nodesL ^ nodesR)
+      end;
+\end{verbatim}
+\textbf{Analisi didattica:} Questa soluzione sfrutta l'ambiente locale \texttt{let} in congiunzione con l'operatore nativo di concatenazione di stringhe (\texttt{\^}) e il convertitore \texttt{str()} per operare il casting da carattere a stringa, aggirando costose manipolazioni di liste di caratteri intermedie.
+
+\end{document}
+
