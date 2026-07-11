@@ -1,27 +1,13 @@
 # 🎓 University Archive
 
-[
+[![Java](https://img.shields.io/badge/Language-Java-b07219?style=for-the-badge)](https://www.java.com/)
+[![C++](https://img.shields.io/badge/Language-C%2B%2B-f34b7d?style=for-the-badge)](https://isocpp.org/)
+[![ML](https://img.shields.io/badge/Language-ML-dc566d?style=for-the-badge)](https://smlfamily.github.io/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-![Java](https://img.shields.io/badge/Language-Java-b07219?style=for-the-badge)
+A structured archive of notes, LaTeX cheat sheets, and study materials for Computer Science coursework at the Università degli Studi di Trento — organized by semester and course.
 
-](https://www.java.com/)
-[
-
-![C++](https://img.shields.io/badge/Language-C%2B%2B-f34b7d?style=for-the-badge)
-
-](https://isocpp.org/)
-[
-
-![ML](https://img.shields.io/badge/Language-ML-dc566d?style=for-the-badge)
-
-](https://smlfamily.github.io/)
-[
-
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-
-](LICENSE)
-
-A personal university archive collecting notes, LaTeX cheat sheets, and study materials for Computer Science coursework at the Università degli Studi di Trento — organized by semester and course.
+Built because university materials tend to accumulate across download folders, cloud drives, and notebook apps with no consistent structure. Keeping everything version-controlled in one place makes it searchable, linkable, and reproducible — any cheat sheet can be recompiled from source, and page-anchored links in each course index let you jump directly to a topic without scrolling.
 
 ## Table of Contents
 
@@ -35,29 +21,30 @@ A personal university archive collecting notes, LaTeX cheat sheets, and study ma
 
 ## Features
 
-- Notes and course materials organized by semester (1° and 2° Semestre)
-- Standalone LaTeX **schemi** (structured cheat sheets) and **riassunti** (summaries) for each course, compiled to PDF
-- Per-course sub-archives with their own README index — currently available for:
-  - **Fondamenti Matematici** — set theory, induction, modular arithmetic, Euclidean division, proofs
+- Materials organized by semester and course — consistent folder structure across all subjects
+- LaTeX cheat sheets (schemi) and summaries (riassunti) compiled to PDF, one per course
+- Per-course README indexes with page-anchored links — jump directly to a specific topic in a PDF (e.g. `schemi_calcolatori.pdf#page=20`)
+- Dual light and dark PDF variants for cheat sheets, toggled via a LaTeX conditional macro (`\islight`) — one source file, two outputs
+- Currently covers four second-semester courses:
+  - **Fondamenti Matematici** — set theory, induction, modular arithmetic, Euclidean division, proof techniques
   - **Calcolatori (Computer Architecture)** — binary arithmetic, RISC-V/x86-64/ARM assembly, pipelining, memory hierarchy, I/O
-  - **Probabilità e Statistica** — axioms, combinatorics, random variables, notable distributions, inference/MLE
-  - **Programmazione Funzionale** — ML basics, recursion/pattern matching, higher-order functions, ADTs, lambda calculus, Prolog
-- Each cheat sheet PDF links directly to the relevant page range for fast lookup (e.g. `schemi_calcolatori.pdf#page=20`)
-- Dual **light/dark PDF variants** for the schemi documents, toggled via a LaTeX conditional macro (`\islight`) rather than maintaining two separate source files
+  - **Probabilità e Statistica** — axioms, combinatorics, random variables, notable distributions, MLE and inference
+  - **Programmazione Funzionale** — PolyML basics, recursion, pattern matching, higher-order functions, ADTs, lambda calculus, Prolog
 
 ## Tech Stack
 
 - **Languages covered in coursework:** Java, C++, PolyML (Standard ML)
-- **Documentation format:** LaTeX (schemi and riassunti), compiled to PDF
-- **Notes format:** Markdown (per-course README indices), plus raw course materials (PDFs, images, code)
+- **Documentation format:** LaTeX — compiled to PDF using `pdflatex`
+- **Index format:** Markdown per-course README files with page-anchored PDF links
+- **LaTeX packages used:** `geometry`, `hyperref`, `booktabs`, `tocloft`, `xcolor`, `microtype`
 
 ## Getting Started
 
 ### Prerequisites
 
 - Git
-- A PDF reader
-- *(Optional, only if you want to recompile the LaTeX sources)* A LaTeX distribution (e.g. TeX Live, MiKTeX) with a standard package set: `geometry`, `hyperref`, `booktabs`, `tocloft`, `xcolor`, `microtype`
+- A PDF reader for viewing compiled output
+- *(Optional — only if recompiling LaTeX sources)* A LaTeX distribution such as TeX Live or MiKTeX with standard packages
 
 ### Installation
 
@@ -66,11 +53,11 @@ git clone https://github.com/mirconegri/University.git
 cd University
 ```
 
-No build step is required to read the existing PDFs — cloning is enough.
+No build step is required to read the existing PDFs.
 
 ## Usage
 
-Browse by semester and course folder:
+Browse by semester and course:
 
 ```
 1st_semester/
@@ -85,37 +72,41 @@ Browse by semester and course folder:
   └── statistica/
 ```
 
-Each course folder may contain a `schemi/` subfolder with its own README index and compiled PDF cheat sheets. Open the PDFs directly, or follow the page-anchored links in each course's `schemi/README.md` to jump straight to a topic.
+Each course folder may contain a `schemi/` subfolder with a README index and compiled PDFs. Follow the page-anchored links in each index to jump directly to a topic, or open the PDFs directly.
 
-To recompile a LaTeX source (e.g. after editing `schemi_p2.tex`):
+To recompile a LaTeX source after editing:
 
 ```bash
 cd 2nd_semester/P2/schemi
 pdflatex schemi_p2.tex
 ```
 
-To generate the dark-mode variant of a schemi document, comment out (or leave undefined) the `\def\islight{true}` line at the top of the `.tex` file before compiling; defining it produces the light-mode version instead.
+To generate the light-mode variant, ensure `\def\islight{true}` is defined at the top of the `.tex` file before compiling. Comment it out or remove it to produce the dark-mode variant instead.
 
 ## Configuration and Environment
 
-This repository requires no environment variables or runtime configuration. The only "configuration" is the LaTeX `\islight` conditional described above, controlled per-document by editing the source file directly before compilation.
+No environment variables or runtime configuration required. The only configurable element is the `\islight` LaTeX macro described above, edited directly in the source file before compilation.
 
 ## Contributing
 
-This is a personal, educational archive, but corrections and suggestions are welcome:
+This is a personal archive, but corrections to notes or broken links are welcome:
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
+2. Create a feature branch (`git checkout -b fix/your-fix`)
 3. Commit your changes
 4. Open a Pull Request
 
-Found an error in the notes or a broken link? Open an [Issue](https://github.com/mirconegri/University/issues).
+For errors in the notes or broken page anchors, open an [Issue](https://github.com/mirconegri/University/issues).
+
+### Author
+
+**Mirco Negri** — Computer Science @ UniTrento
+
+[![Portfolio](https://img.shields.io/badge/Portfolio-00599C?style=for-the-badge&logo=globe&logoColor=white)](https://mirconegri.github.io/Portfolio/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mirconegri)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mirco-negri-263810225)
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:mirconegri06@gmail.com)
 
 ## License
 
-MIT License © 2026 `Mirco Negri` — see [LICENSE](LICENSE) file for details.
-
-### 👤 Author
-
-`Mirco Negri`
-GitHub: [https://github.com/mirconegri](https://github.com/mirconegri)
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
