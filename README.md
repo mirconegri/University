@@ -32,7 +32,7 @@ Built because university materials tend to accumulate across download folders, c
   - **Probabilità e Statistica** — axioms, combinatorics, random variables, notable distributions, MLE and inference
   - **Programmazione Funzionale** — PolyML basics, recursion, pattern matching, higher-order functions, ADTs, lambda calculus, Prolog
  
-## 📑 Direct Links to Schemi
+## Direct Links to Schemi
 
 Jump straight to the LaTeX cheat sheets and compiled PDFs for each course:
 
