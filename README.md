@@ -12,6 +12,7 @@ Built because university materials tend to accumulate across download folders, c
 ## Table of Contents
 
 - [Features](#features)
+- [Direct Links to Schemi](#direct-links-to-schemi)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
@@ -30,6 +31,22 @@ Built because university materials tend to accumulate across download folders, c
   - **Calcolatori (Computer Architecture)** — binary arithmetic, RISC-V/x86-64/ARM assembly, pipelining, memory hierarchy, I/O
   - **Probabilità e Statistica** — axioms, combinatorics, random variables, notable distributions, MLE and inference
   - **Programmazione Funzionale** — PolyML basics, recursion, pattern matching, higher-order functions, ADTs, lambda calculus, Prolog
+ 
+## 📑 Direct Links to Schemi
+
+Jump straight to the LaTeX cheat sheets and compiled PDFs for each course:
+
+**1st Semester**
+* [Analisi 1](./1st_semester/analisi_1/schemi)
+* [Programmazione 1](./1st_semester/prog_1/schemi)
+* [Geometria e Algebra Lineare (GAL)](./1st_semester/GAL/schemi)
+
+**2nd Semester**
+* [Programmazione 2 (P2)](./2nd_semester/P2/schemi)
+* [Calcolatori](./2nd_semester/calcolatori/schemi)
+* [Fondamenti Matematici](./2nd_semester/fondamenti/schemi)
+* [Programmazione Funzionale](./2nd_semester/funzionale/schemi)
+* [Probabilità e Statistica](./2nd_semester/statistica/schemi)
 
 ## Tech Stack
 
