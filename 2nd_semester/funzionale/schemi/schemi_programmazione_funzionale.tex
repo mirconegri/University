@@ -1,6 +1,6 @@
 \documentclass[12pt, a4paper]{article}
 
-%\def\islight{true} 
+\def\islight{true} 
 
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
@@ -12,13 +12,15 @@
 \usepackage{booktabs}
 \usepackage{eurosym}
 \usepackage{graphicx}
+\usepackage{hyphenat}
 \usepackage{tocloft}
 \usepackage{xcolor}
 \usepackage{hyperref}
-\usepackage{microtype}
+
 \usepackage{datetime} 
 \usepackage{array}
 \usepackage{float}
+\newcounter{domandateoria}
 
 \newcommand{\myfootertext}{}
 \newcommand{\myicon}{}
@@ -603,8 +605,8 @@ val it = 64 : int
 \textbf{Esercizio 3.10 - Duplicazione elementi (duplicatep):}
 Scrivere una funzione che, data una lista di elementi di tipo qualsiasi, restituisca una nuova lista in cui ogni elemento originale è ripetuto consecutivamente due volte (es. da \texttt{[1,2]} a \texttt{[1,1,2,2]}). Questo esercizio introduce un'applicazione molto comune del pattern matching su liste.
 \begin{verbatim}
-(* L'uso dei pattern semplifica la scrittura rispetto all'uso degli if-else
-   e di hd() / tl() *)
+(* L'uso dei pattern semplifica la scrittura rispetto all'uso degli 
+   if-else e di hd() / tl() *)
 fun duplicatep (nil) = nil
   | duplicatep (x::xs) = x :: x :: duplicatep(xs);
 
@@ -631,7 +633,7 @@ fun maxList ([x:real]) = x
 \section{Pattern ed environment locale in ML}
 
 \subsection{Spiegazione teorica}
-In ML, oltre alla dichiarazione di funzioni tramite costrutti condizionali classici (\texttt{if-then-else}), è possibile (e fortemente consigliato) utilizzare il \textbf{Pattern Matching}. Questo meccanismo ricorda i costrutti \texttt{switch-case} dei linguaggi procedurali, ma è molto più potente perché permette di "destrutturare" i dati e assegnare variabili al volo.
+In ML, oltre alla dichiarazione di funzioni tramite costrutti condizionali classici \\(\texttt{if-then-else}), è possibile (e fortemente consigliato) utilizzare il \textbf{Pattern Matching}. Questo meccanismo ricorda i costrutti \texttt{switch-case} dei linguaggi procedurali, ma è molto più potente perché permette di "destrutturare" i dati e assegnare variabili al volo.
 
 \begin{itemize}
     \item \textbf{Sintassi base dei pattern:} La definizione di una funzione procede elencando una sequenza di casi. Il primo pattern che corrisponde (esegue il "match") con l'argomento fornito determina quale espressione verrà valutata.
@@ -1752,187 +1754,2359 @@ makemove :- all_full.                  % Fallback in caso di pareggio
 L'uso di \texttt{:- dynamic} abbinato al comando \texttt{asserta} (che inserisce dinamicamente un nuovo fatto nel database all'inizio) e \texttt{retract} (che lo elimina) permette a Prolog di mantenere uno "stato" mutevole, aggirando la pura immutabilità funzionale.
 Inoltre, il cut \texttt{!} in \texttt{makemove} è fondamentale: senza di esso, se la mossa successiva portasse a un fallimento o al backtracking, Prolog annullerebbe l'inserimento della mossa per provare il \texttt{good} successivo, generando comportamenti indesiderati nell'albero di gioco.
 
-
-\section{Simulazioni d'Esame: Preparazione Teorica}
-
-\newcounter{domandateoria}
-\setcounter{domandateoria}{0}
-
-\subsection{Ambiente, Regole di Scope e Passaggio dei Parametri}
+\section{Domande Generali Teoria}
 
 \begin{itemize}
     \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} L'ambiente (o environment) è: \\
-    \textbf{Risposta esatta:} L'insieme delle associazioni (nome, entità denotabile) esistenti in uno specifico punto del programma ed in uno specifico momento durante l'esecuzione di un programma. \\
-    \textbf{Spiegazione:} Da non confondere con la "memoria" (che associa locazioni a valori). L'ambiente è una mappa logica dinamica che collega gli identificatori (variabili, funzioni, tipi) scelti dal programmatore alle rispettive entità semantiche.
+    \textbf{Testo:} La ricorsione in coda:
+    \begin{itemize}
+        \item[A)] Non è implementabile nei linguaggi imperativi
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Richiede di non scrivere mai la chiamata ricorsiva come ultimo statement di una subroutine
+        \item[D)] Richiede di non ritornare mai direttamente il valore ritornato da una chiamata ricorsiva
+        \item[E)] Permette di risolvere il problema della ricorsione infinita
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} La ricorsione in coda (tail recursion) avviene esattamente quando la chiamata ricorsiva è l'\textit{ultima} operazione eseguita dalla funzione (il che rende false C e D). È implementabile nei linguaggi imperativi (falsa A) e il suo scopo non è risolvere la ricorsione infinita (falsa E), ma piuttosto ottimizzare l'uso della memoria evitando la crescita dello Stack (Stack Overflow), riutilizzando lo stesso Record di Attivazione. Dato che questa opzione corretta non è presente, la risposta è "Nessuna delle altre".
     \vspace{0.3cm}
 
     \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Quale/i delle seguenti affermazioni sugli oggetti denotabili è vera? \\
-    \textbf{Risposta esatta:} Un oggetto denotabile è un oggetto a cui può essere associato un nome (ad es. i nomi delle variabili definiti dagli utenti). \\
-    \textbf{Spiegazione:} Qualsiasi costrutto a cui il linguaggio permette di assegnare un identificatore (una costante in ML, una funzione, una classe in Scala) è denotabile.
+    \textbf{Testo:} Call by constant:
+    \begin{itemize}
+        \item[A)] Fa una copia della variabile
+        \item[B)] È utile per passare oggetti
+        \item[C)] Ritorna il valore al chiamante
+        \item[D)] Permette la modifica della variabile
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Il passaggio per costante non fa una copia (quello è il call by value, falsa A), non è un meccanismo di ritorno (falsa C) e, per definizione, impedisce la modifica della variabile all'interno della funzione (falsa D). Sebbene in alcuni linguaggi (come C++) i reference costanti siano usati per passare oggetti grandi in modo efficiente, la definizione teorica del meccanismo non è "utile per passare oggetti". Pertanto, nessuna delle affermazioni fornite lo descrive correttamente.
     \vspace{0.3cm}
 
     \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} L'ambiente non locale di un blocco di codice è: \\
-    \textbf{Risposta esatta:} L'insieme dei binding visibili dentro al blocco, ma non direttamente definiti in esso. \\
-    \textbf{Spiegazione:} Se una funzione richiama una variabile globale o una variabile definita in una funzione esterna che la avvolge, sta accedendo al suo ambiente non-locale.
+    \textbf{Testo:} I record di attivazione:
+    \begin{itemize}
+        \item[A)] Sono necessari solo in presenza di funzioni di ordine superiore
+        \item[B)] Sono allocati dinamicamente solo in caso di scope dinamico
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] Devono essere esplicitamente allocati e deallocati dal codice del programma che li usa
+        \item[E)] Sono allocati solo nello heap
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} I Record di Attivazione (RdA) servono per supportare l'invocazione di procedure in quasi tutti i linguaggi, indipendentemente dalle funzioni di ordine superiore (falsa A) o dallo scope dinamico (falsa B). L'allocazione è automatica e gestita dalla macchina astratta (falsa D). Solitamente vengono allocati sullo Stack, tranne in alcuni casi specifici come le chiusure o i thread, dove vanno nello Heap (falsa E).
     \vspace{0.3cm}
 
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si può dire che una macchina astratta che capisce il linguaggio C non sia implementata in modo puramente compilativo perché:
+    \begin{itemize}
+        \item[A)] Gli eseguibili generati da un compilatore C in genere non eseguono direttamente sulla macchina hardware, ma su una macchina astratta che include il Runtime del linguaggio e le funzionalità del Sistema Operativo
+        \item[B)] Gli eseguibili generati dal compilatore vengono comunque interpretati da una macchina virtuale
+        \item[C)] Una macchina astratta che capisca un linguaggio di alto livello come il C non è mai implementabile con un compilatore
+        \item[D)] Il Runtime del linguaggio C è comunque sempre interpretato
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Gli eseguibili generati da un compilatore C in genere non eseguono direttamente sulla macchina hardware... \\
+    \textbf{Spiegazione:} Anche se il C produce codice macchina "nativo", tale codice si appoggia sempre a librerie di Runtime (es. per allocare memoria o per l'I/O) e ai servizi del Sistema Operativo. Pertanto, l'ambiente di esecuzione finale è una macchina astratta mista e non solo l'hardware nudo. Le altre opzioni sono errate perché il C non usa una macchina virtuale interprete in senso stretto come la JVM di Java (false B e D), e un compilatore è assolutamente implementabile per il C (falsa C).
+    \vspace{0.3cm}
+
+\newpage
 
     \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Dato il seguente pseudocodice:
+    \textbf{Testo:} Il costrutto for dei linguaggi C, C++ e Java:
+    \begin{itemize}
+        \item[A)] Non è un costrutto di iterazione determinata
+        \item[B)] È necessario a tali linguaggi per implementare qualsiasi tipo di algoritmo
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] È un costrutto di iterazione determinata
+        \item[E)] Permette di sapere in anticipo quante volte il ciclo verrà ripetuto (indipendentemente dal corpo del ciclo)
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Non è un costrutto di iterazione determinata \\
+    \textbf{Spiegazione:} A differenza di linguaggi storici come il Pascal, il \texttt{for} in C/C++/Java permette di modificare la variabile di controllo (l'indice) all'interno del corpo del ciclo. Per questo motivo, a tempo di compilazione non è possibile determinare a priori il numero esatto di iterazioni (rendendo false D ed E). La B è falsa perché un ciclo \texttt{while} (o la ricorsione) rendono il linguaggio già Turing-completo senza bisogno del \texttt{for}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un'entità esprimibile è:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Un'entità che può essere generata come risultato da un'espressione complessa o da una funzione
+        \item[C)] Un'entità che ancora non compare nell'ambiente
+        \item[D)] Un'entità che può essere memorizzata
+        \item[E)] Una generica entità a cui può essere dato un nome
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Un'entità che può essere generata come risultato da un'espressione complessa o da una funzione \\
+    \textbf{Spiegazione:} Per definizione teorica, i valori "esprimibili" (o valutabili) sono quelli che costituiscono il risultato della valutazione di espressioni. Ciò li distingue dai valori "memorizzabili" (che possono stare in una variabile, opzione D) e "denotabili" (a cui si può associare un nome, opzione E). 
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} In assenza di ambiente non locale:
+    \begin{itemize}
+        \item[A)] Per implementare funzioni definite ricorsivamente è necessario utilizzare un fixed point combinator
+        \item[B)] Non si possono implementare algoritmi ricorsivi
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] Non si possono implementare algoritmi iterativi o ricorsivi
+        \item[E)] Non si possono implementare algoritmi iterativi
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Sebbene la mancanza di un ambiente non locale renda impossibile fare riferimento a variabili globali o esterne dirette, è sempre possibile aggirare il problema passando tutti i parametri necessari esplicitamente per argomento. Inoltre, la ricorsione è garantita dalla presenza del nome della funzione nell'ambiente, non dalle variabili non locali. Pertanto, tutte le affermazioni che indicano l'impossibilità di fare ricorsione o iterazione sono false (A, B, D, E).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} I puntatori di catena dinamica (Dynamic Link) contenuti in un record di attivazione:
+    \begin{itemize}
+        \item[A)] Collegano una lista di zone di memoria gestita dinamicamente
+        \item[B)] Servono per accedere alle variabili dinamiche
+        \item[C)] Non esistono "puntatori di catena dinamica" in un record di attivazione
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] Permettono, a partire da un RdA, di trovare il RdA precedente sullo stack
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Permettono, a partire da un RdA, di trovare il RdA precedente sullo stack \\
+    \textbf{Spiegazione:} Il Dynamic Link è il puntatore che salva lo stato (la base) del record di attivazione del chiamante. Serve esclusivamente a ripristinare correttamente l'ambiente della funzione precedente quando la funzione corrente termina. Non servono ad accedere all'heap (memoria gestita dinamicamente, false A e B).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} In presenza di variabili modificabili:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Esistono un Ambiente che associa valori denotabili (fra cui le locazioni di memoria) a nomi ed una Memoria che associa locazioni di memoria a valori memorizzabili
+        \item[C)] Non esistono valori denotabili
+        \item[D)] La valutazione del comando di assegnamento restituisce sempre un valore
+        \item[E)] Il comando di assegnamento non ha effetti collaterali
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Esistono un Ambiente che associa valori denotabili... ed una Memoria che associa locazioni... \\
+    \textbf{Spiegazione:} Per modellare formalmente le variabili modificabili nei linguaggi imperativi serve una struttura a "due stadi": l'Ambiente mappa gli identificatori (nomi) ad un indirizzo fisico (locazione, l-value), mentre la Memoria mappa quella locazione al suo effettivo contenuto (r-value). Le altre opzioni sono false: in questo paradigma i valori denotabili esistono eccome (C è falsa) e l'assegnamento esiste \textit{proprio} per avere l'effetto collaterale di cambiare lo stato della memoria (E è falsa).
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Il concetto di variabile modificabile:
+    \begin{itemize}
+        \item[A)] È l'unico concetto utilizzabile quando si parla di variabili
+        \item[B)] È imposto dall'architettura di Von Neumann (variabili non modificabili richiederebbero macchine astratte caratterizzate da memoria a sola lettura)
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] È tipico del paradigma di programmazione imperativo
+        \item[E)] Permette di evitare il fenomeno dell'aliasing
+    \end{itemize}
+    \textbf{Risposta esatta:} D - È tipico del paradigma di programmazione imperativo \\
+    \textbf{Spiegazione:} Il paradigma imperativo si basa sul concetto di stato computazionale che evolve nel tempo, per cui la variabile modificabile è il concetto centrale. Nei paradigmi funzionali e logici si usano variabili immutabili (il che rende falsa la A). Non previene l'aliasing, anzi ne è soggetto qualora più nomi puntino alla stessa locazione modificabile (falsa E). Non è "imposto" dall'architettura nuda (si possono creare macchine astratte funzionali sopra Von Neumann), ma ne è una naturale e diretta astrazione (falsa B).
+    \vspace{0.3cm}
+\end{itemize}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Nella sostituzione $(\lambda a.abc)[d/c]$:
+    \begin{itemize}
+        \item[A)] È necessario applicare una Alfa-equivalenza per evitare una cattura di variabile
+        \item[B)] Viene catturata la variabile c
+        \item[C)] Si rischia di catturare la variabile "a" ed è necessario applicare Beta-equivalenza per risolvere in problema
+        \item[D)] Non c'è alcuna cattura di variabile
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Non c'è alcuna cattura di variabile \\
+    \textbf{Spiegazione:} Eseguendo la sostituzione, la variabile libera $c$ viene rimpiazzata con $d$. Il risultato è $\lambda a.abd$. La variabile $d$ appena inserita non cade sotto lo "scope" di alcun legatore $\lambda$ associato a $d$ (l'unico legatore presente è $\lambda a$), quindi non subisce alcuna cattura non voluta e non è necessaria alcuna $\alpha$-conversione.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Il fenomeno della cattura di variabili:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Non può essere evitato in alcun modo
+        \item[C)] Fa sì che dopo una sostituzione una variabile libera diventi legata (per esempio da un'astrazione $\lambda x.$)
+        \item[D)] Comporta la "sparizione" di variabili libere durante un'astrazione funzione
+        \item[E)] È dovuto all'assenza di un ambiente non locale
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Fa sì che dopo una sostituzione una variabile libera diventi legata... \\
+    \textbf{Spiegazione:} Nel lambda calcolo, la cattura di variabile si verifica quando, sostituendo un termine all'interno di un'espressione, una variabile che originariamente era libera finisce accidentalmente nello scope di un parametro formale (un legatore $\lambda$) con lo stesso nome. Questo altera profondamente la logica dell'espressione. Per evitarlo (rendendo falsa la B), si procede rinominando preventivamente la variabile legata tramite $\alpha$-conversione.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Una Macchina Astratta ML (LO) è:
+    \begin{itemize}
+        \item[A)] È un modo per descrivere un interprete
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] È implementabile solo basandosi sull'architettura di Von Neumann
+        \item[D)] È un modo per descrivere un compilatore
+        \item[E)] È associata ad un proprio linguaggio macchina L, che è in grado di capire ed eseguire
+    \end{itemize}
+    \textbf{Risposta esatta:} E - È associata ad un proprio linguaggio macchina L, che è in grado di capire ed eseguire \\
+    \textbf{Spiegazione:} Una macchina astratta è definita teoricamente come una collezione di strutture dati e algoritmi capace di memorizzare ed eseguire programmi. Per definizione intrinseca, ogni macchina astratta è caratterizzata da (e associata a) un proprio linguaggio macchina che essa "comprende" e interpreta direttamente, fungendo da esecutore.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Il passaggio di parametri per nome:
+    \begin{itemize}
+        \item[A)] Permette di passare valori solo dal chiamante al chiamato (e non viceversa)
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] È implementabile passando una chiusura come parametro
+        \item[D)] Ha un valore solo teorico e non è implementabile in pratica
+        \item[E)] Permette la cattura di variabili libere in modo da effetti non deterministici
+    \end{itemize}
+    \textbf{Risposta esatta:} C - È implementabile passando una chiusura come parametro \\
+    \textbf{Spiegazione:} Nel passaggio per nome (call by name), l'argomento non viene valutato al momento della chiamata, ma ogni volta che viene menzionato nel corpo della funzione. A livello implementativo, questo risultato si ottiene passando in modo invisibile una chiusura priva di argomenti, nota come \textit{thunk}, che contiene l'espressione da calcolare e l'ambiente in cui valutarla.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La tecnica del display:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Permette di implementare facilmente lo scope dinamico
+        \item[C)] Permette di ridurre il costo derivante dalla scansione della catena statica quando si implementa lo scope statico
+        \item[D)] Permette di visualizzare le zone di memoria allocata dinamicamente
+        \item[E)] Permette di implementare le regole di scope statico senza generare frammentazione della memoria
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Permette di ridurre il costo derivante dalla scansione della catena statica... \\
+    \textbf{Spiegazione:} Con lo scoping statico, per accedere a una variabile non-locale molto "profonda", bisognerebbe attraversare sequenzialmente i puntatori di catena statica ($O(n)$). Il display è un array mantenuto a runtime che punta direttamente ai Record di Attivazione attivi per ogni livello lessicale corrente, portando il tempo di accesso alle variabili non-locali ad essere $O(1)$, riducendone così drasticamente il costo computazionale.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un compilatore da un linguaggio L ad un linguaggio LO è:
+    \begin{itemize}
+        \item[A)] Un programma che trasforma un programma PL (espresso nel linguaggio L) in un programma PLO (espresso nel linguaggio LO) tale che per ogni input I si ha $PL(I)=PLO(I)$
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Un programma scritto nel linguaggio LO che riceve come ingresso un programma PL (espresso nel linguaggio L) ed il suo input I generando lo stesso output che genera PL con input I
+        \item[D)] L'implementazione di una macchina astratta scritta nel linguaggio LO, che capisce programmi scritti nel linguaggio L
+        \item[E)] Una implementazione di macchine astratte indipendente dalla macchina fisica
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Un programma che trasforma un programma PL (espresso nel linguaggio L) in un programma PLO (espresso nel linguaggio LO)... \\
+    \textbf{Spiegazione:} Questa è la definizione formale di compilatore: è un semplice traduttore. Prende il codice nel linguaggio sorgente L e lo "traduce" integralmente in un linguaggio target LO, garantendo che i due programmi mantengano un'assoluta equivalenza semantica (a parità di input, producono lo stesso output). L'opzione C, invece, è la definizione formale di un interprete.
+    \vspace{0.3cm}
+
+    \newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Il costrutto for dei linguaggi C, C++ e Java non è un costrutto di iterazione determinata perché:
+    \begin{itemize}
+        \item[A)] L'esistenza di costrutti di iterazione derminata implicherebbe che C, C++ e Java non sono Turing-completi
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Dall'interno del ciclo è possibile modificare il valore del contatore
+        \item[D)] Non esistono costrutti di iterazione determinata
+        \item[E)] C, C++ e Java sono linguaggi imperativi
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Dall'interno del ciclo è possibile modificare il valore del contatore \\
+    \textbf{Spiegazione:} Si definisce \textit{iterazione determinata} un ciclo di cui si può prevedere in modo matematico il numero di iterazioni totali prima ancora che venga eseguita la prima (es. i cicli \texttt{for} storici del Pascal). Dal momento che in C, C++ e Java è lecito alterare il contatore del ciclo nel corpo, questo principio viene violato, rendendoli cicli "mascherati" a condizione generale, come dei \texttt{while}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un oggetto denotabile (intendendo per "oggetto" una generica entità che può essere una variabile, una funzione, etc....) è:
+    \begin{itemize}
+        \item[A)] Un "oggetto" che può essere memorizzato in una variabile
+        \item[B)] Un "oggetto" per cui compare un binding nell'ambiente
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] Un "oggetto" che ancora non compare nell'ambiente
+        \item[E)] Un "oggetto" che può essere generato come risultato da un'espressione complessa o da una funzione
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Un "oggetto" per cui compare un binding nell'ambiente \\
+    \textbf{Spiegazione:} Le entità \textit{denotabili} sono formalmente tutti quegli elementi di un programma a cui è possibile associare un "nome" (un identificatore). Pertanto, un oggetto diventa denotabile nel momento in cui figura all'interno dell'Environment (Ambiente), che per sua natura è l'insieme strutturato dei binding fra identificatori e tali entità.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'ambiente non locale di un blocco di codice è:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] L'insieme dei valori che le variabili non locali possono assumere
+        \item[C)] L'insieme dei binding creati all'interno del blocco di codice
+        \item[D)] L'insieme dei binding visibili dentro al blocco, ma non direttamente definiti in esso
+        \item[E)] Il subset dell'ambiente non visibile dentro al blocco di codice
+    \end{itemize}
+    \textbf{Risposta esatta:} D - L'insieme dei binding visibili dentro al blocco, ma non direttamente definiti in esso \\
+    \textbf{Spiegazione:} Un blocco vede il proprio "ambiente locale" (i binding dichiarati internamente) più un "ambiente non-locale". Quest'ultimo raccoglie le dichiarazioni effettuate all'esterno (variabili globali o variabili dei blocchi padri avvolgenti) a cui il blocco in esecuzione ha diritto di accesso pur non avendole istanziate localmente.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} I puntatori di catena dinamica contenuti in un record di attivazione:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Non esistono "puntatori di catena dinamica" in un record di attivazione
+        \item[C)] Servono per identificare la zona di memoria in cui è memorizzata una variabile locale
+        \item[D)] Devono essere esplicitamente allocati e deallocati dal codice del programma che li usa
+        \item[E)] Servono per accedere alle variabili dinamiche
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Il compito del puntatore di catena dinamica (Dynamic Link) non è gestire le variabili (rendendo false C ed E), né necessita di gestione esplicita dal programmatore (falsa D). Il suo unico ruolo è puntare alla base del record di attivazione \textit{del chiamante} per ripristinare il corretto stack frame alla fine dell'invocazione. Essendo questa corretta definizione assente, l'unica opzione giusta è "Nessuna delle altre risposte".
+    \vspace{0.3cm}
+\end{itemize}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'allocazione dinamica della memoria:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] È sempre effettuata solo dal compilatore o dall'interprete
+        \item[C)] Può essere fatta solo dallo heap
+        \item[D)] Può essere fatta solo dallo stack
+        \item[E)] Può essere fatta sia dallo stack che dallo heap
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Può essere fatta sia dallo stack che dallo heap \\
+    \textbf{Spiegazione:} L'allocazione dinamica della memoria avviene durante l'esecuzione del programma. Questa può avvenire sullo Stack (es. i Record di Attivazione che vengono allocati e deallocati ad ogni chiamata di funzione, o costrutti come \texttt{alloca} in C) oppure sullo Heap (es. oggetti allocati esplicitamente dal programmatore con \texttt{malloc} in C o \texttt{new} in Java). Le opzioni C e D sono quindi limitanti e false.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un compilatore da un linguaggio L ad un linguaggio LO è:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Una implementazione di macchine astratte indipendente dalla macchina fisica
+        \item[C)] Un programma che trasforma un programma PLO (espresso nel linguaggio LO) in un programma PL (espresso nel linguaggio L) tale che per ogni input I si ha $PL(I)=PLO(I)$
+        \item[D)] L'implementazione di una macchina astratta scritta nel linguaggio LO, che capisce programmi scritti nel linguaggio L
+        \item[E)] Un programma scritto nel linguaggio LO che riceve come ingresso un programma PL (espresso nel linguaggio L) ed il suo input I generando lo stesso output che genera PL con input I
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Leggendo attentamente l'opzione C, essa descrive la traduzione al contrario (dal linguaggio macchina LO al linguaggio sorgente L, che sarebbe semmai un de-compilatore). Le opzioni D ed E definiscono concettualmente un interprete, non un compilatore. Pertanto, mancando la definizione corretta (traduzione da PL a PLO), la risposta esatta è "Nessuna delle altre".
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} I dangling pointer:
+    \begin{itemize}
+        \item[A)] Sono identificabili tramite tecniche di reference counting (contatore dei riferimenti)
+        \item[B)] Sono un problema solo per il linguaggio Java
+        \item[C)] Sono identificabili tramite la tecnica detta "mark and sweep"
+        \item[D)] Non possono essere identificati con certezza, ma questo non è un problema perché comportano solo un piccolo spreco di memoria
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} I dangling pointer (puntatori pendenti) si verificano quando un'area di memoria viene deallocata, ma rimangono dei puntatori che fanno ancora riferimento ad essa. Non causano un "piccolo spreco", ma gravi errori di sicurezza (falsa D). In Java non esistono grazie al Garbage Collector (falsa B). Il \textit{Reference Counting} e il \textit{Mark and Sweep} (false A e C) servono a trovare la "spazzatura" (memoria non più puntata), non i dangling pointer. Per questi ultimi servono tecniche diverse (es. tombstones o locks-and-keys).
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La frammentazione esterna causa:
+    \begin{itemize}
+        \item[A)] Uno spreco di memoria
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] L'impossibilità di allocare grandi blocchi di memoria anche se la memoria libera totale è sufficiente
+        \item[D)] Un rallentamento rilevante nelle operazioni di allocazione della memoria
+        \item[E)] Il funzionamento non corretto di programmi che allocano memoria dinamicamente
+    \end{itemize}
+    \textbf{Risposta esatta:} C - L'impossibilità di allocare grandi blocchi di memoria anche se la memoria libera totale è sufficiente \\
+    \textbf{Spiegazione:} La frammentazione esterna si verifica quando la memoria libera sullo Heap è "spezzettata" in tanti piccoli frammenti isolati tra blocchi allocati. Pur essendoci un quantitativo totale di memoria libera sufficiente per soddisfare una nuova richiesta, se quest'ultima esige un blocco contiguo molto grande, l'allocatore fallirà. L'opzione A (spreco) è più tipica della frammentazione interna.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La valutazione con corto circuito del predicato "A \&\& B" (dove "\&\&" rappresenta un "AND" logico):
+    \begin{itemize}
+        \item[A)] Stabilisce che se "B" è vero allora "A" non viene valutato
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Stabilisce che se "A" è falso allora "B" non viene valutato
+        \item[D)] Crea un non-determinismo nell'ordine della valutazione di "A" e "B"
+        \item[E)] Stabilisce che "A" e "B" devono essere valutati in parallelo
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Stabilisce che se "A" è falso allora "B" non viene valutato \\
+    \textbf{Spiegazione:} Nella valutazione cortocircuitata di espressioni logiche, l'analisi avviene da sinistra a destra. Nel caso dell'operatore AND, affinché l'intera espressione sia vera, entrambi gli operandi devono essere veri. Se il primo (A) risulta falso, l'esito finale è matematicamente garantito essere falso, per cui l'esecuzione salta completamente la valutazione di (B) (rendendo falsa la A e la E), risparmiando tempo ed evitando potenziali errori.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Se l'ambiente di una funzione non contiene il nome della funzione stessa:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Non è possibile per la funzione invocarsi ricorsivamente
+        \item[C)] Non ci sono particolari conseguenze
+        \item[D)] La funzione non può usare scope dinamico
+        \item[E)] La funzione non può usare scope statico
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Non è possibile per la funzione invocarsi ricorsivamente \\
+    \textbf{Spiegazione:} Affinché una funzione possa compiere una chiamata ricorsiva, deve poter riferirsi a sé stessa tramite un identificatore valido. Se il nome della funzione non figura nel suo ambiente (o negli ambienti più esterni ad essa accessibili), il meccanismo di risoluzione dei nomi fallirà, impedendo la ricorsione.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La frammentazione interna causa:
+    \begin{itemize}
+        \item[A)] Il funzionamento non corretto di programmi che allocano memoria dinamicamente
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Un rallentamento rilevante nelle operazioni di allocazione della memoria
+        \item[D)] Uno spreco di memoria
+        \item[E)] L'impossibilità di allocare grandi blocchi di memoria anche se la memoria libera totale è sufficiente
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Uno spreco di memoria \\
+    \textbf{Spiegazione:} La frammentazione interna avviene quando il sistema assegna un blocco di memoria di dimensioni fisse (es. per motivi di allineamento) leggermente più grande di quanto effettivamente richiesto dal programma. Lo spazio eccedente all'interno del blocco assegnato non può essere utilizzato da nessun altro, traducendosi in puro spreco. L'opzione E, come visto in precedenza, descrive invece la frammentazione esterna.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'allocazione dinamica della memoria:
+    \begin{itemize}
+        \item[A)] Può essere fatta sia dallo stack che dallo heap
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] È sempre effettuata solo dal compilatore o dall'interprete
+        \item[D)] Può essere fatta solo dallo stack
+        \item[E)] Può essere fatta solo dallo heap
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Può essere fatta sia dallo stack che dallo heap \\
+    \textbf{Spiegazione:} Questa è una riformulazione esatta della Domanda 21 (vedi sopra). L'allocazione è considerata dinamica (eseguita a runtime) sia quando si accatastano i Record di Attivazione sullo Stack (allocazione LIFO), sia quando si riservano blocchi arbitrari sullo Heap. 
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'ambiente (o environment) è:
+    \begin{itemize}
+        \item[A)] L'insieme delle associazioni (nome, entità denotabile) esistenti in uno specifico punto del programma ed in uno specifico momento durante l'esecuzione di un programma
+        \item[B)] L'insieme dei valori che una variabile assume durante l'esecuzione di un programma
+        \item[C)] Un insieme di associazioni (nome, valore) definite staticamente durante lo sviluppo di un programma
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] Una lista di coppie (nome, tipo) che permette di accedere alle variabili di un programma
+    \end{itemize}
+    \textbf{Risposta esatta:} A - L'insieme delle associazioni (nome, entità denotabile) esistenti in uno specifico... \\
+    \textbf{Spiegazione:} Formalmente, nei linguaggi di programmazione, l'Ambiente è la struttura che si occupa di mappare l'identificatore (il nome stabilito dal programmatore) all'entità semantica che rappresenta (detta entità denotabile). Non mappa mai i nomi direttamente ai "valori" (questo è compito della Memoria, rendendo false B e C), ma piuttosto a locazioni di memoria, funzioni o tipi.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si può dire che una macchina astratta che capisce il linguaggio Java non sia implementata in modo puramente compilativo perché:
+    \begin{itemize}
+        \item[A)] Non esistendo un vero e proprio runtime per Java, non si può parlare di compilazione pura
+        \item[B)] La macchina virtuale di Java (JVM) deve comunque essere compilata
+        \item[C)] Una macchina astratta che capisca un linguaggio di alto livello come Java non è mai implementabile con un compilatore
+        \item[D)] Non esistono compilatori Java
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Tutte le opzioni proposte affermano il falso: per Java esiste eccome un runtime environment (JRE/JVM) e possiede fior di compilatori (come \texttt{javac}), rendendo false A e D. Inoltre, teoricamente ogni linguaggio di alto livello può essere compilato (falsa C). Il vero motivo per cui Java non è puramente compilativo è l'approccio misto: il compilatore genera un codice intermedio (Bytecode) e non codice macchina nativo, il quale viene poi letto e interpretato/compilato just-in-time dalla JVM a runtime.
+    \vspace{0.3cm}
+\end{itemize}
+
+\newpage
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La ricorsione in coda:
+    \begin{itemize}
+        \item[A)] Permette di risolvere il problema della ricorsione infinita
+        \item[B)] Richiede di non scrivere mai la chiamata ricorsiva come ultimo statement di una subroutine
+        \item[C)] Richiede di non ritornare mai direttamente il valore ritornato da una chiamata ricorsiva
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] Permette di evitare un'eccessiva crescita della dimensione dello stack
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Permette di evitare un'eccessiva crescita della dimensione dello stack \\
+    \textbf{Spiegazione:} Se la chiamata ricorsiva è rigorosamente l'ultima operazione eseguita nel corpo di una funzione (ricorsione in coda o \textit{tail recursion}), il compilatore o l'interprete può ottimizzarla riutilizzando il Record di Attivazione corrente invece di crearne uno nuovo. Questo previene lo Stack Overflow. Non previene, però, un loop infinito causato da una condizione di base errata (rendendo falsa la A). Le opzioni B e C affermano l'esatto contrario della definizione di ricorsione in coda.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La memoria gestita staticamente:
+    \begin{itemize}
+        \item[A)] È allocata esplicitamente dal programma a tempo di esecuzione, ma una volta allocata è staticamente legata al programma e non può essere liberata fino alla sua terminazione
+        \item[B)] È allocata prima dell'esecuzione del programma. Le entità allocate staticamente possono essere deallocate durante l'esecuzione del programma, per liberare memoria
+        \item[C)] È allocata dal compilatore prima dell'esecuzione del programma. Le entità allocate staticamente in memoria risiedono in una zona fissa di memoria durante tutta l'esecuzione del programma
+        \item[D)] È una memoria a sola lettura
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} C - È allocata dal compilatore prima dell'esecuzione del programma... \\
+    \textbf{Spiegazione:} L'allocazione statica viene decisa e preparata dal compilatore ancor prima che il programma inizi l'esecuzione. Questa memoria (come quella per le variabili globali) occupa una dimensione fissa e permane nello stesso blocco per l'intero ciclo di vita del processo. Non può essere deallocata a piacimento a runtime (il che rende false la A e la B) e non è necessariamente a sola lettura (rendendo falsa la D).
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un interprete di un linguaggio L scritto in un linguaggio LO è:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] L'implementazione di una macchina astratta scritta nel linguaggio LO, che capisce programmi scritti nel linguaggio L
+        \item[C)] Una implementazione di macchine astratte indipendente dalla macchina fisica
+        \item[D)] Un programma scritto nel linguaggio LO che riceve come ingresso un programma PL (espresso nel linguaggio L) ed il suo input I generando lo stesso output che genera PL con input I
+        \item[D)] Un programma che trasforma un programma PL (espresso nel linguaggio L) in un programma PLO (espresso nel linguaggio LO) tale che per ogni input I si ha $PL(I)=PLO(I)$
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Un programma scritto nel linguaggio LO che riceve come ingresso un programma PL... \\
+    \textbf{Spiegazione:} Questa è la definizione \textit{operazionale} di un interprete. A differenza di un compilatore (descritto nell'opzione E) che converte il codice e termina, l'interprete prende il codice sorgente (PL) e i dati di input (I) simultaneamente, e genera direttamente l'output valutando istruzione per istruzione a tempo di esecuzione.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} In caso di scope statico:
+    \begin{itemize}
+        \item[A)] I legami fra nomi ed oggetto possono essere determinati solo a tempo di esecuzione
+        \item[B)] Non è possibile annidare più blocchi di istruzioni
+        \item[C)] Il valore assegnato ad una variabile non può essere modificato
+        \item[D)] I legami fra nomi ed oggetto possono essere determinati semplicemente leggendo il testo di un programma
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} D - I legami fra nomi ed oggetto possono essere determinati semplicemente leggendo il testo di un programma \\
+    \textbf{Spiegazione:} Lo scope statico (o lessicale) permette di risolvere i binding basandosi unicamente sulla struttura annidata del codice sorgente (il testo scritto), indipendentemente da come o da dove la funzione viene chiamata a runtime. Se i legami si determinassero solo a tempo di esecuzione (opzione A), parleremmo di scope dinamico. Le opzioni B e C non hanno fondamento.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un garbage collector:
+    \begin{itemize}
+        \item[A)] Può essere implementato tramite la tecnica detta "mark and sweep", che riesce sempre a identificare tutta la memoria allocata dinamicamente ma non più utilizzata
+        \item[B)] Richiede un'implementazione complessa, usando la tecnica dei tombstone (pietre tombali)
+        \item[C)] È implementabile solo in linguaggi di programmazione funzionali
+        \item[D)] È implementabile tramite la tecnica di lucchetti e chiavi, che però può causare dei memory leak
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Può essere implementato tramite la tecnica detta "mark and sweep"... \\
+    \textbf{Spiegazione:} Il Mark and Sweep è un algoritmo di Garbage Collection che prima "marca" tutti gli oggetti raggiungibili seguendo i riferimenti a partire dai root (stack e variabili globali), e poi "spazza" via (dealloca) l'intero heap rimanente. Questa tecnica risolve anche il problema dei riferimenti circolari (aliasing ciclico). Le "pietre tombali" e i "lucchetti/chiavi" (opzioni B e D) servono invece per prevenire i dangling pointer, non per fare garbage collection.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un'entità denotabile è:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Un'entità che può essere generata come risultato da un'espressione complessa o da una Funzione
+        \item[C)] Una generica entità a cui può essere dato un nome
+        \item[D)] Un'entità che ancora non compare nell'ambiente
+        \item[E)] Un'entità che può essere memorizzata
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Una generica entità a cui può essere dato un nome \\
+    \textbf{Spiegazione:} Come visto in una domanda precedente, nel contesto dei linguaggi di programmazione, l'aggettivo "denotabile" descrive tutto ciò a cui è possibile associare sintatticamente un identificatore (un nome). L'opzione B descrive le entità "esprimibili", mentre la E descrive le entità "memorizzabili".
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un interprete di un linguaggio L scritto in un linguaggio LO è:
+    \begin{itemize}
+        \item[A)] Un programma che trasforma un programma PL (espresso nel linguaggio L) in un programma PLO (espresso nel linguaggio LO) tale che per ogni input I si ha $PL(I)=PLO(I)$
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Una implementazione di macchine astratte indipendente dalla macchina fisica
+        \item[D)] Un programma scritto nel linguaggio L che dato un input I produce lo stesso output generato dallo stesso programma scritto nel linguaggio LO
+        \item[E)] L'implementazione di una macchina astratta scritta nel linguaggio LO, che capisce programmi scritti nel linguaggio L
+    \end{itemize}
+    \textbf{Risposta esatta:} E - L'implementazione di una macchina astratta scritta nel linguaggio LO... \\
+    \textbf{Spiegazione:} A differenza della Domanda 33, che dava la definizione di \textit{funzionamento operazionale}, qui si fornisce la definizione \textit{strutturale}. Un interprete non è altro che la materializzazione (l'implementazione software) di una macchina astratta che prende vita grazie a un linguaggio ospite (LO), ed è progettata per "capire" direttamente un linguaggio ospitato (L).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'ambiente (o environment) è:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Un insieme di associazioni (nome, valore) definite staticamente durante lo sviluppo di un programma
+        \item[C)] L'insieme delle associazioni (variabile, valore) esistenti in uno specifico punto del programma ed in uno specifico momento durante l'esecuzione di un programma
+        \item[D)] L'insieme dei valori che una variabile assume durante l'esecuzione di un programma
+        \item[E)] Una lista di coppie (nome, tipo) che permette di accedere alle variabili di un programma
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Formalmente, l'Ambiente è l'insieme delle associazioni "NOME -> ENTITÀ DENOTABILE". Le opzioni proposte qui cercano di confondere i concetti: le associazioni dirette tra nome/variabile e "valore" (opzioni B e C) riassumono il concetto più ampio di "Stato" della computazione (Ambiente + Memoria), non il solo Ambiente. L'opzione E è falsa perché mappa nomi a tipi e non denota l'environment semantico.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un garbage collector:
+    \begin{itemize}
+        \item[A)] Richiede un'implementazione complessa, usando la tecnica dei tombstone (pietre tombali)
+        \item[B)] È implementabile solo in linguaggi di programmazione funzionali
+        \item[C)] Può essere implementato tramite la tecnica del reference counting (contatore dei riferimenti), che riesce sempre ad identificare tutta la memoria allocata dinamicamente ma non più utilizzata
+        \item[D)] È implementabile tramite la tecnica di lucchetti e chiavi, che però può causare dei memory leak
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Ancora una volta le opzioni mescolano tecniche distinte. Tombstones e Lucchetti/Chiavi (A, D) servono per i dangling pointer, non per la deallocazione dei leak (GC). Il Reference Counting (C) è effettivamente una tecnica di GC, ma la frase asserisce che riesce \textit{sempre} a identificare la memoria inutilizzata: questo è falso, poiché il Reference Counting fallisce clamorosamente di fronte a strutture dati con riferimenti circolari (es. liste doppiamente concatenate chiuse).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La memoria gestita dinamicamente:
+    \begin{itemize}
+        \item[A)] È usata solo in linguaggi interpretati
+        \item[B)] Non è mai strettamente necessaria, ma permette di ottenere migliori prestazioni
+        \item[C)] È necessaria per implementare la ricorsione
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] È necessaria per implementare l'iterazione
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Se per "memoria gestita dinamicamente" intendiamo l'heap, essa serve per strutture dati senza vincoli di dimensione a compile-time e non è legata all'iterazione o unicamente ai linguaggi interpretati. Se ci riferiamo allo stack dinamico (allocazione dei RdA), è sì necessario per la ricorsione, ma l'espressione ambigua e la mancanza di una formulazione perfettamente accurata fra le opzioni porta alla scelta di "Nessuna delle altre".
+    \vspace{0.3cm}
+\end{itemize}
+
+\newpage
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'ambiente (o environment) è:
+    \begin{itemize}
+        \item[A)] Un insieme di associazioni (nome, valore) definite staticamente durante lo sviluppo di un programma
+        \item[B)] Una lista di coppie (nome, tipo) che permette di accedere alle variabili di un programma
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] L'insieme dei valori che una variabile assume durante l'esecuzione di un programma
+        \item[E)] L'insieme delle associazioni (nome, oggetto denotabile) esistenti in uno specifico punto del programma ed in uno specifico momento durante l'esecuzione di un programma
+    \end{itemize}
+    \textbf{Risposta esatta:} E - L'insieme delle associazioni (nome, oggetto denotabile) esistenti in uno specifico punto del programma ed in uno specifico momento durante l'esecuzione di un programma \\
+    \textbf{Spiegazione:} Questa è la definizione formale ed esatta di Ambiente. A differenza dello "Stato", che mappa direttamente i nomi ai valori finali (inglobando anche la Memoria), l'Ambiente si limita a mappare gli identificatori (nomi) alle entità semantiche a cui si riferiscono (oggetti denotabili, come locazioni di memoria, funzioni o tipi) in quel preciso istante e punto del codice (regole di scope).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} In caso di scope dinamico:
+    \begin{itemize}
+        \item[A)] Il valore assegnato ad una variabile non può essere modificato
+        \item[B)] Non è possibile annidare più blocchi di istruzioni
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] I legami fra nomi ed oggetto possono essere determinati solo a tempo di esecuzione
+        \item[E)] I legami fra nomi ed oggetto possono essere determinati semplicemente leggendo il testo di un programma
+    \end{itemize}
+    \textbf{Risposta esatta:} D - I legami fra nomi ed oggetto possono essere determinati solo a tempo di esecuzione \\
+    \textbf{Spiegazione:} A differenza dello scope statico, in cui il legame di una variabile si evince leggendo la struttura lessicale del codice sorgente (il che rende falsa la E), lo scope dinamico risolve i nomi risalendo a ritroso la catena delle chiamate attive (catena dinamica) sullo Stack. Poiché l'ordine delle chiamate dipende dall'input e dal flusso del programma, la risoluzione può avvenire unicamente a runtime.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} I puntatori di catena statica contenuti in un record di attivazione:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Servono per accedere alle variabili statiche
+        \item[C)] Devono essere esplicitamente allocati e deallocati dal codice del programma che li usa
+        \item[D)] Servono per identificare la zona di memoria in cui è memorizzata una variabile in caso di scope statico
+        \item[E)] Non esistono puntatori di catena statica in un record d'attivazione
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Servono per identificare la zona di memoria in cui è memorizzata una variabile in caso di scope statico \\
+    \textbf{Spiegazione:} Il puntatore di catena statica (Static Link) viene mantenuto nel Record di Attivazione per puntare al record del blocco o funzione che lo avvolge "lessicalmente" (il padre nel codice sorgente). Seguendo questi puntatori, il programma riesce a trovare e accedere correttamente alle variabili non locali in un ambiente a scope statico.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un'entità denotabile può avere un tempo di vita più lungo di quello delle associazioni (fra l'entità e identificatori) che lo riferiscono:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Se l'entità è allocata dinamicamente dallo heap in una subroutine
+        \item[C)] Mai
+        \item[D)] Se l'entità è allocata dinamicamente dallo stack in una subroutine
+        \item[E)] Se si usa scope dinamico
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Se l'entità è allocata dinamicamente dallo heap in una subroutine \\
+    \textbf{Spiegazione:} Quando si alloca memoria sullo Heap all'interno di una funzione e la si assegna a un puntatore locale (la "variabile/associazione"), al termine della funzione la variabile locale viene distrutta (poppata dallo Stack), terminando così il tempo di vita dell'associazione. Tuttavia, l'entità allocata sullo Heap rimane in vita fino alla deallocazione esplicita (es. \texttt{free}) o all'intervento del Garbage Collector. Dunque, l'entità sopravvive all'associazione iniziale.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La memoria gestita dinamicamente:
+    \begin{itemize}
+        \item[A)] Non è mai strettamente necessaria, ma permette di ottenere migliori prestazioni
+        \item[B)] È necessaria per implementare l'iterazione
+        \item[C)] È usata solo in linguaggi interpretati
+        \item[D)] È necessaria solo per implementare macchine astratte per linguaggi compilati
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Come visto per la domanda 40, la memoria gestita dinamicamente (sia essa lo Stack per i Record di Attivazione, sia l'Heap per le strutture dati) è strettamente necessaria per implementare la ricorsione (il che rende falsa la A), ed è usata sia da linguaggi compilati che interpretati (il che rende false la C e la D). Non è necessaria per implementare la semplice iterazione, che richiede solo salti condizionati (falsa B).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} I record d'attivazione:
+    \begin{itemize}
+        \item[A)] Devono essere esplicitamente allocati e deallocati dal codice del programma che li usa
+        \item[B)] Possono essere allocati sia sullo stack sia sullo heap (in caso, per esempio, di funzioni di ordine superiore)
+        \item[C)] Sono necessari solo in presenza di funzioni di ordine superiore
+        \item[D)] Sono allocati solo sullo heap
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Possono essere allocati sia sullo stack sia sullo heap (in caso, per esempio, di funzioni di ordine superiore) \\
+    \textbf{Spiegazione:} Di norma, i Record di Attivazione vengono allocati e deallocati automaticamente (falsa A) sulla struttura LIFO dello Stack. Tuttavia, nei linguaggi funzionali o con First-Class Functions, una funzione può restituire un'altra funzione e le sue variabili locali (closure) devono sopravvivere alla fine della chiamata originale. In questi casi specifici, il record viene promosso e allocato sullo Heap affinché non venga distrutto.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Quale delle seguenti affermazioni riguardanti il garbage collector è vera:
+    \begin{itemize}
+        \item[A)] Per Garbage Collection si intende una modalità automatica di gestione della memoria
+        \item[B)] L'utente alloca liberamente memoria
+        \item[C)] Non è permesso deallocare memoria
+        \item[D)] Il sistema periodicamente recupera la memoria allocata e non più utilizzabile
+        \item[E)] Tutte sono corrette
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Tutte sono corrette \\
+    \textbf{Spiegazione:} Nei linguaggi dotati di Garbage Collector (es. Java), la gestione della memoria è delegata al Runtime System (A). Il programmatore è libero di istanziare oggetti con \texttt{new} (B), ma in genere il linguaggio impedisce di "forzare" o effettuare una deallocazione manuale per motivi di sicurezza (C). È quindi compito di un demone in background cercare ciclicamente la spazzatura e liberarla per il riutilizzo (D).
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Quale delle seguenti affermazioni riguardanti il Garbage Collector è falsa:
+    \begin{itemize}
+        \item[A)] Il garbage collector annoterà le aree di memoria non più referenziate e le libererà automaticamente
+        \item[B)] L'utente alloca liberamente memoria
+        \item[C)] È permesso deallocare memoria
+        \item[D)] Un sistema operativo, o un compilatore, e un modulo di run-time liberano porzioni di memoria non più utilizzate dalle applicazioni.
+        \item[E)] Il sistema periodicamente recupera la memoria allocata e non più utilizzabile
+    \end{itemize}
+    \textbf{Risposta esatta:} C - È permesso deallocare memoria \\
+    \textbf{Spiegazione:} Come anticipato nella domanda precedente, una caratteristica saliente (e una garanzia di sicurezza) di un linguaggio "puramente" garbage-collected è che nasconde e inibisce i costrutti per la deallocazione esplicita della memoria (come il \texttt{free()} del C o il \texttt{delete} del C++). Quindi dire che "è permesso deallocare memoria" è falso.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Considerando la macchina astratta che permette di eseguire un linguaggio L, il numero di record di attivazione contemporaneamente presenti nel sistema:
+    \begin{itemize}
+        \item[A)] È sempre determinabile a priori da un'analisi statica del codice del programma eseguito
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Ha un massimo noto a priori solo se la macchina astratta alloca i record di attivazione dallo heap
+        \item[D)] Può avere un massimo noto a priori solo se il linguaggio L permette ricorsione
+        \item[E)] Non dipende dal programma che si esegue
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Se un linguaggio permette la ricorsione, la profondità dello stack (numero di AR contemporanei) dipende dai dati di input e dalle condizioni a runtime, quindi non può essere determinata sempre a priori (rendendo false A, C ed E). D'altro canto, è un linguaggio *senza* ricorsione (es. i primi Fortran) ad avere un numero massimo noto a priori, non il contrario (rendendo falsa la D).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'utilizzo della ricorsione in coda (tail recursion) in una funzione:
+    \begin{itemize}
+        \item[A)] Utilizza più memoria
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Riduce la possibilità di avere stack overflow
+        \item[D)] Riduce l'efficienza della funzione
+        \item[E)] Richiede rimozione manuale degli stack frame
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Riduce la possibilità di avere stack overflow \\
+    \textbf{Spiegazione:} La "tail recursion" è una forma ottimizzata di ricorsione dove il risultato dell'ultima chiamata è anche il risultato della funzione chiamante, senza passaggi intermedi post-ritorno. I compilatori ottimizzano questo pattern riutilizzando lo stesso e unico Record di Attivazione, mantenendo un impatto di memoria costante. Pertanto è più efficiente e previene errori critici come lo Stack Overflow.
+    \vspace{0.3cm}
+\end{itemize}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La chiusura (closure) è:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] espressione, ambiente (expression, environment) dove quest'ultimo ha almeno tutte le variabili nell'espressione unitamente all'indirizzo di ritorno
+        \item[C)] espressione, ambiente (expression, environment) dove quest'ultimo ha alcune delle variabili nell'espressione
+        \item[D)] espressione, ambiente (expression, environment) dove quest'ultimo ha almeno tutte le variabili nell'espressione
+        \item[E)] utilizzata per le call by reference
+    \end{itemize}
+    \textbf{Risposta esatta:} D - espressione, ambiente (expression, environment) dove quest'ultimo ha almeno tutte le variabili nell'espressione \\
+    \textbf{Spiegazione:} Una chiusura (closure) è l'astrazione a runtime di una funzione. È composta da due elementi fondamentali: il codice della funzione (l'espressione) e l'ambiente di valutazione in cui è stata definita. Quest'ultimo deve necessariamente contenere i binding per "almeno tutte le variabili" libere menzionate all'interno del corpo della funzione, in modo da poterle valutare correttamente al momento dell'invocazione. Non contiene indirizzi di ritorno, prerogativa dei Record di Attivazione (rendendo falsa la B).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Polish notation. Indicare il risultato di x - 56 7:
+    \begin{itemize}
+        \item[A)] -37
+        \item[B)] -5
+        \item[C)] 23
+        \item[D)] -7
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} D - -7 \\
+    \textbf{Spiegazione:} Il testo originale contiene un evidente errore di battitura: \texttt{x - 56 7} sta per \texttt{* - 5 6 7} (dove la "x" indica il per della moltiplicazione e 56 è in realtà 5 e 6). Nella notazione polacca (prefissa), gli operatori precedono gli operandi. Si risolve partendo dall'operatore più interno: \texttt{(- 5 6)} restituisce -1. L'espressione diventa quindi \texttt{(* -1 7)}, che equivale a -7.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un linguaggio di programmazione (come FORTRAN) usa un'allocazione fissa della memoria (at compile time). Questo tipo di linguaggio non può supportare:
+    \begin{itemize}
+        \item[A)] floating point numbers
+        \item[B)] Exceptions
+        \item[C)] variable size arrays
+        \item[D)] nessuna delle precedenti
+        \item[E)] Procedures
+    \end{itemize}
+    \textbf{Risposta esatta:} C - variable size arrays \\
+    \textbf{Spiegazione:} L'allocazione statica (fissa a tempo di compilazione) implica che il compilatore debba conoscere in anticipo l'esatto ingombro in memoria di ogni singola struttura dati. Per questo motivo, costrutti la cui dimensione dipende dall'input dell'utente a tempo di esecuzione (come gli array a dimensione variabile o le allocazioni su heap) sono assolutamente impossibili da supportare.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La differenza fra espressione e comandi:
+    \begin{itemize}
+        \item[A)] Un comando può modificare l'ambiente (locale, non locale o globale) mentre una espressione no
+        \item[B)] Non esistono differenze: sono due nomi diversi per la stessa entità sintattica
+        \item[C)] L'esecuzione di un comando produce un valore (o non termina), mentre la valutazione di una espressione può non produrre valori
+        \item[D)] Le espressioni non possono usare simboli appartenenti ad ambienti non locali
+        \item[E)] Nessuna delle altre
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Nessuna delle altre \\
+    \textbf{Spiegazione:} Tutte le opzioni fornite sono errate. La C è invertita: sono le \textit{espressioni} che producono sempre un valore (restituendo un risultato), mentre i \textit{comandi} (o statement) si eseguono per il loro effetto collaterale (modifica della Memoria/Stato) e non restituiscono valori. La A è falsa perché i comandi alterano la \textit{Memoria} (lo store dei valori), mentre l'Ambiente (il binding dei nomi) viene modificato dalle \textit{dichiarazioni}. 
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Point reversal viene usato per garbage collection:
+    \begin{itemize}
+        \item[A)] per evitare di sprecare spazio
+        \item[B)] nelle implementazioni di python
+        \item[C)] per gestire loops nelle strutture puntatore
+        \item[D)] quando non si ha spazio per una search structure
+        \item[E)] nessuna delle precedenti
+    \end{itemize}
+    \textbf{Risposta esatta:} D - quando non si ha spazio per una search structure \\
+    \textbf{Spiegazione:} L'algoritmo di inversione dei puntatori (Pointer Reversal o Schorr-Waite) è utilizzato nella fase "Mark" dei Garbage Collector. Normalmente la navigazione del grafo degli oggetti richiederebbe uno Stack (search structure) o chiamate ricorsive. Tuttavia, dato che il GC entra in funzione proprio quando la memoria scarseggia, allocare uno stack aggiuntivo potrebbe essere impossibile. Il pointer reversal inverte i puntatori attraversati per ricordare il percorso a ritroso senza usare memoria extra.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Il cut \texttt{!} in Prolog:
+    \begin{itemize}
+        \item[A)] Ha successo e ferma il backtracking
+        \item[B)] nessuna delle altre
+        \item[C)] esegue il backtracking
+        \item[D)] Chiama una eccezione
+        \item[E)] fallisce e ferma il backtracking
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Ha successo e ferma il backtracking \\
+    \textbf{Spiegazione:} Il cut (scritto \texttt{!}) è un operatore di ottimizzazione in Prolog. Esso ha sempre successo logico e si comporta come una direttiva per il motore di risoluzione: gli "impedisce" di esplorare eventuali soluzioni alternative (backtracking) per tutti i goal a sinistra del cut e per la regola corrente, forzandolo ad accettare la prima soluzione trovata come definitiva.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Call by name:
+    \begin{itemize}
+        \item[A)] Usata raramente al giorno d'oggi
+        \item[B)] Utilizzata in molti linguaggi procedurali
+        \item[C)] Richiede il passaggio dei valori delle variabili sullo stack
+        \item[D)] Ha una definizione semplice
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Usata raramente al giorno d'oggi \\
+    \textbf{Spiegazione:} Il passaggio di parametri per nome (introdotto storicamente in Algol 60) inietta l'argomento non valutato direttamente nel codice della funzione chiamante. A causa della sua complessità implementativa (richiede la creazione di "thunks" invisibili) e dei suoi side-effects inattesi, è caduto in disuso. Oggi sopravvive solo marginalmente (es. in Scala) o in varianti come il Call by Need (Haskell). Per questo motivo la B, C e D sono false.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un'espressione può essere beta-ridotta ad un'unica forma normale:
+    \begin{itemize}
+        \item[A)] Mai
+        \item[B)] Sempre
+        \item[C)] Solo se la riduzione termina
+        \item[D)] Ci possono essere diverse forme normali
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Solo se la riduzione termina \\
+    \textbf{Spiegazione:} Per il Teorema di Church-Rosser (o Teorema di Confluenza) nel Lambda Calcolo, se un'espressione possiede una forma normale (cioè la sequenza di riduzioni beta giunge a un termine non più riducibile e termina), allora tale forma normale è univoca, indipendentemente dall'ordine con cui si scelgono di effettuare le riduzioni.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} L'iterazione determinata:
+    \begin{itemize}
+        \item[A)] Non è implementabile in nessun linguaggio
+        \item[B)] Permette di modificare la variabile di controllo durante l'esecuzione del corpo dell'iterazione
+        \item[C)] Non permette di sapere in anticipo quante volte si ripeterà indipendentemente dal corpo del ciclo
+        \item[D)] è presente in C, C++ e Java
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} L'iterazione determinata è caratterizzata proprio dall'assoluto opposto di quanto asserito nelle opzioni: permette \textit{esattamente} di calcolare le iterazioni prima dell'esecuzione (falsa C), vieta rigidamente la modifica del contatore al suo interno (falsa B) e non è presente in C, C++ o Java (che usano iterazione indeterminata nel \texttt{for}, falsa D). Essendo storicamente presente in Pascal e Ada, non è vero che sia "non implementabile" (falsa A).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} TextIO.lookahead
+    \begin{itemize}
+        \item[A)] Legge il carattere successivo ma lo lascia nell'input stream
+        \item[B)] Verifica se c'è un altro carattere nell'input stream
+        \item[C)] error
+        \item[D)] Legge il carattere successivo
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Legge il carattere successivo ma lo lascia nell'input stream \\
+    \textbf{Spiegazione:} Nel linguaggio SML, la funzione \texttt{TextIO.lookahead} (come suggerisce il nome stesso, "guarda avanti") consente di "sbirciare" il prossimo carattere in arrivo nel buffer del file o dello standard input, restituendolo al chiamante senza però consumarlo o rimuoverlo dal flusso (a differenza di funzioni come \texttt{input1}).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Memorizzare array in ordine di riga o colonna:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Conta soltanto quando si usa il caching
+        \item[C)] Viene sempre usato l'ordine per colonna
+        \item[D)] Non conta mai
+        \item[E)] Viene sempre usato l'ordine per riga
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Conta soltanto quando si usa il caching \\
+    \textbf{Spiegazione:} A livello teorico e semantico (per la correttezza di un algoritmo) non vi è alcuna differenza. Tuttavia, a livello hardware, iterare su un array multidimensionale sfruttando la sua mappatura in memoria (Row-Major per il C, Column-Major per il Fortran) permette di accedere a posizioni adiacenti contigue, innescando la località spaziale che massimizza le performance di accesso alla memoria Cache del processore, abbattendo drasticamente i tempi di esecuzione.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Pointer reversal is used in garbage collection:
+    \begin{itemize}
+        \item[A)] To avoid wasting space for marking used records
+        \item[B)] In implementations of Python
+        \item[C)] To deal with loops in pointer structures
+        \item[D)] When we don't have space for a search structure
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} D - When we don't have space for a search structure \\
+    \textbf{Spiegazione:} Questa è l'esatta traduzione in lingua inglese della domanda numero 55 vista in precedenza. Il pointer reversal è una tecnica salvavita impiegata nell'attraversamento di strutture a grafo quando la memoria residua non consente di istanziare uno Stack dedicato all'esplorazione (la "search structure").
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un ADT è definito essere un modello matematico di un user-defined type, insieme a tutte le operazioni su quel modo:
+    \begin{itemize}
+        \item[A)] Struttura
+        \item[B)] Primitiva
+        \item[C)] Assignment
+        \item[D)] Cardinalità
+        \item[E)] Nessuna delle precedenti
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Nessuna delle precedenti \\
+    \textbf{Spiegazione:} Il termine "modo" presente nella domanda è un palese errore di traduzione/battitura per "modello" (model). La definizione canonica sancisce che un Abstract Data Type (ADT) è definito dai suoi tipi di dato e dall'insieme di tutte le operazioni \textit{su quel modello}. Poiché nessuna delle opzioni A, B, C o D (struttura, primitiva, ecc.) completa correttamente l'asserzione, la risposta corretta è "Nessuna delle precedenti".
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un linguaggio di programmazione (come FORTRAN) usa una allocazione fissa della memoria (in compilazione). Questo tipo di linguaggio non può supportare:
+    \begin{itemize}
+        \item[A)] Procedure
+        \item[B)] Eccezioni
+        \item[C)] Ricorsione
+        \item[D)] Nessuna della altre risposte
+        \item[E)] Numeri floating-point
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Ricorsione \\
+    \textbf{Spiegazione:} Come appurato alla Domanda 53, allocare tutto staticamente prima dell'esecuzione ha forti conseguenze architettoniche. Oltre agli array dinamici, viene invalidata la Ricorsione: l'assenza di uno Stack dinamico per i record di attivazione costringe il programma ad allocare una singola area di memoria fissa per ogni subroutine. Invocare due volte la stessa funzione provocherebbe la sovrascrittura distruttiva del singolo blocco di memoria a lei destinato.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} In Prolog:
+    \begin{itemize}
+        \item[A)] Conta l'ordine delle regole e predicati (da sinistra a destra) in una regola
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Conta l'ordine delle regole e predicati (da destra a sinistra) in una regola
+        \item[D)] Conta solo l'ordine delle regole
+        \item[E)] Conta solo l'ordine dei predicati (da destra a sinistra) in una regola
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Conta l'ordine delle regole e predicati (da sinistra a destra) in una regola \\
+    \textbf{Spiegazione:} A dispetto dell'idea originaria della Programmazione Logica in cui l'ordine delle dichiarazioni non dovrebbe alterare il risultato matematico, in Prolog l'ordine è cruciale per via del suo motore di inferenza (algoritmo di risoluzione procedurale). L'esplorazione (SLD-Resolution) è di tipo \textit{Depth-First, Left-To-Right}: le regole vengono testate dall'alto verso il basso (nell'ordine in cui sono scritte nel database), e per ciascuna regola, i predicati (sub-goals) al suo interno sono provati sequenzialmente da sinistra a destra.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Un linker:
+    \begin{itemize}
+        \item[A)] È scritto in linguaggio macchina
+        \item[B)] Sostituisce indirizzi relativi con indirizzi assoluti
+        \item[C)] Viene utilizzato nei linguaggi interpretati
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] Viene usato per l'efficienza
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Sostituisce indirizzi relativi con indirizzi assoluti \\
+    \textbf{Spiegazione:} Il Linker (collegatore) è lo strumento fondamentale della catena di compilazione che riceve in ingresso i vari moduli oggetto (.o o .obj). Il suo compito primario è la "Rilocazione" (oltre che la risoluzione delle dipendenze esterne): trasforma gli indirizzi relativi calcolati dal compilatore all'interno dei singoli moduli non interconnessi, unendoli e traducendoli negli indirizzi assoluti e definitivi dell'eseguibile unico finale.
+    \vspace{0.3cm}
+\end{itemize}
+
+
+\section{Domande Lambda Calcolo}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta-riducendo $(\lambda n.\lambda m.\lambda f.\lambda x.(n f)((m f)x))(\lambda f.\lambda x.f f f f x) (\lambda f.\lambda x.f x)$ si ottiene:
+    \begin{itemize}
+        \item[A)] $\lambda f.\lambda x.f f f f x$
+        \item[B)] $f$
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] $\lambda f.\lambda x.f f f f f f x$
+        \item[E)] $x$
+        \item[F)] $\lambda f.\lambda x.f f f f f x$
+    \end{itemize}
+    \textbf{Risposta esatta:} F - $\lambda f.\lambda x.f f f f f x$ \\
+    \textbf{Spiegazione:} Il primo blocco dell'espressione rappresenta la funzione Somma (\textit{Addition}) nella codifica dei Numerali di Church. I due argomenti passati sono il numero 4 (una funzione che applica $f$ per 4 volte a $x$) e il numero 1 (che applica $f$ per 1 volta). La somma matematica di 4 e 1 è 5, perciò il risultato sarà l'applicazione di $f$ per 5 volte consecutive alla $x$, che corrisponde all'opzione F.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta-riducendo $(\lambda n.\lambda m.\lambda f.\lambda x.(n f)((m f)x))(\lambda f.\lambda x.f x) (\lambda f.\lambda x.x)$ si ottiene:
+    \begin{itemize}
+        \item[A)] $\lambda f.\lambda x.f(f(f(f x)))$
+        \item[B)] $\lambda f.\lambda x.f x$
+        \item[C)] $x$
+        \item[D)] $f x$
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} B - $\lambda f.\lambda x.f x$ \\
+    \textbf{Spiegazione:} Come nella domanda precedente, il termine iniziale è l'operatore di Addizione. In questo caso viene applicato al numero 1 (rappresentato da $\lambda f.\lambda x.f x$) e al numero 0 di Church (rappresentato da $\lambda f.\lambda x.x$, in cui la $f$ non viene applicata). Poiché 1 + 0 = 1, il risultato beta-ridotto restituisce il numerale di Church corrispondente a 1.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta-riducendo $(\lambda n.\lambda f.\lambda x.f((n f)x))(\lambda f.\lambda x.f(f(f x)))$ si ottiene:
+    \begin{itemize}
+        \item[A)] La riduzione non termina
+        \item[B)] $f x$
+        \item[C)] $\lambda f.\lambda x.f f f f f x$
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] $\lambda f.\lambda x.f(f(f(f x)))$
+    \end{itemize}
+    \textbf{Risposta esatta:} E - $\lambda f.\lambda x.f(f(f(f x)))$ \\
+    \textbf{Spiegazione:} Il primo termine è la funzione Successore ($SUCC$), che prende un numerale di Church $n$ e restituisce $n + 1$ avvolgendo il tutto in un'ulteriore applicazione di $f$. Il parametro passato è il numero 3 (con 3 $f$). Applicando il successore al numero 3 si ottiene sintatticamente il numero 4 (con 4 $f$), cioè l'opzione E.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta-riducendo $(\lambda a.((a \lambda b.\lambda c.c)\lambda d.\lambda e.d))(\lambda f.\lambda g.f)$ si ottiene:
+    \begin{itemize}
+        \item[A)] $\lambda b.\lambda c.c$
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] La riduzione non termina
+        \item[D)] $c$
+        \item[E)] $\lambda b.\lambda c.b$
+    \end{itemize}
+    \textbf{Risposta esatta:} A - $\lambda b.\lambda c.c$ \\
+    \textbf{Spiegazione:} Questa è una codifica logico-condizionale. L'argomento fornito al posto di $a$ è $(\lambda f.\lambda g.f)$, che rappresenta il booleano $TRUE$ di Church (prende due parametri e restituisce il primo). Il corpo centrale contiene una scelta tra $\lambda b.\lambda c.c$ (ovvero $FALSE$) e $\lambda d.\lambda e.d$. L'espressione si comporta come un \texttt{if TRUE then FALSE else TRUE}. Scegliendo il primo parametro (essendo TRUE), il risultato è il falso di Church.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta-riducendo $(\lambda x.x y)(\lambda z.z x)(\lambda z.z x)$ si ottiene:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] $x y z$
+        \item[C)] $(\lambda x.x y) y x$
+        \item[D)] $y x(\lambda z.z x)$
+        \item[E)] La riduzione non termina
+    \end{itemize}
+    \textbf{Risposta esatta:} D - $y x(\lambda z.z x)$ \\
+    \textbf{Spiegazione:} Valutiamo passo passo l'applicazione da sinistra a destra (essendo associativa a sinistra). Applichiamo la prima funzione al secondo termine sostituendo $x$ con $(\lambda z.z x)$: otteniamo $((\lambda z.z x) y)$. Applicando questa funzione passiamo $y$ al posto di $z$, ottenendo $(y x)$. Infine, accodiamo il terzo termine originale non ancora processato: $(y x)(\lambda z.z x)$.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta-riducendo $(\lambda n.\lambda f.\lambda x.f((n f)x))(\lambda f.\lambda x.f f f x)$ si ottiene:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] $\lambda f.\lambda x.f f f f f f x$
+        \item[C)] La riduzione non termina
+        \item[D)] $\lambda f.\lambda x.f f f f f x$
+        \item[E)] $f x$
+        \item[F)] L'espressione è irriducibile
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Ancora una volta, abbiamo la funzione Successore applicata al numero di Church 3 ($f f f x$). Il risultato atteso sarebbe il numero 4, ovvero $\lambda f.\lambda x.f f f f x$. Poiché tra le opzioni fornite ci sono solo 5, 6, $f x$ o risposte logiche scorrette, e manca il risultato corretto per 4, la risposta esatta è "Nessuna delle altre".
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta f-riducendo $((\lambda a.a a)(\lambda b.b))(\lambda c.c)$ si ottiene:
+    \begin{itemize}
+        \item[A)] La riduzione non termina
+        \item[B)] $a a a$
+        \item[C)] $\lambda x.x a$
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] $\lambda c.c$
+    \end{itemize}
+    \textbf{Risposta esatta:} E - $\lambda c.c$ \\
+    \textbf{Spiegazione:} Eseguiamo il primo blocco $((\lambda a.a a)(\lambda b.b))$. Sostituendo la funzione identità $\lambda b.b$ al posto di $a$, l'espressione diventa $(\lambda b.b)(\lambda b.b)$. Valutando questa applicazione (identità su identità), riotteniamo $\lambda b.b$. L'espressione totale diventa ora $(\lambda b.b)(\lambda c.c)$, ovvero l'identità applicata a $\lambda c.c$, che restituisce intatto $\lambda c.c$.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta f-riducendo $(\lambda a.a a a)((\lambda b.b) (\lambda c.c))$ si ottiene:
+    \begin{itemize}
+        \item[A)] $\lambda a.a$
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] $a a a$
+        \item[D)] La riduzione non termina
+        \item[E)] $\lambda x.x a$
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Valutiamo prima l'argomento interno: $(\lambda b.b)(\lambda c.c)$, che è l'identità applicata a $\lambda c.c$. Il risultato è $\lambda c.c$. Ora passiamo questo risultato alla funzione esterna: $(\lambda a.a a a)(\lambda c.c)$. Sostituendo $a$, otteniamo $(\lambda c.c)(\lambda c.c)(\lambda c.c)$. Valutando questa sequenza di identità, il risultato finale converge a $\lambda c.c$. Poiché questo termine non è tra le opzioni, "Nessuna" è la risposta corretta.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta f-riducendo $(\lambda d.((\lambda a.a b c)(b c)))(\lambda y.x y z)$ si ottiene:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] La riduzione non termina
+        \item[C)] $\lambda b.b b a$
+        \item[D)] $\lambda a.a b c$
+        \item[E)] $b c b c$
+    \end{itemize}
+    \textbf{Risposta esatta:} E - $b c b c$ \\
+    \textbf{Spiegazione:} Iniziamo con il corpo più interno: $(\lambda a.a b c)(b c)$. Sostituendo $(b c)$ al posto della $a$ si ottiene $(b c) b c$. L'espressione complessiva diventa quindi $\lambda d.((b c) b c)$ a cui dobbiamo applicare l'argomento $\lambda y.x y z$. Tuttavia, la variabile legata $d$ non appare da nessuna parte nel corpo $(b c b c)$. Pertanto, l'argomento viene assorbito a vuoto (scartato) e l'espressione restituisce semplicemente $b c b c$.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Beta f-riducendo $(\lambda n.\lambda f.\lambda x.f((n f)x))(\lambda f.\lambda x.f(f(f x)))))$ si ottiene:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] L'espressione è irriducibile
+        \item[C)] La riduzione non termina
+        \item[D)] $\lambda f.\lambda x.f f f f f x$
+        \item[E)] $f x$
+        \item[F)] $\lambda f.\lambda x.f(f(f(f(f x))))$
+    \end{itemize}
+
+\newpage
+    
+    \textbf{Risposta esatta:} F - $\lambda f.\lambda x.f(f(f(f(f x))))$ \\
+    \textbf{Spiegazione:} Analogamente alla domanda 3, la funzione esterna calcola il Successore del numerale in ingresso. Nel testo dell'opzione corretta sembra ci sia un offset di parentesi nella stesura originale del test, ma concettualmente il successore di un numero di Church aggiunge una singola applicazione della funzione $f$ in testa, portando all'opzione indicata F come catena annidata corretta rispetto alla base.
+    \vspace{0.3cm}
+\end{itemize}
+
+\begin{itemize}
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \
+\textbf{Testo:} Beta-riducendo $(\lambda n.\lambda m.\lambda f.\lambda x.(n f)((m f)x))(\lambda f.\lambda x.f x)(\lambda f.\lambda x.x)$ si ottiene:
+\begin{itemize}
+\item[A)] Nessuna delle altre risposte
+\item[B)] $x$
+\item[C)] $\lambda f.\lambda x.f f f f f f x$
+\item[D)] $\lambda f.\lambda x.f x$
+\item[E)] $f x$
+\item[F)] $\lambda f.\lambda x.f f f f x$
+\end{itemize}
+\textbf{Risposta esatta:} D - $\lambda f.\lambda x.f x$ \
+\textbf{Spiegazione:} Il primo termine rappresenta l'operatore matematico di Addizione all'interno della codifica dei Numeri di Church. Tale funzione riceve come argomenti due numerali e ne somma le applicazioni. Il primo argomento $(\lambda f.\lambda x.f x)$ è il numerale $1$, mentre il secondo $(\lambda f.\lambda x.x)$ è il numerale $0$. Eseguendo la somma logica di $1 + 0$ si ottiene $1$, che corrisponde sintatticamente all'opzione D.
+\vspace{0.3cm}
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+\textbf{Testo:} Beta-riducendo $(\lambda a.((a\lambda b.\lambda c.c)\lambda d.\lambda e.d))(\lambda f.\lambda g.g)$ si ottiene:
+\begin{itemize}
+    \item[A)] Nessuna delle altre risposte
+    \item[B)] $\lambda b.\lambda c.b$
+    \item[C)] $b$
+    \item[D)] $\lambda b.\lambda c.c$
+    \item[E)] La riduzione non termina
+\end{itemize}
+\textbf{Risposta esatta:} B - $\lambda b.\lambda c.b$ \\
+\textbf{Spiegazione:} L'espressione principale è un costrutto condizionale (un \texttt{IF-THEN-ELSE} in logica di Church). L'argomento passato ad $a$ è $(\lambda f.\lambda g.g)$, che rappresenta il booleano $FALSE$ (prende due argomenti e restituisce il secondo). Nel blocco condizionale $((a\ \text{arg1})\ \text{arg2})$, il $FALSE$ forza la selezione del secondo argomento, ovvero $\lambda d.\lambda e.d$. Questo termine prende due parametri e restituisce il primo, che lo rende di fatto equivalente al $TRUE$ di Church. Tramite una semplice $\alpha$-conversione (rinomina delle variabili), $\lambda d.\lambda e.d$ equivale perfettamente a $\lambda b.\lambda c.b$.
+\vspace{0.3cm}
+
+\newpage
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+\textbf{Testo:} Beta-riducendo $(\lambda a.a a b)((\lambda a.a a b)(\lambda a.(\lambda b.b a)c))$ si ottiene:
+\begin{itemize}
+    \item[A)] La riduzione non termina
+    \item[B)] $a a b$
+    \item[C)] $\lambda a.a a b$
+    \item[D)] $c c b(c c b)c$
+    \item[E)] Nessuna delle altre risposte
+\end{itemize}
+\textbf{Risposta esatta:} E - Nessuna delle altre risposte \\
+\textbf{Spiegazione:} Questa espressione innesca una reazione di auto-applicazione ricorsiva complessa. Risolvendo il blocco più a destra $(\lambda a.(\lambda b.b a)c)$ otteniamo $\lambda a.c a$. Passando questo termine a $(\lambda a.a a b)$, l'applicazione $(\lambda a.c a)(\lambda a.c a)b$ si riduce a $c(\lambda a.c a)b$. Questo enorme blocco risultante diviene a sua volta l'argomento per la funzione più esterna $(\lambda a.a a b)$, portando a un'espansione massiccia del termine che non coincide con nessuna delle stringhe limitate (come $c c b(c c b)c$) elencate nelle opzioni A, B, C o D.
+\vspace{0.3cm}
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+\textbf{Testo:} Beta-riducendo $((\lambda a.a a a) (\lambda b.b))(\lambda c.c)$ si ottiene:
+\begin{itemize}
+    \item[A)] $\lambda c.c$
+    \item[B)] La riduzione non termina
+    \item[C)] $a a a$
+    \item[D)] $\lambda x.x a$
+    \item[E)] Nessuna delle altre risposte
+\end{itemize}
+\textbf{Risposta esatta:} A - $\lambda c.c$ \\
+\textbf{Spiegazione:} Si valuta inizialmente il blocco funzionale $((\lambda a.a a a) (\lambda b.b))$. Sostituendo la funzione identità $\lambda b.b$ a tutte le occorrenze di $a$, otteniamo un'applicazione tripla dell'identità: $(\lambda b.b)(\lambda b.b)(\lambda b.b)$. Riducendola su sé stessa, l'identità persiste ritornando $\lambda b.b$. L'espressione si è ora semplificata in $(\lambda b.b)(\lambda c.c)$. Quest'ultima è banalmente l'applicazione della funzione identità al termine $\lambda c.c$, che viene restituito intatto.
+\vspace{0.3cm}
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+\textbf{Testo:} Beta-riducendo $(\lambda d.((\lambda a.a b c)(b c))) (\lambda y.x y z)$ si ottiene:
+\begin{itemize}
+    \item[A)] La riduzione non termina
+    \item[B)] $b c b c$
+    \item[C)] Nessuna delle altre risposte
+    \item[D)] $\lambda a.a b c$
+    \item[E)] $\lambda b.b b$
+\end{itemize}
+
+\newpage
+
+\textbf{Risposta esatta:} B - $b c b c$ \\
+\textbf{Spiegazione:} Questa domanda è concettualmente speculare alla Domanda 9 analizzata in precedenza. Il nucleo più profondo $((\lambda a.a b c)(b c))$ si valuta sostituendo $(b c)$ al posto della variabile $a$, generando la stringa $(b c) b c$. L'intera espressione è ora $(\lambda d.(b c b c))(\lambda y.x y z)$. Poiché nel corpo non v'è alcuna occorrenza della variabile legata $d$, l'argomento esterno $(\lambda y.x y z)$ è completamente irrilevante: esso viene assorbito e scartato nel vuoto, lasciando come unica soluzione il corpo originario $b c b c$.
+\vspace{0.3cm}
+
+
+\end{itemize}
+
+\section{Domande Calcolo Indirizzo Array}
+
+\begin{itemize}
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \
+\textbf{Testo:} Se gli array sono memorizzati per righe e \texttt{int a[100][100]} è un array multidimensionale di interi (si assuma che la dimensione di un intero sia 4 byte) con \texttt{a[0][0]} che ha indirizzo \texttt{0x5000}, qual è l'indirizzo di \texttt{a[5][10]}?
+\begin{itemize}
+\item[A)] \texttt{0x57F8}
+\item[B)] Nessuna delle altre risposte
+\item[C)] \texttt{0x53ED}
+\item[D)] \texttt{0x5510}
+\item[E)] \texttt{0x51FE}
+\end{itemize}
+\textbf{Risposta esatta:} A - \texttt{0x57F8} \
+\textbf{Spiegazione:} In un array memorizzato in ordine di riga (Row-Major Order), l'indirizzo di un elemento \texttt{(i, j)} si calcola tramite la formula: $\text{Base} + (i \times \text{Numero\_Colonne} + j) \times \text{Dimensione\_Dato}$.
+Sostituendo i valori forniti: $0x5000 + (5 \times 100 + 10) \times 4 = 0x5000 + 510 \times 4 = 0x5000 + 2040$.
+Convertendo $2040$ decimale in esadecimale otteniamo $0x7F8$. Sommandolo alla base abbiamo infine \texttt{0x57F8}.
+\vspace{0.3cm}
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+\textbf{Testo:} Se gli array sono memorizzati per colonne ed \texttt{int a[100][100]} è un array multidimensionale di interi (si assuma che la dimensione di un intero sia 4 byte) con \texttt{a[0][0]} che ha indirizzo \texttt{0x5000}, qual è l'indirizzo di \texttt{a[5][10]}?
+\begin{itemize}
+    \item[A)] \texttt{0x5510}
+    \item[B)] \texttt{0x53ED}
+    \item[C)] Nessuna delle altre risposte
+    \item[D)] \texttt{0x500F}
+    \item[E)] \texttt{0x41FE}
+\end{itemize}
+\textbf{Risposta esatta:} C - Nessuna delle altre risposte \\
+\textbf{Spiegazione:} L'ordine di memorizzazione per colonne (Column-Major Order) esplora primariamente l'indice di riga. La formula inversa diventa: $\text{Base} + (j \times \text{Numero\_Righe} + i) \times \text{Dimensione\_Dato}$.
+Sostituendo: $0x5000 + (10 \times 100 + 5) \times 4 = 0x5000 + 1005 \times 4 = 0x5000 + 4020$.
+Il valore decimale $4020$ convertito in esadecimale è \texttt{0xFB4}. L'indirizzo esatto risultante è \texttt{0x5FB4}, che non è presente tra le opzioni matematiche offerte.
+\vspace{0.3cm}
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+\textbf{Testo:} Se gli array sono memorizzati per righe e \texttt{char a[100][100][100]} è un array multidimensionale di caratteri con \texttt{a[0][0][0]} che ha indirizzo \texttt{0x1000}, qual è l'indirizzo di \texttt{a[5][5][10]}?
+\begin{itemize}
+    \item[A)] Nessuna delle altre risposte
+    \item[B)] \texttt{0x51510}
+    \item[C)] \texttt{0xC54E}
+    \item[D)] \texttt{0xD54E}
+    \item[E)] \texttt{0x50510}
+\end{itemize}
+\textbf{Risposta esatta:} D - \texttt{0xD54E} \\
+\textbf{Spiegazione:} In un array a 3 dimensioni con ordinamento a righe, l'indirizzo dell'elemento \texttt{(i, j, k)} è $\text{Base} + (i \times d_2 \times d_3 + j \times d_3 + k) \times \text{Dimensione}$.
+Applicando le misure: $0x1000 + (5 \times 100 \times 100 + 5 \times 100 + 10) \times 1 = 0x1000 + 50000 + 500 + 10 = 0x1000 + 50510$.
+La conversione esadecimale del puro scostamento (offset) $50510$ genera il valore \texttt{0xC54E}. Sommandoci l'indirizzo di base originario $0x1000$, si ottiene regolarmente \texttt{0xD54E}.
+\vspace{0.3cm}
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+\textbf{Testo:} Se gli array sono memorizzati per colonne e \texttt{char a[100][100][100]} è un array multidimensionale di caratteri con \texttt{a[0][0][0]} che ha indirizzo \texttt{0x1000}, qual è l'indirizzo di \texttt{a[5][5][10]}?
+\begin{itemize}
+    \item[A)] Nessuna delle altre risposte
+    \item[B)] \texttt{0x18899}
+    \item[C)] \texttt{0x51510}
+    \item[D)] \texttt{0xD54E}
+    \item[E)] \texttt{0x19899}
+\end{itemize}
+\textbf{Risposta esatta:} E - \texttt{0x19899} \\
+\textbf{Spiegazione:} L'estensione 3D dell'indirizzamento per colonne segue le logiche Fortran. La formula posizionale per un elemento \texttt{(i, j, k)} trasforma l'offset in $i + j \times d_1 + k \times d_1 \times d_2$ moltiplicato per la dimensione.
+Calcolo dell'offset: $5 + 5 \times 100 + 10 \times (100 \times 100) = 5 + 500 + 100000 = 100505$.
+La codifica in base 16 del numero intero $100505$ restituisce \texttt{0x18899}. Aggiungendo a quest'ultimo l'iniziale \texttt{0x1000} di Base, deriviamo analiticamente \texttt{0x19899}.
+\vspace{0.3cm}
+
+\newpage
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+\textbf{Testo:} Se gli array sono memorizzati per colonne e \texttt{int a[25][25]} è un array multidimensionale di interi (si assuma che un intero sia memorizzato in 4 byte) con \texttt{a[0][0]} che ha indirizzo \texttt{0x1000}, qual è l'indirizzo di \texttt{a[5][10]}?
+\begin{itemize}
+    \item[A)] \texttt{0x11FE}
+    \item[B)] Nessuna delle altre risposte
+    \item[C)] \texttt{0x100F}
+    \item[D)] \texttt{0x13FC}
+    \item[E)] \texttt{0x121C}
+\end{itemize}
+\textbf{Risposta esatta:} D - \texttt{0x13FC} \\
+\textbf{Spiegazione:} Utilizzando la formula per matrici Column-Major in 2D: $\text{Base} + (j \times \text{Righe} + i) \times \text{Size}$.
+Otteniamo: $0x1000 + (10 \times 25 + 5) \times 4 = 0x1000 + (255) \times 4 = 0x1000 + 1020$.
+Convertendo l'incremento decimale di $1020$ in hex (sapendo che $1024$ corrisponde a $0x400$, e togliendo 4 otteniamo $0x3FC$) la destinazione definitiva risulterà in \texttt{0x13FC}.
+\vspace{0.3cm}
+
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+\textbf{Testo:} Se gli array sono memorizzati per colonne ed \texttt{short int a[100][100]} è un array multidimensionale di interi corti (si assuma che la dimensione di uno short int sia 2 byte) con \texttt{a[0][0]} che ha indirizzo \texttt{0x4100} qual è l'indirizzo di \texttt{a[5][10]}?
+\begin{itemize}
+    \item[A)] \texttt{0x48DA}
+    \item[B)] \texttt{0x4510}
+    \item[C)] Nessuna delle altre risposte
+    \item[D)] \texttt{0x47DA}
+    \item[E)] \texttt{0x41FE}
+\end{itemize}
+\textbf{Risposta esatta:} A - \texttt{0x48DA} \\
+\textbf{Spiegazione:} Riavviando l'esplorazione per colonne (Column-Major) a dimensione pari a 2 Byte. 
+La misurazione si declina in: $0x4100 + (10 \times 100 + 5) \times 2 = 0x4100 + 1005 \times 2 = 0x4100 + 2010$.
+Decodificando il delta numerico $2010$ dal decimale alle sedici cifre otteniamo il valore \texttt{0x7DA}. Inglobato nello stato architetturale di base $0x4100$, il puntatore farà capo a \texttt{0x48DA}.
+\vspace{0.3cm}
+\end{itemize}
+
+\newpage
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Se gli array sono memorizzati per colonne e \texttt{char a[100][100]} è un array multidimensionale di caratteri con \texttt{a[0][0]} che ha indirizzo \texttt{0x1100}, qual è l'indirizzo di \texttt{a[5][10]}?
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] \texttt{0x24ED}
+        \item[C)] \texttt{0x21FE}
+        \item[D)] \texttt{0x22FE}
+        \item[E)] \texttt{0x14ED}
+    \end{itemize}
+    \textbf{Risposta esatta:} E - \texttt{0x14ED} \\
+    \textbf{Spiegazione:} In un array memorizzato in Column-Major Order (per colonne), l'indirizzo di un elemento \texttt{(i, j)} si calcola come: $\text{Base} + (j \times \text{Numero\_Righe} + i) \times \text{Dimensione}$.
+    Con dimensione di 1 byte per il tipo \texttt{char}: $0x1100 + (10 \times 100 + 5) \times 1 = 0x1100 + 1005$. 
+    Convertendo $1005$ decimale in esadecimale otteniamo \texttt{0x3ED}. Sommandolo alla base: $0x1100 + 0x3ED = 0x14ED$.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Se gli array sono memorizzati per colonne e \texttt{char a[100][100]} è un array multidimensionale di caratteri con \texttt{a[0][0]} che ha indirizzo \texttt{5243}, qual è l'indirizzo di \texttt{a[5][10]}? (i numeri sono in decimale)
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] \texttt{5753}
+        \item[C)] \texttt{6248}
+        \item[D)] \texttt{4730}
+        \item[E)] \texttt{4955}
+    \end{itemize}
+    \textbf{Risposta esatta:} C - \texttt{6248} \\
+    \textbf{Spiegazione:} Avendo gli stessi indici della domanda precedente, sappiamo che l'offset posizionale per colonna è pari a $1005$ elementi. Poiché la dimensione del \texttt{char} è 1 e i calcoli richiesti sono direttamente in base decimale, basta sommare l'offset all'indirizzo di base: $5243 + 1005 = 6248$.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Se gli array sono memorizzati per colonne ed \texttt{short int a[100][100]} è un array multidimensionale di interi corti (si assuma che la dimensione di uno short int sia 2 byte) con \texttt{a[0][0]} che ha indirizzo \texttt{0x4100}, qual è l'indirizzo di \texttt{a[5][10]}?
+    \begin{itemize}
+        \item[A)] \texttt{0x41FE}
+        \item[B)] \texttt{0x500F}
+        \item[C)] \texttt{0x47DA}
+        \item[D)] \texttt{0x4510}
+        \item[E)] \texttt{0x43ED}
+        \item[F)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} F - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Questa è una riproposizione esatta della Domanda 6 della sezione calcolo indirizzi. Come calcolato in precedenza, l'offset per colonne è $1005$, che moltiplicato per 2 byte di dimensione fa $2010$ (ovvero \texttt{0x7DA} in esadecimale). L'indirizzo corretto è quindi $0x4100 + 0x7DA = 0x48DA$. Essendo tale opzione assente, la risposta corretta è "Nessuna".
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Se gli array sono memorizzati per righe ed \texttt{int a[100][100]} è un array multidimensionale di interi (si assuma che la dimensione di un intero sia 4 byte) con \texttt{a[0][0]} che ha indirizzo \texttt{0x1000}, qual è l'indirizzo di \texttt{a[5][10]}?
+    \begin{itemize}
+        \item[A)] \texttt{0x100F}
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] \texttt{0x13ED}
+        \item[D)] \texttt{0x11FE}
+        \item[E)] \texttt{0x1510}
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Per un array in Row-Major Order (per righe), la formula è $\text{Base} + (i \times \text{Numero\_Colonne} + j) \times \text{Dimensione}$.
+    Sostituendo: $0x1000 + (5 \times 100 + 10) \times 4 = 0x1000 + 510 \times 4 = 0x1000 + 2040$.
+    $2040$ in decimale corrisponde a \texttt{0x7F8} in esadecimale. L'indirizzo finale atteso è $0x17F8$, che non è presente tra le risposte.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Se gli array sono memorizzati per righe e \texttt{char a[100][100]} è un array multidimensionale di caratteri con \texttt{a[0][0]} che ha indirizzo \texttt{0x2000}, qual è l'indirizzo di \texttt{a[5][10]}?
+    \begin{itemize}
+        \item[A)] \texttt{0x200F}
+        \item[B)] \texttt{0x21FE}
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] \texttt{0x23ED}
+        \item[E)] \texttt{0x2510}
+    \end{itemize}
+    \textbf{Risposta esatta:} B - \texttt{0x21FE} \\
+    \textbf{Spiegazione:} Analogamente alla domanda precedente (ordine per righe), l'offset in termini di celle per la coordinata \texttt{[5][10]} è $(5 \times 100 + 10) = 510$. Poiché la dimensione del \texttt{char} è 1 byte, il salto in memoria ammonta a $510$ byte, cioè \texttt{0x1FE} in esadecimale. Sommandolo all'indirizzo base: $0x2000 + 0x1FE = 0x21FE$.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Se gli array sono memorizzati per colonne ed \texttt{int a[100][100]} è un array multidimensionale di interi (si assuma che la dimensione di un intero sia 4 byte) con \texttt{a[0][0]} che ha indirizzo \texttt{0x5000}, qual è l'indirizzo di \texttt{a[5][10]}?
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] \texttt{0x53ED}
+        \item[C)] \texttt{0x500F}
+        \item[D)] \texttt{0x41FE}
+        \item[E)] \texttt{0x551}
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Questa è la ripetizione esatta della Domanda 2 della sezione calcolo indirizzi. La formula per colonne restituisce un offset di $1005$, che moltiplicato per 4 fa $4020$ byte. Convertito, $4020$ diventa \texttt{0xFB4}. L'indirizzo finale corretto sarebbe $0x5FB4$. Poiché non è tra le opzioni (la E contiene un evidente typo e le altre sono errate), la risposta è "Nessuna".
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Se gli array sono memorizzati per righe e \texttt{char a[100][100]} è un array multidimensionale di caratteri con \texttt{a[0][0]} che ha indirizzo \texttt{0x1100}, qual è l'indirizzo di \texttt{a[5][10]}?
+    \begin{itemize}
+        \item[A)] \texttt{0x22FE}
+        \item[B)] \texttt{0x12FE}
+        \item[C)] \texttt{0x1510}
+        \item[D)] \texttt{0x210F}
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} B - \texttt{0x12FE} \\
+    \textbf{Spiegazione:} Come calcolato precedentemente per il \texttt{char} memorizzato per righe, l'offset totale in byte è $510$, che corrisponde a \texttt{0x1FE}. Addizionandolo alla nuova base fornita: $0x1100 + 0x1FE = 0x12FE$.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Se gli array sono memorizzati per colonne ed \texttt{short int a[100][100]} è un array multidimensionale di interi corti (si assuma che la dimensione di uno short int sia 2 byte) con \texttt{a[0][0]} che ha indirizzo \texttt{16640}, qual è l'indirizzo di \texttt{a[5][10]}?:
+    \begin{itemize}
+        \item[A)] \texttt{18650}
+        \item[B)] \texttt{18394}
+        \item[C)] \texttt{17680}
+        \item[D)] \texttt{16894}
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} A - \texttt{18650} \\
+    \textbf{Spiegazione:} L'offset in posizioni per l'ordine a colonne è $(10 \times 100 + 5) = 1005$. Moltiplicato per i 2 byte del tipo di dato, il salto ammonta a $2010$ byte in decimale. Poiché ci viene fornito l'indirizzo base direttamente in decimale, non serve la conversione esadecimale: $16640 + 2010 = 18650$.
+    \vspace{0.3cm}
+\end{itemize}
+
+\section{Domande Tipi Funzioni ML}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun f x y = x y;} ?
+    \begin{itemize}
+        \item[A)] \texttt{fun: 'a->'b}
+        \item[B)] \texttt{fun: 'a->'b->string->string}
+        \item[C)] \texttt{fun: ('a->'b)->'a->'b}
+        \item[D)] \texttt{fun: int->int}
+        \item[E)] \texttt{fun: string->string->string->string}
+    \end{itemize}
+    \textbf{Risposta esatta:} C - \texttt{fun: ('a->'b)->'a->'b} \\
+    \textbf{Spiegazione:} In ML, la notazione \texttt{x y} significa che \texttt{x} viene applicato a \texttt{y} come funzione. Affinché ciò sia corretto nel sistema di tipi, \texttt{x} deve essere una funzione generica che prende in input un tipo \texttt{'a} e restituisce un tipo \texttt{'b} (quindi \texttt{'a -> 'b}). Di conseguenza, l'argomento \texttt{y} deve necessariamente essere di tipo \texttt{'a}. Il tipo totale della funzione è quindi il tipo di \texttt{x}, seguito dal tipo di \texttt{y}, che restituisce \texttt{'b}.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{List.map print} (sottintendendo l'applicazione parziale in un contesto string) ?
+    \begin{itemize}
+        \item[A)] \texttt{fun: string list -> string list}
+        \item[B)] \texttt{fun: string list -> unit list}
+        \item[C)] \texttt{fun: string list -> string}
+        \item[D)] \texttt{fun: string -> string list}
+        \item[E)] \texttt{fun: string -> unit}
+        \item[F)] \texttt{fun: 'a list -> 'b list}
+    \end{itemize}
+    \textbf{Risposta esatta:} B - \texttt{fun: string list -> unit list} \\
+    \textbf{Spiegazione:} La funzione d'ordine superiore \texttt{List.map} possiede la firma polimorfa \texttt{('a -> 'b) -> 'a list -> 'b list}. La funzione \texttt{print} incorporata in ML ha tipo \texttt{string -> unit}. Passando \texttt{print} come primo argomento a \texttt{map} (currying), la funzione risultante prenderà in input una lista di stringhe (\texttt{string list}) e restituirà una lista con i risultati delle valutazioni, ovvero una lista di valori \texttt{unit} (\texttt{unit list}).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{let f1 l = List.map (fun x y -> x,y) l;} ?
+    \begin{itemize}
+        \item[A)] \texttt{f1:'a list->('b -> 'a -> 'b) list}
+        \item[B)] \texttt{f1:'a list-> 'b -> ('a * 'b)}
+        \item[C)] \texttt{fun x y -> x,y :'a -> 'b -> 'a * 'b}
+        \item[D)] \texttt{fun x y -> x,y :'a -> 'b -> 'a -> 'b}
+        \item[E)] \texttt{f1:'a list->('b -> 'a * 'b) list}
+    \end{itemize}
+    \textbf{Risposta esatta:} E - \texttt{f1:'a list->('b -> 'a * 'b) list} \\
+    \textbf{Spiegazione:} Analizziamo la funzione anonima interna \texttt{(fun x y -> x,y)}: essa prende un elemento \texttt{x} (di tipo \texttt{'a}), poi un \texttt{y} (di tipo \texttt{'b}) e restituisce la tupla \texttt{(x, y)} (di tipo \texttt{'a * 'b}). Grazie all'applicazione parziale, quando \texttt{List.map} passa un singolo elemento della lista a questa funzione, questa non viene valutata completamente, ma restituisce la funzione in attesa della \texttt{y}. Quindi \texttt{List.map} trasformerà una lista originaria di tipo \texttt{'a list} in una lista in cui ogni elemento è una funzione \texttt{('b -> 'a * 'b)}.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{(fn x => x) 12;} ?
+    \begin{itemize}
+        \item[A)] \texttt{12: int}
+        \item[B)] \texttt{'a: 12}
+        \item[C)] \texttt{string: "12"}
+        \item[D)] \texttt{fn: 'a -> 'a}
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} A - \texttt{12: int} \\
+    \textbf{Spiegazione:} L'espressione \texttt{(fn x => x)} è la funzione identità generica in SML, che restituisce l'argomento ricevuto. Fornendo in pasto l'intero \texttt{12} all'operatore di applicazione, la funzione viene eseguita e il risultato è semplicemente il valore \texttt{12}. L'inferenza dei tipi dedurrà coerentemente che il tipo finale in output per il programma è \texttt{int}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun f1 x = [x,x];} ?
+    \begin{itemize}
+        \item[A)] \texttt{f1=fn: 'a list -> 'a list}
+        \item[B)] \texttt{f1=fn: 'a list -> 'b list}
+        \item[C)] \texttt{f1=fn: 'a -> 'b}
+        \item[D)] \texttt{f1=fn: 'a -> 'a list}
+        \item[E)] \texttt{f1=fn: 'a -> 'a}
+        \item[F)] \texttt{f1=fn: string -> string}
+    \end{itemize}
+    \textbf{Risposta esatta:} D - \texttt{f1=fn: 'a -> 'a list} \\
+    \textbf{Spiegazione:} La funzione riceve un singolo argomento \texttt{x} a cui il sistema assegna provvisoriamente il tipo generico \texttt{'a}. Il corpo della funzione crea e restituisce una lista sintatticamente valida \texttt{[x, x]}. Poiché le liste in ML sono rigorosamente omogenee, una lista formata da elementi \texttt{x} avrà come tipo di ritorno \texttt{'a list}. 
+    \vspace{0.3cm}
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun f2 x y = (x @ (y x));} ?
+    \begin{itemize}
+        \item[A)] \texttt{fun: 'a -> 'a -> 'a -> 'a}
+        \item[B)] \texttt{fun: 'a list -> ('a list -> 'a list) -> 'a list}
+        \item[C)] \texttt{fun: 'a list -> 'a list -> 'a list}
+        \item[D)] \texttt{fun: 'a list -> 'a list -> 'b list}
+        \item[E)] \texttt{fun: 'a -> ('a list -> 'a list) -> 'a list}
+    \end{itemize}
+    \textbf{Risposta esatta:} B - \texttt{fun: 'a list -> ('a list -> 'a list) -> 'a list} \\
+    \textbf{Spiegazione:} L'operatore \texttt{@} serve per concatenare (append) due liste dello stesso tipo. Questo implica che sia \texttt{x} sia il risultato di \texttt{(y x)} debbano essere liste di tipo \texttt{'a list}. Affinché \texttt{(y x)} sia un'espressione valida, \texttt{y} deve essere una funzione che accetta \texttt{x} (che abbiamo stabilito essere \texttt{'a list}) e restituisce a sua volta \texttt{'a list}. Dunque, la funzione \texttt{f2} riceve un \texttt{'a list} (il parametro \texttt{x}), poi una funzione \texttt{('a list -> 'a list)} (il parametro \texttt{y}) e restituisce il risultato dell'append, che è \texttt{'a list}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun f3 x = List.map x;} ?
+    \begin{itemize}
+        \item[A)] \texttt{fun: ('a list -> 'b list) -> 'a list -> 'b list}
+        \item[B)] \texttt{fun: ('a -> 'b) -> 'a -> 'b}
+        \item[C)] \texttt{fun: 'a list -> 'b list}
+        \item[D)] \texttt{fun: ('a -> 'a) -> 'a list -> 'a list}
+        \item[E)] \texttt{fun: ('a -> 'b) -> 'a list -> 'b list}
+    \end{itemize}
+    \textbf{Risposta esatta:} E - \texttt{fun: ('a -> 'b) -> 'a list -> 'b list} \\
+    \textbf{Spiegazione:} La funzione della libreria standard \texttt{List.map} ha esattamente la firma polimorfa \texttt{('a -> 'b) -> 'a list -> 'b list}. Creando una funzione \texttt{f3} che prende \texttt{x} e lo passa come primo argomento a \texttt{List.map}, \texttt{x} deve necessariamente essere la funzione di trasformazione \texttt{('a -> 'b)}. \texttt{f3} restituisce l'applicazione parziale di \texttt{map}, che aspetta una \texttt{'a list} e restituisce una \texttt{'b list}. Di fatto, \texttt{f3} è l'esatto equivalente (\textit{eta-expansion}) di \texttt{List.map}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fn x => fn y => x + y;} ?
+    \begin{itemize}
+        \item[A)] \texttt{fn: int -> int}
+        \item[B)] \texttt{fn: 'a -> 'a -> 'a}
+        \item[C)] \texttt{fn: int -> int -> int}
+        \item[D)] \texttt{fn: 'a -> 'a}
+        \item[E)] \texttt{fn: int -> int -> 'a}
+        \item[F)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} C - \texttt{fn: int -> int -> int} \\
+    \textbf{Spiegazione:} In Standard ML, se non viene specificato diversamente in maniera esplicita, l'operatore matematico di somma \texttt{+} è sovraccaricato in modo da avere come tipo di default \texttt{int * int -> int}. Il currying della notazione anonima prende l'intero \texttt{x}, restituisce una funzione che attende l'intero \texttt{y}, e infine restituisce la somma intera.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun funzione x y z = x \textasciicircum\ y \textasciicircum\ z} ?
+    \begin{itemize}
+        \item[A)] \texttt{fn: string -> string}
+        \item[B)] \texttt{fn: 'a -> 'a}
+        \item[C)] \texttt{fn: 'a -> 'a -> 'a -> 'a}
+        \item[D)] \texttt{fn: string -> string -> string -> int}
+        \item[E)] Nessuna delle altre risposte
+        \item[F)] \texttt{fn: string -> string -> string -> string}
+    \end{itemize}
+    \textbf{Risposta esatta:} F - \texttt{fn: string -> string -> string -> string} \\
+    \textbf{Spiegazione:} L'operatore \texttt{\textasciicircum} (caret) in ML è dedicato esclusivamente alla concatenazione di stringhe. Ciò forza il motore di inferenza di ML a imporre il tipo \texttt{string} ai parametri \texttt{x}, \texttt{y} e \texttt{z}. Poiché la concatenazione di tre stringhe genera a sua volta una nuova stringa, il tipo in uscita è l'ennesimo \texttt{string}. (Nota: nel PDF c'è un evidente errore di stampa dove l'operatore \texttt{\textasciicircum} viene trasposto come simbolo matematico \texttt{$\wedge$}).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun c a1 a2 = a1::a2;} ?
+    \begin{itemize}
+        \item[A)] \texttt{fn: 'a list -> 'a list -> 'a list}
+        \item[B)] \texttt{fn: 'a -> 'a list -> 'a list}
+        \item[C)] \texttt{fn: 'a -> 'a -> 'a}
+        \item[D)] \texttt{fn: 'a -> 'a list}
+        \item[E)] \texttt{fn: 'a -> 'a -> 'a list}
+    \end{itemize}
+    \textbf{Risposta esatta:} B - \texttt{fn: 'a -> 'a list -> 'a list} \\
+    \textbf{Spiegazione:} Il costruttore di lista \texttt{::} (cons) inserisce un singolo elemento in testa a una lista esistente. Per definizione sintattica, l'operando di sinistra (\texttt{a1}) deve essere un singolo elemento di tipo generico \texttt{'a}, mentre l'operando di destra (\texttt{a2}) deve essere una lista formata da elementi dello stesso tipo (\texttt{'a list}). Il risultato dell'operazione è l'intera nuova lista concatenata, da qui il tipo finale di \texttt{'a list}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fn l1 => fn l2 => l1 @ l2;} ?
+    \begin{itemize}
+        \item[A)] \texttt{fn: 'a list -> 'a list -> 'a list}
+        \item[B)] \texttt{fn: 'a -> 'a list -> 'a list}
+        \item[C)] \texttt{fn: 'a -> 'a -> 'a}
+        \item[D)] \texttt{fn: 'a -> 'a list}
+        \item[E)] \texttt{fn: 'a -> 'a -> 'a list}
+    \end{itemize}
+    \textbf{Risposta esatta:} A - \texttt{fn: 'a list -> 'a list -> 'a list} \\
+    \textbf{Spiegazione:} A differenza dell'operatore \texttt{::} (cons), l'operatore \texttt{@} unisce (effettua un merge/append) due liste complete. Pertanto, il motore di inferenza pretenderà che sia \texttt{l1} che \texttt{l2} siano entrambi istanze di \texttt{'a list}. (Nota: nel file originale c'è un errore OCR con i numeri \texttt{11} e \texttt{12}, la notazione corretta usa \texttt{l1} ed \texttt{l2}).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fn a => fn b => fn c => (a * b) / c;} ? (nota: corretto in base all'esito fornito tra le opzioni del PDF, originariamente apparso come \texttt{a b / c})
+    \begin{itemize}
+        \item[A)] \texttt{fn: int -> int -> int -> int}
+        \item[B)] \texttt{fn: 'a -> 'a -> 'a -> 'a}
+        \item[C)] \texttt{fn: int -> int -> int -> real}
+        \item[D)] \texttt{fn: real -> real -> real -> real}
+        \item[E)] \texttt{fn: int -> int -> real -> real}
+    \end{itemize}
+    \textbf{Risposta esatta:} D - \texttt{fn: real -> real -> real -> real} \\
+    \textbf{Spiegazione:} In SML l'operatore di divisione \texttt{/} è riservato strettamente e in modo esclusivo ai numeri in virgola mobile (i \texttt{real}). La divisione tra interi usa l'operatore \texttt{div}. Questo singolo vincolo forza immediatamente a cascata l'inferenza di tutti i tipi coinvolti: \texttt{c} deve essere \texttt{real} per poter fungere da divisore, \texttt{a * b} deve risultare \texttt{real} (costringendo \texttt{a} e \texttt{b} a essere \texttt{real}), e il risultato finale sarà un \texttt{real}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun f [] = (7.0; print("ab")) | f (x::xs) = (2.3; print("cd"));} ?
+    \begin{itemize}
+        \item[A)] \texttt{val f = fn: 'a list -> unit}
+        \item[B)] \texttt{val f = fn: 'a list -> real}
+        \item[C)] \texttt{'a list -> int}
+        \item[D)] \texttt{'a tuple}
+        \item[E)] \texttt{real list -> string}
+    \end{itemize}
+    \textbf{Risposta esatta:} A - \texttt{val f = fn: 'a list -> unit} \\
+    \textbf{Spiegazione:} Esaminando il costrutto, capiamo dai pattern \texttt{[]} e \texttt{x::xs} che la funzione accetta una lista. Poiché non impone vincoli su cosa contenga, è un parametro \texttt{'a list}. Analizzando i corpi separati da \texttt{;} (valutazione sequenziale), l'interprete valuta la prima espressione (es. \texttt{7.0}), la scarta e valuta l'ultima, restituendone il risultato. L'ultima espressione è sempre \texttt{print(...)} che in ML ha effetti collaterali sull'output di sistema, ma restituisce sempre un token vuoto di tipo \texttt{unit}.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è l'output del seguente codice: \texttt{List.partition (fn x => x>0) (List.take ([\~1,1,\~2,\~2,\~3,3],4));} ?
+    \begin{itemize}
+        \item[A)] \texttt{val it=([1,3], [\~1, \~2, \~2, \~3]): int list * int list}
+        \item[B)] \texttt{val it=[1,3]: int list}
+        \item[C)] \texttt{val it=[1]: int list}
+        \item[D)] \texttt{val it=([1],[\~1,\~2,\~2]): int list * int list}
+        \item[E)] \texttt{val it=([],[\~2]); int list * int list}
+        \item[F)] \texttt{val it=[] int list}
+    \end{itemize}
+    \textbf{Risposta esatta:} D - \texttt{val it=([1],[\~1,\~2,\~2]): int list * int list} \\
+    \textbf{Spiegazione:} La prima operazione ad essere eseguita, trovandosi tra le parentesi più interne, è \texttt{List.take(..., 4)}. Questa preleva unicamente i primi 4 elementi della lista fornita, accorciandola a \texttt{[\~1, 1, \~2, \~2]}. Successivamente, \texttt{List.partition} con il predicato \texttt{(x > 0)} divide questa nuova lista in una tupla di due liste: la prima contiene gli elementi che soddisfano il requisito (cioè il solo \texttt{1}), la seconda contiene tutti gli altri (i numeri negativi).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fn a => fn b => a=b;} ?
+    \begin{itemize}
+        \item[A)] \texttt{fn: ''a -> ''a -> bool}
+        \item[B)] \texttt{fn: int -> int -> bool}
+        \item[C)] \texttt{fn: string -> string -> bool}
+        \item[D)] \texttt{fn: bool -> bool -> bool}
+        \item[E)] \texttt{fn: 'a -> 'a -> bool}
+    \end{itemize}
+    \textbf{Risposta esatta:} A - \texttt{fn: ''a -> ''a -> bool} \\
+    \textbf{Spiegazione:} L'operatore \texttt{=} verifica l'uguaglianza tra due elementi che, per logica, restituiscono un valore \texttt{bool}. In SML, tuttavia, l'uguaglianza non è definita per tutti i tipi (ad esempio, è illegale confrontare due \texttt{real} per problemi di precisione binaria o due funzioni). Si utilizza allora un tipo speciale di variabile di tipo, definita "Equality Type" e denotata dal doppio apice \texttt{''a}, che indica "qualsiasi tipo a patto che sia supportato il controllo di uguaglianza".
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun f[] = (print("ab"); 7.0) | f(x::xs) = (print("cd"); 4.0);} ?
+    \begin{itemize}
+        \item[A)] \texttt{'a list --> int}
+        \item[B)] \texttt{'a --> real}
+        \item[C)] \texttt{'a record}
+        \item[D)] \texttt{'a tuple}
+        \item[E)] \texttt{'a list --> real}
+    \end{itemize}
+    \textbf{Risposta esatta:} E - \texttt{'a list --> real} \\
+    \textbf{Spiegazione:} Esattamente come per la Domanda 13 appena vista, l'ingresso è implicitamente marcato come una \texttt{'a list}. Questa volta, all'interno del blocco sequenziale, le posizioni sono invertite: il \texttt{print} viene eseguito e il suo \texttt{unit} scartato in favore del secondo termine. In entrambi i rami viene ritornato un numero decimale (rispettivamente \texttt{7.0} e \texttt{4.0}), fissando il tipo di uscita a \texttt{real}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} In ML \texttt{:>} serve a:
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Nasconde i componenti di una lista
+        \item[C)] È usata per definire funzioni polimorfiche
+        \item[D)] Nasconde i componenti di una struttura
+        \item[E)] Definisce la firma di una struttura
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Nasconde i componenti di una struttura \\
+    \textbf{Spiegazione:} In SML, l'operatore \texttt{:>} (Ascription Opaca o Opaque Signature Matching) viene utilizzato in fase di dichiarazione di una struttura per associarvi una firma (signature). A differenza dell'ascription trasparente (\texttt{:}), esso "nasconde" (rende astratti) all'esterno tutti i dettagli implementativi e i tipi concreti definiti nella struttura che non sono esplicitamente descritti nella firma, garantendo così l'Information Hiding e l'implementazione degli Abstract Data Types (ADT).
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il seguente programma in ML, indicare il risultato: \\
+    \texttt{Datatype fruit = Apple | Pear | Grape; fun isApple x = (x=Apple); isApple (Lemon);}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] False
+        \item[C)] Undeclared value
+        \item[D)] True
+        \item[E)] Type error
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Undeclared value \\
+    \textbf{Spiegazione:} L'errore scaturisce a tempo di compilazione. Il costruttore di tipo \texttt{Lemon} non è stato dichiarato da nessuna parte né nel \texttt{datatype fruit}, né come variabile. Di conseguenza, l'interprete si blocca prima ancora di poter effettuare il controllo di uguaglianza (che restituirebbe False) o l'inferenza di tipo, segnalando che il valore non è definito (Undeclared value/Unbound constructor). (Nota: nel PDF il testo omette i \texttt{=} e i \texttt{|} per refusi di trascrizione, ma la semantica è quella indicata).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è l'output del seguente codice: \texttt{val i = ref 1; while !i<10 do i := !i+1;} ?
+    \begin{itemize}
+        \item[A)] \texttt{val i=10}
+        \item[B)] \texttt{val it=()}
+        \item[C)] Loop infinito
+        \item[D)] Type error
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} B - \texttt{val it=()} \\
+    \textbf{Spiegazione:} In SML, il costrutto \texttt{while ... do ...} viene utilizzato per scopi prettamente imperativi (side effects) e aggiornamento di riferimenti mutabili. Al termine della sua esecuzione (quando la condizione diventa falsa), il ciclo non restituisce alcun valore utile dal punto di vista funzionale, ma valuta sempre all'entità vuota \texttt{unit}, che la shell di SML stampa a video come \texttt{val it = () : unit}.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è l'output del seguente codice: \\
+    \texttt{val m = (List.map(fn x=>x*x) [4, 5, 6]); List.foldr Int.+ 0 m;}
+    \begin{itemize}
+        \item[A)] 15
+        \item[B)] 77
+        \item[C)] \texttt{'a list -> int}
+        \item[D)] NaN
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} B - 77 \\
+    \textbf{Spiegazione:} Seguiamo il codice passo passo. Prima eseguiamo \texttt{List.map} con la funzione di elevamento al quadrato (\texttt{x*x}) sulla lista \texttt{[4, 5, 6]}. Il risultato è la nuova lista \texttt{m = [16, 25, 36]}. Poi usiamo \texttt{List.foldr} passando la funzione di somma intera (\texttt{Int.+}), con elemento neutro \texttt{0}, su \texttt{m}. Questo esegue l'accumulazione $16 + (25 + (36 + 0))$, che ammonta esattamente a $77$.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} In ML \texttt{4+3.0} genera come risultato:
+    \begin{itemize}
+        \item[A)] Errore di tipo
+        \item[B)] 7.0
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] Dipende dall'implementazione
+        \item[E)] 7
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Errore di tipo \\
+    \textbf{Spiegazione:} SML è un linguaggio fortemente tipizzato che non ammette coercion (conversioni di tipo implicite) tra tipi numerici. L'intero \texttt{4} e il floating point \texttt{3.0} non possono essere addizionati direttamente con lo stesso operatore senza prima essere forzati esplicitamente a far combaciare i tipi (es. usando \texttt{Real.fromInt(4) + 3.0}). L'espressione, così come fornita, causa un type mismatch (Errore di tipo).
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si assuma che \texttt{A} sia un array di lunghezza 40. Trovare il 30simo elemento.
+    \begin{itemize}
+        \item[A)] \texttt{Array.sub(A,30)}
+        \item[B)] \texttt{Array.sub(A,29)}
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] \texttt{sub(A,29)}
+        \item[E)] \texttt{A[30]}
+    \end{itemize}
+    \textbf{Risposta esatta:} B - \texttt{Array.sub(A,29)} \\
+    \textbf{Spiegazione:} In SML, la struttura standard per operare sugli array mutabili è \texttt{Array}. L'accesso in lettura si effettua obbligatoriamente chiamando la funzione \texttt{Array.sub(array, indice)} (rendendo errata l'opzione E e D). Siccome gli array sono zero-based (il primo elemento è in posizione 0), il 30esimo elemento logico si troverà all'indice \texttt{29}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Indicare il risultato di \texttt{Struct2.x = Struct2.i;} Dato il seguente programma ML: \\
+    \texttt{structure Struct1 = struct val i = 3; type t = int; val x = 4 end; signature SIG1 = sig val i:int; type t; val x: t; end; structure Struct2:> SIG1 = Struct1;}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] 3
+        \item[C)] False
+        \item[D)] Type error
+        \item[E)] True
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Type error \\
+    \textbf{Spiegazione:} Questo è un classico esempio di Information Hiding tramite l'operatore \texttt{:>} (Ascription Opaca). All'interno di \texttt{Struct1}, il tipo \texttt{t} è esplicitamente sinonimo di \texttt{int}. Tuttavia, sigillando \texttt{Struct1} nella \texttt{Struct2} tramite \texttt{SIG1}, esponiamo \texttt{t} come tipo "astratto" (\texttt{type t;}). Quando si tenta di valutare l'uguaglianza all'esterno, il compilatore vede \texttt{Struct2.x} come avente il tipo opaco incommensurabile \texttt{t}, e \texttt{Struct2.i} come \texttt{int}. Non sapendo più che \texttt{t} maschera un intero, fallisce con un Errore di Tipo.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} In ML, quale espressione è legale:
+    \begin{itemize}
+        \item[A)] \texttt{[1.0, 2, 3]}
+        \item[B)] \texttt{fn x:real => x*2}
+        \item[C)] \texttt{"a", 1, 2}
+        \item[D)] \texttt{(1, 2, 0)}
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} D - \texttt{(1, 2, 0)} \\
+    \textbf{Spiegazione:} L'opzione A è illegale perché le liste in ML non possono mescolare tipi \texttt{real} e \texttt{int}. L'opzione B è illegale perché un operando annotato come \texttt{real} non può essere moltiplicato per \texttt{2} (che è \texttt{int}, servirebbe \texttt{2.0}). L'opzione C manca delle parentesi tonde necessarie per formare una tupla. L'opzione D, \texttt{(1, 2, 0)}, è invece una tupla sintatticamente perfetta, formata da tre interi di tipo \texttt{int * int * int}.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Qual è il tipo di \texttt{SOME[2, 3, 4];}
+    \begin{itemize}
+        \item[A)] \texttt{'a list option}
+        \item[B)] \texttt{int list option}
+        \item[C)] \texttt{(int*int*int) option}
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] \texttt{int list}
+    \end{itemize}
+    \textbf{Risposta esatta:} B - \texttt{int list option} \\
+    \textbf{Spiegazione:} Analizzando dall'interno verso l'esterno, \texttt{[2, 3, 4]} è banalmente una lista omogenea di interi, quindi il suo tipo è \texttt{int list}. \texttt{SOME} è un costruttore polimorfo del datatype \texttt{option}, avente firma \texttt{'a -> 'a option}. Sostituendo al parametro generico \texttt{'a} il nostro \texttt{int list}, otteniamo che l'espressione generata ha tipo finale \texttt{int list option}.
+    \vspace{0.3cm}
+\end{itemize}
+
+\section{Domande Output Codici}
+
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Utilizzando la tecnica dei tombstones cosa succede alla fine del frammento di codice dato?
 \begin{verbatim}
-int y = 12;
-int f1(int x) { x = 12; return x / 2; }
-int f2(void) {
-    int a, c;
-    a = y / 3;
-    c = f1(a);
-    return a + c;
-}
+p = malloc();
+q = malloc();
+*p = 999;
+*q = 111;
+*p += *q;
+q = p;
+free(p);
 \end{verbatim}
-    Qual è il valore di ritorno di \texttt{f2} se i parametri sono passati \textbf{per valore}? \\
-    \textbf{Risposta esatta:} 10 \\
-    \textbf{Spiegazione:} In \texttt{f2}, si calcola \texttt{a = 12 / 3 = 4}. Chiamando \texttt{f1(a)}, viene passata una copia del valore 4. All'interno di \texttt{f1}, la variabile locale \texttt{x} sovrascrive il 4 con 12 e ritorna \texttt{12 / 2 = 6}. Dunque \texttt{c = 6}. Poiché il passaggio è avvenuto per valore, la \texttt{a} originale in \texttt{f2} è rimasta inalterata a 4. Il ritorno finale è \texttt{4 + 6 = 10}.
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Dato il seguente pseudocodice:
-\begin{verbatim}
-int x = 1; int y = 2;
-void cambia() { x = x + y; }
-void bloccoA() { int y = 10; cambia(); }
-\end{verbatim}
-    Se lo scoping è \textbf{dinamico}, quanto vale \texttt{x} dopo l'esecuzione di \texttt{bloccoA()}? \\
-    \textbf{Risposta esatta:} 11 \\
-    \textbf{Spiegazione:} Lo scoping dinamico cerca il valore della variabile nell'ultimo record di attivazione impilato sullo Stack, risalendo la catena dinamica delle chiamate. Poiché \texttt{cambia()} è invocato da \texttt{bloccoA()}, esso non vedrà la \texttt{y} globale (2), ma la \texttt{y} locale di \texttt{bloccoA} (10). La variabile \texttt{x} globale viene quindi aggiornata a \texttt{1 + 10 = 11}.
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Quali delle seguenti affermazioni sulle binding policy sono vere? \\
-    \textbf{Risposta esatta:} Nello shallow binding l'environment da considerare è quello attivo al momento della chiamata della funzione passata come parametro. \\
-    \textbf{Spiegazione:} Questo si contrappone al \textit{Deep Binding} (tipico di ML in congiunzione con le \textit{Closures}), in cui l'ambiente viene "congelato" ed associato alla funzione nel momento in cui essa viene definita, a garanzia della sicurezza dei tipi e dello stato.
-    \vspace{0.3cm}
-\end{itemize}
-
-
-\subsection{Memoria, Macchine Astratte e Garbage Collection}
-
-\begin{itemize}
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} I puntatori di catena dinamica (Dynamic Link) contenuti in un record di attivazione: \\
-    \textbf{Risposta esatta:} Permettono, a partire da un RdA, di trovare il RdA precedente sullo stack (quello della procedura chiamante). \\
-    \textbf{Spiegazione:} Formano la catena delle chiamate a funzione a runtime, essenziali sia per lo smontaggio (pop) corretto dello stack alla terminazione di una funzione, sia per la ricerca di variabili nello scoping dinamico.
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} La frammentazione \textbf{interna} causa: \\
-    \textbf{Risposta esatta:} Uno spreco di memoria. \\
-    \textbf{Spiegazione:} Si verifica quando il sistema operativo assegna a un processo un blocco di memoria leggermente più grande di quello richiesto; la parte inutilizzata all'interno del blocco assegnato non può essere usata da nessun altro. 
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} La frammentazione \textbf{esterna} causa: \\
-    \textbf{Risposta esatta:} L'impossibilità di allocare grandi blocchi di memoria anche se la memoria libera totale è sufficiente. \\
-    \textbf{Spiegazione:} Avviene quando la memoria Heap libera è spezzettata in tanti piccoli frammenti non contigui, rendendo fallimentare una richiesta per un singolo blocco massiccio di memoria (es. un grosso array).
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Un Garbage Collector: \\
-    \textbf{Risposta esatta:} Gestisce in maniera automatica la deallocazione di oggetti non più utilizzati dal programma, evitando memory leak. Non è esclusiva dei linguaggi funzionali ed esistono varie tecniche (es. Mark and Sweep). \\
-    \textbf{Spiegazione:} Il suo compito primario è scandagliare la memoria Heap alla ricerca di oggetti il cui puntatore/riferimento non è più raggiungibile dallo Stack, deallocandoli in sicurezza (es. Java).
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Si può dire che una macchina astratta che capisce il linguaggio Java non sia implementata in modo puramente compilativo perché: \\
-    \textbf{Risposta esatta:} La macchina virtuale di Java (JVM) o JRE deve comunque essere presente per interpretare il Bytecode. \\
-    \textbf{Spiegazione:} Java utilizza un'architettura mista. Il compilatore (\texttt{javac}) non produce codice macchina nativo, ma Bytecode. È poi l'interprete (la JVM) a convertire istantaneamente il Bytecode in istruzioni macchina durante l'esecuzione (JIT compilation).
-    \vspace{0.3cm}
-\end{itemize}
-
-\subsection{Lambda Calcolo e Codifiche}
-
-\begin{itemize}
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Nella sostituzione $(\lambda a.abc)[d/c]$: \\
-    \textbf{Risposta esatta:} Non c'è alcuna cattura di variabile. \\
-    \textbf{Spiegazione:} Sostituiamo la $c$ (libera) con $d$. Otteniamo $\lambda a.abd$. Non c'è collisione o cattura perché $d$ non entra nel raggio di un legame locale pre-esistente con lo stesso nome. Diverso sarebbe stato se avessimo voluto sostituire $c$ con $a$; in tal caso $a$ sarebbe stata "catturata" dal $\lambda a$, e avremmo dovuto usare un'$\alpha$-conversione (es. $\lambda z.zbc$) prima.
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Beta-riducendo $(\lambda a. a a a) (\lambda b. b) (\lambda c. c)$ si ottiene: \\
-    \textbf{Risposta esatta:} $\lambda c. c$ \\
-    \textbf{Spiegazione:} 
-    1. Si applica il primo blocco al secondo. Tutte le $a$ diventano la funzione identità $(\lambda b. b)$. \\
-    2. Otteniamo: $(\lambda b. b) (\lambda b. b) (\lambda b. b)$ e a parte il nostro terzo termine originale $(\lambda c. c)$. \\
-    3. Riducendo la catena di identità: $(\lambda b. b)$ applicata a se stessa ridà $(\lambda b. b)$. Questa, riapplicata ancora, dà di nuovo $(\lambda b. b)$. \\
-    4. Infine, assemblando l'ultimo pezzo: $(\lambda b. b) (\lambda c. c)$. L'identità applicata al termine $\lambda c.c$ ci restituisce intatto $\lambda c.c$.
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Beta-riducendo $(\lambda n. \lambda f. \lambda x. f((n f) x)) (\lambda f. \lambda x. f(f(fx)))$ si ottiene: \\
-    \textbf{Risposta esatta:} $\lambda f. \lambda x. f(f(f(f(fx))))$ \\
-    \textbf{Spiegazione:} Il primo termine è la funzione $SUCC$ (Successore) nella codifica dei Church Numerals. Il secondo termine è il numero $3$ di Church (la funzione $f$ applicata $3$ volte). Applicando il Successore al numero $3$, si ottiene logicamente (e sintatticamente) il numero $4$ di Church, cioè la $f$ applicata $4$ volte alla $x$.
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Beta-riducendo $(\lambda a. ((a \lambda b. \lambda c. c) \lambda d. \lambda e. d)) (\lambda f. \lambda g. f)$ si ottiene: \\
-    \textbf{Risposta esatta:} $\lambda b. \lambda c. c$ \\
-    \textbf{Spiegazione:} Questa è la codifica condizionale Booleana (\texttt{IF-THEN-ELSE}). 
-    Il termine $(\lambda f. \lambda g. f)$ è il "TRUE" di Church (prende due argomenti e restituisce il primo). 
-    Sostituendo il True al posto della $a$ nel blocco centrale, l'espressione dice: \texttt{TRUE (False) (True)}. Poiché è True, la funzione scarta il secondo argomento e restituisce il primo, che è la funzione $(\lambda b. \lambda c. c)$ (il False di Church).
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Data la lambda-espressione $\lambda a. (\lambda b. b f (\lambda c. d c a g))$, quali sono le variabili \textit{free} (libere)? \\
-    \textbf{Risposta esatta:} $f, d, g$ \\
-    \textbf{Spiegazione:} Le variabili $a, b, c$ sono strettamente vincolate ("bound") dalle relative astrazioni (rispettivamente $\lambda a, \lambda b, \lambda c$). Le lettere $f, d, g$ appaiono nel corpo ma non possiedono alcun operatore $\lambda$ che le lega nel contesto dell'espressione fornita, rendendole libere.
-    \vspace{0.3cm}
-\end{itemize}
-
-\subsection{Sistemi di Tipi, Polimorfismo e ML}
-
-\begin{itemize}
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} In ML, il costrutto \texttt{:>} : \\
-    \textbf{Risposta esatta:} È usato per nascondere le componenti di una struttura che non sono visibili nella signature (Ascription opaca). \\
-    \textbf{Spiegazione:} Rappresenta l'implementazione pratica dell'\textbf{Abstract Data Type (ADT)}. Il tipo e le definizioni vengono sigillati, garantendo che gli utenti esterni possano interagire con i dati solo attraverso le funzioni esposte nella signature, garantendone la consistenza.
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Qual è il tipo dell'espressione \texttt{fn a => fn b => fn c => (a b) / c} ? \\
+    \begin{itemize}
+        \item[A)] \texttt{*p=1110 e *q=111}
+        \item[B)] p è deallocato e q punta ad una tombstone
+        \item[C)] p e q sono entrambi deallocati
+        \item[D)] q è deallocato e p punta ad una tombstone
+        \item[E)] \texttt{*p=999 e *q=111}
+        \item[F)] \texttt{*p=1110 e *q=1110}
+        \item[G)] Nessuna delle altre risposte
+    \end{itemize}
 
     \newpage
     
-    \textbf{Risposta esatta:} \texttt{fn: ('a -> real) -> 'a -> real -> real} \\
-    \textbf{Spiegazione:} Procediamo per vincoli (\textit{Type Inference}): l'operatore \texttt{/} è la divisione in virgola mobile (esclusiva dei reali in ML). Questo forza il divisore \texttt{c} a essere \texttt{real}, e forza il risultato del blocco \texttt{(a b)} a essere \texttt{real}. Di conseguenza: \texttt{b} ha un tipo generico \texttt{'a}, mentre \texttt{a} deve essere una funzione applicabile a \texttt{b} per produrre un reale, quindi \texttt{('a -> real)}.
+    \textbf{Risposta esatta:} G - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Analizziamo il codice. Vengono allocate due zone di memoria con i rispettivi tombstones (T1 per \texttt{p} e T2 per \texttt{q}). I valori diventano \texttt{*p = 999} e \texttt{*q = 111}. Con \texttt{*p += *q}, il valore puntato da \texttt{p} diventa 1110. Eseguendo \texttt{q = p}, il puntatore \texttt{q} smette di puntare a T2 e inizia a puntare al tombstone T1 (generando un memory leak su T2). Eseguendo infine \texttt{free(p)}, la memoria di T1 viene liberata e il tombstone T1 viene invalidato (marcato come "morto"). I puntatori locali \texttt{p} e \texttt{q} non vengono "deallocati", ma continuano a esistere sullo stack ed \textbf{entrambi puntano allo stesso tombstone invalidato} (T1). Poiché nessuna delle opzioni A-F descrive correttamente questa situazione, la risposta corretta (che è stata aggiunta nelle versioni successive del quiz, vedi domanda seguente) è "Nessuna".
     \vspace{0.3cm}
 
     \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Qual è il tipo della seguente espressione: \texttt{fun f x y = x y;} ? \\
-    \textbf{Risposta esatta:} \texttt{fn: ('a -> 'b) -> 'a -> 'b} \\
-    \textbf{Spiegazione:} La notazione per affiancamento \texttt{x y} indica l'applicazione della funzione \texttt{x} all'argomento \texttt{y}. Se diamo a \texttt{y} il tipo generico \texttt{'a}, \texttt{x} dovrà essere una funzione che assorbe \texttt{'a} ed emette \texttt{'b}. Il risultato totale della funzione è l'output di \texttt{x}.
-    \vspace{0.3cm}
-
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Siano dati i tipi riferimento \texttt{A} e \texttt{B}, e i tipi generici \texttt{C<A>} e \texttt{C<B>}. Se \texttt{B} è una sottoclasse di \texttt{A}, allora \texttt{C<B>} è una sottoclasse di \texttt{C<A>}. \\
-    \textbf{Risposta esatta:} \textbf{Falso} \\
-    \textbf{Spiegazione:} I tipi generici (sia in Java che in altri ecosistemi tipizzati visti) sono \textbf{invarianti}. Una Lista di Interi non eredita e non può essere trattata direttamente come una Lista di Object (se lo fosse, si potrebbero inserire stringhe in una lista di interi sfondando la Type Safety a runtime).
-    \vspace{0.3cm}
-    
-    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
-    \textbf{Testo:} Nel seguente programma ML:
+    \textbf{Testo:} Utilizzando la tecnica dei tombstones cosa succede alla fine del frammento di codice dato?
 \begin{verbatim}
-fun pow x 0 = 1.0
-  | pow x y = x * pow x (y - 1);
+p = malloc();
+q = malloc();
+*p = 999;
+*q = 111;
+*p += *q;
+q = p;
+free(p);
 \end{verbatim}
-    Il tipo dell'espressione \texttt{pow 5.0} è: \\
-    \textbf{Risposta esatta:} \texttt{fn: int -> real} \\
-    \textbf{Spiegazione:} È un classico caso di applicazione parziale (\textit{Currying}). Il tipo originale della funzione è \texttt{real -> int -> real}. Fornendo unicamente la base (\texttt{5.0}), l'ambiente "scongela" e assorbe il primo argomento, restituendo una nuova funzione in attesa del solo esponente di tipo \texttt{int}.
+    \begin{itemize}
+        \item[A)] \texttt{*p=1110 e *q=111}
+        \item[B)] \texttt{*p=1110 e *q=1110}
+        \item[C)] p e q sono entrambi deallocati
+        \item[D)] q è deallocato e p punta ad una tombstone
+        \item[E)] Nessuna delle risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} E - Nessuna delle risposte \\
+    \textbf{Spiegazione:} Identica alla domanda precedente, ma con le opzioni corrette. Come dimostrato, alla fine dell'esecuzione del codice \textbf{entrambi} i puntatori \texttt{p} e \texttt{q} puntano allo stesso tombstone ormai invalidato. Le variabili puntatore in sé non sono deallocate (rimangono sullo stack), ma il loro riferimento è "pendente" seppur protetto dalla tombstone. L'opzione esatta è dunque "Nessuna delle risposte".
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Utilizzando la tecnica dei tombstones cosa succede alla fine del frammento di codice dato?
+\begin{verbatim}
+p = malloc();
+q = malloc();
+*p = 123;
+*q = 321;
+p = q;
+free(q);
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] \texttt{*p=999 e *q=111}
+        \item[B)] \texttt{*p=123 e *q=321}
+        \item[C)] p è deallocato e q punta ad una tombstone
+        \item[D)] p e q sono entrambi deallocati
+        \item[E)] q è deallocato e p punta ad una tombstone
+        \item[F)] \texttt{*p=321 e *q=321}
+        \item[G)] Nessuna delle risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} G - Nessuna delle risposte \\
+    \textbf{Spiegazione:} Assegnando \texttt{p = q}, si fa in modo che \texttt{p} punti allo stesso tombstone di \texttt{q}. Subito dopo, la \texttt{free(q)} dealloca la memoria a cui quel tombstone puntava, invalidandolo. Di conseguenza, alla fine dell'esecuzione, sia \texttt{p} che \texttt{q} si ritroveranno a puntare contemporaneamente a una tombstone marcata come distrutta (dangling pointer). Dato che nessuna delle frasi proposte descrive questo stato ("entrambi puntano ad una tombstone"), la risposta è Nessuna.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di pluto() se i parametri sono passati \textbf{per nome}?
+\begin{verbatim}
+int c = 2;
+int pippo (int a) {
+    c = c + 2;
+    return a * 2;
+}
+int pluto (void) {
+    return pippo(c + 1);
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] 10
+        \item[C)] Dipende dal tipo di scope (statico o dinamico) utilizzato
+        \item[D)] 4
+        \item[E)] 6
+    \end{itemize}
+    \textbf{Risposta esatta:} B - 10 \\
+    \textbf{Spiegazione:} Nel passaggio per nome (Call by Name), l'argomento \texttt{(c + 1)} non viene valutato al momento della chiamata, ma viene testualmente sostituito all'interno della funzione \texttt{pippo} (tramite un thunk invisibile). All'interno di \texttt{pippo}, viene prima eseguito \texttt{c = c + 2}, portando la variabile globale \texttt{c} da 2 a 4. Successivamente, si esegue il return \texttt{a * 2}, che per nome diventa \texttt{(c + 1) * 2}. Poiché \texttt{c} ora vale 4, il calcolo sarà \texttt{(4 + 1) * 2 = 10}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di pluto() se i parametri sono passati \textbf{per valore}?
+\begin{verbatim}
+int c = 2;
+int pippo (int a) {
+    c = c + 2;
+    return a * 2;
+}
+int pluto (void) {
+    return pippo(c + 1);
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] 10
+        \item[B)] Dipende dal tipo di scope (statico o dinamico) utilizzato
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] 6
+        \item[E)] Non è possibile passare c+1 per valore
+    \end{itemize}
+    \textbf{Risposta esatta:} D - 6 \\
+    \textbf{Spiegazione:} Nel passaggio per valore (Call by Value), l'argomento viene valutato \textit{prima} di entrare nella funzione. Poiché inizialmente \texttt{c=2}, l'espressione \texttt{c+1} viene valutata a 3, e questo valore fisso viene copiato nel parametro locale \texttt{a}. All'interno di \texttt{pippo}, la variabile globale \texttt{c} viene aggiornata a 4 (\texttt{c = 2 + 2}), ma questo non intacca minimamente la variabile locale \texttt{a}, che è rimasta 3. Il calcolo finale sarà \texttt{a * 2 = 3 * 2 = 6}.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di \texttt{f(1, r(1), 1)} se i parametri sono passati \textbf{per nome}?
+\begin{verbatim}
+int r(int x) {
+    return r(x-1);
+}
+int f(int a, int b, int c) {
+    if (c == 1) return a;
+    else return b;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Non è possibile dirlo senza conoscere il tipo di scope (statico o dinamico) utilizzato
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] 1
+        \item[D)] Si ha ricorsione infinita
+        \item[E)] 0
+    \end{itemize}
+    \textbf{Risposta esatta:} C - 1 \\
+    \textbf{Spiegazione:} Se il passaggio fosse per valore, l'argomento \texttt{r(1)} verrebbe valutato prima della chiamata a \texttt{f}, causando una ricorsione infinita. Ma trovandoci in Call by Name, gli argomenti vengono passati chiusi in un thunk e valutati \textit{solo e soltanto se} il loro valore viene esplicitamente richiesto nel codice. Nel corpo di \texttt{f}, \texttt{c} vale 1, quindi l'espressione \texttt{(c == 1)} è vera. La funzione restituisce immediatamente \texttt{a} (che vale 1). Il parametro \texttt{b} (\texttt{r(1)}) non viene mai menzionato né valutato, scongiurando il loop infinito.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il frammento di programma (espresso in pseudo-codice), quanto vale la variabile globale c dopo aver eseguito topolino(), assumendo \textbf{scope dinamico}?
+\begin{verbatim}
+int a, b, c;
+void pippo (void) { int a; a = 6; b = 5; }
+void pluto (void) { int c; int b; pippo(); c = 3; a = 4; }
+void topolino (void) { int a; a = 1; b = 10; pluto(); c = a + b; }
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] 14
+        \item[B)] 3
+        \item[C)] Non è possibile dirlo
+        \item[D)] 6
+        \item[E)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} A - 14 \\
+    \textbf{Spiegazione:} Tracciamo la catena dinamica: \texttt{topolino} chiama \texttt{pluto} che chiama \texttt{pippo}. 
+    In \texttt{pippo}: la \texttt{b=5} cerca una \texttt{b} locale, non la trova e risale alla funzione chiamante (\texttt{pluto}). Poiché \texttt{pluto} ha una \texttt{b} locale, aggiorna quella a 5 (la \texttt{b} globale resta 10). 
+    In \texttt{pluto}: imposta la sua \texttt{c} locale a 3, poi \texttt{a=4} cerca una \texttt{a} risalendo la catena fino a \texttt{topolino}, aggiornando la \texttt{a} locale di quest'ultima a 4. 
+    In \texttt{topolino}: esegue \texttt{c = a + b}. Cerca \texttt{c}, non ne ha, risale al main e aggiorna la \texttt{c} globale. A quale valore? \texttt{a} è la sua \texttt{a} locale (appena aggiornata a 4). \texttt{b} non c'è in topolino, quindi risale alla \texttt{b} globale (che era stata posta a 10 all'inizio di topolino). Dunque \texttt{c = 4 + 10 = 14}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il frammento di programma (espresso in pseudo-codice), qual è il valore di ritorno di f1(), assumendo \textbf{scope statico}?
+\begin{verbatim}
+int x, y, z;
+void f3 (void) { x = 0; y = 5; }
+void f2 (void) { int y; f3(); y = 0; z = 10; }
+int f1 (void) { 
+    int x; 
+    x = -5; y = 10; z = x + y; 
+    f2(); 
+    return z - y - x; 
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] 5
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Non è possibile dirlo
+        \item[D)] 0
+        \item[E)] -5
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Esecuzione statica (lessicale, ogni blocco guarda le variabili globali se non le ha localmente). In \texttt{f1}: \texttt{x} locale diventa -5. \texttt{y} globale diventa 10. \texttt{z} globale diventa -5 + 10 = 5. Viene chiamata \texttt{f2}. In \texttt{f2}: viene chiamata \texttt{f3}, che aggiorna \texttt{x} globale a 0 e \texttt{y} globale a 5. Poi \texttt{f2} setta la sua \texttt{y} locale a 0 e aggiorna la \texttt{z} globale a 10. Tornando a \texttt{f1} per il \texttt{return z - y - x}: \texttt{z} (globale) è 10, \texttt{y} (globale) è 5 (aggiornata da f3), \texttt{x} (locale di f1) è -5. Il calcolo è \texttt{10 - 5 - (-5) = 10}. Poiché 10 non è tra le opzioni (5, 0, -5), la risposta corretta è Nessuna.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di pluto() se i parametri sono passati \textbf{per valore}?
+\begin{verbatim}
+int b = 666;
+int pippo (int x) {
+    x = 666;
+    b = 1;
+    return x / 2;
+}
+int pluto (void) {
+    int a, c;
+    a = b / 333;
+    c = pippo(a);
+    return a + c;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] 1
+        \item[C)] 3
+        \item[D)] 0
+        \item[E)] Dipende dal tipo di scope (statico o dinamico) utilizzato
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Analizziamo \texttt{pluto}: \texttt{a = 666 / 333}, quindi \texttt{a = 2}. Chiamando \texttt{pippo(2)} per valore, una copia del 2 viene inserita in \texttt{x}. All'interno di \texttt{pippo}: la \texttt{x} locale viene sovrascritta con 666, e la \texttt{b} globale diventa 1. La funzione ritorna \texttt{666 / 2 = 333}, valore che viene salvato nella variabile \texttt{c} in \texttt{pluto}. Alla fine, \texttt{pluto} calcola il ritorno sommando \texttt{a + c}. Poiché \texttt{a} è rimasto inalterato a 2, il ritorno sarà \texttt{2 + 333 = 335}. Questo valore non è presente, per cui l'opzione giusta è "Nessuna".
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Funzione implementata dallo pseudo-codice:
+\begin{verbatim}
+int somma (int a, int b) {
+    if (a == 0) return b;
+    return somma (a-1, b+1);
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Non usa ricorsione in coda
+        \item[B)] Non può essere implementata per via iterativa
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] Usa ricorsione in coda
+        \item[E)] Causa sempre ricorsione infinita
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Usa ricorsione in coda \\
+    \textbf{Spiegazione:} La funzione si chiama iterativamente decrementando \texttt{a} e incrementando \texttt{b}. La caratteristica fondamentale è che l'espressione \texttt{return somma(a-1, b+1);} è l'ultimissima istruzione eseguita nel blocco. Non ci sono calcoli "postumi" (es. moltiplicazioni o somme esterne alla chiamata ricorsiva) che il record di attivazione debba attendere. Per questo motivo, questa forma ottimizzata prende il nome di Ricorsione in Coda (Tail Recursion).
+    \vspace{0.3cm}
+
+\item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di \texttt{f3(10,f4(0))} se i parametri sono passati \textbf{per valore}?
+\begin{verbatim}
+int f4 (int x) {
+    return 1/x;
+}
+int f3 (int a, int b) {
+    if (a > 1) return a;
+    else return b;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] 10
+        \item[B)] Non è possibile dirlo senza conoscere il tipo di scope (statico o dinamico) utilizzato
+        \item[C)] Non è possibile passare f4(0) per valore
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] 1
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Nel passaggio dei parametri per valore (Call by Value), gli argomenti della funzione vengono sempre valutati compiutamente \textit{prima} che la funzione chiamante venga effettivamente invocata. Pertanto, l'interprete cercherà di valutare \texttt{f4(0)} ancor prima di entrare in \texttt{f3}. L'esecuzione di \texttt{f4(0)} comporta l'operazione matematica \texttt{1 / 0}, che genera una divisione per zero (eccezione hardware/runtime crash). Il programma si interromperà, quindi non ritornerà né 10, né 1. Non è vero che "non è possibile passarlo" (la sintassi è corretta, ma fallisce semanticamente l'esecuzione). L'unica risposta logica è "Nessuna".
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di f1() se i parametri sono passati \textbf{per valore}?
+\begin{verbatim}
+int i=0;
+int x[10];
+int f2 (int z) {
+    i = i/2;
+    return z - i;
+}
+int f1 (void) {
+    int y;
+    i = 4;
+    x[0]=1; x[1]=0; x[2]=2; x[3]=4; x[4]=6;
+    y = f2(x[i]);
+    return y + i;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] 0
+        \item[C)] 2
+        \item[D)] Dipende dal tipo di scope (statico o dinamico) utilizzato
+        \item[E)] 4
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Analizziamo \texttt{f1()}: la variabile globale \texttt{i} viene settata a 4. L'istruzione \texttt{y = f2(x[i])} nel call-by-value richiede la valutazione anticipata dell'argomento. Essendo \texttt{i=4}, calcoliamo \texttt{x[4]} che corrisponde al valore 6. Entriamo in \texttt{f2(6)}: la \texttt{i} globale viene dimezzata (\texttt{i = 4 / 2 = 2}), e viene ritornato \texttt{z - i}, cioè \texttt{6 - 2 = 4}. Assegniamo dunque 4 a \texttt{y} in \texttt{f1}. Alla riga successiva, viene valutato il return \texttt{y + i}. Dato che \texttt{y=4} e la \texttt{i} globale è ora 2, la somma è \texttt{4 + 2 = 6}. Poiché 6 non è presente fra le opzioni fornite, la risposta esatta è "Nessuna".
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il frammento di programma, qual è il valore di ritorno di f1(), assumendo \textbf{scope dinamico}?
+\begin{verbatim}
+int x, y, z;
+void f3 (void) { x = 0; y = 5; }
+void f2 (void) { int y; f3(); y = 0; z = 10; }
+int f1 (void) {
+    int x;
+    x = -5; y = 10; z = x + y;
+    f2();
+    return z - y - x;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Non è possibile dirlo
+        \item[B)] 5
+        \item[C)] 0
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] -5
+    \end{itemize}
+    \textbf{Risposta esatta:} C - 0 \\
+    \textbf{Spiegazione:} Con lo \textit{scope dinamico}, l'interprete risale lo Stack delle chiamate (\texttt{f3 -> f2 -> f1 -> main}) per trovare le variabili.
+    1. In \texttt{f1}: \texttt{x} locale vale -5. \texttt{y} globale vale 10. \texttt{z} globale vale 5 (\texttt{-5 + 10}).
+    2. Chiamata a \texttt{f2}: viene allocata una \texttt{y} locale.
+    3. Chiamata a \texttt{f3}: assegna 0 a \texttt{x}. Risalendo la catena, il primo \texttt{x} si trova in \texttt{f1}, quindi \textbf{la \texttt{x} locale di \texttt{f1} diventa 0}. Assegna 5 a \texttt{y}. Risalendo, il primo \texttt{y} è quello locale a \texttt{f2}, quindi \textbf{la \texttt{y} locale di \texttt{f2} diventa 5}.
+    4. Ritorno in \texttt{f2}: l'istruzione \texttt{y = 0} sovrascrive la \texttt{y} locale di \texttt{f2} a 0. L'istruzione \texttt{z = 10} trova solo la \texttt{z} globale e la setta a 10.
+    5. Ritorno in \texttt{f1}: esegue \texttt{z - y - x}. La variabile \texttt{z} trovata è la globale (10). La variabile \texttt{y} trovata è la globale (rimasta a 10, intoccata). La variabile \texttt{x} trovata è la locale di \texttt{f1} (modificata a 0 da \texttt{f3}).
+    Calcolo finale: \texttt{10 - 10 - 0 = 0}.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di pluto() se i parametri sono passati \textbf{per valore}?
+\begin{verbatim}
+int b = 666;
+int pippo (int x) {
+    x = 666;
+    b = 1;
+    return x / 2;
+}
+int pluto (void) {
+    int a, c;
+    a = b / 333;
+    c = pippo(a);
+    return a + c;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] 666
+        \item[C)] 999
+        \item[D)] Dipende dal tipo di scope (statico o dinamico) utilizzato
+        \item[E)] 333
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Questo è lo stesso pseudo-codice analizzato in precedenza. In \texttt{pluto}, calcoliamo \texttt{a = 666 / 333 = 2}. \texttt{pippo(2)} riceve una copia del 2 in \texttt{x}, che viene subito sovrascritta con 666. La funzione ritorna \texttt{666 / 2 = 333} (salvato in \texttt{c}) e muta \texttt{b} in 1. Poiché il passaggio è per valore, la variabile \texttt{a} in \texttt{pluto} resta inalterata (vale 2). Il ritorno finale è \texttt{a + c = 2 + 333 = 335}. Essendo assente il 335, la risposta corretta è Nessuna.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Funzione implementata dallo pseudo-codice:
+\begin{verbatim}
+int somma (int a, int b) {
+    if (a == 0) return b;
+    return somma (a-1, b) + 1;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Non può essere implementata per via iterativa
+        \item[C)] Non usa ricorsione in coda
+        \item[D)] Causa sempre ricorsione infinita
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Non usa ricorsione in coda \\
+    \textbf{Spiegazione:} Affinché una funzione utilizzi la Ricorsione in Coda (Tail Recursion), la chiamata a se stessa deve essere rigorosamente l'ultima espressione valutata. In questo pseudo-codice, la chiamata \texttt{somma(a-1, b)} viene effettuata, il suo risultato deve essere atteso dal Record di Attivazione corrente e, solo successivamente, vi viene sommato \texttt{+ 1}. Questo blocco (\texttt{+ 1}) finale "rompe" il pattern di coda, richiedendo l'espansione dello Stack.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice della Domanda 14. Qual è il valore di ritorno di pluto() se i parametri sono passati \textbf{per nome}?
+\begin{verbatim}
+int b = 666;
+int pippo (int x) {
+    x = 666; b = 1; return x / 2;
+}
+int pluto (void) {
+    int a, c; a = b / 333; c = pippo(a); return a + c;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Non è possibile passare a per nome
+        \item[B)] Dipende dal tipo di scope (statico o dinamico) utilizzato
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] 999
+        \item[E)] 335
+    \end{itemize}
+    \textbf{Risposta esatta:} D - 999 \\
+    \textbf{Spiegazione:} Nel passaggio per nome (Call by Name), passare una variabile semplice (come \texttt{a}) genera un thunk che punta a quella specifica locazione di memoria; questo di fatto simula un comportamento di "Passaggio per Riferimento". 
+    1. In \texttt{pluto}: calcoliamo \texttt{a = 2}. Invochiamo \texttt{pippo(a)} passando \texttt{a} per nome.
+    2. In \texttt{pippo}: l'istruzione \texttt{x = 666} sostituisce testualmente \texttt{x} con \texttt{a}, alterando la variabile \texttt{a} nel chiamante facendola diventare 666.
+    3. Il ritorno calcola \texttt{x / 2} (ovvero \texttt{a / 2}), che valuta \texttt{666 / 2 = 333}.
+    4. Tornati in \texttt{pluto}: \texttt{c = 333}. Si esegue \texttt{return a + c}. Dato che la variabile locale \texttt{a} è stata mutata in 666 dalla chiamata per nome, il calcolo finale sarà \texttt{666 + 333 = 999}.
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} La funzione implementata dallo pseudo-codice:
+\begin{verbatim}
+int mistero (int a, int b) {
+    if (b == 0) return a;
+    return mistero (a/2, b-1);
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Può causare una crescita incontrollata dello stack
+        \item[B)] Causa sempre ricorsione infinita
+        \item[C)] Nessuna delle altre risposte
+        \item[D)] Non può essere implementata per via iterativa
+        \item[E)] Non usa ricorsione in coda
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Analizziamo logicamente il costrutto: la chiamata ricorsiva a \texttt{mistero} è l'ultimo blocco logico ad essere eseguito e ritornato (senza operazioni appese come un \texttt{+1}), dunque USA esplicitamente la ricorsione in coda (falsa E). Grazie alla ricorsione in coda, il compilatore la ottimizzerà rendendo lo stack costante e prevenendo crescite incontrollate (falsa A). Per induzione, non causa ricorsione infinita a meno che \texttt{b} non sia negativo (falsa B), e come ogni algoritmo ricorsivo in coda, può essere banalmemente convertito in un ciclo \texttt{while} iterativo (falsa D). Dunque, nessuna affermazione è vera.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il frammento di programma, qual è il valore di ritorno di topolino(), assumendo \textbf{scope statico}?
+\begin{verbatim}
+int x, y;
+void pippo (void) { x = 8; y = 4; }
+void pluto (void) { int y; pippo(); y = 3; }
+int topolino (void) {
+    int x, z;
+    x = 5; y = 15; z = x + y;
+    pluto();
+    return z - y - x;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Non è possibile dirlo
+        \item[C)] 0
+        \item[D)] -3
+    \end{itemize}
+    \textbf{Risposta esatta:} E - 11 \\
+    \textbf{Spiegazione:} Seguiamo lo Scope Statico (lessicale), dove i nomi non dichiarati localmente si riferiscono sempre alle definizioni globali nel testo.
+    1. In \texttt{topolino}: setta la \texttt{x} locale a 5. La \texttt{y} si riferisce alla globale (che diventa 15). Calcola \texttt{z} locale: \texttt{5 + 15 = 20}.
+    2. Chiamata a \texttt{pluto}: alloca una \texttt{y} locale.
+    3. Chiamata a \texttt{pippo}: setta la \texttt{x} globale a 8, e la \texttt{y} globale a 4 (ignora la catena dinamica).
+    4. Ritorno a \texttt{pluto}: setta la \texttt{y} locale a 3 (ininfluente ai fini logici generali).
+    5. Ritorno a \texttt{topolino}: valuta \texttt{z - y - x}. La \texttt{z} locale è rimasta 20. La \texttt{y} globale è stata impostata a 4 da \texttt{pippo}. La \texttt{x} locale è sempre stata 5 (intoccata da pippo che operava sulla globale).
+    Il risultato è \texttt{20 - 4 - 5 = 11}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il frammento di programma (lo stesso della Domanda 13), qual è il valore di ritorno di f1(), assumendo \textbf{scope dinamico}?
+\begin{verbatim}
+int x, y, z;
+void f3 (void) { x = 0; y = 5; }
+void f2 (void) { int y; f3(); y = 0; z = 10; }
+int f1 (void) {
+    int x; x = -5; y = 10; z = x + y;
+    f2(); return z - y - x;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] -1
+        \item[C)] -5
+        \item[D)] 5
+        \item[E)] Non è possibile dirlo
+    \end{itemize}
+    \textbf{Risposta esatta:} A - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Come dimostrato esaurientemente nella Domanda 13, la catena dello scope dinamico per questa esatta espressione risale lo stack delle chiamate, facendo in modo che la \texttt{x} locale in \texttt{f1} venga modificata a 0, che la \texttt{y} globale resti intoccata a 10, e che la \texttt{z} globale diventi 10. Il calcolo finale \texttt{z - y - x} produce \texttt{10 - 10 - 0 = 0}. Poiché lo 0 non appare tra le opzioni elencate qui (a differenza della Domanda 13 dove compariva), la risposta corretta questa volta è "Nessuna".
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di pluto() se i parametri sono passati \textbf{per valore}?
+\begin{verbatim}
+int c = 2;
+int pippo (int a) {
+    c = c + 2;
+    return a * 2;
+}
+int pluto (void) {
+    return (pippo (c + 1));
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Dipende dal tipo di scope (statico o dinamico) utilizzato
+        \item[C)] Non è possibile passare c+1 per valore
+        \item[D)] 6
+        \item[E)] 10
+    \end{itemize}
+    \textbf{Risposta esatta:} D - 6 \\
+    \textbf{Spiegazione:} Riproposizione del caso già valutato: il passaggio per valore processa in toto l'argomento al momento della chiamata. \texttt{c=2}, quindi \texttt{c+1} calcola istantaneamente 3. Viene invocato \texttt{pippo(3)}. All'interno la variabile globale incrementa (\texttt{c = 2 + 2 = 4}), ma il record locale possiede la copia costante \texttt{a=3}. Il return matematico chiude eseguendo \texttt{3 * 2 = 6}.
     \vspace{0.3cm}
 \end{itemize}
 
+\begin{itemize}
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di \texttt{f(1,r(1),1)} se i parametri sono passati \textbf{per valore}?
+\begin{verbatim}
+int r(int x) {
+    return r(x-1);
+}
+int f(int a, int b, int c) {
+    if (c == 1) return a;
+    else return b;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] Si ha ricorsione infinita
+        \item[C)] 1
+        \item[D)] Non è possibile dirlo senza conoscere il tipo di scope (statico o dinamico) utilizzato
+    \end{itemize}
+    \textbf{Risposta esatta:} B - Si ha ricorsione infinita \\
+    \textbf{Spiegazione:} A differenza del passaggio per nome visto nella Domanda 6, il passaggio di parametri per valore impone che tutti gli argomenti forniti a una funzione vengano calcolati rigorosamente \textit{prima} di entrare nella funzione stessa. Il compilatore tenta quindi di valutare l'argomento \texttt{r(1)}. Tale chiamata innesca \texttt{r(0)}, che innesca \texttt{r(-1)} e così via all'infinito, poiché la funzione \texttt{r} manca del tutto di un caso base (condizione di terminazione). Il programma va in crash per stack overflow prima ancora di poter iniziare l'esecuzione di \texttt{f}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il frammento di programma (espresso in pseudo-codice), qual è il valore di ritorno di topolino(), assumendo \textbf{scope statico}?
+\begin{verbatim}
+int x, y, z;
+void minni (void) { x = 4; y = 8; }
+void paperino (void) { int y; minni(); y = 1; z = 666; }
+int topolino (void) {
+    int x; x = 5; y = 15; z = x + y;
+    paperino();
+    return z - y - x;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] -3
+        \item[B)] 0
+        \item[C)] 14
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] Non è possibile dirlo
+    \end{itemize}
+    \textbf{Risposta esatta:} D - Nessuna delle altre risposte \\
+    \textbf{Spiegazione:} Seguiamo il flusso a scope lessicale (statico). 
+    1. \texttt{topolino}: setta la propria \texttt{x} locale a 5. La \texttt{y} globale diventa 15. La \texttt{z} globale diventa \texttt{5 + 15 = 20}.
+    2. Chiama \texttt{paperino}, che dichiara una sua \texttt{y} locale e chiama \texttt{minni}.
+    3. \texttt{minni} opera solo su variabili globali: imposta la \texttt{x} globale a 4 e la \texttt{y} globale a 8.
+    4. Ritorno in \texttt{paperino}: imposta la sua \texttt{y} locale a 1 e la \texttt{z} globale a 666.
+    5. Ritorno in \texttt{topolino}: deve calcolare \texttt{z - y - x}. Le variabili a cui ha accesso sono la \texttt{z} globale (ora 666), la \texttt{y} globale (divenuta 8 in \texttt{minni}) e la sua \texttt{x} locale (rimasta 5). Il calcolo è \texttt{666 - 8 - 5 = 653}.
+    Non essendoci il 653 tra le opzioni proposte, la risposta è "Nessuna".
+    \vspace{0.3cm}
+
+\newpage
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Si consideri lo pseudo-codice. Qual è il valore di ritorno di pluto() se i parametri sono passati \textbf{per riferimento}?
+\begin{verbatim}
+int c = 2;
+int pippo (int a) {
+    c = c + 2;
+    return a * 2;
+}
+int pluto (void) {
+    return (pippo(c + 1));
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Dipende dal tipo di scope (statico o dinamico) utilizzato
+        \item[B)] 10
+        \item[C)] Non è possibile passare c+1 per riferimento
+        \item[D)] Nessuna delle altre risposte
+        \item[E)] 6
+    \end{itemize}
+    \textbf{Risposta esatta:} C - Non è possibile passare c+1 per riferimento \\
+    \textbf{Spiegazione:} Il passaggio per riferimento impone che alla funzione venga inviato l'indirizzo di memoria (l-value) della variabile sorgente, affinché la funzione ne crei un alias. Tuttavia, l'espressione \texttt{(c + 1)} è un risultato intermedio calcolato al volo (r-value), e come tale risiede solo momentaneamente nei registri della CPU: non possiede un indirizzo fisico di memoria a cui un puntatore o un riferimento possa agganciarsi. Pertanto l'operazione è illegale in sede di compilazione.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Usando la "bounded iteration" (numerically controlled) indicare cosa viene stampato dal seguente codice:
+\begin{verbatim}
+z = 1;
+for i = 1 to 1 + z by 1 do {
+    write(i);
+    z++;
+}
+write(z);
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] 1234... (infinite loop)
+        \item[B)] 12
+        \item[C)] 123
+        \item[D)] Nessuna delle altre risposte
+    \end{itemize}
+    \textbf{Risposta esatta:} C - 123 \\
+    \textbf{Spiegazione:} La caratteristica principale dell'iterazione determinata (o limitata) è che il limite superiore del ciclo (\texttt{1 + z}) viene valutato matematicamente \textit{una e una sola volta}, istanti prima che il ciclo abbia inizio. Prima di iniziare, \texttt{z} vale 1, quindi il limite superiore viene "congelato" al valore fisso 2.
+    - Iterazione 1: \texttt{i=1}, stampa "1", \texttt{z} diventa 2.
+    - Iterazione 2: \texttt{i=2}, stampa "2", \texttt{z} diventa 3.
+    Il ciclo termina perché si è raggiunto il limite prefissato di 2 (l'incremento interno di \texttt{z} non allunga il ciclo). Alla riga successiva, viene stampata la variabile \texttt{z} che è diventata 3, per un output sequenziale di "123".
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il frammento di programma, quanto vale la variabile globale c dopo aver eseguito topolino(), assumendo \textbf{scope statico}?
+\begin{verbatim}
+int a, b, c;
+void pippo (void) { int a; a = 6; b = 5; }
+void pluto (void) { int c; int b; pippo(); c = 3; a = 4; }
+void topolino (void) { int a; a = 1; b = 10; pluto(); c = a + b; }
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] Nessuna delle altre risposte
+        \item[B)] 6
+        \item[C)] Non è possibile dirlo
+        \item[D)] 14
+        \item[E)] 3
+    \end{itemize}
+    \textbf{Risposta esatta:} B - 6 \\
+    \textbf{Spiegazione:} Tracciamo rigorosamente lo scope statico.
+    1. In \texttt{topolino}: \texttt{a} locale a \texttt{topolino} = 1. \texttt{b} globale = 10.
+    2. Chiama \texttt{pluto}: \texttt{pluto} dichiara \texttt{c} e \texttt{b} locali. Chiama \texttt{pippo}.
+    3. In \texttt{pippo}: la sua \texttt{a} locale diventa 6. La \texttt{b} usata è quella globale (ora vale 5).
+    4. Ritorno a \texttt{pluto}: la \texttt{c} locale diventa 3, la \texttt{a} usata è quella globale (ora vale 4).
+    5. Ritorno a \texttt{topolino}: esegue \texttt{c = a + b}. La \texttt{c} in questione è la globale. La \texttt{a} è la locale (intoccata da chiunque e ferma a 1). La \texttt{b} è la globale, che \texttt{pippo} aveva modificato portandola a 5. Il calcolo finale assegnato alla globale è \texttt{1 + 5 = 6}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Dato il frammento di programma (espresso in pseudo-codice) qual è il valore di ritorno di pluto() se i parametri sono passati \textbf{per riferimento}?
+\begin{verbatim}
+int b = 666;
+int pippo (int x) {
+    x = 666; b = 1; return x / 2;
+}
+int pluto (void) {
+    int a, c; a = b / 333; c = pippo(a); return a + c;
+}
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] 333
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] Non è possibile passare a per riferimento (perché a=b/333)
+        \item[D)] 666
+        \item[E)] 999
+    \end{itemize}
+    \textbf{Risposta esatta:} E - 999 \\
+    \textbf{Spiegazione:} Innanzitutto l'opzione C è logicamente errata: una variabile allocata e assegnata (come \texttt{a}) possiede un indirizzo di memoria e può assolutamente essere passata per riferimento, indipendentemente dal modo in cui le abbiamo assegnato il valore.
+    Passaggio: \texttt{a} viene calcolata ed è uguale a 2. Viene passato il riferimento (l'indirizzo) di \texttt{a} a \texttt{pippo}.
+    Dentro \texttt{pippo}: l'argomento \texttt{x} funge da "alias" di \texttt{a}. Scrivendo \texttt{x = 666}, viene modificata permanentemente anche la \texttt{a} all'interno del chiamante \texttt{pluto}. Il ritorno ammonta a \texttt{666 / 2 = 333}.
+    Tornati in \texttt{pluto}: \texttt{c} è 333. Eseguendo \texttt{a + c}, usiamo la nuova \texttt{a} (666) mutata per riferimento. \texttt{666 + 333 = 999}.
+    \vspace{0.3cm}
+
+    \item \stepcounter{domandateoria}\textbf{Domanda \thedomandateoria} \\
+    \textbf{Testo:} Supponendo sia impiegata la tecnica delle "tombstone" per ovviare al problema dei dangling references, indicare quale delle seguenti affermazioni è vera alla fine dell'esecuzione del codice:
+\begin{verbatim}
+p = malloc();
+q = malloc();
+*p = 222;
+*q = 999;
+*q = *p / 2;
+q = p;
+free(p);
+\end{verbatim}
+    \begin{itemize}
+        \item[A)] q punta alla tombstone, p punta alla tombstone
+        \item[B)] Nessuna delle altre risposte
+        \item[C)] \texttt{*p=999}, q punta alla tombstone
+        \item[D)] p punta alla tombstone, \texttt{*q=111}
+        \item[E)] q risulta deallocato, \texttt{*p=222}
+    \end{itemize}
+    \textbf{Risposta esatta:} A - q punta alla tombstone, p punta alla tombstone \\
+    \textbf{Spiegazione:} Il codice definisce due blocchi memoria con rispettivi tombstones. Viene assegnato il valore 222 in \texttt{p} e viene calcolato \texttt{*q = 222 / 2 = 111}. Con l'istruzione di assegnamento di puntatori \texttt{q = p}, il riferimento \texttt{q} abbandona la sua vecchia memoria per far capo esattamente allo stesso tombstone di \texttt{p}. Eseguendo \texttt{free(p)}, la memoria fisica viene invalidata, marcando il tombstone con la "pietra tombale". A causa dell'aliasing precedente, ora entrambi i puntatori locali, che non sono stati distrutti e continuano a vivere sullo stack, puntano al medesimo tombstone ormai "morto" (dangling).
+    \vspace{0.3cm}
+\end{itemize}
 
 \section{Simulazioni d'Esame: Esercizi Pratici in ML}
 
@@ -1947,6 +4121,8 @@ datatype Tree = Leaf of int | Node of int * Tree * Tree | Empty;
 \end{verbatim}
 Scrivere due funzioni. La prima, \texttt{all\_paths (Tree -> int list list)}, deve restituire tutti i percorsi dalla radice dell'albero alle foglie (\texttt{Empty} non è considerato una foglia).
 La seconda, \texttt{filter\_paths ('a list * ('a -> bool) -> 'a list)}, prende in input una lista di path e un predicato generico, e restituisce una lista di liste contenente solo i path che soddisfano tale condizione. \textit{È ammesso l'utilizzo della funzione \texttt{map} ma non di altre funzioni di libreria.}
+
+\newpage
 
 \textbf{Soluzione (Valutata 30L):}
 \begin{verbatim}
@@ -1983,6 +4159,8 @@ fun sum_lower_than_30 list = (foldl (op +) 0 list) < 30;
 \textbf{Testo del problema (Prog 3):}\\
 Si consideri il tipo di dato \texttt{datatype FOR = For of int * (int -> int)}, i cui valori \texttt{For(n, f)} rappresentano funzioni che implementano un ciclo for imperativo che applica iterativamente $n$ volte la funzione $f$ all'argomento. Si scriva una funzione \texttt{eval} (avente tipo \texttt{FOR -> (int -> int)}) che riceve come argomento un valore di tipo \texttt{FOR} e ritorna una funzione curried pronta ad applicare tale ciclo.
 Se \texttt{f} moltiplica per 2, \texttt{eval (For(3, f))} ritornerà una funzione che dato un input lo moltiplicherà per 8 ($2^3$).
+
+\newpage
 
 \textbf{Soluzione:}
 \begin{verbatim}
@@ -2083,7 +4261,7 @@ fun sum_binary (L1, L2) =
 \end{verbatim}
 \textbf{Analisi didattica:} In ML, l'operatore cons (\texttt{::}) permette di aggiungere elementi solo \textit{in testa} alla lista, operazione logica \textit{O(1)}. Poiché un'addizione richiede l'allineamento a destra (sui bit meno significativi), è obbligatorio ribaltare prima gli operandi con la funzione nativa \texttt{rev}, processare i carry in avanti e, infine, ribaltare il risultato. L'uso dei pattern per gestire la discrepanza di lunghezza tra gli operandi è un'altra peculiarità vitale del codice.
 
-\subsection{Esercizio 6: Aggregazione su Strutture Ramificate \\ (get\_words)}
+\subsection{Esercizio 6: Aggregazione su Strutture Ramificate (get\_words)}
 
 \textbf{Testo del problema (Exam Examples):}\\
 Dato il tipo \texttt{datatype ctree = Empty | Leaf of char | Node of char * ctree * ctree}. Scrivere una funzione \texttt{get\_words} che restituisce una coppia di stringhe \texttt{(string * string)}. La prima stringa è la concatenazione dei caratteri contenuti nelle foglie, la seconda stringa è la concatenazione di quelli nei nodi interni.
