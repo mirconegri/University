@@ -5,6 +5,8 @@
 [![ML](https://img.shields.io/badge/Language-ML-dc566d?style=for-the-badge)](https://smlfamily.github.io/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
+> 🌐 **<a href="https://university.mirconegri.com" target="_blank">Visit the project website</a>**
+
 A structured archive of notes, LaTeX cheat sheets, and study materials for Computer Science coursework at the Università degli Studi di Trento — organized by semester and course.
 
 Built because university materials tend to accumulate across download folders, cloud drives, and notebook apps with no consistent structure. Keeping everything version-controlled in one place makes it searchable, linkable, and reproducible — any cheat sheet can be recompiled from source, and page-anchored links in each course index let you jump directly to a topic without scrolling.
