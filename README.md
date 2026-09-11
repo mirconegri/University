@@ -28,12 +28,18 @@ Built because university materials tend to accumulate across download folders, c
 - LaTeX cheat sheets (schemi) and summaries (riassunti) compiled to PDF, one per course
 - Per-course README indexes with page-anchored links — jump directly to a specific topic in a PDF (e.g. `schemi_calcolatori.pdf#page=20`)
 - Dual light and dark PDF variants for cheat sheets, toggled via a LaTeX conditional macro (`\islight`) — one source file, two outputs
-- Currently covers four second-semester courses:
-  - **Fondamenti Matematici** — set theory, induction, modular arithmetic, Euclidean division, proof techniques
-  - **Calcolatori (Computer Architecture)** — binary arithmetic, RISC-V/x86-64/ARM assembly, pipelining, memory hierarchy, I/O
-  - **Probabilità e Statistica** — axioms, combinatorics, random variables, notable distributions, MLE and inference
-  - **Programmazione Funzionale** — PolyML basics, recursion, pattern matching, higher-order functions, ADTs, lambda calculus, Prolog
- 
+- Currently covers coursework across the first and second year, including:
+  - **3rd Semester (2nd Year):**
+    - **Basi di dati** — relational model, SQL, ER diagrams, normal forms, transactions
+    - **Algoritmi e strutture dati** — complexity analysis, sorting, trees, graphs, dynamic programming
+    - **Introduction to Computer Network Security** — cryptography, network protocols, vulnerabilities, firewalls, authentication
+    - **Ingegneria del software** — software lifecycle, agile methodologies, UML, design patterns, testing
+    - **Reti logiche** — Boolean algebra, combinational logic, sequential circuits, finite state machines
+  - **2nd Semester (1st Year):**
+    - **Fondamenti Matematici** — set theory, induction, modular arithmetic, Euclidean division, proof techniques
+    - **Calcolatori (Computer Architecture)** — binary arithmetic, RISC-V/x86-64/ARM assembly, pipelining, memory hierarchy, I/O
+    - **Probabilità e Statistica** — axioms, combinatorics, random variables, notable distributions, MLE and inference
+    - **Programmazione Funzionale** — PolyML basics, recursion, pattern matching, higher-order functions, ADTs, lambda calculus, Prolog
 ## Direct Links to Schemi
 
 Jump straight to the LaTeX cheat sheets and compiled PDFs for each course:
