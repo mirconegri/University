@@ -35,6 +35,7 @@ Built because university materials tend to accumulate across download folders, c
     - **Introduction to Computer Network Security** — cryptography, network protocols, vulnerabilities, firewalls, authentication
     - **Ingegneria del software** — software lifecycle, agile methodologies, UML, design patterns, testing
     - **Reti logiche** — Boolean algebra, combinational logic, sequential circuits, finite state machines
+    - **Reti** — OSI model, TCP/IP, routing, transport layer, application protocols
   - **2nd Semester (1st Year):**
     - **Fondamenti Matematici** — set theory, induction, modular arithmetic, Euclidean division, proof techniques
     - **Calcolatori (Computer Architecture)** — binary arithmetic, RISC-V/x86-64/ARM assembly, pipelining, memory hierarchy, I/O
@@ -61,6 +62,7 @@ Jump straight to the LaTeX cheat sheets and compiled PDFs for each course:
 * [Algoritmi e strutture dati](./3rd_semester/algoritmi/schemi)
 * [Introduction to Computer Network Security](./3rd_semester/network_security/schemi)
 * [Ingegneria del software](./3rd_semester/ingegneria_software/schemi)
+* [Reti](./3rd_semester/reti/schemi)
 * [Reti logiche](./3rd_semester/reti_logiche/schemi)
 
 ## Tech Stack
@@ -107,6 +109,7 @@ Browse by semester and course:
   ├── algoritmi/
   ├── network_security/
   ├── ingegneria_software/
+  ├── reti/
   └── reti_logiche/
 ```
 
