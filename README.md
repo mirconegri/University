@@ -96,6 +96,12 @@ Browse by semester and course:
   ├── fondamenti/
   ├── funzionale/
   └── statistica/
+3rd_semester/
+  ├── basi_di_dati/
+  ├── algoritmi/
+  ├── network_security/
+  ├── ingegneria_software/
+  └── reti_logiche/
 ```
 
 Each course folder may contain a `schemi/` subfolder with a README index and compiled PDFs. Follow the page-anchored links in each index to jump directly to a topic, or open the PDFs directly.
