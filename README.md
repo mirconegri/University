@@ -50,6 +50,13 @@ Jump straight to the LaTeX cheat sheets and compiled PDFs for each course:
 * [Programmazione Funzionale](./2nd_semester/funzionale/schemi)
 * [Probabilità e Statistica](./2nd_semester/statistica/schemi)
 
+**3rd Semester (2nd Year, 1st Semester)**
+* [Basi di dati](./3rd_semester/basi_di_dati/schemi)
+* [Algoritmi e strutture dati](./3rd_semester/algoritmi/schemi)
+* [Introduction to Computer Network Security](./3rd_semester/network_security/schemi)
+* [Ingegneria del software](./3rd_semester/ingegneria_software/schemi)
+* [Reti logiche](./3rd_semester/reti_logiche/schemi)
+
 ## Tech Stack
 
 - **Languages covered in coursework:** Java, C++, PolyML (Standard ML)
