@@ -1,0 +1,35 @@
+Orario (Orario effettivo) (Voto scritto -> Voto finale)
+
+11:00 (11:50 - 12:10) (? -> 30L)
+- Alberi minimi di copertura
+- MFS
+- Rilevazione cicli (archi all'indietro)
+- Colorazione dei grafi
+
+
+11:20 (12:10 - 12:30) (39 -> 30L)
+- Catena di moltiplicazione di matrici
+- Compressione di Huffman
+- Rete di flusso
+
+11:40 (12:30 - 12:50) (ritorna)
+- f(n) O(g(n))
+- Quick sort
+- Heap e code con priorità
+- Ordinamento topologico
+- Counting sort
+
+
+12:00 (12:50 - 13:10) (30 -> 30)
+- Heap e heapsort
+- Topsort
+- Costo O(n)
+- BellmanFord
+
+
+12:20 (13:00 - 13:20) (28 -> 30)
+- LCS
+- Zaio 01 e reale
+- Selezione e Mediana (eq ricorrenza)
+- Bucket sort
+- Costi algoritmi ordinamento

@@ -1,0 +1,43 @@
+2) (secondo semestre) 
+    Huffman
+    Floyd-Warshall + chiusura transitiva
+    NP, NP-completo, fortemente NP-completo
+
+3) 
+    Minimum spanning tree + complessità Kruskal
+    Mfset
+    Grafi ciclici (orientati e non orientati)
+    Master theorem
+    Catena di moltiplicazione di matrici
+    LCS
+    Mediana
+
+4) (secondo semestre) 
+    Catena di moltiplicazione di matrici
+    Bin packing
+    Delta-TSP
+    Bucket-sort
+
+5)  
+    Ordinamento topologico
+    Componenti fortemente connesse
+    Alberi red-black
+    Dualità
+    Algoritmo di Prim
+
+6) 
+    Bellman - Ford + complessità
+    Inviluppo convesso
+    Problema della selezione / mediana
+    Analisi ammortizzata
+
+7) 
+    Cammini minimi (Dijkstra)
+    Tabella hash
+    Funzioni hash
+    Insieme indipendente di intervalli
+    Karatsuba
+
+8) (secondo semestre)
+    Reti di flusso
+    Floyd-Warshall

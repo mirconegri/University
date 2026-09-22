@@ -1,0 +1,54 @@
+1) 22 (???) => 26
+
+Merge sort
+Ordinamento topologico
+Lcs
+Definizione matematica O(g(n))
+Mfset
+
+2) 25 => 27
+
+Albero di copertura minimo
+Min Pri queue
+Grafico orientato ciclico, dfs schema
+Mediana
+Karatsuba
+
+3) 22,5 => 24
+
+Componenti connesse in un grafo non orientato
+Quick sort
+Componenti fortemente connesse
+Huffman
+Red Black
+
+4) (matematica primo semestre) 18 => 22
+
+Tabelle hash
+Analisi ammortizzata
+Algoritmi di Strassen
+Insertion sort 
+
+5) 25,5 => 20
+
+Counting sort
+Bellman Ford
+Ordinamento topologico
+Zaino
+Definizione matematica di O(g(n)) 
+Merge sort
+
+6) (matematica due semestri) ? => 30
+
+Catena di moltiplicazione di matrici
+Reti di flusso
+
+
+7) 24 => 26
+
+Bucket sort
+Insieme indipendente massimale di intervalli
+Algoritmo di Strassen
+Bellman Ford
+Ordinamento topologico
+Mfset
