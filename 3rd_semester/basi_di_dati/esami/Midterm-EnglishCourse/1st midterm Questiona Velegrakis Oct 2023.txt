@@ -1,0 +1,155 @@
+MIDTERM Q
+
+Q1 
+R[A,B],S[B,C], both not empty
+SELECT DISTINCT A, FROM R,s
+SELECT A, FROM R
+is it the same number of tuples? Yes. Always
+
+Q2
+Problem with Select Year,SUM(quantity)
+FROM Sales
+WHERE YEAR >= number AND YEAR <= Number
+
+The problem is that if we don't have a sale in a specific year, that year won't show up in the table.
+
+Q3
+SELECT S.B+10,T.C+10 FROM S JOIN T ON S.B*10 >= T.*10
+20,20,null
+30,20,null
+40,20,nll
+
+Q4
+Professor(name,office,phone)
+Course(course#,year,instructor name,enrolment)
+enroll(student id,course#,year)
+
+Students who have taken more than one course from the same professor in the same year
+withouth group by,sum,count,all,in
+
+Create multiple instances of the same table and lots of AND
+
+
+Q5
+Describe a division in natural language withouth database-speak
+
+
+Q6
+Query describing one table minus another table where part.cost < part2.cost
+Gets the most expensive part
+
+Q7
+Prodcut(maker,model,type)
+Pc(model,speed,hd)
+laptop(model,speed,hd)
+printer(model,colour,type)
+Get the PCs (only pcs) with 3 speeds
+
+Q8
+Animals,
+WaterOrganism, PK name referencing ANimals
+Fishes, PK name, FK type Referencing waterorganism
+
+
+What type of relationship do they have?
+
+Q9
+C from R where A=B
+table where NULL values are present
+NULL != NULL
+therefore empty table as a result
+
+Q10
+
+Is (B,C,A) is a FK for S referencing T?
+
+Yes, but we cannot be sure. (the values in bca were present in T, though they were repeated).
+
+Q11
+Order of occurence in a sql statement (in which way they appear in a query)
+select,where,group by,having
+
+Q12
+Studnet(sid,name,login,age,gpa)
+ENrolled(sid,cid,grade)
+SELECT DISTINCT cid from ENrolled Where Grade='C'
+
+What does it do?
+
+Q13
+Consider Enrolled.sid as a FK to Student.SId
+There are some commands to insert tuples in enrolled
+The first command had a FK violation
+The second one is alright
+The third one had a FK violation
+The fourth one is alright
+
+There will be duplicates but its fine.
+
+Q14
+R(a,b) S(a,b) natural join of the tables in RA
+It's an intersection
+
+
+Q15
+Consider Student(id,name,gpa), we want to select the student with the highest GPA, tell us which query doesn't give us the max
+
+Some queries where provided, all of them were right, so the answer was "All the queries return what was described"
+
+Q16
+
+R - ( R - S) = ?
+
+R intersection S
+
+Q17
+Select count(A),count(*)
+
+How many tuples will the give us?
+The table has 3 tuples in A != from null and 4 null tuples
+therefore 3 4 (NUlls are basically unique)
+
+Q18
+R(A,B),s(B,c)
+PK (A)
+FK (B) Referencing S(B)
+
+Corecct statement:
+B is a primary key for S
+
+
+Q19
+Is select 1 a correct query?
+
+Yes it's a correct query
+
+Q20?
+Can a FK be null?
+Yes
+
+Q21
+is (D,f) a PK for T?
+
+Yes but we cannot know for sure (tuples D,f were not repeated)
+
+Q22
+A weak entity...
+
+Has its key made of attributes from other components
+
+
+
+The rest were sql queries
+
+Find the name and address of people who live in Toronto
+Find name and salaries of all doctors who are currently treating ulcers and who earn less than 100k (currently, so exit date > current_date or ISNULL)
+Find name,age,phone number of every patient whose fee is greater than 30k age can be calculate by doing CURRENT_YEAR() - dob.year
+Find the SIN of every doctor who has at leat one male patient age >= 75
+Find the name o every doctor who lives and works in the same city
+Find the list of doctors that violate the rules that says that the patients of the doctors should all be in the same hospital with whih the doctor is affiliated
+
+DB schema for SQL questions (same name means that it's a FK)
+person (sin,name,gender,dob)
+adddress (sin,number,street,city,phone)
+patient(sin,disease,bed,room,hospital,fee,entry_date,exit_date)
+treat(doctor,patient)
