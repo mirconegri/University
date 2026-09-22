@@ -1,0 +1,1590 @@
+\documentclass[12pt, a4paper]{article}
+\newcounter{esercizio}[section]
+
+%\def\islight{true} 
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{eurosym}
+\usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{datetime}
+\usepackage{pmboxdraw}
+\usepackage{array}
+\usepackage{float}
+\usepackage{tcolorbox}
+
+\newcommand{\myfootertext}{}
+\newcommand{\myicon}{}
+
+\ifx\islight\undefined
+    \definecolor{lightergray}{gray}{0.85}
+    \definecolor{tocsec}{gray}{0.85}
+    \definecolor{tocsubsec}{gray}{0.75}
+    \renewcommand{\myicon}{logo_unitn_scuro.png}
+    \renewcommand{\myfootertext}{Appunti redatti per gli studenti del DISI. \\ Eventuali errori possono essere segnalati su GitHub.}
+    \pagecolor{black}
+    \color{white}
+\else
+    \definecolor{lightergray}{gray}{0.35}
+    \definecolor{tocsec}{gray}{0.35}
+    \definecolor{tocsubsec}{gray}{0.45}
+    \renewcommand{\myicon}{logo_unitn_chiaro.png}
+    \renewcommand{\myfootertext}{Versione Light Mode. Disponibile anche la \href{https://github.com/mirconegri/University/blob/main/3rd_semester/network_security/schemi/schemi_itcs_darkV.pdf}{versione Dark Mode}.}    \pagecolor{white}
+    \color{black}
+\fi
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=lightergray,
+    urlcolor=cyan,
+    pdftitle={Appunti di Introduction to Computer Network Seurity},
+    pdfauthor={Mirco Negri}
+}
+
+\renewcommand{\cftsecfont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecpagefont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecleader}{\color{tocsubsec}\cftdotfill{\cftdotsep}}
+
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    
+    \includegraphics[width=0.25\textwidth]{\myicon}
+    \vspace{1cm}
+    
+    {\scshape\LARGE Università degli Studi di Trento \par}
+    \vspace{0.4cm}
+    {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
+    
+    \vspace{2cm}
+    
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://github.com/mirconegri/University}{%
+        \begin{tabular}{@{}c@{}}
+            {\color{cyan}\rule{\textwidth}{1pt}} \\[0.5cm]
+            {\Huge\bfseries Appunti di Introduction to Computer} \\ [0.5cm]
+            {\Huge\bfseries Network Secutity}\\ [0.5cm]
+            {\Large\itshape Lezioni, e Simulazioni d'esame}\\ [0.4cm]
+            {\color{cyan}\rule{\textwidth}{1pt}}
+        \end{tabular}%
+    }\par
+    \endgroup
+    
+    \vspace{2.5cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\small \textit{\myfootertext} \par}
+    \vspace{0.8cm}
+    
+    {\large \monthname\ \the\year \par}
+\end{titlepage}
+
+\newpage
+\begingroup
+\hypersetup{hidelinks}
+\tableofcontents
+\endgroup
+\newpage
+
+\section*{Course Overview}
+% Sezione non numerata: puro contenuto logistico, non serve ai fini dell'esame.
+
+\textbf{Lecturer}: Silvio Ranise (Dept. of Mathematics, University of Trento \& Center for Cybersecurity, FBK).
+
+\subsection*{Aims of the Course}
+By the end of the course you should be able to:
+\begin{itemize}
+    \item understand the \textbf{theoretical} and \textbf{practical} problems of information security;
+    \item recognize \textbf{threats} to the fundamental security properties: \textbf{confidentiality}, \textbf{integrity}, and \textbf{availability};
+    \item understand how \textbf{authentication}, \textbf{authorization}, \textbf{access control}, and \textbf{cryptography} can be combined to mitigate vulnerabilities.
+\end{itemize}
+
+\textcolor{blue!50!black}{\textbf{Course philosophy:}} the focus is on how to \textbf{defend} (i.e., mitigate risk), not on how to attack — although some basic attack techniques are shown to motivate the defenses.
+
+\subsection*{Syllabus}
+\begin{enumerate}
+    \item Basic notions
+    \item Authentication
+    \item Introduction to cryptography
+    \item Applications of cryptography
+    \item Access Control
+    \item Application security
+    \item Privacy \& GDPR
+\end{enumerate}
+
+\subsection*{Exam}
+Written exam (questions and/or exercises); past papers are made available online.
+
+\section{Basic Notions}
+
+\subsection{What is ``*-Security''?}
+
+There is no single agreed-upon definition of \textbf{cybersecurity}, and the term overlaps with several related ones:
+\begin{itemize}
+    \item \textbf{Information security}: preventing unauthorized access, use, disclosure, disruption, modification, or destruction of information, \emph{regardless of its form} (electronic or physical).
+    \item \textbf{Computer security}: protecting computer systems and information from harm, theft, and unauthorized use.
+    \item \textbf{Network security}: physical and software measures protecting the underlying networking infrastructure.
+    \item \textbf{Cybersecurity} (NIST): the ability to protect or defend the use of \textbf{cyberspace} from \textbf{cyber attacks}, where cyberspace is the interdependent network of information systems (Internet, telecom networks, computer systems, embedded controllers). A cyber attack targets an organization's use of cyberspace to disrupt, disable, destroy, or maliciously control a computing environment, or to steal/corrupt information.
+\end{itemize}
+
+\begin{itemize}
+    \item Information security substantially contributes to cybersecurity; computer and network security can be seen as \emph{parts} of it — cybersecurity is spread over many domains (identity \& access management, application security, risk management, governance \& compliance, security operations, etc.).
+\end{itemize}
+
+\subsubsection{Modelling the Adversary}
+Security is protection \textbf{against an adversary} (or, occasionally, against a random/physical process), and it typically focuses on \textbf{malicious} adversaries. Core to any security argument is modelling the attacker along three axes:
+\begin{itemize}
+    \item \textbf{motivations} (historically glory, nowadays overwhelmingly money);
+    \item \textbf{capabilities} (intercepting messages, modifying messages, reading keystrokes, \dots);
+    \item \textbf{threats}, i.e., the negative impact on systems, operations, organization, or business.
+\end{itemize}
+
+\textcolor{red!70!black}{\textbf{Claiming a system is ``secure'' without stating an attacker model is meaningless.}} Two illustrations:
+\begin{itemize}
+    \item A \textbf{0-day attack} exploits a vulnerability that is \emph{not yet known} to defenders — no model anticipated it, so no control was in place.
+    \item \textbf{Absolute security does not exist}, not even for \textbf{air-gapped} systems (physically disconnected from any network). \textbf{Stuxnet} is the textbook example: a highly sophisticated worm, widely believed to have targeted Iranian uranium-enrichment centrifuges, that reportedly reached its air-gapped target via infected USB drives — showing that physical isolation alone is not a guarantee.
+\end{itemize}
+
+\subsection{Trust and Dependability}
+\begin{itemize}
+    \item \textbf{Failure}: an event where the delivered service deviates from the correct service.
+    \item \textbf{Dependability}: the ability to avoid failures that are more frequent or severe than acceptable.
+    \item \textbf{Trust}: \emph{accepted dependence} — i.e., choosing to rely on a component despite not being able to fully verify it.
+\end{itemize}
+
+\textbf{Case study — SolarWinds (2020):} attackers compromised the build infrastructure of SolarWinds' \emph{Orion} network-monitoring platform and distributed \textbf{trojanized updates} to its users — a textbook \textbf{supply-chain attack} (a trojan being malware that misrepresents its true intent). The impact was enormous: 425 of the US Fortune 500, the top ten US telecom companies, the top five US accounting firms, all branches of the US military, the Pentagon, the State Department, and hundreds of universities worldwide were affected.
+
+\textcolor{blue!50!black}{\textbf{On trusting trust:}} Ken Thompson, in his 1984 Turing Award lecture \emph{``Reflections on Trusting Trust,''} argued that no amount of source-code review can fully protect you from code you did not write entirely yourself — ultimately, trusting software means trusting the \emph{people} who built it. This applies directly to today's software supply chains (3rd-party libraries, APIs, cloud services, mobile, edge).
+
+\subsection{Security Controls and Residual Risk}
+
+To mitigate threats, security relies on \textbf{controls} (or mitigation strategies) affecting three dimensions:
+\begin{itemize}
+    \item \textbf{people} (e.g., rules for setting passwords);
+    \item \textbf{process} (e.g., regularly updating software);
+    \item \textbf{technology} (e.g., authentication and access control).
+\end{itemize}
+
+Controls are further classified by \textbf{when} they act:
+\begin{itemize}
+    \item \textbf{Preventive}: before the bad event (e.g., locking out unauthorized intruders).
+    \item \textbf{Detective}: during the bad event (e.g., an intruder alert on a dashboard).
+    \item \textbf{Corrective}: after the bad event (e.g., restoring deleted data from backup).
+\end{itemize}
+
+Selecting controls is driven by \textbf{risk management} — identifying vulnerabilities/threats to an organization's information resources and deciding what countermeasures (if any) reduce risk to an acceptable level — while always considering the \textbf{human factor}: controls must be easy to use and must not demand stress or memorizing long rule sets (a classic satirical illustration of \emph{ignoring} this principle is Dilbert's ``Mordac, the Preventer of Information Services,'' who insists security matters more than usability).
+
+\textcolor{red!70!black}{\textbf{Residual risk:}} security controls are human artifacts — they mitigate an attack's impact but rarely eliminate it completely, and they can themselves \textbf{contain vulnerabilities}. What is left over is the \textbf{residual risk}: the danger remaining after controls are applied. \emph{Analogy:} seatbelts reduce the risk of injury but do not cancel it — accidents can still be severe, and a defective installation reduces the mitigation further.
+
+\subsection{The CIA Triad}
+\label{subsec:cia-01}
+
+Violating security can mean different things — sharing patient data without authorization, changing a bank balance without authorization, or making a network service unavailable. These correspond to three properties, collectively the \textbf{CIA triad}:
+
+\begin{itemize}
+    \item \textbf{Confidentiality}: preserving authorized restrictions on information access and disclosure (covering data \emph{at rest}, \emph{in processing}, and \emph{in transit}), while still permitting authorized sharing.
+    \item \textbf{Integrity}: guarding against improper, unauthorized, or undetected \textbf{modification or destruction} of information, while permitting authorized modification. It also underpins two related properties:
+    \begin{itemize}
+        \item \textbf{Authenticity}: confidence that information/a message is genuine and its origin can be verified and trusted.
+        \item \textbf{Non-repudiation}: protection against an individual falsely denying having performed an action (e.g., sending a message, approving a document).
+    \end{itemize}
+    \item \textbf{Availability}: ensuring timely, reliable access to data and services for \textbf{authorized} users, and protection against unauthorized deletion or denial of service.
+\end{itemize}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Tema d'esame, 19 febbraio 2026 — 20 punti)} Describe the CIA triad properties along with the authenticity and non-repudiation properties; give for each one an example.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item \textbf{Confidentiality} — prevents unauthorized disclosure. \emph{Example:} a healthcare record must only be readable by the treating physician and the patient, not by unrelated hospital staff.
+    \item \textbf{Integrity} — prevents unauthorized/undetected modification. \emph{Example:} the balance of a bank account must not be alterable by anyone other than authorized transactions.
+    \item \textbf{Availability} — ensures authorized users can access a resource when needed. \emph{Example:} a hospital's patient-monitoring system must remain reachable even under a denial-of-service attempt.
+    \item \textbf{Authenticity} — confidence that a message/document genuinely originates from the claimed source. \emph{Example:} verifying that a signed contract PDF was really produced by the counterparty and not forged.
+    \item \textbf{Non-repudiation} — the sender of a message cannot later deny having sent it. \emph{Example:} in e-commerce, a digitally signed purchase order should be provable as having come from the buyer, so they cannot deny placing the order.
+\end{itemize}
+
+\subsection{Vulnerability, Threat, and Risk}
+
+\begin{itemize}
+    \item \textbf{Vulnerability}: a weakness in an information system, its security procedures, internal controls, or implementation that can be exploited or triggered by a threat source. \emph{Examples:} hidden backdoors (e.g., allegations around Huawei networking equipment), unknown software bugs such as \textbf{buffer overflows} (writing past a buffer boundary can overwrite a function's return address, redirecting execution to attacker-supplied shellcode), and weak/common passwords.
+    \item \textbf{Threat}: any circumstance or event — deliberate or accidental — with the potential to adversely impact operations, assets, or individuals via unauthorized access, disclosure, modification, or denial of service; equivalently, the potential for a threat-source to exploit a specific vulnerability. \emph{Examples:} \textbf{hackers} (breaking/sniffing passwords, social engineering, denial-of-service by flooding a service with bogus requests); \textbf{viruses} (self-replicating, require user action to activate, e.g., opening an email attachment); \textbf{worms} (self-replicating, \emph{no} user action needed — they propagate over the network on their own, find vulnerable machines, and spread further).
+    \item \textbf{Risk}: the probability that a particular threat will exploit a system vulnerability — a function of (i) the \textbf{likelihood} of occurrence (driven by threats' \emph{intent} + \emph{capability}, and vulnerabilities' ease of \emph{identification} + \emph{exploitation}) and (ii) the \textbf{impact}, which must be evaluated \emph{per stakeholder}: e.g., an unauthorized disclosure of personal health data can be catastrophic for the patients involved, yet negligible for the hospital if few records were exposed.
+\end{itemize}
+
+\textcolor{gray}{\textit{In short: risk } $=$ \textit{likelihood} $\times$ \textit{impact.}}
+
+\subsubsection{The Risk Matrix}
+Likelihood and impact severity are each divided into 5 discrete levels; multiplying them gives a risk score used to prioritize response:
+
+\begin{center}
+\begin{tabular}{@{}l|ccccc@{}}
+\toprule
+\textbf{Likelihood} $\backslash$ \textbf{Impact} & Negligible (1) & Marginal (2) & Serious (3) & Critical (4) & Catastrophic (5) \\
+\midrule
+Highly Probable (5) & 5 & 10 & 15 & 20 & 25 \\
+Probable (4) & 4 & 8 & 12 & 16 & 20 \\
+Occasional (3) & 3 & 6 & 9 & 12 & 15 \\
+Remote (2) & 2 & 4 & 6 & 8 & 10 \\
+Improbable (1) & 1 & 2 & 3 & 4 & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Case study — the 2015 Jeep hack:} researchers remotely compromised a Fiat Chrysler Jeep over its cellular connection, ultimately controlling steering/brakes — a vivid illustration that \textbf{message-integrity} on the car's internal \textbf{CAN bus} was the root problem (any ECU on the bus could be made to accept forged messages, and the industry has no easy path to replace CAN bus for better security). Impact was severe for every stakeholder: the manufacturer had to \textbf{recall 1.4 million vehicles}, and drivers'/passengers' safety was directly put at risk.
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Tema d'esame, 9 giugno 2026 — 10 punti)} Define the notions of vulnerability and threat and give (at least) an example for each one.
+\end{tcolorbox}
+
+\textbf{Soluzione:} see the definitions above. \emph{Vulnerability example:} a buffer-overflow bug in a network service. \emph{Threat example:} a worm that automatically scans the network for machines with that unpatched bug and infects them without any user interaction — the worm is the threat, the unpatched buffer overflow is the vulnerability it exploits.
+
+\subsection{Security Policy, Mechanism, and Service}
+
+\begin{itemize}
+    \item \textbf{Security policy}: the rules and requirements established by an organization governing the acceptable use of its information/services, and how confidentiality, integrity, and availability are to be protected.
+    \item \textbf{Security mechanism}: a device or function implementing a security policy, providing one or more security services (rated by strength and design assurance).
+    \item \textbf{Security service}: a capability supporting one or more CIA requirements — e.g., \textbf{key management}, \textbf{access control}, \textbf{authentication}.
+\end{itemize}
+
+\textbf{Example policy skeleton} (adapted from a real-world template):
+\begin{itemize}
+    \item \emph{Purpose}: protect restricted/confidential/sensitive data from loss, avoiding reputational damage and customer impact; primary goal is user awareness and preventing accidental data leakage.
+    \item \emph{Scope}: any employee, contractor, or individual with system/data access; defines what counts as protected data (personal, financial, intellectual property).
+    \item \emph{Example rules}: complete security-awareness training; escort visitors at all times; enforce a clean-desk policy; use secure, unique passwords per the password policy; terminated employees must return all records containing personal information.
+\end{itemize}
+
+Concrete examples of security \textbf{mechanisms}:
+\begin{itemize}
+    \item \textbf{Authentication}: verifying the identity of a user, process, or device, typically a prerequisite for granting access.
+    \item \textbf{Authorization}: granting or denying access rights to a user, program, or process.
+    \item \textbf{Access control}: the combination of authentication + authorization; the process of granting/denying specific requests to obtain/use information (or to enter a physical facility).
+\end{itemize}
+
+\subsection{Summary}
+\begin{itemize}
+    \item For every scenario, the CIA triad must be carefully instantiated; \textbf{policies} specify CIA requirements, and \textbf{mechanisms/services} enforce those policies.
+    \item The causal chain is: a \textbf{security control} affects a \textbf{threat}, which \textbf{exploits} a \textbf{vulnerability}, which \textbf{leads to} \textbf{risk} — risk is in turn \textbf{mitigated by} the control (impact always evaluated per stakeholder).
+    \item Common attack categories previewed here (details in later lessons): malware, phishing, cross-site scripting, HTTP floods, zero-day exploits, man-in-the-middle, DoS/DDoS, SQL injection.
+    \item Security interacts with \textbf{usability} and \textbf{performance} (often a three-way trade-off), should be embedded across the whole \textbf{software development lifecycle} (planning, analysis, design, implementation, maintenance), and must account for human/organizational factors (stakeholders, customers, users are overlapping but distinct groups).
+\end{itemize}
+
+\section{Security in Perspective}
+
+\subsection{Attacks, the CIA Triad, and Impact}
+
+Recall the \textbf{CIA triad} (Section~\ref{subsec:cia-01}). Real-world incidents show how each property is violated in practice, and how the resulting impact can be severe.
+
+\subsubsection{Confidentiality Violations: Data Breaches}
+Large-scale data breaches (e.g., Facebook 533M records, Equifax, Experian Brazil 220M, Microsoft 250M, Marriott International, Aadhaar 1.1 billion) illustrate \textbf{violation of confidentiality} at massive scale. Impact is twofold:
+\begin{itemize}
+    \item \textbf{Privacy}: disclosure of personal information, including sensitive healthcare data;
+    \item \textbf{Economy}: attackers can perform financial transactions on the victim's behalf.
+\end{itemize}
+
+\subsubsection{Integrity Violations: The FCC Bot Comments}
+In \textbf{December 2017}, the US Federal Communication Commission's \emph{net neutrality} public comment form received roughly \textbf{2 million identical comments}, submitted under the names and addresses of real people — generated by bots. The fraud was discovered only because some of the impersonated people reported that the names used belonged to \textbf{deceased} family members and friends. This is a \textbf{violation of integrity}: the impact is on the \textbf{trustworthiness} of resources and services, since bots can manipulate social/democratic processes by mass-posting content under false attribution.
+
+\subsubsection{Availability Violations: the Mirai Botnet}
+\textbf{Mirai} is an IoT botnet whose timeline illustrates the scale attacks can reach:
+
+\begin{itemize}
+    \item \textbf{Aug 2016}: Mirai surfaces.
+    \item \textbf{Sep 18, 2016}: OVH (hosting provider) attacked at \textbf{600 Gbps}.
+    \item \textbf{Sep 21, 2016}: peak attack on KrebsOnSecurity, the site of security journalist Brian Krebs — who afterwards described the episode as \emph{``The Democratization of Censorship''}: anyone can now rent enough compromised IoT devices to silence almost any target online.
+    \item \textbf{Sep 30, 2016}: Mirai source code released publicly.
+    \item \textbf{Oct 21, 2016}: attack on \textbf{Dyn} (a major DNS provider) makes popular sites such as \textbf{Amazon, Twitter, and PayPal} unreachable.
+    \item \textbf{Oct 31, 2016}: attack on \textbf{Lonestar}, a Liberian telco — shutting down Internet access for an \textbf{entire country}.
+    \item \textbf{Jan/Feb 2017}: Mirai's author identified and arrested.
+\end{itemize}
+
+Geographic distribution of infected devices (share of total):
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Country} & \textbf{Share} \\
+\midrule
+Brazil & 15.0\% \\
+Colombia & 14.0\% \\
+Vietnam & 12.5\% \\
+China & 6.5\% \\
+South Korea & 6.0\% \\
+Russia & 4.7\% \\
+Turkey & 4.2\% \\
+India & 4.1\% \\
+Taiwan & 3.5\% \\
+Argentina & 2.2\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This is a \textbf{violation of availability}: impact is manifold — \textbf{economic} (the longer the downtime, the larger the loss, up to entire national ecosystems) and on \textbf{fundamental rights} (censorship-like effects are inherently damaging to democratic life).
+
+\subsubsection{Growing Scale: WannaCry (2017)}
+The \textbf{WannaCry} ransomware hit roughly \textbf{200{,}000 computers across 150 countries}, demanding payment to unfreeze encrypted machines:
+\begin{itemize}
+    \item \textbf{UK}: National Health Service disrupted, hospitals/clinics lost access to computers.
+    \item \textbf{France}: carmaker Renault forced to halt production at several sites.
+    \item \textbf{Germany}: Deutsche Bahn (rail) suffered disruption of electronic displays at train stations.
+    \item \textbf{Spain}: mobile operator Telefónica and utility/power firm Gas Natural affected.
+    \item \textbf{Russia}: around 1{,}000 Interior Ministry computers infected; Megafon (largest mobile operator) and Sberbank (biggest bank) also hit.
+    \item \textbf{US}: delivery company FedEx struck.
+    \item \textbf{Japan}: about 2{,}000 computers at 600 companies.
+    \item \textbf{China}: more than 29{,}000 institutions, including universities, railway stations and government services; payment systems at state-oil-company petrol stations cut off.
+\end{itemize}
+Russia, Ukraine, India, and Taiwan were the most seriously affected countries.
+
+\textcolor{red!70!black}{\textbf{Key takeaway:}} cyberattacks are \textbf{borderless}, and to be effective they try to reach as many victims as possible.
+
+\subsubsection{The Attribution Problem}
+A CNBC (2016) headline captures a core difficulty: \emph{``Most hacks take minutes to do — and weeks to discover.''} As Hunker, Hutchinson \& Margulies (2008, Dartmouth College) put it: without the fear of being caught, convicted, and punished, individuals and organizations will continue to conduct malicious activity online. This creates a cycle: \textbf{anonymity} $\rightarrow$ \textbf{low deterrence} $\rightarrow$ (reinforces) \textbf{anonymity}, since weak attribution removes the disincentive to attack.
+
+At EU level, this motivated the creation of \textbf{ENISA} (European Union Agency for Network and Information Security). As European Commission President Jean-Claude Juncker stated in his 2017 State of the Union address: cyber-attacks can be more dangerous to the stability of democracies and economies than guns and tanks, since they know no borders and no one is immune.
+
+\subsubsection{Further Difficulties}
+\begin{itemize}
+    \item \textbf{Growing attack surface}: how do you evaluate risk from 3rd-party software, from infrastructure interdependencies, or from dependencies on the physical world? \emph{Illustrative case}: an internet-connected fish-tank thermometer was reportedly used as the entry point to breach a casino's network — a vivid example of how an innocuous IoT device can widen the attack surface of an entire organization.
+    \item \textbf{Cyber-intelligence sharing}: it is difficult to exploit threat information from other stakeholders, and equally difficult to contribute one's own information back to others in a trusted way.
+\end{itemize}
+
+\subsection{Examples of Security Services}
+
+Recall: a \textbf{security service} is a capability supporting one or more CIA requirements. Two examples:
+
+\begin{itemize}
+    \item \textbf{Access control} (the combination of \textbf{authentication} + \textbf{authorization}) is typically used to guarantee \textbf{confidentiality} and \textbf{integrity} of data \emph{at rest}.
+    \item \textbf{TLS} (Transport Layer Security) guarantees \textbf{confidentiality} and \textbf{integrity} of data \emph{in transit}, and is the cornerstone of web security.
+\end{itemize}
+
+\textbf{HTTP vs.\ HTTPS example:} if Helen sends her password \texttt{abc123} over plain \textbf{HTTP}, an eavesdropper sees it in clear (\texttt{abc123}). If Carol sends the same password over \textbf{HTTPS}, an eavesdropper only sees the encrypted form (e.g., \texttt{xyaerXzabc}) — illustrating concretely why TLS matters.
+
+\subsection{Security vs.\ Privacy}
+
+Security and privacy are \textbf{overlapping but different}:
+\begin{itemize}
+    \item \textbf{Privacy} concerns: collection of personal information, using/disclosing it only in an authorized manner, data quality, and access to one's own personal information.
+    \item \textbf{Security} (CIA) concerns, more broadly: \textbf{confidentiality} (data safe from unauthorized access/use), \textbf{integrity} (data reliable and accurate), \textbf{availability} (data available when needed) — for \emph{any} data, not only personal data.
+    \item Their overlap is exactly the \textbf{protection of personal information}.
+\end{itemize}
+
+\subsubsection{Two Flavors of Privacy}
+\begin{enumerate}
+    \item \textbf{Privacy as controlled sharing}: who gets to see, use, use-for-a-purpose, or receive-by-transfer which information.
+    \item \textbf{Privacy as confidentiality}: making the task of \textbf{correlating} data/actions back to an individual very difficult.
+\end{enumerate}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Tema d'esame, 5 settembre 2025 — punti (a) e (c) di una domanda da 40 punti)} (a) Give two possible definitions of privacy and briefly comment on them — are they overlapping? If not, how do they differ? (c) Explain whether using TLS protects client and server privacy by preventing a third party (who is not the client or server) from reading the transmitted messages, and indicate which definition from (a) applies here. \textit{(Il punto (b), sugli attacchi di linkage, lo tratteremo nella lezione sulla Privacy e il GDPR.)}
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(a)] The two definitions are \emph{controlled sharing} and \emph{confidentiality} (above). They are \textbf{related but not equivalent}: controlled sharing is about \textbf{consent/authorization} — who is allowed to receive which data; confidentiality is about \textbf{unlinkability} — how hard it is to correlate data back to an identity, \emph{regardless} of whether the original sharing was authorized. The two can come apart: data can be shared with full consent (controlled sharing satisfied) yet later be trivially re-identified if leaked (confidentiality violated); conversely, aggregated data might be hard to re-identify (confidentiality satisfied) even without a specific, granular consent choice having been made (controlled sharing not really exercised).
+    \item[(c)] \textbf{Yes.} TLS encrypts the channel, so a third party who is neither the client nor the server cannot read the plaintext content — exactly the HTTP-vs-HTTPS example above. This matches definition \textbf{(2), privacy as confidentiality}: TLS makes it computationally infeasible for an outside eavesdropper to correlate the observed traffic with its actual content. It does \emph{not} address definition (1) (controlled sharing), since that concerns the client--server relationship itself (what the server is authorized to receive), which TLS does not regulate. \textcolor{gray}{\textit{Caveat: TLS hides content, not metadata — an observer may still infer which server is contacted, connection timing, and traffic volume.}}
+\end{itemize}
+
+\subsubsection{When Security and Privacy Conflict}
+\textbf{Non-repudiation} (part of integrity) protects against an individual falsely denying having performed an action (creating information, sending/approving/receiving a message) — desirable when signing a contract or in e-commerce. But in other contexts it can \textbf{harm privacy}: e.g., in \textbf{e-voting} or in \emph{off-the-record} conversations, one may specifically \emph{want} the opposite guarantee. The opposite of repudiation is \textbf{plausible deniability}: ensuring that an instance of communication leaves behind \emph{no unequivocal evidence} that it took place.
+
+\textcolor{red!70!black}{\textbf{Key point:}} a security requirement can, in some contexts, be seen as a \emph{violation} of a privacy requirement, and vice versa.
+
+\subsection{Privacy-Preserving Techniques}
+
+Privacy-preserving techniques roughly correspond to security services — some security services (notably from cryptography) double as privacy-preserving techniques.
+
+\begin{itemize}
+    \item \textbf{Privacy as confidentiality — end-to-end encryption}: Bob obtains Alice's public key from a Certificate Authority and encrypts his message with it; an intermediary server only ever handles the encrypted, unreadable form; Alice decrypts it with her private key. No one in between (including the server) can read the content.
+    \item \textbf{Privacy as control — access control}: the same authentication/authorization/guard/policy/audit-log mechanism used for general security also supports privacy, by ensuring that only entitled employees of a company can access customers' personal information.
+\end{itemize}
+
+\subsection{Risk-Based Privacy and Legal Constraints}
+
+\textcolor{blue!50!black}{\textbf{Key distinction from general risk (Section~\ref{subsec:cia-01}):}} in risk-based privacy, impact is always evaluated specifically \textbf{on the end-user} whose personal data is being processed — this is exactly the logic behind the \textbf{Data Protection Impact Assessment (DPIA)}.
+
+\subsubsection{GDPR Overview}
+\begin{itemize}
+    \item \textbf{Tough penalties}: fines of up to \textbf{4\% of annual global revenue or €20 million}, whichever is \textbf{greater}.
+    \item \textbf{Extraterritorial scope}: the regulation also applies to \textbf{non-EU companies} that process personal data of individuals in the EU; international transfers of data continue to be governed by EU GDPR rules.
+    \item \textbf{Broader definition of personal data}: now includes identifiers such as \textbf{genetic}, \textbf{mental}, \textbf{cultural}, \textbf{economic}, and \textbf{social-identity} data — not just names or ID numbers.
+\end{itemize}
+
+\subsubsection{GDPR Focus}
+\begin{itemize}
+    \item \textbf{Privacy risk impact assessments} (DPIAs) are required for projects where privacy risks are high.
+    \item Products, systems, and processes must consider \textbf{privacy-by-design} during development.
+    \item Certifications such as \textbf{ISO 27001} help demonstrate ``adequate technical and organisational measures'' to protect people's data and systems.
+\end{itemize}
+
+\textcolor{red!70!black}{\textbf{Guiding philosophy:}} \emph{``It's not a matter of \textbf{if} a cybersecurity breach will happen, but \textbf{when}.''} This is precisely why both cybersecurity and the GDPR adopt a \textbf{risk-based approach}.
+
+\subsection{Security and Human Factors}
+
+\subsubsection{Usable Security}
+NIST's usable-cybersecurity principle: \emph{``Make it Easy to Do the Right Thing, Hard to Do the Wrong Thing, And Easy to Recover When the Wrong Thing Happens.''}
+
+\subsubsection{Awareness}
+Even in 2020, the \textbf{worst (most common) passwords} were still dominated by trivial choices: \texttt{123456}, \texttt{123456789}, \texttt{picture1}, \texttt{password}, \texttt{12345678}, \texttt{111111}, \texttt{123123}, \texttt{12345}, \texttt{1234567890}, \texttt{senha} — direct evidence that awareness campaigns are still needed. One such campaign frames it memorably: \emph{``Treat your passwords like your underwear''} — change them regularly, keep them off your desk, never share them with anyone.
+
+\subsubsection{Security Training Across Roles}
+Security knowledge needs differ by role, forming a spectrum:
+\begin{itemize}
+    \item \textbf{Require deeper security knowledge}: Security Architect (design/implement/improve policies for users, hardware, software, networks), Security Engineer (implement/enforce hardware, software, and user security policies), Security Analyst (identify security issues via testing/simulation).
+    \item \textbf{Middle of the spectrum}: Network Admin (secure the physical/digital network infrastructure), System Admin (secure processes on critical systems such as servers/workstations), Developers (build software according to security policies/practices).
+    \item \textbf{Require basic security knowledge}: Management \& C-Suite (must factor security into business decisions), Everyone Else (must understand basic secure practices).
+\end{itemize}
+
+\textcolor{red!70!black}{\textbf{Problem:}} IT professionals are increasingly making decisions with real security (and privacy) consequences, but on average are \textbf{not trained} to do so — resulting in a weak security posture that offers attackers an ``easy lunch.''
+
+\subsection{Summary}
+\begin{itemize}
+    \item Attacks violate one or more CIA properties; identifying \emph{which} helps understand the impact and choose the right security services/mechanisms for mitigation.
+    \item Ensuring security is hard because of: the \textbf{attribution} problem, the \textbf{scale} and \textbf{borderless} nature of attacks, the \textbf{growing attack surface}, and \textbf{lack of collaboration} among victims.
+    \item Security and privacy \textbf{overlap} but are different, and can sometimes \textbf{conflict}.
+    \item Privacy-preserving techniques matter from a \textbf{legal} standpoint too — the GDPR encapsulates a risk-based approach to privacy.
+    \item Security is \textbf{not purely technical}: human factors play a crucial role, hence the importance of security \textbf{awareness} and \textbf{training}.
+\end{itemize}
+
+
+% --- Contatore per gli esercizi, da definire UNA SOLA VOLTA nel documento ---
+% \newcounter{esercizio}[section]
+\renewcommand{\theesercizio}{\thesection.\arabic{esercizio}}
+
+\section{Authentication I: Passwords and Digital Identity}
+
+\subsection{A Brief History of Passwords}
+
+\textbf{Authentication} is the process of verifying a user's identity, typically as a prerequisite to granting access to a system's resources. A secure system generally needs to track user identities for two reasons:
+\begin{itemize}
+    \item the user's identity is recorded when logging security-relevant events in an \textbf{audit trail};
+    \item the user's identity is a parameter used in \textbf{access control} decisions.
+\end{itemize}
+
+Passwords have dominated human-computer authentication for over half a century, despite a rising consensus that more \textbf{secure} and \textbf{user-friendly} alternatives should be found. This creates a duality: security \textbf{researchers} tend to push for strict password composition policies, while \textbf{practitioners} focus on the practical problem of protecting accounts and data — and in practice there is little evidence that strict composition rules actually reduce security incidents.
+
+\subsubsection{Timeline}
+\begin{itemize}
+    \item \textbf{1960s}: passwords were introduced in time-sharing operating systems mainly to protect against pranks or abuse of shared resources. Security issues appeared almost immediately: passwords could be guessed, and the master password file was often stored \emph{in clear}, allowing leaks.
+    \item \textbf{1970s}: passwords started protecting both resources \emph{and} sensitive data. This is when \textbf{hashing} began to be used to protect stored passwords, later complemented by \textbf{salting} (both discussed in Section~\ref{subsec:hashing-salting-03}).
+    \item \textbf{Morris Worm (1988)}: a landmark event exploiting weak/guessable passwords, which pushed the industry toward hashed and access-controlled password files.
+    \item \textbf{Today}: attempts to build a business around consumer authentication have had limited success. Hardware tokens for second-factor authentication never saw wide adoption due to cost; smartphones may change this, since they can generate or receive one-time passwords without extra dedicated hardware. National digital identity infrastructures (e.g., Italy's \textbf{SPID}, \emph{Sistema Pubblico di Identità Digitale}) have seen uneven adoption due to unclear business models for identity providers — SPID itself only became widely adopted after the COVID-19 pandemic.
+\end{itemize}
+
+\subsection{User Authentication and the Digital Identity Lifecycle}
+
+An \textbf{identity} is a set of attributes related to an entity (e.g., a person or an organization); a \textbf{digital identity} is an identity whose attributes are stored and transmitted digitally.
+
+The digital identity lifecycle has four phases:
+\begin{enumerate}
+    \item \textbf{Enrollment / onboarding}: an applicant applies to become a subscriber of an identity system, which must validate the applicant's identity. At the end, the user receives a credential/authenticator from a \textbf{Credential Service Provider (CSP)}.
+    \item \textbf{Authentication}: verifying the identity of a user, process, or device.
+    \item \textbf{Authorization / Access Control}: checking the user's permissions, typically automated by evaluating the subject's attributes.
+    \item \textbf{Deregistration}: ends the relationship between the entity and the provider.
+\end{enumerate}
+
+\subsubsection{Enrollment in Detail}
+Enrollment starts with collecting \textbf{Personally Identifiable Information (PII)} — at least full name, date of birth, and home address — plus at least two forms of identity evidence (ID card, passport, driving licence). It proceeds through three steps:
+\begin{itemize}
+    \item \textbf{Resolution}: uniquely distinguishing the applicant within a population or context;
+    \item \textbf{Validation}: checking the \textbf{authenticity, validity, and accuracy} of the supplied information against an authoritative source;
+    \item \textbf{Verification}: confirming the \textbf{linkage between the claimed identity and the real-life existence} of the subject (e.g., checking in person that the applicant matches the ID photo, or confirming possession of a claimed phone number).
+\end{itemize}
+
+\subsubsection{Identity Assurance Levels (IAL)}
+\begin{itemize}
+    \item \textbf{IAL 1}: weakest; attributes are self-asserted (or treated as such).
+    \item \textbf{IAL 2}: requires either \textbf{remote or in-person} identity proofing.
+    \item \textbf{IAL 3}: strongest; requires \textbf{in-person} proofing, with attributes verified by an authorized representative examining physical documents.
+\end{itemize}
+
+\textcolor{blue!50!black}{\textbf{Note:}} a weak enrollment (e.g., IAL 1) undermines every later authentication event, no matter how strong the login mechanism itself is — identity proofing and authentication are two distinct security problems.
+
+\subsection{Password Attacks and Mitigations}
+
+\subsubsection{Password Space and Entropy}
+A password's resistance to brute force depends on its \textbf{password space}, which grows exponentially with length and character-set size (figures below for an 8-character password):
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Character set} & \textbf{Combos/char} & \textbf{Space (8 chars)} \\
+\midrule
+Lowercase only & 26 & $26^8 = 208{,}827{,}064{,}576$ \\
+Lower + upper case & 52 & $52^8 = 53{,}459{,}728{,}531{,}456$ \\
+Lower + upper + digits & 62 & $62^8 = 218{,}340{,}105{,}584{,}896$ \\
+Lower + upper + digits + symbols & $\approx 92$ & $92^8 = 5{,}132{,}188{,}731{,}375{,}616$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Despite these large numbers, modern GPU cloud computing makes short passwords cheap to crack: a widely cited 2019 estimate put the cost of cracking an \textbf{average 8-character password at about \$25} using rented AWS P3 GPU instances, in \textbf{12 minutes or less}. This is why guidance has shifted from ``short but complex'' toward simply \textbf{longer}.
+
+\textcolor{red!70!black}{\textbf{Outdated advice:}} the classic 2003 NIST recommendation (uppercase + numbers + symbols + frequent forced changes) is now considered a mistake: it produces passwords that are \emph{hard for humans to remember} but \emph{easy for computers to guess} (predictable substitutions like \texttt{Tr0ub4dor\&3}), whereas a long passphrase of unrelated common words (e.g., \texttt{correct horse battery staple}) can reach comparable or higher entropy while being far easier to memorize. Bill Burr, author of the original 2003 NIST guidance, publicly stated in 2017 that he regretted it.
+
+\subsubsection{Common Attack Patterns}
+\begin{itemize}
+    \item \textbf{Default credentials}: many devices ship with defaults (\texttt{admin}/\texttt{admin}); attackers keep large default-credential lists, which is how IoT botnets like Mirai compromise devices at scale.
+    \item \textbf{Dictionary attacks}: trying passwords from lists of commonly used passwords, freely available online for almost every language.
+    \item \textbf{Spoofing}: an attacker leaves a program showing a \textbf{fake login screen} and walks away. Any victim who types credentials into it has them captured; the program then shows a bogus error and returns control to the real OS login, so the victim assumes it was a glitch.
+    \item \textbf{Phishing}: password authentication is \textbf{unilateral} — the system verifies the user, but the user has no cryptographic guarantee about who is receiving the password — so a user can be misled into sending it to a fake endpoint.
+\end{itemize}
+
+\subsubsection{Mitigations}
+\begin{itemize}
+    \item \textbf{Always set a password} — with none, there is nothing to guess.
+    \item \textbf{Change default passwords} immediately after deployment.
+    \item \textbf{Avoid guessable passwords}: minimum length + mixed character classes (mindful of the entropy/memorability trade-off above).
+    \item \textbf{Forbid commonly used / breached passwords}.
+    \item \textbf{Avoid password hints} and knowledge-based recovery questions (often guessable).
+    \item \textbf{Limit login attempts} to slow down online brute-force/dictionary attacks.
+\end{itemize}
+
+Password managers/generators trade one problem for another: a randomly generated 10--16 character password removes guessability, but is now unmemorable — the manager itself becomes a high-value target, especially if it syncs online.
+
+\subsection{Protecting the Password File: Hashing and Salting}
+\label{subsec:hashing-salting-03}
+
+Instead of storing passwords in clear, systems store the output of a \textbf{one-way function}. A function $f$ is \textbf{one-way} if $f(x)$ is easy to compute given $x$, but it is computationally hard to recover $x$ given only $y=f(x)$. At login, the system applies $f$ to the entered password $x'$ and compares $f(x')$ to the stored $f(x)$.
+
+\subsubsection{Requirements of a Cryptographic Hash Function \texorpdfstring{$h$}{h}}
+\begin{itemize}
+    \item \textbf{Ease of computation}: $h(x)$ is easy to compute from $x$.
+    \item \textbf{Compression}: $h$ maps inputs of \emph{arbitrary} length to outputs of \emph{fixed} length $n$.
+    \item \textbf{One-way}: given $y$, it is infeasible to find $x$ with $h(x) = y$.
+    \item \textbf{Weak collision resistance}: given $x$, infeasible to find $x' \neq x$ with $h(x') = h(x)$.
+    \item \textbf{Strong collision resistance}: infeasible to find \emph{any} pair $x \neq x'$ with $h(x) = h(x')$.
+\end{itemize}
+
+A \textbf{collision} is a pair $x \neq x'$ with $h(x) = h(x')$. Collisions always exist in theory (inputs are unbounded, outputs are only $2^n$), but a good hash makes them \textbf{negligibly unlikely}: for $n=128$, there are $2^{128}\approx 3.4\times10^{38}$ possible hashes, so — assuming uniformly distributed outputs — finding a collision by chance is less likely than one person winning the lottery repeatedly. That uniformity is exactly what is hard to guarantee by design, and has been the weak point exploited historically:
+
+\begin{itemize}
+    \item \textbf{MD4}: weak; meaningful collisions are feasible.
+    \item \textbf{MD5}: former Internet standard, now \textbf{broken}.
+    \item \textbf{SHA-1}: 160-bit output; \textbf{collision attacks reported}, no longer recommended.
+    \item \textbf{RIPEMD-160}: still used by some European providers.
+    \item \textbf{SHA-256}: recommended today for longer hash values.
+\end{itemize}
+
+\subsubsection{Salting}
+Hashing alone is still vulnerable to \textbf{dictionary/rainbow-table attacks}: an attacker precomputes hashes of every dictionary password once, then looks up any stolen hash instantly. A \textbf{salt} is a fixed-length \textbf{random} value concatenated with the password \emph{before} hashing:
+\begin{itemize}
+    \item two users with the \emph{same} password get \emph{different} stored hashes;
+    \item an attacker must redo the precomputation \emph{per salt} (e.g., classic Unix used a 12-bit salt), multiplying the attack cost by the number of distinct salts in the file.
+\end{itemize}
+
+A typical password-file entry (e.g., Unix \texttt{/etc/shadow}) has the structure:
+\begin{center}
+\texttt{username : salt+hash : last\_change : min\_days : max\_days : warn\_days : inactive\_days : expire\_date}
+\end{center}
+
+\textcolor{ForestGreen!60!black}{\textbf{Common misconception:}} the salt does \emph{not} need to be secret — it is normally stored \emph{in clear}, right alongside the hash. Its security value comes from being \textbf{random and unique per user}, not from being hidden; this is different from a \emph{pepper} (a separate, genuinely secret value).
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Tema d'esame, 9 giugno 2026 — 50 punti)} Explain how to protect a password file with hashing and salting. Discuss: (a) what hashing means; (b) whether hashing alone is secure enough, and why; (c) what salting means; (d) whether salts can be stored in clear; (e) now imagine that, at each login, the system generates a random private key, encrypts the password with a block cipher, stores the resulting ciphertext, and deletes the key. Does this make the login process secure? Why?
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(a)] Hashing means applying a one-way cryptographic hash function $h$ to the password and storing only the digest $h(x)$, never the plaintext.
+    \item[(b)] No. Hashing alone stops brute force from being trivially fast, but it does \emph{nothing} against \textbf{dictionary attacks}: identical passwords always produce identical hashes, so an attacker with precomputed hash tables (or who cracks one user's hash) instantly knows every other account sharing that password.
+    \item[(c)] Salting means concatenating a random, per-user value to the password before hashing, so identical passwords yield different stored digests.
+    \item[(d)] Yes — the salt can be stored in clear next to the hash. Its purpose is uniqueness/randomness, not secrecy; storing it does not help the attacker recover the password, it only forces them to redo the attack per salt.
+    \item[(e)] \textbf{No, this is not secure — in fact it does not even work as a login mechanism.} Encryption is a \emph{two-way} function: it is designed to be reversible by whoever holds the key. Deleting the key after encrypting means that on the \emph{next} login attempt there is no way to check whether the newly-typed password matches: you cannot decrypt the stored ciphertext (the key is gone), and if you instead encrypt the new attempt with a \emph{fresh} random key, the resulting ciphertext will differ from the stored one even for the \emph{correct} password (different key $\Rightarrow$ different ciphertext). The scheme confuses \textbf{encryption} (reversible, needs key management) with \textbf{hashing} (one-way, no key to manage), which is exactly the property password storage needs.
+\end{itemize}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Scenario applicato)} \textbf{LastHope} offers a password manager: the user's master password is concatenated with the username (as salt) and hashed to derive an encryption key, which encrypts all credentials before upload; the encryption key is hashed again into an authentication digest sent to the LastHope server. As a security expert, answer: (a) which hash algorithm would you recommend for the local device, and why? (b) is using the \emph{username} as salt secure? (c) which security service should protect the local device–server channel? (d) which primitive should encrypt the credential database on the server?
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(a)] Since this hash is used to \textbf{derive a key from a password} (not just to verify a login), a generic fast hash like SHA-256 is a \emph{weak} choice — it is cheap to brute-force on GPUs. The correct choice is a dedicated \textbf{password-hashing / key-derivation function} such as \textbf{Argon2}, \textbf{scrypt}, \textbf{bcrypt}, or \textbf{PBKDF2}, which are deliberately slow and memory-hard to make brute-forcing the master password expensive.
+    \item[(b)] No. A salt must be \textbf{random and unique}; a username is neither guaranteed to be unique across systems nor random, and it is public information, giving an attacker a head start. A dedicated random salt (32--64 bytes) generated at account creation should be used instead.
+    \item[(c)] \textbf{TLS}, to guarantee confidentiality and integrity of the credentials in transit. A configuration risk to flag: outdated TLS versions/cipher suites or unpatched library implementations (e.g., historical OpenSSL bugs) can undermine the guarantee even when ``TLS'' is nominally in use.
+    \item[(d)] A strong \textbf{symmetric block cipher such as AES} (128-bit keys or higher), since the server must be able to decrypt on the user's behalf when credentials are retrieved — this is a legitimate use case for (reversible) encryption, unlike password verification.
+\end{itemize}
+
+\subsection{Extensions of Password-Based Authentication}
+
+\subsubsection{Multi-Factor Authentication (MFA)}
+\textbf{MFA} requires \textbf{two or more independent factors} from different categories before granting access. The three canonical categories are:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Something you know} & \textbf{Something you have} & \textbf{Something you are} \\
+\midrule
+Password / PIN & Smartphone, smart card, token & Fingerprint, face, iris \\
+Passphrase & Wearable device & Voice pattern \\
+Secret fact & Badge & DNA signature \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textcolor{red!70!black}{\textbf{Smartphones as a possession factor — caveats:}} they are not always available or connected; \textbf{SIM cloning} lets attackers intercept SMS-based codes; an unprotected phone means anyone with it can also receive the second factor for every account tied to that number.
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Tema d'esame, 3 luglio 2026 — 35 punti)} You ask an LLM to describe MFA and its factor categories. It answers: \textit{``MFA is a security mechanism that requires users to provide one or more independent factors [...]. The goal of MFA is [...] to reduce the risk of authorized access [...] MFA uses a combination of different authentication factors, which fall into five main categories: Something you know [...]; Something you have [...]; Something you do — e.g., solve a CAPTCHA, record a video showing your ID; Something you ask — e.g., a one-time code sent via SMS; Something you are [...]''}. Describe the errors and provide a correct, more comprehensive version.
+\end{tcolorbox}
+
+\textbf{Soluzione:} the answer contains three distinct errors:
+\begin{itemize}
+    \item \textbf{``one or more''} is wrong: MFA by definition requires \textbf{two or more} factors — a single factor is just single-factor authentication.
+    \item \textbf{``reduce the risk of authorized access''} inverts the meaning: the goal is to reduce the risk of \textbf{unauthorized} access.
+    \item \textbf{``five main categories''} is fabricated: there are \textbf{three} canonical categories (know/have/are). ``Something you ask'' (an SMS code) is not a new category — an SMS OTP is simply an instance of \emph{something you have} (possession of the SIM/phone). ``Something you do'' (CAPTCHA, video ID) is not a login-time authentication factor either — a CAPTCHA verifies you're not a bot (not \emph{who} you are), and a video-ID check is an \textbf{identity-proofing/liveness} technique used at enrollment, not a recognized MFA factor category.
+\end{itemize}
+
+\subsubsection{Time-Based One-Time Password (TOTP)}
+After the first authentication step, a one-time password valid for a short window is generated on a device only the user should hold, from a shared \textbf{seed} plus the last generated OTP; the server computes the same value and compares. TOTP is a form of \textbf{challenge-response protocol}: the server sends a \textbf{challenge}, the device answers using a function of the (hashed) password, so the password itself never crosses the network; this also defeats \textbf{replay attacks}, since the challenge is valid only briefly and must include transaction-specific and random data.
+
+\textcolor{blue!50!black}{\textbf{Real-world attack:}} in 2011, \textbf{Lockheed Martin} was breached after attackers compromised the seed database of an RSA SecurID (TOTP-style) deployment, allowing them to clone valid one-time codes.
+
+The \textbf{revised Payment Services Directive (PSD2)}, an EU regulation, mandates \textbf{Strong Customer Authentication (SCA)}: two or more factors, and if a possession factor uses TOTP, the challenge must mix transaction-specific data with random information to remain unpredictable. One practical effect of PSD2 has been to phase out dedicated hardware TOTP tokens in favour of smartphone apps.
+
+\subsubsection{Risk-Based (Adaptive) Authentication}
+The context of a login (location, IP, device, time) is assessed to decide how much to trust a claimed identity; anomalies trigger extra verification.
+
+\textit{Example:} Rich logs in every morning from San Francisco on his usual desktop around 8am PST. He then travels to Beijing and logs in from an unfamiliar laptop, over hotel wifi, at the local-time equivalent of 5pm PST. Every contextual signal (location, IP, device, time) falls outside his established profile, so the system flags a \textbf{high risk score} and triggers an identity-verification alert to Rich and/or IT — and once confirmed, this new behaviour is folded into his profile.
+
+\subsubsection{NIST Authenticator Assurance Levels}
+\begin{itemize}
+    \item \textbf{Level 1}: some assurance the claimant controls the authenticator; at least single-factor authentication.
+    \item \textbf{Level 2}: high confidence; two different factors required, using approved cryptographic techniques.
+    \item \textbf{Level 3}: very high confidence; based on proof of possession of a key via a cryptographic protocol, requiring a ``hard'' cryptographic authenticator.
+\end{itemize}
+
+\subsubsection{MFA Fatigue Attacks}
+An attacker who already holds valid credentials repeatedly triggers push notifications, hoping a distracted or overwhelmed user accepts one by mistake, mistaking it for a bug or a legitimate request. Technical difficulty is low — it only needs stolen credentials. The main mitigation is removing free-form ``just tap accept'' push approval in favour of number-matching or requiring an explicit code from the challenge.
+
+\subsubsection{FIDO (Fast IDentity Online)}
+\textcolor{gray}{\textit{Nota: FIDO non compare nelle slide ufficiali di questa lezione — non è nel materiale originale ma è richiesto in un tema d'esame (Settembre 2025); contenuto integrato dagli appunti di Bordignon.}}
+
+FIDO aims to reduce reliance on passwords via public-key cryptography. At \textbf{registration}, the user's device generates a fresh \textbf{public/private key pair}: the public key is sent to and stored by the online service, while the \textbf{private key never leaves the local device}. At \textbf{authentication}, the user first unlocks the local authenticator (PIN, biometric, etc.), then the device uses the account identifier to select the right private key and \textbf{cryptographically signs a server-issued challenge}; the server verifies the signature with the stored public key. Because the private key never travels over the network and is tied to the specific service origin, FIDO is inherently resistant to phishing and credential-stuffing.
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Tema d'esame, 5 settembre 2025 — 10 punti)} Briefly describe what FIDO is and how it works.
+\end{tcolorbox}
+
+\textbf{Soluzione:} see Section~4.3.6 above — cover: (1) the goal (reduce/replace password reliance), (2) the registration step (device-generated key pair, public key sent to the service, private key stays local), (3) the authentication step (unlock authenticator locally $\rightarrow$ sign server challenge with the private key $\rightarrow$ server verifies with the public key), and (4) why this resists phishing (no shared secret ever crosses the network).
+
+\subsection{Outsourcing Identity Management}
+
+Securing every phase of the identity lifecycle is far from trivial, and many organizations (especially SMEs) lack the resources to do it well while focusing on their core business. This motivates outsourcing authentication to a trusted \textbf{Identity Provider (IdP)} — sometimes called ``the lazy (but scalable) approach to identity management.''
+
+\textbf{Basic flow:} the user signs in to the IdP $\rightarrow$ the application forwards an authentication request to the IdP $\rightarrow$ the IdP sends back an authentication token $\rightarrow$ the token is included in every subsequent request, sparing the user from re-authenticating at each service. This is the basis of \textbf{Single Sign-On (SSO)}, detailed with the \textbf{SAML 2.0} standard in the next section.
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+ & \textbf{SSO trade-off} \\
+\midrule
+Usability & Only one password to remember for many apps \\
+Security & Only one password to compromise (single point of failure) \\
+Usability & Sessions can be shared across apps \\
+Security & Encourages users to pick a stronger single password \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textcolor{red!70!black}{\textbf{Privacy caveat:}} an IdP trusted by many services can potentially link a user's actions \emph{across} all of them, since it sees every authentication event.
+
+\subsubsection{Summary}
+\begin{itemize}
+    \item Authentication is the ``front door'' of any application or system.
+    \item Passwords remain the most widespread user-authentication method despite serious shortcomings.
+    \item Stored passwords must be protected with hashing \emph{and} salting, alongside proper access control.
+    \item Authentication is only \emph{one} phase of the identity lifecycle — weaknesses in enrollment (identity proofing) undermine security just as much as weak login mechanisms.
+    \item Given the cost and difficulty of doing identity management well, it is frequently outsourced to trusted third parties — with security and privacy trade-offs of its own.
+\end{itemize}
+
+
+
+\section{Cryptography I: Symmetric and Public-Key Cryptography}
+
+\subsection{A Brief History of Cryptography}
+
+Cryptography as a discipline is centuries old. \textbf{Leon Battista Alberti}'s \emph{De componendis cifris} (``On writing in ciphers,'' 1466) marks a major turning point in the field. Many other works followed, each proposing a new technique to hide the content of messages from everyone except the intended recipient — notably the ciphers attributed to \textbf{Vigenère}, \textbf{Bellaso}, and \textbf{Vernam}. \textcolor{gray}{\textit{Nota: la slide originale riporta ``Bernam'' anziché ``Vernam'' — quasi certamente un refuso di trascrizione, dato che Gilbert Vernam è la figura storicamente associata alla cifratura a flusso e al cifrario a chiave usa-e-getta (one-time pad), di cui parleremo a proposito del cifrario di Vigenère.}}
+
+Centuries later, the \textbf{Enigma} machine was used to secure the communications of the German military throughout the Second World War — and breaking it (the work most famously associated with \textbf{Alan Turing} and his colleagues) changed the course of human history.
+
+\subsection{Basic Notions}
+
+\subsubsection{Cryptography, Cryptanalysis, Cryptology}
+\begin{itemize}
+    \item \textbf{Cryptography} is the science and study of secret writing.
+    \item \textbf{Cryptanalysis} is the science and study of methods of breaking ciphers.
+    \item \textbf{Cryptology} is the umbrella term covering both cryptography and cryptanalysis.
+\end{itemize}
+Today, cryptography is understood more broadly as \textbf{the study of mathematical techniques related to aspects of information security}, namely: \textbf{confidentiality}, data \textbf{integrity}, \textbf{entity authentication}, and \textbf{data origin authentication}.
+
+\subsubsection{Security Services Provided by Cryptographic Mechanisms}
+\begin{itemize}
+    \item \textbf{Data confidentiality}: encryption algorithms hide the content of messages.
+    \item \textbf{Data integrity}: integrity-check functions provide the means to detect whether a document has been changed.
+    \item \textbf{Data origin authentication}: message authentication codes (MACs) or digital signature algorithms provide the means to verify the source and the integrity of a message.
+\end{itemize}
+
+\subsubsection{The Cryptosystem}
+\label{subsec:cryptosystem-04}
+A \textbf{cryptosystem} is formally a 5-tuple $(E, D, M, K, C)$ where:
+\begin{itemize}
+    \item $E$ is an \textbf{encryption} algorithm;
+    \item $D$ is a \textbf{decryption} algorithm;
+    \item $M$ is the set of \textbf{plaintexts};
+    \item $K$ is the set of \textbf{keys};
+    \item $C$ is the set of \textbf{ciphertexts}.
+\end{itemize}
+Abstractly, $E$ and $D$ are characterized as functions
+\[
+E : M \times K \to C, \qquad D : C \times K \to M,
+\]
+subject to the fundamental correctness requirement
+\[
+D(E(m,k),k) = m.
+\]
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Dal file di domande di ripasso)} Define the notion of a cryptosystem.
+\end{tcolorbox}
+
+\textbf{Soluzione:} A cryptosystem is the 5-tuple $(E,D,M,K,C)$ defined above: $E$ and $D$ are the encryption/decryption algorithms, $M$ the plaintext space, $K$ the keyspace, $C$ the ciphertext space, with $E:M\times K\to C$, $D:C\times K \to M$, and the key requirement that decryption undoes encryption under the \emph{same} key used in decryption: $D(E(m,k),k)=m$. \emph{(Whether the encryption key and the decryption key are the same or different is exactly what distinguishes symmetric from asymmetric cryptography — see below.)}
+
+\subsubsection{Kerckhoffs' Principle}
+\label{subsec:kerckhoffs-04}
+\textcolor{red!70!black}{\textbf{Kerckhoffs' principle}}: do not rely on the secrecy of the encryption \emph{algorithm} — the \textbf{key} should be the only secret that needs protection. The rationale is a trade-off in disguise: an algorithm kept secret can only be scrutinized by its own designers, while a \textbf{public}, well-known algorithm can be studied, attacked, and improved by the entire cryptographic community, so weaknesses are far more likely to surface (and get fixed) before real damage is done. The key, by contrast, is cheap to change and unique per communication/party, so it is the sensible single point of secrecy to protect. This is why virtually every algorithm discussed in this course (DES, AES, RSA, Diffie--Hellman) is entirely public.
+
+\subsubsection{Keys: Keyspace, Entropy, and Storage}
+A \textbf{key} is an input to a cryptographic algorithm used to obtain confidentiality, integrity, authenticity, or another security property over some data; the security of the cryptosystem often \textbf{depends on keeping the key secret} from some parties.
+\begin{itemize}
+    \item The \textbf{keyspace} is the set of all possible keys.
+    \item \textbf{Entropy} is a measure of the variance (randomness) in keys, typically measured in \textbf{bits}. For most cryptographic systems, keys should be as random as possible: intuitively, \textbf{randomness} is the apparent or actual lack of pattern or predictability in events, and it is exactly this randomness that an operating system or application must collect and feed into cryptographic key generation.
+\end{itemize}
+Keys are often stored in some secure place — \textbf{passwords}, on-disk keyrings, a \textbf{TPM} (Trusted Platform Module), a secure co-processor, smartcards — \dots and \textbf{sometimes not}: e.g., the key material inside a \textbf{certificate} need not be kept secret at all, because (as we will see later in this lesson) a certificate carries a \emph{public} key, not a private one.
+
+\subsubsection{Key Management and Key Distribution}
+\textbf{Key management} is not just about sharing a key — it also concerns \emph{where} keys are generated, \emph{how} they are generated, \emph{where} they are stored, \emph{how} they get to where they are used, \emph{where} they are actually used, and \emph{how} they are revoked and replaced.
+
+Among these, \textbf{key distribution} deserves special attention: the two parties to an exchange must share the same key, and that key must be protected from access by others; frequent key changes are desirable to limit the amount of data compromised if an attacker learns the key. \textcolor{red!70!black}{\textbf{The strength of any cryptographic system ultimately rests with the key distribution technique}} — no matter how strong the algorithm is, a poorly distributed key breaks everything. Four example approaches for two entities $A$ and $B$:
+\begin{enumerate}
+    \item a key could be selected by $A$ and physically delivered to $B$;
+    \item a third party could select the key and physically deliver it to both $A$ and $B$;
+    \item if $A$ and $B$ have previously and recently used a key, one party could transmit the new key to the other, encrypted using the \emph{old} key;
+    \item if $A$ and $B$ each have an encrypted connection to a third party $C$, then $C$ could deliver a key to $A$ and $B$ over those encrypted links.
+\end{enumerate}
+
+\subsubsection{Computational Security and Brute Force}
+An encryption scheme is \textbf{computationally secure} if the ciphertext it generates meets one or both of the following criteria:
+\begin{itemize}
+    \item the \textbf{cost} of breaking the cipher exceeds the \textbf{value} of the encrypted information;
+    \item the \textbf{time} required to break the cipher exceeds the \textbf{useful lifetime} of the information.
+\end{itemize}
+It is very difficult, in general, to estimate the effort required to cryptanalyze a ciphertext successfully. Assuming there are no inherent mathematical weaknesses in the algorithm, a \textbf{brute-force approach} is indicated — i.e., trying every possible key until an intelligible translation of the ciphertext into plaintext is obtained — which at least allows reasonable estimates about cost and time. On average, \textbf{half of all possible keys} must be tried before success, since one does not know in advance where in the keyspace the correct key lies.
+
+In short, writing $P$ for plaintext, $C$ for ciphertext, and $k$ for the key:
+\begin{itemize}
+    \item $E(k,P) = C$: computing $C$ from $P$ is \textbf{hard} without $k$, but \textbf{easy} with $k$;
+    \item $D(k,C) = P$: computing $P$ from $C$ is \textbf{hard} without $k$, but \textbf{easy} with $k$.
+\end{itemize}
+This computational asymmetry — easy with the key, hard without it — is exactly what a cryptosystem is designed to guarantee.
+
+\subsubsection{Cryptography Is No Silver Bullet}
+Cryptographic keys are themselves sensitive data stored in a computer system, so access-control mechanisms have to protect \emph{these keys} in turn. \textcolor{blue!50!black}{\textbf{Cryptography (alone) is rarely ever \emph{the} solution to a security problem — rather, it is a translation mechanism: it usually converts a communication-security problem into a key-management problem, which ultimately becomes a computer-security problem} (protecting the machine that holds the keys).}
+
+\subsection{Classical Ciphers: Substitution and Transposition}
+
+Two types of transformation underlie (almost) all ciphers, classical and modern alike:
+\begin{itemize}
+    \item \textbf{Substitution}: each element of the plaintext (a bit, a letter, a group of bits or letters) is mapped into another element — in other words, letters are replaced by other letters.
+    \item \textbf{Transposition}: the elements of the plaintext are rearranged — in other words, the same letters appear, but in a different order.
+\end{itemize}
+A fundamental requirement of both is that \textbf{no information shall be lost}, i.e., every operation must be reversible; most real encryption systems combine \textbf{multiple stages} of substitution and transposition.
+
+\subsubsection{Substitution Ciphers: the Caesar Cipher and ROT\textit{k}}
+A \textbf{substitution cipher} is a method of encrypting by which units of plaintext are replaced with ciphertext according to a fixed system; the ``units'' may be single letters (the most common case), pairs, triplets, or mixtures thereof. The receiver deciphers the text by performing the \textbf{inverse} substitution. In brief: the cipher substitutes one symbol for another, and \textbf{the key is the substitution itself}.
+
+The \textbf{Caesar cipher} is a substitution cipher in which every character is replaced by the character some fixed number of positions to its right in the alphabet; \textbf{the key is the number of characters used to shift} the cipher alphabet. Mathematically, associating the letters $a,b,c,\dots,z$ with the numbers $0,1,2,\dots,25$, the encryption function is
+\[
+e(x) = (x+k) \bmod 26,
+\]
+and the decryption function is
+\[
+d(x) = (x-k) \bmod 26,
+\]
+where $k$ is the key (the shift applied to each letter); after applying either function, the resulting number is translated back into a letter. This scheme is also called \textbf{ROT\textit{k}} (``ROTate by $k$'').
+
+\textbf{Worked example --- cryptanalysis of ROT\textit{k}:} ROT\textit{k} is probably the easiest of all ciphers to break. Since the shift must be a number between 1 and 25 (a shift of 0 or 26 leaves the plaintext unchanged), one can simply try every possibility and see which one yields readable text — a \textbf{brute-force attack} with only 25 candidates. A more principled approach is \textbf{frequency analysis}: count how often each letter appears in the ciphertext. English text has a very distinctive letter-frequency distribution — `e' is the most common letter (appearing almost 13\% of the time), `z' the least frequent (about 1\%) — so one looks for the shift that makes the ciphertext's letter frequencies line up with the natural English distribution, then decrypts using that shift.
+
+As an illustration, consider the ciphertext \texttt{orgursbeprjvgulbh}. Trying $k=13$ (decrypting with $d(x) = (x-13) \bmod 26$) gives the perfectly readable phrase \textbf{``be the force with you''} — confirming $k=13$ is the correct key. \textcolor{gray}{\textit{Nota: $k=13$ è il caso speciale noto come ROT13, particolare perché è auto-inverso: applicarlo due volte restituisce il testo originale.}}
+
+\subsubsection{The Vigenère Cipher}
+The \textbf{Vigenère cipher} can be seen as a \textbf{generalization of the Caesar cipher}, whereby several Caesar ciphers in sequence, each with a different shift value, are used. As with the Caesar cipher, letters $a,b,c,\dots,z$ are associated with $0,1,2,\dots,25$. The procedure is:
+\begin{enumerate}
+    \item select a keyword;
+    \item write the keyword repeatedly underneath the plaintext, until every plaintext letter has a keyword letter beneath it;
+    \item encrypt each plaintext letter using a Caesar cipher whose key is the number associated with the keyword letter written beneath it.
+\end{enumerate}
+
+\textbf{Worked example} --- plaintext \texttt{ATTACKATDAWN}, keyword \texttt{LEMON}:
+\begin{center}
+\begin{tabular}{@{}cccccccccccc@{}}
+\toprule
+A & T & T & A & C & K & A & T & D & A & W & N \\
+L & E & M & O & N & L & E & M & O & N & L & E \\
+\midrule
+L & X & F & O & P & V & E & F & R & N & H & R \\
+\bottomrule
+\end{tabular}
+\end{center}
+(top row: plaintext; middle row: keyword repeated to match the plaintext length; bottom row: ciphertext). For instance, the first A is associated with 0, the first L with 11, and $0+11 \bmod 26 = 11$, which is L; the second T is associated with 19, the second E with 4, and $19+4 \bmod 26 = 23$, which is X — and so on for every column.
+
+Notice that the same letter A is encrypted to four \emph{different} letters (L, O, E, N) depending on its position in the plaintext, and the letter T occurs three times but maps to only two different ciphertext letters — this makes straightforward frequency analysis considerably harder than for the Caesar cipher. Since the key is the keyword, its length $\ell$ determines the size of the keyspace \textcolor{gray}{\textit{(la slide originale riporta ``$\ell^{26}$''; il valore corretto, per un alfabeto di 26 lettere e parola chiave di lunghezza $\ell$, è $26^{\ell}$ --- quasi certamente un refuso nell'ordine base/esponente)}}. As $\ell$ grows, brute-forcing becomes increasingly complex, until it becomes practically impossible.
+
+\textbf{The limiting case --- an unbreakable cipher:} when the length of the keyword equals the length of the plaintext, a genuinely different Caesar cipher encrypts every single plaintext letter, making it impossible to determine the correct plaintext without the key. In this case, \textbf{the Vigenère cipher cannot be broken} --- \emph{provided, additionally, that the key is used only once}. This is exactly the idea behind an unbreakable \textbf{one-time pad}, and connects directly back to the \textbf{Vernam} cipher mentioned in the history above.
+
+\subsubsection{Transposition Ciphers: Columnar Transposition}
+In brief, a \textbf{transposition cipher} scrambles the symbols of the plaintext to produce the ciphertext; \textbf{the key is the permutation} applied to the symbols. More precisely: the units of the plaintext are rearranged in a different (and usually quite complex) order, but the units themselves are left unchanged --- the exact opposite trade-off to substitution, where units are retained in sequence but the units themselves are altered.
+
+In a \textbf{columnar transposition}, the message is written out in rows of a fixed length, and then read out again \emph{column by column}, with the columns read in some scrambled order. Both the width of the rows and the permutation of the columns are usually defined by a keyword.
+
+\textbf{Worked example} --- keyword \texttt{ZEBRAS} (length 6, so rows are 6 characters wide); the column-reading order is given by the \textbf{alphabetical rank} of each keyword letter (A=1, B=2, E=3, R=4, S=5, Z=6), so columns Z, E, B, R, A, S are labelled ``6 3 2 4 1 5'':
+\begin{center}
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+Z & E & B & R & A & S \\
+6 & 3 & 2 & 4 & 1 & 5 \\
+\midrule
+W & E & A & R & E & D \\
+I & S & C & O & V & E \\
+R & E & D & F & L & E \\
+E & A & T & O & N & C \\
+E & Q & K & J & E & U \\
+\bottomrule
+\end{tabular}
+\end{center}
+Plaintext: \texttt{WE ARE DISCOVERED. FLEE AT ONCE} (25 letters once spaces/punctuation are removed); since $25$ is not a multiple of $6$, the final row is padded with \textbf{nulls} (here \texttt{Q,K,J,E,U}, chosen at random --- they are \emph{not} part of the message). Reading the columns in rank order $1,2,3,4,5,6$ (i.e., column A, then B, then E, then R, then S, then Z) gives the ciphertext:
+\[
+\texttt{EVLNE}\ \texttt{ACDTK}\ \texttt{ESEAQ}\ \texttt{ROFOJ}\ \texttt{DEECU}\ \texttt{WIREE}
+\]
+
+\subsection{Symmetric Key Cryptography}
+
+\subsubsection{From Classical to Modern Cryptography}
+With the rapid development of computers, it became difficult to rely on elementary classical techniques, since ciphertext produced by hand-oriented methods (substitution/transposition on letters) became easy to decrypt by machine. The new generation of encryption techniques instead operates on \textbf{bits} rather than characters: \textbf{stream encryption} and \textbf{block encryption} (together forming \textbf{symmetric key encryption}), and \textbf{public-key encryption} (\textbf{asymmetric key encryption}, covered later in this lesson).
+
+An overview of modern cryptography branches as follows: \textbf{Cryptography} splits into \textbf{Asymmetric encryption} (public key: \textbf{RSA}, \textbf{Diffie--Hellman}, others) and \textbf{Symmetric encryption} (private key: \textbf{block ciphers} --- DES, AES, Blowfish, others --- and \textbf{stream ciphers} --- RC4, TKIP, others); a third branch, \textbf{Hash Functions} (MD5, SHA, others), is only glimpsed here, since it was already covered in depth when discussing the protection of password files (Section~\ref{subsec:hashing-salting-03}).
+
+\subsubsection{Definition and Notation}
+\label{subsec:symmetric-04}
+In \textbf{symmetric key} cryptography, a single key $k$ is used for \emph{both} $E$ and $D$:
+\[
+D(k, E(k,p)) = p.
+\]
+All intended receivers must have access to this same key. \textcolor{red!70!black}{\textbf{The management of keys determines who has access to the encrypted data}} --- whoever holds $k$ can both encrypt and decrypt, so protecting $k$ \emph{is} protecting the data.
+
+\subsubsection{Stream Ciphers vs.\ Block Ciphers}
+\begin{itemize}
+    \item \textbf{Stream ciphers} encrypt sequences of ``short'' data blocks under a \emph{changing} key stream. Security relies on the design of the \textbf{key-stream generator}; encryption itself can be as simple as \textbf{XOR}. Typical block length: 1 bit/byte.
+    \item \textbf{Block ciphers} encrypt sequences of ``long'' data blocks \emph{without} changing the key. Security relies on the design of the \textbf{encryption function} itself. Typical block length: 64/128 bits.
+\end{itemize}
+
+Under the hood:
+\begin{itemize}
+    \item Stream ciphers use the idea underlying the \textbf{Vigenère cipher}, adapted to streams of bits rather than texts of letters.
+    \item Block ciphers use substitution and transposition adapted to manipulate blocks of bits rather than letters. Substitutions are called \textbf{S-boxes}, and aim to ``hide'' the relationship between the key and the ciphertext, achieving \textbf{confusion} (each bit of the ciphertext should depend on several parts of the key). Transpositions are called \textbf{P-boxes}, and aim to permute bits across S-box inputs, achieving \textbf{diffusion} (changing a single bit of the plaintext should change about half of the bits of the ciphertext --- the same \textbf{avalanche effect} already discussed for hash functions).
+\end{itemize}
+
+\textbf{Stream cipher mechanics:} a stream cipher operates on plaintext and ciphertext one bit at a time; the same plaintext bit encrypts to a \emph{different} ciphertext bit every time it is encrypted, since the keystream changes. Stream ciphers can be designed to be exceptionally fast --- much faster than any block cipher in hardware --- with less complex circuitry. The simplest implementation is
+\[
+C_i = M_i \oplus K_i \quad \text{(encryption)}, \qquad M_i = C_i \oplus K_i \quad \text{(decryption)},
+\]
+where $K_i$ is a bit generated by a (pseudo-)random \textbf{keystream generator}, shared identically by sender and receiver, and $\oplus$ is bitwise XOR:
+\begin{center}
+\begin{tabular}{@{}ccc@{}}
+\toprule
+$A$ & $B$ & $A \oplus B$ \\
+\midrule
+0 & 0 & 0 \\
+0 & 1 & 1 \\
+1 & 0 & 1 \\
+1 & 1 & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Stream ciphers are typically used in real-time applications such as mobile communications and video streaming --- examples include \textbf{A5/1} (GSM traffic encryption), \textbf{E0} (Bluetooth), and \textbf{RC4} (historically used in SSL).
+
+\textbf{Block cipher mechanics:} a block of plaintext is treated as a whole and used to produce a ciphertext block of equal length (typical block size: 64--256 bits). A block cipher breaks the message $M$ into successive blocks $M_1, M_2, \dots, M_n$ and enciphers each $M_i$ with the \emph{same} key $k$. \textbf{DES} and \textbf{AES} are the two best-known examples, discussed next.
+
+\subsubsection{The Data Encryption Standard (DES)}
+\label{subsec:des-04}
+\textbf{DES} was designed by IBM in the 1970s and adopted by NIST in 1977 for commercial and unclassified government applications. It is a \textbf{Feistel block cipher} employing a \textbf{56-bit key} that operates on \textbf{64-bit blocks}, designed specifically to yield fast hardware implementations (and comparatively slow software implementations --- though this is no longer significant today, given how much faster processors have become).
+
+\textcolor{ForestGreen!60!black}{\textbf{Common misconception --- the NSA and DES:}} the NSA proposed a number of tweaks to DES that many people, at the time, believed were introduced to \emph{weaken} the cipher. Cryptanalysis in the 1990s showed the opposite: the NSA's suggested changes actually \textbf{strengthened} DES.
+
+DES was formally defined in American National Standard X3.92 and three Federal Information Processing Standards (FIPS); all of these were withdrawn in \textbf{2005}.
+
+\textbf{The Feistel structure} (1973) is a \textbf{block cipher}, i.e., a deterministic algorithm operating on fixed-length groups of bits (a \emph{block}), with an unvarying transformation specified by a symmetric key. Mechanically:
+\begin{enumerate}
+    \item the plaintext block is split into two equal halves $(L,R)$;
+    \item a round function $F$ (a substitution) is applied to one half, using a round \textbf{subkey} $K_i$;
+    \item the output of $F$ is \textbf{XORed} with the other half;
+    \item the two halves are then \textbf{swapped}, and the process repeats for the next round.
+\end{enumerate}
+\textbf{DES has 16 rounds.} Instead of reusing the same key in every round, a \emph{different} subkey is derived from the main key for each round; when decrypting, the subkeys must be applied in \textbf{reverse order}.
+
+\textbf{Case study --- cracking DES, the EFF effort (1998):} the easiest known way to build a practical DES cracker is simply to have it try every key until it finds the right one. The \textbf{Electronic Frontier Foundation (EFF)} built a ``DES Cracker'' consisting of an ordinary personal computer driving a large array (about 1{,}500) of custom ``Deep-Crack'' chips, parallelizing the key search in hardware (a thousand DES-cracker chips solve the same problem in one-thousandth of the time a single chip would need). The machine found a 56-bit key in \textbf{under 3 days}, searching a total of 17,902,806,669,197,312 keys --- an average of \textbf{88 billion keys per second}. The whole project cost \textbf{under \$250{,}000} (\$80{,}000 for design/integration/testing, \$130{,}000 for hardware); the software was developed in 4--5 weeks, and the entire project was completed within about \textbf{eighteen months}.
+
+\subsubsection{The Advanced Encryption Standard (AES)}
+\label{subsec:aes-04}
+In \textbf{1997}, NIST initiated a \textbf{public}, four-and-a-half-year process to develop a new secure cryptosystem for U.S. government applications --- a deliberate contrast to the \emph{closed} process used to adopt DES 25 years earlier. The result, \textbf{Rijndael}, a block cipher designed by the Belgian cryptographers \textbf{Joan Daemen} and \textbf{Vincent Rijmen}, was selected by NIST in October 2000 and became the official \textbf{Advanced Encryption Standard (AES)}, the successor to DES, in \textbf{December 2001}. The algorithm can use a variable block length and key length; the specification allows any combination of key lengths of 128, 192, or 256 bits and blocks of length 128, 192, or 256 bits.
+
+\textbf{AES overview:} the encryption process is based on a series of table lookups and \textbf{XOR} operations (rounds of \texttt{SubBytes}, \texttt{ShiftRows}, \texttt{MixColumns}, \texttt{AddRoundKey}), which are \textbf{very fast operations to perform on a computer}. Decryption consists of running the encryption process in reverse order; however, \emph{unlike} a Feistel cipher, the encryption and decryption algorithms of AES must be \textbf{separately implemented} (\texttt{InvSubBytes}, \texttt{InvShiftRows}, \texttt{InvMixColumns}), even though the two are very closely related.
+
+AES is the cryptographic algorithm mandated for U.S. government organizations to protect sensitive, unclassified information (commercial and other non-federal organizations are invited, but not required, to adopt it). No one can be sure how long AES --- or any cryptographic algorithm --- will remain secure; but as a benchmark, DES was a U.S. government standard for approximately 20 years before a brute-force attack with specialized hardware became practical (the EFF effort above). AES supports significantly larger keys than DES:
+
+\begin{center}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Algorithm / key size} & \textbf{Approximate number of keys} \\
+\midrule
+DES (56-bit) & $7.2 \times 10^{16}$ \\
+AES-128 & $3.4 \times 10^{38}$ \\
+AES-192 & $6.2 \times 10^{57}$ \\
+AES-256 & $1.1 \times 10^{77}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+There are, in other words, on the order of $10^{21}$ \textbf{times more} AES-128 keys than DES-56 keys. Barring any attack against AES faster than brute-force key exhaustion, and even accounting for future advances in computing power, AES has the potential to remain secure well beyond 20 years.
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Tema d'esame, 17 giugno 2025 --- 40 punti, parti a--d)} In the context of cryptography, (a) state and discuss the Kerckhoffs' principle, (b) explain the purpose of key management, (c) explain the notion of symmetric key cryptography, and (d) describe the difference between a hash function and an encryption function.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(a)] \textbf{Kerckhoffs' principle} (Section~\ref{subsec:kerckhoffs-04}) states that the security of a cryptosystem must not depend on keeping the \emph{algorithm} secret, only the \emph{key}. Rationale: a public algorithm can be studied and stress-tested by the whole cryptographic community, so flaws surface (and get fixed) quickly; a secret, home-grown algorithm is reviewed by nobody but its author and tends to hide weaknesses that only become apparent once it is too late. This is why DES, AES, RSA, and Diffie--Hellman are all fully public specifications --- only the key is secret.
+    \item[(b)] \textbf{Key management} exists because a cryptosystem's real-world security does not stop at the mathematics of $E$ and $D$: it depends on \emph{how the key is generated} (with high entropy/randomness), \emph{where it is stored} (securely --- e.g.\ TPM/smartcard, access-controlled), \emph{how it is distributed} to the legitimate parties without leaking to anyone else, \emph{where it is used}, and \emph{how/when it is revoked and replaced}. Cryptography is a \emph{translation mechanism}: it turns a communication-security problem into a key-management problem, and ultimately into a computer-security problem --- so weak key management undermines even a mathematically perfect cipher.
+    \item[(c)] \textbf{Symmetric key cryptography} (Section~\ref{subsec:symmetric-04}) uses a \emph{single} key $k$ for both encryption and decryption: $D(k, E(k,p)) = p$. All intended receivers must possess the same $k$; whoever holds it can both read and produce valid ciphertexts, so the whole security of the scheme reduces to keeping $k$ confidential and getting it safely to every legitimate party (the key-distribution problem discussed above). Stream ciphers (e.g., RC4) and block ciphers (e.g., DES, AES) are the two families of symmetric algorithms.
+    \item[(d)] The core difference is \textbf{reversibility}. An \textbf{encryption function} $E$ is a \emph{two-way}, keyed transformation: $E(k,p)=c$ is deliberately designed so that $D(k,c)=p$ recovers the original plaintext --- that is the whole point, since encryption exists to protect confidentiality \emph{while still allowing legitimate recovery} of the data. A \textbf{hash function} $h$ (Section~\ref{subsec:hashing-salting-03}) is instead a \emph{one-way}, key-independent transformation: given $y=h(x)$, it must be computationally infeasible to recover $x$ --- there is no key that inverts it, by design. Hash functions also compress arbitrary-length input into a \emph{fixed}-length digest, which encryption does not generally do. This is exactly why passwords are \emph{hashed} (verification only needs to check $h(x')\stackrel{?}{=}h(x)$, never to recover $x$) while, e.g., a symmetric session key or a stored file is \emph{encrypted} (the legitimate holder of the key must be able to get the original data back).
+\end{itemize}
+
+\subsection{Asymmetric (Public) Key Cryptography}
+\label{subsec:pkc-basic-04}
+
+\subsubsection{History and Basic Idea}
+\textbf{Asymmetric key cryptography}, also called \textbf{Public Key Cryptography (PKC)}, is arguably the most significant development in cryptography in the last 300--400 years. It was first described publicly by Stanford professor \textbf{Martin Hellman} and his graduate student \textbf{Whitfield Diffie} in \textbf{1976}: a two-key crypto system in which two parties could engage in secure communication over a \emph{non-secure} communications channel \textbf{without ever sharing a secret key}.
+
+The basic idea: use two keys, one to encode and the other to decode, such that they are \textbf{mathematically related}, although knowledge of one key does not allow someone to easily determine the other. It does not matter which key is applied first, but \emph{both} are required for the process to work. One of the keys is designated the \textbf{public key} and may be advertised as widely as the owner wants; the other is the \textbf{private key} and is never revealed to another party.
+
+\begin{itemize}
+    \item \textbf{Confidentiality}: suppose Alice wants to send Bob a message. Alice encrypts the information using \textbf{Bob's public key}; Bob decrypts the ciphertext using \textbf{his own private key}.
+    \item \textbf{Authentication / non-repudiation}: the same mechanism can prove who sent a message. Alice encrypts some plaintext with \textbf{her own private key}; when Bob decrypts it using \textbf{Alice's public key}, he knows Alice sent the message (authentication), and Alice cannot deny having sent it (non-repudiation).
+\end{itemize}
+
+\subsubsection{One-Way and Trapdoor One-Way Functions}
+The main ingredient of PKC is the existence of so-called \textbf{one-way functions}: mathematical functions that are \emph{easy} to compute, whereas their inverse is \emph{relatively difficult} to compute. Two classic examples:
+\begin{itemize}
+    \item \textbf{Multiplication vs.\ factorization}: given primes 3 and 7, it is easy to calculate the product, 21. Given the number 21 (known to be a product of two primes), it is \emph{not} easy to determine the prime factors. The problem becomes much harder if the primes have, say, 400 digits each, since the product will then have around 800 digits.
+    \item \textbf{Exponentiation vs.\ logarithms}: it is relatively easy to calculate $3^6=729$; but starting from 729, it is difficult to determine the two integers $x,y$ such that $\log_x 729 = y$.
+\end{itemize}
+With suitable parameters, both problems are the basis for many cryptographic algorithms --- although \emph{not all instances} of these problems are difficult to solve (small numbers factor trivially). To be precise, one should be able to \emph{quickly} invert the function if some additional information becomes known (e.g., a suitable key): this refined notion is called a \textbf{trapdoor one-way function}.
+
+\textbf{Worked example:} $6{,}895{,}601$ is the product of two prime numbers --- what are they? A brute-force solution is to try dividing $6{,}895{,}601$ by successive primes until finding the answer. But if one is \emph{told} that $1{,}931$ is one of the factors, the other is found instantly: $6{,}895{,}601 \div 1{,}931 = 3{,}571$. While a computer can try all small candidates within a second, inverting the function becomes more and more computationally expensive as the primes grow larger. \textcolor{blue!50!black}{\textbf{Indeed, the problem is only \emph{believed} to be difficult from a computational point of view --- there is no mathematical proof that it is truly hard, only the fact that repeated attempts by cryptographers have failed to find an efficient general method.}}
+
+\subsubsection{Digital Signatures}
+A \textbf{digital signature} is a data item that vouches for the origin and the integrity of a message. Using digital signatures: the originator signs the message with their \textbf{private key} and sends it, together with the signature, to a recipient; the recipient uses the originator's \textbf{public key} to verify both the origin of the message and that it has not been tampered with in transit. Formally, a digital signature gives a recipient reason to believe that:
+\begin{itemize}
+    \item the message was created by a known sender (\textbf{authentication});
+    \item the sender cannot deny having sent it (\textbf{non-repudiation});
+    \item the message was not altered in transit (\textbf{integrity}).
+\end{itemize}
+Like a handwritten signature, only \emph{one} entity could have produced it --- but, done correctly, it is far more difficult to forge.
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Dal file di domande di ripasso; una variante quasi identica compare anche al Tema d'esame del 19 febbraio 2026, Domanda 2, 30 punti)} In the context of cryptography, (a) state and describe the Kerckhoffs' principle, (b) explain the purpose of key management, (c) explain the notion of symmetric key cryptography, and (d) explain the notion of asymmetric (or public) key cryptography.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(a--c)] See the fully worked exercise earlier in this lesson (Sections~\ref{subsec:kerckhoffs-04}--\ref{subsec:symmetric-04}): (a) Kerckhoffs' principle says security must rest only on the secrecy of the \emph{key}, never the algorithm; (b) key management covers how keys are generated, stored, distributed, used, and revoked, since a mathematically perfect cipher is worthless if its key leaks; (c) symmetric key cryptography uses one key $k$ for both $E$ and $D$: $D(k,E(k,p))=p$.
+    \item[(d)] \textbf{Asymmetric (public) key cryptography} (Section~\ref{subsec:pkc-basic-04}) uses \emph{two} mathematically related keys per party instead of one shared key: a \textbf{public} key, freely advertised, and a \textbf{private} key, never revealed. Knowledge of the public key does not let an outsider feasibly derive the private one --- this rests on a \textbf{trapdoor one-way function} (e.g., multiplying two large primes is easy; factoring the product back is hard, unless one already knows a factor). The same key pair supports two distinct guarantees: \emph{confidentiality} (encrypt with the \emph{receiver's} public key; only the receiver's private key decrypts it) and \emph{authentication/non-repudiation} (encrypt --- ``sign'' --- with \emph{one's own} private key; anyone can verify with the matching public key). Because it needs no pre-shared secret, PKC solves the key-distribution problem that symmetric cryptography has --- but its operations are computationally far heavier than a symmetric cipher like AES, which is why in practice it is used only to bootstrap a session (exchange a symmetric key, or authenticate), not to encrypt bulk data.
+\end{itemize}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Tema d'esame, 3 luglio 2026 --- 35 punti)} You ask an LLM to describe how \textbf{Asymmetric Encryption} works. It answers: \textit{``Asymmetric Key Encryption is a hashing method where three entities use a common private key to communicate securely. The sender uses the key to encrypt the ciphertext, and the receiver uses the same key to decrypt the message. Both the sender and the receiver use the same key to encrypt and decrypt messages, but only one of them keeps the private key secret. This maintains confidentiality. This mechanism is significantly faster than Symmetric Encryption.''} Describe the errors and provide a correct and more comprehensive version of the response.
+\end{tcolorbox}
+
+\textbf{Soluzione:} every sentence confuses asymmetric with symmetric cryptography, plus one further factual error:
+\begin{itemize}
+    \item \textbf{``a hashing method''} --- wrong category: hashing is a one-way, unkeyed compression (Section~\ref{subsec:hashing-salting-03}); encryption is a two-way, keyed transformation designed to be \emph{reversed} by the legitimate party.
+    \item \textbf{``three entities use a common private key''} --- there is no natural third party, and no ``common'' key at all: the defining feature of asymmetric cryptography is that \emph{each} party has its \emph{own} key \textbf{pair}, not one key shared by everybody. A single shared secret key is precisely the definition of \emph{symmetric} cryptography, not asymmetric.
+    \item \textbf{``the receiver uses the same key''\ /\ ``both... use the same key to encrypt and decrypt''} --- a second, more severe restatement of the same confusion. In real PKC, to send Bob a confidential message, Alice encrypts with \textbf{Bob's public key}, and Bob decrypts with \textbf{his own private key} --- two \emph{different} keys.
+    \item \textbf{``significantly faster than Symmetric Encryption''} --- backwards. Asymmetric algorithms rely on heavy operations over very large numbers (e.g., RSA's modular exponentiation with hundreds-of-digit numbers), far more expensive than the table lookups and XORs that make AES ``very fast'' (Section~\ref{subsec:aes-04}). This is exactly why PKC is used only to bootstrap a session, after which a fast symmetric cipher handles the bulk data.
+\end{itemize}
+A correct, comprehensive description: \textit{asymmetric (public) key encryption gives each party a mathematically related key pair --- a public key, freely shared, and a private key, kept secret. To send Bob a confidential message, Alice encrypts it with Bob's public key; only Bob, holding the matching private key, can decrypt it. The two keys are related so that the public key does not reveal the private one (a trapdoor one-way function, e.g., RSA's reliance on the difficulty of factoring). Because these operations are computationally expensive, asymmetric encryption is normally used only to establish trust or exchange a much shorter symmetric key, not to encrypt bulk data.}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Tema d'esame, 17 giugno 2025 --- 10 punti)} You ask an LLM to describe how \textbf{Public Key Encryption} works. It answers: \textit{``Public Key Encryption is a method where two people use a pair of keys to communicate securely. One key is the private key, and the other is the shared key. Both the sender and the receiver use the same key to encrypt and decrypt messages, but only one of them keeps the private key secret. For example, if Alice wants to send a secure message to Bob, she uses her private key to encrypt the message. Bob then uses his public key to decrypt it. This ensures that only Bob can read it, because the public key is tied to Alice's private key.''} Describe the errors and provide a more comprehensive version of the response. \textit{(Suggerimento dell'esame originale: fai attenzione al genere dei pronomi.)}
+\end{tcolorbox}
+
+\textbf{Soluzione:} two layers of error:
+\begin{itemize}
+    \item \textbf{Terminology and the ``same key'' claim:} the second key is the \textbf{public} key, not ``the shared key''; and, as in the previous exercise, ``both use the same key'' describes symmetric, not asymmetric, cryptography.
+    \item \textbf{The pronoun trap} --- the deeper error, and exactly what the hint points at. As written, Alice encrypts with \emph{her own} private key and Bob decrypts with \emph{his own} public key --- but Bob's public key cannot decrypt something encrypted with \emph{Alice's} private key, since they are not a matching pair. Even correcting that slip (Bob decrypting with \emph{Alice's} public key, which does match), the conclusion ``only Bob can read it'' is still false: Alice's public key is, by definition, public --- \emph{anyone} can obtain it and decrypt what Alice encrypted with her private key. This scheme achieves no confidentiality whatsoever; it is exactly the mechanism for \textbf{authentication and non-repudiation} (only Alice could have produced ciphertext that her own public key correctly opens), not for restricting \emph{who} can read the message.
+\end{itemize}
+A correct, comprehensive description: \textit{to send Bob a message that only Bob can read (confidentiality), Alice encrypts it using \textbf{Bob's public key}; only Bob, holding the matching \textbf{private} key, can decrypt it. If instead Alice wants to prove the message really came from her (authentication/non-repudiation), she encrypts --- ``signs'' --- it with \textbf{her own private key}; anyone who successfully decrypts it with \textbf{Alice's public key} thereby confirms it could only have been produced by Alice. These are two distinct guarantees, obtained by choosing whose key, and which half of the pair, is used at each step.}
+
+\subsection{RSA}
+\label{subsec:rsa-04}
+
+\subsubsection{Mathematical Background}
+A \textbf{prime number} is a natural number greater than 1 with no positive divisors other than 1 and itself. By the \textbf{fundamental theorem of arithmetic}, any integer greater than 1 is either prime itself or can be expressed as a product of primes, uniquely up to ordering. The slow method of verifying primality of $n$ is \textbf{trial division}: test whether $n$ is a multiple of any integer between 2 and $\sqrt{n}$ (if $n=a\cdot b$ is not prime, one of $a,b$ must be at most $\sqrt{n}$); an improvement is to only test prime candidates.
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Addition (easy)} & \textbf{Multiplication (easy)} & \textbf{Factoring (difficult)} \\
+\midrule
+$123+654=777$ & $123 \times 654 = 80{,}442$ & $221 = {?}\times{?}$ \\
+ & & ($221/13 = 17 \Rightarrow 221=13\times17$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Two further notions needed for RSA:
+\begin{itemize}
+    \item For a positive integer $n$, two integers $a,b$ are \textbf{congruent modulo $n$} if their difference $a-b$ is an integer multiple of $n$ (i.e., $a-b=kn$ for some integer $k$), written $a \equiv b \pmod{n}$. Example: $38 \equiv 14 \pmod{12}$, since $38-14=2\times12$.
+    \item Two integers $a,b$ are \textbf{relatively prime} (or \textbf{coprime}) if the only positive integer dividing both of them is 1.
+    \item \textbf{Modular exponentiation} can be simplified before or after exponentiating: $a^k \bmod n = (a \bmod n)^k \bmod n$. Example: $6^2 \bmod 4 = 36 \bmod 4 = 0$, and equally $(6\bmod 4)^2 \bmod 4 = 2^2 \bmod 4 = 0$.
+\end{itemize}
+
+\subsubsection{The RSA Algorithm}
+Let $p,q$ be two large primes and:
+\begin{itemize}
+    \item let $N = p\cdot q$ be the \textbf{modulus};
+    \item choose $e$ relatively prime to $(p-1)(q-1)$;
+    \item find $d$ such that $e\cdot d \equiv 1 \pmod{(p-1)(q-1)}$ (i.e., $d$ is the inverse of $e$ modulo $(p-1)(q-1)$);
+    \item set the \textbf{public key} to $(N,e)$ and the \textbf{private key} to $d$.
+\end{itemize}
+To \textbf{encrypt} plaintext $0<M<N$: $\;C = M^e \bmod N$. To \textbf{decrypt} ciphertext $C$: $\;M = C^d \bmod N$. Correctness follows since
+\[
+C^d \bmod N = (M^e \bmod N)^d \bmod N = M^{e\cdot d} \bmod N = M \bmod N = M,
+\]
+using $e\cdot d \equiv 1 \pmod{(p-1)(q-1)}$. Since $N$ and $e$ are public, \textbf{if an attacker can factor $N$} (recover $p,q$), they can compute $(p-1)(q-1)$ and hence $d$ from $e\cdot d \equiv 1 \pmod{(p-1)(q-1)}$ --- which is exactly why RSA's security rests on the (conjectured) difficulty of factoring.
+
+RSA (Rivest, Shamir, Adleman) is used in hundreds of software products for key exchange, digital signatures, or encryption of small blocks of data; it uses a variable-size encryption block and variable-size key. The key pair is derived from $N=p\cdot q$, where $p,q$ are typically 100+ digits each (so $N$ has roughly twice as many digits). \textcolor{red!70!black}{\textbf{An attacker cannot determine the prime factors of $N$ (and hence the private key) from $N$ alone --- this is exactly what makes RSA secure.}} The ability of computers to factor large numbers keeps improving (systems today can factor numbers with 200+ digits), yet if $N$ is built from two roughly-equal-size prime factors, no known factorization algorithm solves the problem in reasonable time: a 2005 test factoring a 200-digit number of this kind took 1.5 years and over 50 years of aggregate compute time.
+
+\subsubsection{Worked Example}
+Pick primes $p=11$, $q=3$:
+\begin{itemize}
+    \item $N = p\cdot q = 33$;
+    \item pick $e=3$ (relatively prime to both $p-1=10$ and $q-1=2$, so relatively prime to $(p-1)(q-1)=20$);
+    \item find $d$ such that $3d \equiv 1 \pmod{20}$, i.e., $3d - 1$ divisible by 20: testing $d=1,2,\dots$ gives $d=7$, since $3\times7-1=20$;
+    \item \textbf{public key} $(N,e)=(33,3)$; \textbf{private key} $d=7$.
+\end{itemize}
+Take plaintext $M=7$: the ciphertext is $C = M^e \bmod N = 7^3 \bmod 33 = 343 \bmod 33 = 13$. Decrypting: $M = C^d \bmod N = 13^7 \bmod 33 = 62{,}748{,}517 \bmod 33 = 7$ --- matching the original plaintext. \textcolor{gray}{\textit{Nota: si può evitare di calcolare $13^7$ per intero sfruttando l'identità $a\cdot b \bmod n = (a \bmod n)\cdot(b \bmod n) \bmod n$, elevando a potenza in modo incrementale con numeri intermedi piccoli.}}
+
+\subsubsection{History: Rivest, Shamir, Adleman}
+In 1976, \textbf{Len Adleman}, \textbf{Ron Rivest}, and \textbf{Adi Shamir}, then graduate students at MIT, read the Diffie--Hellman paper describing potential ways to send private messages without a shared secret key. Inspired, the three worked out an implementation, and in 1977 published a paper showing how a message could be encoded, sent, and decoded with little chance of a third party decoding it. The ``RSA'' method --- now known simply as Public Key Cryptography --- is used in almost all Internet-based commercial transactions; Rivest, Shamir, and Adleman received the \textbf{ACM A.M.\ Turing Award in 2002} for this work.
+
+\subsubsection{A Real Vulnerability: the Infineon RSA Key-Generation Flaw (2017)}
+A vulnerability was found in the generation of RSA keys by a software library adopted in cryptographic smartcards, security tokens, and other secure hardware chips manufactured by \textbf{Infineon Technologies AG}. It allows a \textbf{practical factorization attack}, in which the attacker computes the private part of an RSA key; the attack is feasible for commonly used key lengths (1024 and 2048 bits) and affects chips manufactured as early as 2012, by then already commonplace.
+
+The vulnerability is an \textbf{algorithmic} one, in the specific structure of the generated RSA primes; only the \textbf{public} key is needed, with no physical access to the device required. \textcolor{red!70!black}{\textbf{Crucially, the vulnerability does \emph{not} depend on a weak or faulty random number generator --- every RSA key generated by a vulnerable chip is affected}}, regardless of how good its randomness was. The attack was practically verified on real 1024- and 2048-bit keys; the worst-case factorization cost on an Amazon AWS c4 instance was \textbf{\$76} for a 1024-bit key and about \textbf{\$40{,}000} for a 2048-bit key. Impact: a remote attacker can compute an RSA private key purely from its public key, enabling impersonation, decryption of sensitive messages, and forgery of signatures (e.g., on software releases). At the time, about 760{,}000 vulnerable keys had been confirmed, with possibly two to three orders of magnitude more affected.
+
+\subsubsection{Integrity with RSA: Signing and Verifying}
+Because RSA is relatively heavy computationally, signatures are computed over a \textbf{hash} of the message rather than the message itself (efficiency, not security, is the main reason):
+\begin{itemize}
+    \item \textbf{Signing (sender):} message $\to$ hash function $\to$ digest $\to$ signature algorithm, using the sender's \textbf{private key} as the signature key $\to$ signature, sent together with the message.
+    \item \textbf{Verifying (receiver):} recompute the hash of the received message independently; decrypt the received signature using the sender's \textbf{public key} as the verification key, obtaining the \emph{expected} digest; compare it against the \emph{actual}, freshly computed digest --- if they match, the signature is valid.
+\end{itemize}
+\textcolor{blue!50!black}{\textbf{It is important to observe that integrity is guaranteed only under the assumption that a single designated entity is in control of the signing key --- the sender's private key, in the case of RSA.}}
+
+\subsection{Diffie--Hellman Key Exchange}
+\label{subsec:dh-04}
+
+\subsubsection{Mathematical Background}
+Let $\mathbb{F}=GF(p)$ be a \textbf{finite field} (integers modulo a prime $p$; GF stands for \textit{Galois Field}). Exponentiation $x \to g^x \bmod p$ is the one-way function underlying Diffie--Hellman: computationally \textbf{easy} to compute. Its inverse is the \textbf{Discrete Logarithm Problem (DLP)}: given $p,g,X$, find $x$ such that $X = g^x \bmod p$ --- a computationally \textbf{difficult} problem for carefully chosen $p,g,X$, where $p$ is prime and $g$ is a \textbf{generator} (i.e., for every $0<X<p$ there exists $x$ such that $X=g^x \bmod p$). A key property making the whole protocol work is that \textbf{exponentiation and modulus commute}.
+
+\subsubsection{The Protocol}
+Diffie--Hellman allows two parties, Alice and Bob, to generate a shared secret key by exchanging information over an \emph{insecure} channel, in such a way that an eavesdropper Eve --- who sees everything exchanged --- cannot determine the resulting key.
+
+\begin{center}
+\begin{tabular}{@{}p{6.7cm}p{6.7cm}@{}}
+\toprule
+\textbf{Alice} & \textbf{Bob} \\
+\midrule
+1. Choose a large random number $a$ (private key). & 1. Choose a large random number $b$ (private key). \\
+2. Compute $A = g^a \bmod p$ (public key). & 2. Compute $B = g^b \bmod p$ (public key). \\
+3. Send $A$ to Bob, receive $B$ from Bob. & 3. Send $B$ to Alice, receive $A$ from Alice. \\
+4. Compute $K_A = B^a \bmod p$. & 4. Compute $K_B = A^b \bmod p$. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Here $a,b$ are kept secret while $g,p,A,B$ are openly shared. Both parties end up with the \emph{same} shared secret:
+\[
+K_A = B^a \bmod p = (g^b \bmod p)^a \bmod p = g^{ab} \bmod p = (g^a \bmod p)^b \bmod p = A^b \bmod p = K_B,
+\]
+exploiting exactly the commutativity of exponentiation and modulus mentioned above.
+
+\subsubsection{Security Considerations and the Man-in-the-Middle Attack}
+The security of DH depends on the difficulty of the DLP: an attacker able to solve the DLP could recover $a$ and $b$ from the public values $A,B$. \textcolor{blue!50!black}{\textbf{However, the security of the DH protocol is not known to be equivalent to the DLP}} --- it could, in principle, be weaker, even though no such attack is currently known. DH is fundamentally a \textbf{key-agreement} protocol; its \textbf{secrecy} property holds assuming the underlying problem is hard: an attacker merely observing the exchanged messages does not learn the key.
+
+\textcolor{red!70!black}{\textbf{Crucially, DH does not provide authentication}}: neither party has any guarantee of \emph{whom} they are actually establishing a key with. This opens the door to a \textbf{Man-In-the-Middle (MITM) attack}: an attacker $C$ sitting on the channel between $A$ and $B$ can run \emph{two independent} DH exchanges instead of relaying one:
+\begin{itemize}
+    \item $A$ sends $g^x \bmod p$, believing it is going to $B$; $C$ intercepts it and replies with its own value $g^v \bmod p$, impersonating $B$. $A$ and $C$ now share a secret $g^{xv} \bmod p$, which $A$ mistakenly believes is shared with $B$.
+    \item Symmetrically, $C$ sends $B$ a value $g^u \bmod p$, impersonating $A$; $B$ replies with $g^y \bmod p$. $C$ and $B$ now share a \emph{different} secret $g^{yu} \bmod p$, which $B$ mistakenly believes is shared with $A$.
+\end{itemize}
+$C$ now holds \emph{two} separate keys --- one with $A$, one with $B$ --- and can transparently decrypt, read, modify, and re-encrypt every message flowing between them, while both $A$ and $B$ believe they are talking directly and securely to each other.
+
+\subsubsection{History: Diffie and Hellman}
+In the fall of 1974, Whitfield Diffie and Martin Hellman met for what was intended to be a short meeting; the rich discussion that followed, lasting long into the night, forged an intellectual partnership yielding groundbreaking insights on which the modern field of cryptography still rests. In 1976, they published the revolutionary paper \emph{New Directions in Cryptography} in \emph{Communications of the ACM}, laying the framework for public-key cryptography and digital signatures --- today the most widely used security protocols on the Internet, protecting trillions of dollars of web-based financial transactions every day. Diffie and Hellman received the \textbf{ACM A.M.\ Turing Award in 2015} for inventing public-key cryptography.
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Dal file di domande di ripasso)} In the context of the Diffie-Hellman key exchange, describe (a) the protocol, (b) the Man-In-the-Middle (MITM) attack, and (c) how it is possible to mitigate the MITM attack.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(a)] See Section~\ref{subsec:dh-04}: Alice and Bob agree publicly on a prime $p$ and a generator $g$; each picks a private random exponent ($a$ for Alice, $b$ for Bob), publishes $A=g^a\bmod p$ and $B=g^b\bmod p$ respectively, and each computes the same shared secret $K = A^b \bmod p = B^a \bmod p = g^{ab}\bmod p$ using their own private exponent and the other party's public value.
+    \item[(b)] An attacker $C$ positioned on the channel does \emph{not} let $A$'s and $B$'s messages pass through untouched: instead, $C$ runs one DH exchange with $A$ (impersonating $B$) and a separate one with $B$ (impersonating $A$), ending up with two different shared secrets --- one with each victim. $A$ and $B$ believe they share a single secret directly with each other, while in reality $C$ can decrypt, read, and re-encrypt everything passing between them.
+    \item[(c)] The attack is possible only because \textbf{plain DH provides no authentication} of the exchanged public values. The mitigation is to \emph{authenticate} those values: each party can digitally sign its own DH public value using a private key whose matching public key the other party already knows and trusts (Section~\ref{subsec:pkc-basic-04}), so an attacker cannot substitute a forged value without the forgery being detected. In practice, this trust is delivered via \textbf{digital certificates} issued by a trusted third party --- the subject of Public Key Infrastructure, the next lesson.
+\end{itemize}
+
+\subsection{Takeaways}
+
+\begin{itemize}
+    \item \textbf{Avoid designing your own crypto algorithms}: amateur designs are usually broken quite easily.
+    \item \textbf{DES should no longer be used} (an extension, \textbf{Triple DES}, using 3 keys and invoking DES three times, is still used in the financial sector).
+    \item Recommended key length for a block cipher: \textbf{at least 80/90 bits} --- in practice, use AES.
+    \item \textbf{No provable security exists for DES or AES}: both are only resistant to \emph{known} attacks, i.e., attacks aiming to reduce the search space of a brute-force attack below what exhaustive key search would require.
+    \item \textbf{Don't forget key management}: how to share the key? (key-distribution techniques, above); how to keep it secret? (access-control techniques). With $n$ participants who all need pairwise symmetric keys, $n^2$ keys are needed in total --- a scaling problem asymmetric cryptography helps avoid.
+\end{itemize}
+
+\textcolor{ForestGreen!60!black}{\textbf{Common misconception --- PKC $\neq$ RSA:}} some specific properties of RSA do \emph{not} hold for public-key cryptography in general. What \emph{is} general is the pattern of \textbf{provable security by reduction}: a scheme's security is proven \emph{relative to} an open mathematical problem (factoring, for RSA; the DLP, for Diffie--Hellman) being hard --- never proven outright. \textbf{Concrete} security therefore always depends on the current state of the art in solving those open problems, which is why recommended key sizes keep growing over time.
+
+\textcolor{blue!50!black}{\textbf{A final word of caution:}} the anthropomorphic metaphors used throughout this lesson --- and throughout cryptography teaching generally --- can mislead: stories about ``Alice and Bob'' create the illusion that one is talking about \emph{persons}, when really every step is about \emph{keys} and the mathematical operations performed on them.
+
+\subsection{Relative Security by Key Size}
+
+The following table (source: \url{https://www.keylength.com/}) compares, across several standardisation bodies and academic estimates, the \textbf{minimal} key/parameter sizes (in bits) considered secure for a given period, for each major family of algorithm:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+\textbf{Method} & \textbf{Date} & \textbf{Symmetric} & \textbf{Factoring Modulus} & \textbf{Discrete Log Key} & \textbf{Discrete Log Group} & \textbf{Elliptic Curve} & \textbf{Hash} \\
+\midrule
+Lenstra / Verheul & 2021 & 86 & 1937 (1536) & 153 & 1937 & 163 & 172 \\
+Lenstra Updated & 2021 & 82 & 1416 (1614) & 164 & 1416 & 164 & 164 \\
+ECRYPT & 2018--2028 & 128 & 3072 & 256 & 3072 & 256 & 256 \\
+NIST & 2019--2030 & 112 & 2048 & 224 & 2048 & 224 & 224 \\
+ANSSI & 2021--2030 & 128 & 2048 & 200 & 2048 & 256 & 256 \\
+NSA & --- & 256 & 3072 & --- & --- & 384 & 384 \\
+RFC3766 & --- & --- & --- & --- & --- & --- & --- \\
+BSI & 2020--2022 & 128 & 2000 & 250 & 2000 & 250 & 256 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Notice how, across every body, the \textbf{Discrete Log Group} column tracks the \textbf{Factoring Modulus} column almost exactly --- a concrete illustration that RSA and (finite-field) Diffie--Hellman need comparably-sized parameters to reach the same practical security level as a much shorter symmetric key.
+
+\subsection{Summary}
+\begin{itemize}
+    \item Cryptography moved from letter-based \textbf{classical} ciphers (substitution, transposition) to bit-based \textbf{modern} ciphers once computers made the classical schemes trivial to break.
+    \item \textbf{Symmetric} cryptography (DES $\to$ AES) uses one shared key for both directions: fast, but it inherits the full \textbf{key-distribution} problem --- every pair of communicating parties needs a securely pre-shared key.
+    \item \textbf{Asymmetric} cryptography (RSA, Diffie--Hellman) solves exactly that problem with a mathematically related key \emph{pair} per party, built on \textbf{trapdoor one-way functions} (factoring for RSA, the discrete logarithm for DH) --- at the cost of being computationally far heavier, which is why in practice it only bootstraps a symmetric session key or provides authentication/signatures, never bulk encryption.
+    \item None of this security is mathematically \emph{proven}: it rests on decades of failed attempts to efficiently solve specific hard problems, so ``computationally secure'' is always relative to the current state of the art --- hence key sizes must keep growing (Section above).
+    \item \textbf{Kerckhoffs' principle} and disciplined \textbf{key management} remain the two universal, algorithm-independent pillars of any cryptosystem.
+    \item Diffie--Hellman provides secrecy but \emph{no authentication} on its own, leaving it open to a \textbf{MITM attack} --- exactly the gap that \textbf{Public Key Infrastructure}, the subject of the next lesson, is built to close.
+\end{itemize}
+
+
+\section{Cryptography II: Public Key Infrastructure and TLS}
+
+\subsection{Public Key Cryptography, Revisited}
+
+\subsubsection{Pros and Cons of PKC}
+Public key cryptography (Section~\ref{subsec:pkc-basic-04}) has clear advantages:
+\begin{itemize}
+    \item the \textbf{private key is known only by the owner} (less risk than a shared secret);
+    \item \textbf{integrity and confidentiality} can be obtained by encrypting with the \textbf{receiver's} public key;
+    \item \textbf{non-repudiation} can be obtained by encrypting with the \textbf{sender's} private key.
+\end{itemize}
+But it also has real costs:
+\begin{itemize}
+    \item \textcolor{red!70!black}{\textbf{Algorithms are 2--3 orders of magnitude slower than those for symmetric encryption}} --- exactly the point flagged, without the precise figure, back in the ``LLM error'' exercise on asymmetric encryption in the previous lesson. This is why PKC is typically used only in the \emph{initial} phase of a communication, after which a symmetric secret key is generated to handle the actual bulk encryption.
+    \item How are public keys made available to other people in the first place?
+    \item \textcolor{red!70!black}{\textbf{There is still a problem of \emph{authentication}!}} Who ensures that the owner of a key pair really is the person whose real-life name is ``Alice''? Nothing in the mathematics of PKC ties a key to an identity --- that binding has to be established \emph{some other way}. This single question motivates everything else in this lesson.
+\end{itemize}
+
+\subsubsection{Mitigating the Cons: Digital Signatures}
+\label{subsec:digital-signatures-05}
+A \textbf{digital signature} is a data item that vouches for the origin and the integrity of a message (already introduced in Section~\ref{subsec:pkc-basic-04}). In practice, for efficiency, the signature is computed over a \textbf{hash} of the message rather than the message itself:
+\begin{itemize}
+    \item \textbf{Signer:} message $\to$ hash function (using a digest algorithm) $\to$ digest $\to$ encryption with the signer's \textbf{private key} $\to$ \textbf{signature}, sent alongside the message over the channel.
+    \item \textbf{Receiver:} independently recomputes the hash of the received message (with the same digest algorithm) to get the \emph{actual} digest; decrypts the received signature using the signer's \textbf{public key} to get the \emph{expected} digest; compares the two --- if they match, the message is authentic and unaltered.
+\end{itemize}
+
+\subsubsection{Hash Functions: Recap and Their Limits}
+Recall the requirements on a cryptographic hash function $h$ from Section~\ref{subsec:hashing-salting-03}: \textbf{ease of computation}, \textbf{compression} (arbitrary-length input, fixed-length output), \textbf{one-way}, \textbf{weak collision resistance}, and \textbf{strong collision resistance}. A \textbf{collision} is exactly the situation in which two distinct inputs $x \neq x'$ map to the same hash, $h(x)=h(x')$.
+
+\textbf{Worked example --- program integrity:} the goal is to protect a program $x$ (e.g., device firmware) against tampering. The idea: compute $h(x)$ in a protected environment and store it somewhere it cannot be modified; to check later whether the program has been altered, recompute the hash and compare it against the stored value. \textbf{Over-the-air (OTA) firmware updates in connected vehicles} are a real example where this is safety-critical, not just a confidentiality matter --- recall the \textbf{2015 Jeep hack} (Section~\ref{subsec:cia-01}): rewriting the infotainment unit's firmware was precisely the first step attackers used to send forged commands over the car's internal CAN bus to physical components like the engine and wheels. \textcolor{blue!50!black}{\textbf{Note carefully which property is doing the work here}}: protecting a program requires more than $h$ being merely \emph{one-way}. The concern is an attacker who \emph{deliberately} finds some $x'$ with $h(x')=h(x)$ and substitutes it for the genuine program --- i.e., a \textbf{collision} --- not an attacker trying to reconstruct $x$ from $h(x)$ alone. This is exactly why \textbf{collision resistance}, not just the one-way property, matters for integrity-checking use cases.
+
+\textbf{Problems with digital signatures:} recall that the usage of some hash functions is deprecated because they are considered weak (Section~\ref{subsec:hashing-salting-03}). But even granting that hash functions are not themselves a source of security issues, there is still a problem linked to the \textbf{``real identity''} of the signer: why should anyone trust who the sender \emph{claims} to be? In other words --- who guarantees that whoever is using a given key is actually entitled to use it? Answering this question is the whole point of a \textbf{Public Key Infrastructure}.
+
+\subsection{Public Key Infrastructure (PKI)}
+\label{subsec:pki-05}
+
+\subsubsection{The Identity-Binding Problem}
+The main requirement on a public key is to be \textbf{authentically bound} to the identity of the party controlling the corresponding private key. Failing this leads directly to \textbf{impersonation attacks}: e.g., party $A$ might receive a digital signature on message $M$, supposedly generated by party $B$ using $B$'s private key, but actually generated by party $C$; $A$ would then verify the signature using $C$'s public verification key while believing it is $B$'s key. A second requirement: parties relying on the correctness of a public-key/identity binding need to be assured that the binding is \textbf{still valid} --- not just that it was correct once. Satisfying both requirements is typically done by setting up a \textbf{Public Key Infrastructure (PKI)}.
+
+\subsubsection{From Bulletin Boards to Digital Certificates}
+An initial, naive proposal was to treat certificates as \textbf{bulletin boards}: public keys and identities simply listed somewhere --- but this requires trusting the bulletin-board provider outright. A non-scalable, inflexible approach adopted in mobile and IoT applications is to \textbf{hardcode} the public key directly into the software of a party; the main security issue then becomes protecting that stored public key from tampering during software updates, or from substitution in the software provider's own code repository.
+
+The widely adopted solution for Internet applications and services is the use of \textbf{digital certificates}: digital objects containing data --- including an identity and a public key --- that are \textbf{signed by a Trusted Third Party (TTP)} attesting to the correctness of the binding between the two. \textcolor{blue!50!black}{\textbf{Notice what this actually does}}: it \emph{moves} the problem of checking the identity/public-key binding to the problem of \emph{distributing and keeping up to date} the TTP's own public key, needed to check the authenticity of the certificate. This new problem can be deferred several times (but only \textbf{finitely many} times, to avoid infinite regression) by building a \textbf{certificate chain} whose trustworthiness ultimately leads back to a \textbf{root certificate} that must be \textbf{self-signed}.
+
+\subsubsection{Digital Certificates}
+\label{subsec:certificate-05}
+A \textbf{digital certificate} is the binding between an entity's public key and one or more attributes concerning its identity. The entity can be a person, a hardware component, a service, etc. A digital certificate is issued (and signed) by someone --- usually a TTP, also called a \textbf{Certificate Authority (CA)}. Indeed, TTPs \emph{should} be trusted: trusting a certificate ultimately means trusting the digital certificates its issuing CA produces.
+
+Informally, a certificate carries: the \textbf{Issuer} (the CA), the \textbf{Subject} (the entity the certificate is about), the \textbf{Subject's Public Key}, and the \textbf{Issuer's Digital Signature} over all of the above --- plus bookkeeping fields such as a serial number and a validity period. The \textbf{X.509} standard formalizes this structure precisely:
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{4cm}p{9.5cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Meaning} \\
+\midrule
+Version & Version of X.509 to which the certificate conforms. \\
+Serial Number & A number that uniquely identifies the certificate. \\
+Signature Algorithm ID & The specific public-key algorithm the CA used to sign the certificate (e.g., RSA with SHA-1). \\
+Issuer (CA) X.500 Name & The identity of the CA server that issued the certificate. \\
+Validity Period & The time window (start date + expiration) during which the certificate is valid. \\
+Subject X.500 Name & The owner's identity, in X.500 directory format (e.g., \texttt{cn=auser, ou=SP, o=Alphawest}). \\
+Subject Public Key Info & The public key of the certificate's owner, plus the specific public-key algorithm associated with it. \\
+Issuer Unique ID & Information used to identify the issuer of the certificate. \\
+Subject Unique ID & Information used to identify the owner of the certificate. \\
+Extensions & Additional information, e.g., an alternate name or a CRL Distribution Point (CDP). \\
+CA Digital Signature & The CA's actual digital signature over the whole certificate. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{PKI Roles: CA, RA, VA, and Revocation}
+A \textbf{PKI} is an arrangement that binds public keys with the respective identities of entities (people, organizations, \dots); an entity must be uniquely identifiable within each CA's domain on the basis of information about that entity. This binding is established through a process of \textbf{registration and issuance} of certificates at and by a CA --- automated or manual, depending on the required level of assurance.
+\begin{itemize}
+    \item The \textbf{root CA} is the pinnacle of trust and the most significant element in the CA hierarchy: it authorizes \textbf{subordinate CAs}, which are the ones actually responsible for issuing day-to-day certificates.
+    \item The \textbf{Registration Authority (RA)} is the PKI role responsible for accepting requests for digital certificates and \textbf{authenticating} the entity making the request --- certificates are not issued until the RA has validated the information. A third-party \textbf{Validation Authority (VA)} can provide entity information on behalf of the CA.
+    \item The \textbf{Cryptographic Practices Statement (CPS)} is a declaration of the security practices an organization implements for every certificate issued under it, telling relying parties how well the security of that PKI is actually managed.
+    \item A \textbf{certificate distribution system} --- a repository for certificates (e.g., LDAP) together with a \textbf{Certificate Revocation List (CRL)}, a published list of certificates that have been revoked (no longer valid) --- lets relying parties find and check certificates.
+\end{itemize}
+
+\subsubsection{Obtaining a Certificate: the Certificate Signing Request (CSR)}
+Concretely, obtaining a certificate proceeds in seven steps:
+\begin{enumerate}
+    \item User-A generates a public/private key pair (or is assigned one by an authority in their organization).
+    \item User-A requests the certificate of the CA server.
+    \item The CA responds with its own certificate, including its public key and its digital signature (signed with the CA's private key).
+    \item User-A gathers all the information the CA requires to obtain a certificate (e.g., email address, fingerprints, \dots) --- whatever the CA needs to be reasonably certain User-A is who she claims to be.
+    \item \textbf{User-A sends a certificate request to the CA}, consisting of her public key plus additional identifying information; the request is \textbf{signed with User-A's private key} --- this is the \textbf{Certificate Signing Request (CSR)}.
+    \item The CA receives the request, \textbf{verifies User-A's identity}, and generates a certificate binding her identity to her public key.
+    \item The CA issues the certificate to User-A.
+\end{enumerate}
+The CSR of step 5 therefore contains: information identifying the requester (signed with the requester's own private key, which the requester has already generated); the public key chosen by the requester; additional proofs of identity as required by the CA; and a digital signature over the whole request, produced with the requester's private key. \textcolor{red!70!black}{\textbf{This self-signature is what prevents an attacker from requesting a bogus certificate for somebody else's public key}}: only whoever actually holds the matching private key can produce a valid signature over the request. Note carefully: the requester's private key is \emph{needed to produce} the CSR (to sign it), but it never itself becomes \emph{part of} the CSR.
+
+\subsubsection{Requirements for a Trustworthy PKI}
+A number of further requirements make a PKI actually trustworthy in practice:
+\begin{itemize}
+    \item A \textbf{standardized naming mechanism} for parties; parties must be able to prove ownership of a given identity to the TTP, and the TTP must actually check this.
+    \item \textbf{TTPs must be trustworthy}, issuing certificates only to the ``right'' parties --- a requirement subject to law and regulation. In the past, TTPs have been involved in incidents that resulted in certificates being issued to the \emph{wrong} parties; as a response, Google and other companies launched an initiative for \textbf{Certificate Transparency}, building a platform where several independent logs keep track of every certificate issued, enabling monitoring and audit.
+    \item Relying parties must be able to check the \textbf{time-validity window} of a certificate against a trusted time source, to prevent an attacker from using an \emph{expired} certificate whose private key they have since compromised.
+    \item Relying parties need \textbf{reliable and timely} information on whether a certificate is still valid or has been revoked. This is done either by distributing \textbf{CRLs} (checked \emph{locally}, but with a synchronisation delay: there can be a time window in which a just-revoked certificate is not yet reflected) or via the \textbf{Online Certificate Status Protocol (OCSP)} (always up to date, but requires high-bandwidth availability, since checks are not performed locally).
+    \item The \textbf{software} validating certificates has to work \emph{correctly} --- far from a given, given the complexity of the X.509 standard (the corresponding RFC, RFC 5280, is over 150 pages of complex data structures and encoding rules). Bugs happen: the infamous ``\textbf{goto fail}'' bug in Apple's implementation was a coding error (a duplicated line) that made it possible to bypass \emph{all} correctness checks on certificates.
+    \item \textbf{Cryptographic primitives must be kept up to date} with known vulnerabilities. \textcolor{red!70!black}{\textbf{Vulnerabilities in SHA-1 were already known in 2005}, and cryptographers began deprecating its use then; public collisions were demonstrated in 2017 and confirmed in 2019. Despite that decade-plus warning, web browsers only stopped accepting SHA-1 in 2017 --- and certificates using SHA-1 are, remarkably, \emph{still} in use today in some payment systems.}
+\end{itemize}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Dal file di domande di ripasso --- parti (a)--(c) di una domanda più ampia sul contesto di TLS e PKI; le parti (d)-(e), sull'handshake TLS 1.2 e su come TLS garantisce autenticazione/confidenzialità/integrità, saranno completate quando tratteremo l'handshake nella prossima parte)} In the context of TLS and the PKI, describe: (a) what a digital certificate is and what are its main components; (b) what a root CA is; (c) how a system can validate a certificate.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(a)] A \textbf{digital certificate} (Section~\ref{subsec:certificate-05}) binds an entity's identity to its public key, signed by a Trusted Third Party (the CA) that attests the binding is correct. Its main components (X.509): \textbf{Issuer} (the signing CA), \textbf{Subject} (the entity the certificate is about), the \textbf{Subject's public key}, the \textbf{validity period}, and the \textbf{Issuer's digital signature} over the whole certificate --- plus a serial number and optional extensions.
+    \item[(b)] The \textbf{root CA} is the top of the trust chain: the entity whose certificate is \emph{self-signed} and, ultimately, hardcoded as trusted (e.g., in a browser's or operating system's trust store). It authorizes \textbf{subordinate CAs}, which in turn are the ones that actually sign end-user/end-device certificates --- this chain of trust exists precisely to avoid an infinite regression of ``who signs the signer's certificate?''.
+    \item[(c)] A relying party validates a certificate by checking: the CA's \textbf{digital signature} on it (verified with the issuing CA's public key); the \textbf{certificate chain} up to a trusted root, if intermediate CAs are involved; the \textbf{validity period} (not expired, not used before its activation date) against a trusted time source; and the \textbf{revocation status} (not present in the relevant CRL, or confirmed valid via OCSP).
+\end{itemize}
+
+
+\subsection{SSL and TLS: Introduction}
+
+\textbf{SSL} (Secure Sockets Layer) was developed by Netscape in the mid-1990s, originally shipped in Netscape Navigator 1.1, as a way to secure communications between a client and a server on the web. SSLv2 is now deprecated; SSLv3 is still, per the course material, widely supported.
+
+\textbf{TLS} (Transport Layer Security) is the IETF-standardised evolution of SSL --- the de facto standard for Internet security today, using the \emph{same} protocol design as SSL but with different (and evolving) algorithms. As the RFC itself puts it: \textit{``the primary goal of the TLS protocol is to provide privacy and data integrity between two communicating applications.''} In practice, TLS protects information transmitted between browsers and web servers. The version history:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Version} & \textbf{Relationship} & \textbf{RFC (year)} \\
+\midrule
+TLS 1.0 & SSLv3 with minor tweaks & RFC 2246 (1999) \\
+TLS 1.1 & TLS 1.0 + tweaks & RFC 4346 (2006) \\
+TLS 1.2 & TLS 1.1 + more tweaks & RFC 5246 (2008) \\
+TLS 1.3 & major changes, removed insecure features & RFC 8446 (2018) \\
+\bottomrule
+\end{tabular}
+\end{center}
+TLS is, today, deployed in essentially every web browser.
+
+\subsubsection{HTTPS: SSL/TLS in the Browser}
+The familiar \textbf{lock icon} in a browser's address bar is the SSL/TLS indicator. Its intended goal is to (i) provide the user with the identity of the page's origin, and (ii) indicate that the page's contents were not viewed or modified by a network attacker.
+
+\textbf{HTTP} = HyperText Transfer Protocol; \textbf{HTTPS} = HTTP \emph{over} TLS/SSL (``HTTP Secure''). The main motivations for HTTPS are exactly (i) authentication of the visited website, and (ii) protection of the privacy and integrity of the exchanged data. Concretely, HTTPS provides:
+\begin{itemize}
+    \item \textbf{authentication} of the website and the web server one is actually communicating with --- protection against \textbf{man-in-the-middle attacks};
+    \item \textbf{bidirectional encryption} of communications between client and server --- protection against \textbf{eavesdropping} and \textbf{tampering} (forging) with the contents of the communication.
+\end{itemize}
+\textcolor{blue!50!black}{\textbf{Precisely, this is a \emph{reasonable guarantee} that}}: one is communicating with exactly the website one intended to communicate with (as opposed to an impostor), \emph{and} the contents of the communication between user and site cannot be read or forged by any third party. \emph{(``Reasonable guarantee,'' not an absolute one --- Part 3 of this lesson catalogues real historical failures of that guarantee.)}
+
+\subsection{TLS in Client-Server Architectures}
+
+\subsubsection{Client-Server Architecture and TCP}
+A \textbf{client-server architecture} is one in which many \textbf{clients} request and receive service from a centralized \textbf{server}. Clients provide an interface letting a user request services and display the results the server returns; servers wait for requests and respond to them, typically exposing a standardized, transparent interface so clients need not know the specifics of how the service is actually provided.
+
+The \textbf{Transmission Control Protocol (TCP)} establishes a two-way connection between a server and a single client; it provides \textbf{reliable} byte-stream transmission of data, with error checking, correction, and message acknowledgement. \textcolor{red!70!black}{\textbf{``Reliable'' here means reliable in the sense of \emph{safety}, not \emph{security}}}: TCP is built to handle \emph{accidental} transmission errors, not those deliberately induced by an attacker following a strategy. TCP, by itself, guarantees nothing against a malicious adversary --- that is exactly the gap TLS is layered on top of TCP to close.
+
+\subsubsection{The Transport Layer, in General}
+A client or server application interacts directly with a transport-layer protocol to establish communication and to send or receive information; the transport protocol in turn uses lower-layer protocols (down to the network layer, e.g., TCP/IP, and further down still) to actually move individual messages between machines. A computer needs a complete stack of protocols to run either a client or a server; the transport layer's job is to provide a \emph{transparent} transfer of data between end systems (``end points''), using the services of the layers below it.
+
+\subsection{How TLS Works: the Handshake and Record Protocols}
+\label{subsec:tls-protocols-05}
+
+TLS is built from two main protocols, layered directly on top of TCP/IP and directly below the application layer (HTTP, FTP, Telnet, \dots):
+\begin{itemize}
+    \item the \textbf{Handshake} protocol (together with two small companion protocols, Change Cipher Spec and Alert) --- uses \textbf{public-key} cryptography, and is used by client and server to (1) negotiate the cipher suite, (2) authenticate each other, and (3) establish the keys later used by the Record protocol;
+    \item the \textbf{Record} protocol --- uses \textbf{symmetric} cryptography, with the keys established by the Handshake protocol, and provides confidentiality \emph{and} integrity/authenticity of the application-layer data actually being exchanged.
+\end{itemize}
+
+\subsubsection{The Handshake Protocol, in a Nutshell}
+Two parties, client and server:
+\begin{itemize}
+    \item negotiate the \textbf{version} of the protocol and the set of cryptographic algorithms to be used --- for interoperability between different implementations of the protocol;
+    \item \textbf{authenticate} client and server (\emph{optional} --- typically only the server is authenticated), using digital certificates to learn each other's public keys and verify each other's identity;
+    \item use those public keys to establish a \textbf{shared secret}.
+\end{itemize}
+
+\subsubsection{The Record Protocol, in a Nutshell}
+Provides \textbf{confidentiality} and \textbf{(message) integrity}. On the \textbf{send} side: the data is fragmented into blocks; authentication and encryption primitives are applied to each block; the block is handed to TCP for transmission over the network. On the \textbf{receive} side: blocks are decrypted, verified for message integrity, reassembled, and delivered to the higher-level (application) protocol.
+
+\subsubsection{Two Companion Protocols}
+\begin{itemize}
+    \item \textbf{Change Cipher Spec}: used to switch the encryption being used by client and server --- normally used as part of the handshake, to switch over to symmetric-key encryption once it has been agreed.
+    \item \textbf{Alert}: its primary use is to report the cause of a failure --- e.g., an invalid message received, a message that cannot be decrypted, or a connection being closed.
+\end{itemize}
+
+\subsection{The TLS 1.2 Handshake, Step by Step}
+\label{subsec:tls-handshake-05}
+\textit{(Reference: RFC 5246, \url{https://tools.ietf.org/html/rfc5246})}
+
+\subsubsection*{Step 1 --- Client Hello}
+The client can start the handshake at any time by sending a \textbf{Client Hello} message to the server, containing:
+\begin{itemize}
+    \item the \textbf{version} of the protocol the client wants to use --- it should be the highest one available;
+    \item a \textbf{random value}, obtained by chaining a timestamp (32-bit, UNIX time) with a randomly generated nonce (28 bytes);
+    \item \texttt{session\_id}: an empty field indicating the intent to create a \emph{new} session (in case of session \emph{resumption}, the client behaves differently);
+    \item the list of \textbf{supported cipher suites}, each of the form \texttt{TLS\_<KeyExchange>\_WITH\_<Cipher>\_<Mac>};
+    \item the list of supported compression methods;
+    \item a list of requested extensions (additional services required from the server).
+\end{itemize}
+Being the initiator, the client effectively decides whether the server must be authenticated, and whether messages might go unencrypted at all: to request this severe a lack of security, the client would have to explicitly propose a cipher suite such as \texttt{TLS\_DH\_anon\_WITH\_\dots} (anonymous Diffie--Hellman: key exchange with \emph{no} authentication) or the extreme \texttt{TLS\_NULL\_WITH\_NULL\_NULL} (no encryption, no MAC at all).
+
+\textbf{Cipher suites.} A \textbf{cipher suite} is a structure describing the algorithms a machine supports, so that two machines can decide which algorithms to use to secure their connection. It is a set of algorithms that usually includes a \textbf{key exchange} algorithm, a \textbf{bulk encryption} algorithm, and a \textbf{MAC} algorithm --- and can include signature/authentication algorithms to help authenticate server or client. Hundreds of cipher suites exist, combining these components differently; some offer meaningfully better security than others (a full registry is maintained by IANA).
+
+\textbf{Naming convention example --- \texttt{TLS\_ECDHE\_RSA\_WITH\_AES\_128\_GCM\_SHA256}:}
+\begin{itemize}
+    \item \texttt{TLS} --- the protocol this cipher suite is for;
+    \item \texttt{ECDHE\_RSA} --- the \textbf{key exchange} algorithm: \textbf{E}lliptic \textbf{C}urve \textbf{D}iffie--\textbf{H}ellman, \textbf{E}phemeral (ephemeral guarantees no session key is ever used twice) for key negotiation, with \textbf{RSA} for certificate/signature validation --- together, these determine \emph{if} and \emph{how} client and server authenticate during the handshake;
+    \item \texttt{AES\_128\_GCM} --- the \textbf{block cipher} used to encrypt the message stream, together with its mode of operation;
+    \item \texttt{SHA256} --- the \textbf{message authentication algorithm} used to authenticate a message.
+\end{itemize}
+\textcolor{blue!50!black}{\textbf{A message authentication code (MAC)}} is a short piece of information used to authenticate a message, i.e., to confirm both that the message came from the stated sender (\textbf{authenticity}) and that it has not been tampered with in transit (\textbf{integrity}). A common example is \textbf{HMAC} (Hash-based MAC): the sender hashes the content of a message combined with a key (negotiated during the handshake) into a short MAC sent alongside the message; the receiver repeats the exact same process and checks the result matches, confirming the message was not altered in transit.
+
+\subsubsection*{Step 2 --- Server Hello}
+The server responds with a \textbf{Server Hello} message, containing: the \textbf{chosen protocol} version (supported by both parties), the \textbf{chosen cipher suite} (supported by both parties), and a \textbf{session ID}: a freshly generated value identifying the new session. \textcolor{gray}{\textit{Una \textbf{sessione} è una serie di interazioni tra due end point di comunicazione che avvengono nell'arco di una singola connessione: inizia quando la connessione viene stabilita da entrambe le parti e termina quando la connessione viene chiusa.}}
+
+\subsubsection*{Step 3 --- Server Continues}
+Still from the server:
+\begin{itemize}
+    \item \textbf{Certificate}* --- \emph{if} the client requested an authenticated connection, the server must send an X.509 certificate (Section~\ref{subsec:certificate-05});
+    \item \textbf{Server Key Exchange} --- sets the \textbf{pre-master secret} that will later be used to generate the master secret (via Diffie--Hellman or RSA, in TLS 1.2);
+    \item \textbf{Certificate Request}* --- a non-anonymous server can send this if it requires the client to be authenticated too;
+    \item \textbf{Server Hello Done}.
+\end{itemize}
+(An asterisk marks messages that are \emph{optional}, depending on whether mutual authentication was requested.)
+
+\subsubsection*{Step 4 --- Client Responds}
+From the client, once it has received the above:
+\begin{itemize}
+    \item \textbf{Certificate}* --- \emph{if} the client received a \texttt{CertificateRequest} message, it must send its own X.509 certificate;
+    \item \textbf{Client Key Exchange} --- sets the \textbf{pre-master secret} that will later be used to generate the master secret (again, Diffie--Hellman or RSA);
+    \item \textbf{Certificate Verify}* --- a message providing explicit verification of the client's certificate;
+    \item \textbf{Change Cipher Spec}, \textbf{Finished} (see Step 5 below).
+\end{itemize}
+
+\subsubsection*{On Pre-Master and Master Secrets}
+The \textbf{pre-master key/secret} is the value obtained directly from the key exchange (e.g., with Diffie--Hellman, the pre-master secret is $g^{ab} \bmod p$, exactly as in Section~\ref{subsec:dh-04}). Depending on the cryptographic parameters chosen, the size of the pre-master key can vary --- so, to simplify generating session keys, both sides derive a fixed-length value from it, the \textbf{master secret}, always exactly \textbf{48 bytes}. The master secret is derived from the pre-master key using a \textbf{Pseudo-Random Function (PRF)}: an efficient, deterministic function returning a pseudorandom output indistinguishable from a truly random sequence (the main difference from a plain pseudorandom \emph{generator} is that a PRF can accept arbitrary input data). \textcolor{red!70!black}{\textbf{From the master secret, both client and server derive \emph{multiple} session keys by applying the PRF again}: half of the resulting keys are used for message integrity, the other half for message confidentiality --- following the general principle of never using the same key for both encryption and signing/authentication.}
+
+\subsubsection*{Step 5 --- Change Cipher Spec and Finished}
+\textbf{Change Cipher Spec} is a message (a single byte of value 1) sent by \emph{both} parties; once received, that participant switches over to the just-agreed cipher suite. \textbf{Finished} is generated by hashing the \emph{entire} handshake so far, and is likewise sent by both parties, signalling that the handshake has completed successfully.
+
+\subsubsection*{Steps 6--7 --- Application Data}
+From the reception of the \texttt{Change Cipher Spec} message onward, \emph{every} subsequent message, sent by either party, is encrypted using the newly shared key --- this is exactly the \textbf{Record protocol} taking over from the Handshake protocol.
+
+\subsubsection{Certificate Verification, Revisited}
+Steps 3 and 4 above are where certificate verification actually happens: in Step 3, the \textbf{TLS client} verifies the \textbf{server's} digital certificate; in Step 4, the \textbf{TLS server} verifies the \textbf{client's} certificate (when requested). As already detailed in Section~\ref{subsec:pki-05}, there are four aspects to this verification: (1) the digital signature is checked; (2) the certificate chain is checked, in case of intermediate CAs; (3) the expiry/activation dates and validity period are checked; (4) the revocation status of the certificate is checked.
+
+\subsection{How TLS Delivers the CIA Triad}
+\label{subsec:tls-cia-05}
+
+\subsubsection{Authentication}
+For \textbf{server authentication}: the client uses the server's public key to encrypt the data used to compute the secret key; the server can only successfully generate that secret key if it can decrypt that data with the \emph{correct} private key. For \textbf{client authentication} (when requested): the server uses the public key found in the client's certificate to decrypt the data the client sent during Step 4 (Client Key Exchange); the subsequent exchange of \texttt{Finished} messages, themselves encrypted with the now-shared secret key, confirms that authentication is complete. If \emph{any} authentication step fails, the handshake fails and the session terminates. The exchange of digital certificates during the handshake is, in short, itself part of the authentication process.
+
+\subsubsection{Confidentiality}
+SSL and TLS combine symmetric and asymmetric encryption to ensure message privacy: during the handshake, client and server agree on an encryption algorithm \emph{and} a shared secret key, used for \textbf{one session only}. All messages transmitted between client and server from that point on are encrypted using that algorithm and key, so the message remains private even if intercepted. \textcolor{ForestGreen!60!black}{\textbf{Because SSL/TLS use asymmetric encryption specifically to transport the shared secret key, there is no key-distribution problem}} --- exactly the key-distribution problem flagged as central back in Section~\ref{subsec:kerckhoffs-04}, solved here by handing it off to PKC.
+
+\subsubsection{Integrity}
+SSL and TLS provide data integrity by using a \textbf{Message Authentication Code (MAC)} --- \emph{provided} that the \texttt{CipherSpec} negotiated for the channel actually uses a suitable hash or MAC algorithm. \textcolor{red!70!black}{\textbf{Use of MD5 and SHA-1 is strongly discouraged}}: both are now very old and no longer secure for most practical purposes (recall the SHA-1 timeline in Section~\ref{subsec:pki-05}).
+
+\subsubsection{MAC, Revisited}
+\label{subsec:mac-05}
+To recap: a MAC is a tag used to confirm that a message came from the stated sender (authenticity) \emph{and} has not been tampered with (integrity), letting a verifier detect any change to the message content. A \textbf{MAC algorithm} is a family of cryptographic functions, parameterized by a \textbf{symmetric} key, used to provide data-origin authentication and data integrity by producing a MAC on arbitrary messages. \textcolor{blue!50!black}{\textbf{MAC functions are similar to hash functions, but with different security requirements; they are similar to digital signatures, but differ in that a MAC is both \emph{generated and verified using the same (symmetric) key}}, whereas a digital signature is generated with a private key and verified with the corresponding \emph{different}, public key.}
+
+
+\section{Halfway Wrap-Up}
+
+This lecture (28 October 2021) is a checkpoint, not new material in the usual sense: most of its 19 slides are unanswered recap questions covering Lessons 1--5. Rather than re-answer each one in full (they are already covered, with worked examples, in the sections cited below), this section covers only what is genuinely \textbf{new} here --- a clarifying diagram, one missing definition, and two real-world case studies --- and closes with a compact index mapping every recap question to where it is already answered.
+
+\subsection{Clarifying the Security Terminology Map}
+\label{subsec:terminology-map-06}
+
+Lesson 1 defined \emph{information security}, \emph{computer security}, \emph{network security}, and \emph{cybersecurity} somewhat independently. This recap slide (citing Von Solms \& Van Niekerk, \emph{From Information Security to Cyber Security}, via \url{https://www.researchgate.net/publication/281107085}) makes their relationship explicit with a Venn diagram of two large, overlapping regions:
+\begin{itemize}
+    \item \textbf{Information Security} covers \emph{all} information-based assets, \textbf{whether or not} ICT techniques are involved in storing, transmitting, or processing them --- consistent with Lesson 1's own definition (``regardless of its form, electronic or physical'').
+    \item \textbf{Cyber Security} covers threats that arise specifically \textbf{from the use of ICT techniques} --- and, crucially, this includes \textbf{non-information-based assets} that become vulnerable only \emph{because} ICT is involved. The \textbf{2015 Jeep hack} is exactly this case: the asset under attack was the physical car, not information, yet the vulnerability existed only because the car's internal systems were networked and reachable remotely.
+    \item Where the two regions \textbf{overlap} --- information-based assets specifically stored, transmitted, or processed \emph{using} ICT --- sits \textbf{ICT Security}, fed by two narrower, more technical disciplines: \textbf{Computer Security} and \textbf{Network Security}.
+\end{itemize}
+\textcolor{blue!50!black}{\textbf{In short:}} ``Information Security'' and ``Cyber Security'' are neither synonyms nor one a strict subset of the other --- they overlap, and that overlap (protecting information specifically \emph{via} ICT) is exactly what ``ICT Security'' names.
+
+\subsubsection{Mapping Attacker Actions onto the CIA Triad}
+A companion diagram pairs the familiar \textbf{CIA triad} (Confidentiality/Integrity/Availability --- explicitly flagged as ``the focus of this course'') with the corresponding \textbf{attacker actions} that violate each property: \textbf{Disclosure} (violates confidentiality), \textbf{Alteration} (violates integrity), and \textbf{Denial} (violates availability). This is a useful three-word mnemonic for connecting an attack's \emph{mechanism} to the specific \emph{property} it breaks --- exactly the mapping exercise underlying the real-world violations already catalogued in Lesson 2 (data breaches $\to$ disclosure/confidentiality; the FCC bot comments $\to$ alteration/integrity; Mirai $\to$ denial/availability).
+
+\subsubsection{Asset, Threat, Vulnerability, Risk: the Venn Version}
+A third diagram draws \textbf{Threat}, \textbf{Vulnerability}, and \textbf{Asset} as three overlapping circles, with \textbf{Risk} sitting exactly at their common intersection --- a compact visual restatement of Lesson 1's definitions, plus the one term not yet given explicitly: an \textbf{Asset} is any data, device, or other component of the environment that supports information-related activities. The accompanying likelihood$\times$impact severity table is the same $5\times5$ risk matrix already given in Lesson 1. \textcolor{gray}{\textit{Corredato da una citazione di Salman Rushdie: ``There is no such thing as perfect security, only varying levels of insecurity'' --- un buon promemoria di cosa significhi davvero ``sicurezza''.}}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Domanda di ripasso, dalle slide del corso)} What is the difference between security and reliability?
+\end{tcolorbox}
+
+\textbf{Soluzione:} the two concepts target different \emph{causes} of failure. \textbf{Reliability/dependability} (Lesson 1) is about avoiding failures that arise from \emph{accidental} causes --- hardware faults, bugs triggered by ordinary use, transmission noise --- and is measured against how often/severely a system may deviate from correct service. \textbf{Security} is specifically about withstanding a \textbf{malicious, adaptive adversary} who is actively trying to cause a failure and will adjust their strategy in response to defenses. The distinction was already made concretely for TCP (Section~\ref{subsec:tls-protocols-05}'s discussion of the transport layer): TCP is ``reliable'' in the sense that it detects and corrects \emph{accidental} transmission errors, but that guarantees nothing against an attacker deliberately crafting malicious packets --- which is exactly the gap TLS exists to close. A system can therefore be highly reliable (rarely fails on its own) while being completely insecure (trivially broken by an attacker), and vice versa.
+
+\subsection{Filling Two Small Gaps}
+
+\subsubsection{Credential Stuffing}
+Recap slides ask for this attack without it having been defined yet: \textbf{credential stuffing} is an attack in which username/password pairs leaked from a breach of \emph{one} service are automatically tried, at scale, against \emph{other, unrelated} services --- exploiting the extremely common practice of reusing the same password across sites. Unlike a dictionary attack (guessing likely passwords) or brute force (trying every possibility), credential stuffing uses \emph{real, already-valid} credentials, just against the wrong target; this makes it effective even against services with strong password policies, since the weak link is password \emph{reuse}, not password \emph{strength}. Mitigations: encourage (or enforce) unique passwords per service --- which is exactly the usability trade-off a password manager exists to solve (Lesson 3); require MFA, so a leaked password alone is insufficient; rate-limit and monitor login attempts for the anomalous volume characteristic of automated stuffing; and check new/changed passwords against known-breached-password lists at signup.
+
+\subsubsection{Two Refinements on Hashing and Salting}
+Two framings from this recap sharpen what Lesson 3 already established (Section~\ref{subsec:hashing-salting-03}):
+\begin{itemize}
+    \item Hashing is explicitly described as a \textbf{keyless} cryptographic primitive --- worth holding onto as the sharpest one-line contrast with encryption (Section~\ref{subsec:symmetric-04}'s exercise part (d)): encryption needs a key precisely \emph{because} it must be reversible; hashing needs none precisely \emph{because} it must not be.
+    \item On salting and rainbow tables: \textcolor{red!70!black}{\textbf{salting \emph{mitigates} the rainbow-table attack, it does not \emph{prevent} it}} --- it makes precomputation prohibitively expensive (a fresh table would be needed per distinct salt), but does not make a targeted, single-password brute-force attack against one specific, known salt+hash pair impossible in principle.
+\end{itemize}
+
+\subsection{Case Study: How Passwords and TLS Combine in a Real Login}
+\label{subsec:login-flow-06}
+Lessons 3 and 5 were developed somewhat independently; this slide ties them together into the login flow actually used by essentially every web service:
+\begin{enumerate}
+    \item \textbf{TLS} secures the channel between client and server, and --- critically --- \textbf{authenticates the server to the client, but not the client to the server} (Section~\ref{subsec:tls-cia-05}: server authentication is standard, client-certificate authentication is the optional, rarely-used part of the handshake).
+    \item Since TLS alone does not tell the \emph{service} who the user is, the service still needs its own user-authentication step: it asks the user for credentials.
+    \item The client sends the username and password to the server \emph{over the now-secure TLS channel} --- the password is not re-hashed/salted by the client for transmission (that would be pointless without also re-deriving it correctly server-side); rather, TLS's encryption is what protects the credentials \emph{in transit}, while hashing and salting (Section~\ref{subsec:hashing-salting-03}) protect them \emph{at rest} in the server's database. \textcolor{red!70!black}{\textbf{Without the TLS channel, sending a password like this would be exactly equivalent to not having a password at all}} --- anyone on the network path could simply read it in the clear.
+    \item The server retrieves the stored salt and digest for that username, recomputes the hash of (salt $+$ submitted password), and compares it against the stored digest --- exactly the verification procedure from Section~\ref{subsec:hashing-salting-03}.
+\end{enumerate}
+\textcolor{blue!50!black}{\textbf{The general lesson:}} confidentiality \emph{in transit} (TLS) and confidentiality/integrity \emph{at rest} (hashing $+$ salting) are two independent layers protecting two different stages of the same secret's lifecycle --- removing either one breaks the whole chain, even if the other is implemented perfectly.
+
+\subsection{Case Study: Let's Encrypt and the Slow Rise of HTTPS}
+Despite HTTPS having existed since the mid-1990s, its adoption stayed remarkably slow for roughly two decades. According to \textbf{Let's Encrypt}'s own account of its impact (2020 Internet Security Research Group Annual Report, \url{https://letsencrypt.org/}), the bottleneck was never awareness --- it was that obtaining and managing SSL/TLS certificates (Section~\ref{subsec:certificate-05}) was cumbersome enough that many site operators simply didn't bother. \textcolor{ForestGreen!60!black}{\textbf{The intervention that actually moved the needle was the opposite of ``teach people to care more about certificates'': it was making certificate issuance and renewal fully automatic, so that operators would need to think about it as little as possible.}} HTTPS adoption rates rose sharply once this friction was removed. \textcolor{gray}{\textit{Un buon esempio di come, in pratica, l'usabilità (Sezione~1, ``Security and Human Factors'') sia spesso il vero collo di bottiglia dell'adozione di una misura di sicurezza, più della sua qualità tecnica.}} For hands-on intuition about what the resulting TLS handshake actually looks like on the wire, the course points to two interactive walkthroughs: \url{https://tls12.ulfheim.net/} (TLS 1.2) and \url{https://tls13.ulfheim.net/} (TLS 1.3).
+
+\subsection{Case Study: the 2021 EU Digital COVID Certificate Key Compromise}
+In late October 2021, it emerged (reported by ANSA and others) that the \textbf{private keys used to digitally sign EU Digital COVID Certificate (``Green Pass'') QR codes} had apparently been compromised for at least two member states (France and Poland) --- and a fraudulent, obviously-invalid QR code, digitally signed as if genuine, was shown to be verifiable as valid by standard checking apps. A second, independent possibility discussed alongside the key-theft explanation: the reference implementation template for the certificate-issuance web frontend reportedly shipped with \textbf{default authentication credentials}, which at least one deploying member state may not have changed in production.
+
+\textcolor{red!70!black}{\textbf{Why this matters, in terms already established in this course:}} a digital signature (Section~\ref{subsec:digital-signatures-05}) only guarantees authenticity and integrity \emph{under the assumption that a single designated entity is in control of the signing key} (exactly the caveat already flagged when introducing RSA signatures). Once that private key leaks, the mathematics of the signature scheme is completely unbroken --- verification still works flawlessly --- yet the guarantee it was meant to provide is gone, because the attacker can now produce signatures indistinguishable from genuine ones for \emph{any} content they like. This is a clean real-world instance of ``cryptography is a translation mechanism'' (Section~\ref{subsec:kerckhoffs-04}'s discussion of no-silver-bullet): the cryptography itself was sound; the failure, in both proposed explanations, is a \textbf{key-management} failure (a stolen signing key, or a set of unrotated default credentials guarding access to it).
+
+The slide leaves three genuinely open discussion questions rather than a single correct answer; a reasoned position on each, grounded in the concepts above:
+\begin{itemize}
+    \item \textit{Joke, or serious?} The mechanism is serious even if a specific instance is played as a joke: once a signing key is exposed, \emph{every} certificate ever issued with it is suspect, and an attacker with no comedic intent could produce a fraudulent vaccination/test certificate just as easily as a fraudulent celebrity one.
+    \item \textit{What should be done?} At minimum: revoke and rotate the compromised signing key(s), audit deployed instances of the issuance software specifically for unchanged default credentials, and check whether the PKI design allows timely revocation of everything signed with a compromised key (Section~\ref{subsec:pki-05}'s discussion of CRL/OCSP) --- a much harder problem when many already-issued, still-valid-looking certificates are in active use.
+    \item \textit{Consequences of the mitigation?} Revoking a compromised key invalidates every certificate it ever signed, including all the \emph{legitimate} ones --- at national or EU scale, this could mean re-issuing certificates for a large fraction of a population on short notice, which is itself an operational and trust-management problem, not just a technical one.
+\end{itemize}
+
+\subsection{Cross-Reference Index for the Recap Questions}
+The table below maps every cluster of recap questions from this lecture to where it is already fully answered.
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{6.7cm}p{6.7cm}@{}}
+\toprule
+\textbf{Recap question cluster (this lecture)} & \textbf{Already answered in} \\
+\midrule
+Define information/computer/network/cyber security; cyber security vs.\ readiness/posture; security vs.\ reliability & Lesson 1, ``What is *-Security?''; Section~\ref{subsec:terminology-map-06} above (terminology map; security vs.\ reliability) \\
+Define/give examples for confidentiality, integrity, availability, authenticity, non-repudiation & Lesson 1, ``The CIA Triad'' (\S\ref{subsec:cia-01}) \\
+Define vulnerability, threat, exploit, risk, likelihood, impact, risk matrix; the attribution problem & Lesson 1, ``Vulnerability, Threat, and Risk'' and ``The Risk Matrix''; Lesson 2, ``The Attribution Problem''; Section~\ref{subsec:terminology-map-06} above (Asset) \\
+Security policy vs.\ mechanism vs.\ service, with examples & Lesson 1, ``Security Policy, Mechanism, and Service'' \\
+Password guessing (brute force/dictionary), spoofing, phishing, and their countermeasures & Lesson 3, ``Common Attack Patterns'' and ``Mitigations'' \\
+Hash function properties; weak vs.\ strong example; hashing $+$ salting; password-file structure; can salts be stored in clear; credential stuffing & Lesson 3, ``Protecting the Password File'' (\S\ref{subsec:hashing-salting-03}); Section~\ref{subsec:hashing-salting-03} above (credential stuffing, gaps) \\
+Authentication vs.\ identification vs.\ onboarding; the 3 factor types; MFA definition & Lesson 3, ``Extensions of Password-Based Authentication'' \\
+TOTP, authenticators, NIST assurance levels; SSO experience, pros and cons & Lesson 3, ``Time-Based One-Time Password'', ``NIST Authenticator Assurance Levels'', ``Outsourcing Identity Management'' \\
+Cryptosystem, computational difficulty, Kerckhoffs, key management, substitution/transposition examples & Lesson 4, ``Basic Notions'' and ``Classical Ciphers'' \\
+Symmetric vs.\ asymmetric crypto; stream vs.\ block ciphers; DES/AES; Diffie--Hellman and its MITM attack & Lesson 4, ``Symmetric Key Cryptography'' and ``Asymmetric (Public) Key Cryptography'' \\
+PKC for confidentiality/integrity/authenticity; digital certificates; PKI purpose and components; obtaining a certificate & Lesson 5, ``Public Key Cryptography, Revisited'' and ``Public Key Infrastructure'' \\
+TLS purpose; SSL/TLS relationship; TLS's protocols; the TLS 1.2 handshake; TLS vulnerabilities; TLS 1.2 vs.\ 1.3 & Lesson 5, ``How TLS Works'', the full handshake walkthrough, ``TLS Vulnerabilities'', ``TLS 1.3'' \\
+How passwords and TLS combine in practice & Section~\ref{subsec:login-flow-06} above \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+
+\end{document}

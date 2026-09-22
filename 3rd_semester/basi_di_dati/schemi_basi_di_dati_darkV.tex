@@ -1,0 +1,748 @@
+\documentclass[12pt, a4paper]{article}
+\newcounter{esercizio}[section]
+
+\def\islight{true} 
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{eurosym}
+\usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{datetime}
+\usepackage{pmboxdraw}
+\usepackage{array}
+\usepackage{float}
+\usepackage{tcolorbox}
+
+\newcommand{\myfootertext}{}
+\newcommand{\myicon}{}
+
+\ifx\islight\undefined
+    \definecolor{lightergray}{gray}{0.85}
+    \definecolor{tocsec}{gray}{0.85}
+    \definecolor{tocsubsec}{gray}{0.75}
+    \renewcommand{\myicon}{logo_unitn_scuro.png}
+    \renewcommand{\myfootertext}{Appunti redatti per gli studenti del DISI. \\ Eventuali errori possono essere segnalati su GitHub.}
+    \pagecolor{black}
+    \color{white}
+\else
+    \definecolor{lightergray}{gray}{0.35}
+    \definecolor{tocsec}{gray}{0.35}
+    \definecolor{tocsubsec}{gray}{0.45}
+    \renewcommand{\myicon}{logo_unitn_chiaro.png}
+    \renewcommand{\myfootertext}{Versione Light Mode. Disponibile anche la \href{https://github.com/mirconegri/University/blob/main/3rd_semester/basi_di_dati/schemi/schemi_basi_di_dati_darkV.pdf}{versione Dark Mode}.}    \pagecolor{white}
+    \color{black}
+\fi
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=lightergray,
+    urlcolor=cyan,
+    pdftitle={Appunti di Basi di dati},
+    pdfauthor={Mirco Negri}
+}
+
+\renewcommand{\cftsecfont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecpagefont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecleader}{\color{tocsubsec}\cftdotfill{\cftdotsep}}
+
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    
+    \includegraphics[width=0.25\textwidth]{\myicon}
+    \vspace{1cm}
+    
+    {\scshape\LARGE Università degli Studi di Trento \par}
+    \vspace{0.4cm}
+    {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
+    
+    \vspace{2cm}
+    
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://github.com/mirconegri/University}{%
+        \begin{tabular}{@{}c@{}}
+            {\color{cyan}\rule{\textwidth}{1pt}} \\[0.5cm]
+            {\Huge\bfseries Appunti di Basi di dati} \\ [0.5cm]
+            {\Large\itshape Lezioni, e Simulazioni d'esame}\\ [0.4cm]
+            {\color{cyan}\rule{\textwidth}{1pt}}
+        \end{tabular}%
+    }\par
+    \endgroup
+    
+    \vspace{2.5cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\small \textit{\myfootertext} \par}
+    \vspace{0.8cm}
+    
+    {\large \monthname\ \the\year \par}
+\end{titlepage}
+
+\newpage
+\begingroup
+\hypersetup{hidelinks}
+\tableofcontents
+\endgroup
+\newpage
+
+
+\section{Le Basi di Dati e i loro Utenti}
+
+\subsection{Cos'è una Base di Dati}
+
+Una \textcolor{tocsec}{\textbf{base di dati}} (BdD) è una raccolta organizzata (strutturata) di informazioni che devono essere gestite per un periodo di tempo lungo, anche di molti anni. Più precisamente, una base di dati è una raccolta di informazioni gestita da un \textcolor{tocsec}{\textbf{database management system (DBMS)}}.
+
+\textbf{Esempi di Basi di Dati:}
+\begin{itemize}
+    \item Dati relativi a studenti, corsi ed esami di un'università
+    \item Il catalogo dei prodotti di un marketplace elettronico
+    \item I \textit{Points of Interest} (POI) su una mappa (es. Google Maps)
+    \item Il Pubblico Registro Automobilistico (PRA) dell'Automobile Club Italiano (ACI)
+    \item I pagamenti delle tasse dei contribuenti di un Comune
+    \item Gli orari dei voli e le prenotazioni dei passeggeri di una compagnia aerea
+\end{itemize}
+
+\subsection{DBMS e Database System}
+
+\begin{itemize}
+    \item \textbf{Database Management System (DBMS)}: pacchetto software progettato per gestire basi di dati informatizzate.
+    \item \textbf{Database System}: l'insieme costituito dal software del DBMS insieme ai dati memorizzati nella base di dati. Talvolta nella definizione sono incluse anche le applicazioni software esterne che interagiscono con il DBMS per eseguire i propri compiti.
+\end{itemize}
+
+\subsection{Architettura di un Database System}
+
+\begin{itemize}
+    \item Gli \textbf{utenti non esperti} (\textit{unsophisticated}: clienti, agenti di viaggio, \ldots) interagiscono tramite \textit{Web Forms} o \textit{Application Front Ends}; gli \textbf{utenti esperti} (\textit{sophisticated}: programmatori, amministratori) interagiscono tramite un'\textit{SQL Interface}. Entrambi generano comandi SQL.
+    \item Il \textbf{Query Evaluation Engine} riceve i comandi ed è composto da \textit{Parser}, \textit{Optimizer}, \textit{Plan Executor} e \textit{Operator Evaluator}.
+    \item Il livello sottostante gestisce \textit{Files and Access Methods}, il \textit{Buffer Manager} e il \textit{Recovery Manager}, coordinati dal blocco di \textbf{Concurrency Control} (\textit{Transaction Manager} e \textit{Lock Manager}).
+    \item Alla base, il \textit{Disk Space Manager} gestisce fisicamente gli \textbf{Index Files}, i \textbf{Data Files} e il \textbf{System Catalog} che compongono il database.
+\end{itemize}
+% Nota: la slide originale mostra anche uno schema grafico dell'architettura; se hai lo screenshot posso inserirlo come figura (\includegraphics).
+
+\subsection{Cosa Deve Fornire un DBMS}
+
+Un DBMS deve:
+\begin{itemize}
+    \item supportare la memorizzazione di grandi quantità di dati;
+    \item gestire la robustezza dei dati e il loro recupero in caso di fallimenti, errori o azioni malevole;
+    \item controllare l'accesso ai dati di più utenti contemporaneamente (\textbf{concorrenza}), evitando interazioni indesiderate tra utenti (\textit{isolation}) e modifiche incomplete dei dati (\textit{atomicity}).
+\end{itemize}
+
+Per la gestione dei dati sono previsti diversi linguaggi specializzati:
+\begin{itemize}
+    \item \textbf{DDL} (\textit{Data Definition Language}): definisce gli schemi per strutturare i dati;
+    \item \textbf{DML} (\textit{Data Manipulation Language}, o \textit{query language}): modifica i dati e li estrae dalla base di dati;
+    \item \textbf{DCL} (\textit{Data Control Language}): gestisce l'accesso ai dati (\texttt{grant}, \texttt{revoke}, \ldots);
+    \item \textbf{TCL} (\textit{Transaction Control Language}): gestisce la sicurezza delle transazioni (\texttt{commit}, \texttt{rollback}, \ldots).
+\end{itemize}
+
+\subsection{Interazione tra Applicazioni e Basi di Dati}
+
+I programmi applicativi interagiscono con la base di dati generando:
+\begin{itemize}
+    \item \textbf{Interrogazioni} (\textit{queries}): accesso a differenti porzioni di dati e formulazione della risposta;
+    \item \textbf{Transazioni} (\textit{transactions}): sequenze atomiche di azioni (letture/scritture) sulla base di dati.
+\end{itemize}
+Le applicazioni non devono consentire l'accesso ai dati ad utenti non autorizzati.
+
+\subsection{Le Origini del Modello Relazionale}
+
+Un enorme impulso allo sviluppo delle basi di dati è venuto dal lavoro di \textcolor{tocsec}{\textbf{Ted Codd}} (1970), che ha introdotto l'idea di mostrare agli utenti una \textbf{visione logica dei dati}, indipendente dalla struttura fisica. Le interrogazioni vengono così espresse attraverso un linguaggio di alto livello, che utilizza il modello logico e non quello fisico dei dati.
+
+\subsection{Indipendenza dei Dati}
+
+La separazione tra programmi e dati è spesso chiamata \textbf{indipendenza programmi-dati}: permette di modificare le strutture dati e l'organizzazione fisica dei dati senza dover cambiare l'accesso dei programmi alla base di dati via DBMS.
+
+Nei sistemi basati su file, invece, la struttura dei file di dati è contenuta nei programmi che devono accedervi: se cambia la struttura del file, è probabile che debbano essere modificati anche i programmi che vi accedono, rendendo difficile e costosa la manutenzione del software nel tempo.
+
+\subsubsection{Indipendenza Logica dei Dati}
+\begin{itemize}
+    \item \textbf{Definizione}: capacità di modificare lo schema logico del database senza dover alterare lo schema esterno o le applicazioni che lo utilizzano.
+    \item \textbf{Vantaggi}: consente di aggiungere, rimuovere o modificare campi e tabelle senza influire sulle applicazioni esistenti; migliora la flessibilità e la gestione dell'evoluzione del database.
+    \item \textbf{Esempio}: aggiungere un nuovo attributo a una tabella senza modificare il codice delle applicazioni che vi accedono.
+\end{itemize}
+
+\subsubsection{Indipendenza Fisica dei Dati}
+\begin{itemize}
+    \item \textbf{Definizione}: capacità di modificare lo schema fisico del database senza influenzare lo schema logico o le applicazioni.
+    \item \textbf{Vantaggi}: permette di ottimizzare le prestazioni (es. cambiando la struttura di memorizzazione o gli indici) senza alterare la logica delle applicazioni; migliora la scalabilità e la gestione delle risorse hardware.
+    \item \textbf{Esempio}: spostare un database su un nuovo hardware, o ristrutturarne l'archiviazione, senza cambiare la modalità di accesso ai dati per l'utente finale.
+\end{itemize}
+
+\subsection{Livelli di Astrazione dei Dati}
+
+\begin{itemize}
+    \item \textbf{Schema logico}: modello che rappresenta i dati nei termini del modello proprio del DBMS (es. il modello relazionale nei RDBMS);
+    \item \textbf{Schema fisico}: dettagli su come le relazioni descritte dallo schema logico sono memorizzate su memoria secondaria (es. file di record ordinati/non ordinati, tipo di indici creati, ecc.);
+    \item \textbf{Schema esterno}: una o più \textbf{viste} specifiche per velocizzare/facilitare/autorizzare l'accesso a insiemi di dati a specifici utenti o gruppi di utenti.
+\end{itemize}
+
+I tre livelli seguono il flusso: \textit{livello fisico} $\rightarrow$ \textit{livello logico} $\rightarrow$ \textit{livello esterno (viste)}.
+
+\paragraph{Esempio.} Schema logico per un DB universitario:
+\begin{verbatim}
+Students(sid: string, name: string, login: string, age: integer, gpa: real)
+Faculty(fid: string, fname: string, sal: real)
+Courses(cid: string, cname: string, credits: integer)
+Rooms(rno: integer, address: string, capacity: integer)
+Enrolled(sid: string, cid: string, grade: string)
+Teaches(fid: string, cid: string)
+Meets_In(cid: string, rno: integer, time: string)
+\end{verbatim}
+\begin{itemize}
+    \item \textbf{Schema fisico}: file non ordinato di record, con un indice B+Tree sulla prima colonna di \texttt{STUDENTS} e \texttt{COURSES}.
+    \item \textbf{Schema esterno}: una relazione che mostri tutti i corsi con relativo docente e numero di iscritti: \texttt{Courseinfo(cid: string, fname: string, enrollment: integer)}.
+\end{itemize}
+
+\subsection{Perché Usare una Base di Dati}
+
+\begin{itemize}
+    \item Indipendenza logica e fisica dei dati (vista sopra);
+    \item Accesso concorrente ai dati;
+    \item Crash recovery;
+    \item Integrità dei dati e sicurezza;
+    \item Amministrazione dei dati;
+    \item Riduzione dei tempi di sviluppo di applicazioni.
+\end{itemize}
+
+\subsubsection{Condivisione dei Dati e Transazioni Multi-utente}
+La condivisione dei dati permette a gruppi di utenti di leggere e scrivere contemporaneamente (\textit{concurrent users}) sulla stessa base di dati:
+\begin{itemize}
+    \item il \textbf{controllo della concorrenza} nel DBMS garantisce che ogni transazione sia eseguita correttamente o annullata;
+    \item il \textbf{sottosistema di recovery} assicura che ogni transazione correttamente completata sia memorizzata in modo permanente.
+\end{itemize}
+Questo permette di eseguire centinaia di transazioni concorrenti al secondo mantenendo validità e coerenza dei dati: si parla di \textcolor{tocsec}{\textbf{OLTP}} (\textit{Online Transaction Processing}).
+
+\subsection{Digressione: OLTP vs. OLAP}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{2.7cm}p{5.3cm}p{5.3cm}@{}}
+\toprule
+ & \textbf{OLTP} & \textbf{OLAP} \\
+\midrule
+Finalità & Gestire le transazioni quotidiane di un'azienda (es. ordini, pagamenti) & Supportare l'analisi complessa dei dati per BI e reporting \\
+Operazioni & Alta frequenza, operazioni brevi e semplici (\texttt{insert}, \texttt{update}, \texttt{delete}) & Bassa frequenza, query complesse e di lunga durata \\
+Priorità & Integrità/coerenza dei dati; risposta rapida alle query & Query ad-hoc, analisi multidimensionale \\
+Schema & Normalizzato, per minimizzare la ridondanza & Denormalizzato (es. \textit{star schema}), per le performance \\
+Esempi & E-commerce, banche, punti vendita & Reporting aziendale, dashboard di BI \\
+\bottomrule
+\end{tabular}
+\caption{Confronto tra sistemi OLTP e OLAP}
+\end{table}
+
+\textbf{Sistemi per OLTP:}
+\begin{itemize}
+    \item \textbf{Database Relazionali (RDBMS)}: MySQL, MariaDB, PostgreSQL, Microsoft SQL Server, IBM DB2, Oracle Database;
+    \item \textbf{Software ERP}: SAP, Oracle, Panthera, TeamSystem, \ldots
+\end{itemize}
+
+\textbf{Sistemi per OLAP:}
+\begin{itemize}
+    \item \textbf{Data Warehousing Platforms}: Amazon Redshift, Google BigQuery, Snowflake, Microsoft Azure Synapse Analytics;
+    \item \textbf{Business Intelligence Tools}: Tableau, Power BI, Qlik Sense, SAP BusinessObjects.
+\end{itemize}
+
+\subsection{Utenti di una Base di Dati}
+
+Gli utenti si dividono in due gruppi principali:
+\begin{itemize}
+    \item chi utilizza e controlla il contenuto della base di dati, insieme a chi progetta e sviluppa applicazioni su di essa (\textbf{utilizzatori});
+    \item chi progetta e sviluppa il software del DBMS con tutti i suoi sottosistemi (\textbf{sviluppatori}).
+\end{itemize}
+
+\subsubsection{Tipi di Utilizzatori}
+\begin{itemize}
+    \item \textbf{Database Administrator} (Amministratore): responsabile dell'autorizzazione di accesso alla base di dati, del coordinamento e monitoraggio del suo utilizzo, dell'acquisto di risorse software/hardware, del monitoraggio dell'efficienza operativa del sistema.
+    \item \textbf{Database Designer} (Progettista): responsabile della definizione del contenuto, dello schema, dei vincoli e delle transazioni eseguibili sulla BD; comunica con gli utenti per raccoglierne le necessità.
+    \item \textbf{End-users} (Utenti finali): utilizzano i dati mediante query e report; alcuni possono aggiornare i contenuti. Si suddividono in:
+    \begin{itemize}
+        \item \textit{Casual} (Occasionali): accedono alla base di dati solo occasionalmente, quando necessario (es. top manager che leggono dati fortemente aggregati);
+        \item \textit{Naïve o Parametric} (non-esperti): la maggioranza degli utenti finali; usano funzioni predefinite (le \textit{canned transactions}) per interagire con la BD (es. cassieri di banca, impiegati di segreteria, utenti di social media o applicazioni web).
+    \end{itemize}
+\end{itemize}
+% Nota per me: la numerazione delle slide salta da 1-22 a 1-24 (slide 1-23 non presente nel materiale). Nei testi di riferimento la tassonomia degli utenti finali include tipicamente anche "Sophisticated" e "Standalone users": non li ho aggiunti per non inventare contenuti non confermati dalle tue slide.
+
+\subsection{Quando è Meglio NON Usare un DBMS}
+
+\textbf{Cosa può inibirne l'adozione:}
+\begin{itemize}
+    \item alti investimenti iniziali e necessità di hardware dedicato;
+    \item costi aggiuntivi per sicurezza, controllo di concorrenza, recovery, funzioni di integrità.
+\end{itemize}
+
+\textbf{Quando un DBMS potrebbe non essere necessario:}
+\begin{itemize}
+    \item se la base di dati e l'applicazione sono molto semplici, ben definite e non soggette a modifiche continue;
+    \item se non è richiesto l'accesso di più utenti.
+\end{itemize}
+
+\textbf{Quando adottarlo può essere impossibile o sconsigliato:}
+\begin{itemize}
+    \item in molti \textit{embedded systems}, dove mancano adeguate capacità di memorizzazione per un DBMS \textit{general purpose};
+    \item con requisiti di tempo reale molto stringenti (es. sistemi di switch telefonico);
+    \item quando il modello dati del DBMS non è abbastanza espressivo per la complessità dei dati (es. basi di dati genomiche/proteiche);
+    \item se servono operazioni speciali non supportate dallo specifico DBMS (es. GIS e sistemi basati sulla localizzazione).
+\end{itemize}
+
+
+\section{Il Modello Relazionale}
+
+\subsection{Concetti Generali}
+
+Il modello relazionale fu proposto da \textcolor{tocsec}{\textbf{E.F. Codd}} (IBM Research) nel 1970, nel famoso articolo \textit{"A Relational Model for Large Shared Data Banks"} (Communications of the ACM, giugno 1970). Il modello si basa sul concetto matematico di \textbf{relazione}, fondato sulla teoria degli insiemi. Questo lavoro fu alla base di una profonda rivoluzione nel campo delle basi di dati, che portò Codd a vincere il prestigioso \textbf{ACM Turing Award}.
+
+\subsection{Cos'è una Relazione}
+
+Informalmente, una \textcolor{tocsec}{\textbf{relazione}} può essere vista come una tabella con un insieme di valori su ogni riga. Due livelli la definiscono:
+\begin{itemize}
+    \item lo \textbf{schema} della relazione (livello \textit{intensionale});
+    \item le \textbf{istanze} della relazione (livello \textit{estensionale}).
+\end{itemize}
+
+\subsubsection{Definizione Intensionale}
+
+Lo schema di una relazione definisce:
+\begin{itemize}
+    \item il nome della relazione (es. STUDENTI);
+    \item il nome di ogni attributo (es. SID, NOME, LOGIN, \ldots);
+    \item il dominio di ogni attributo (es. INTEGER, STRING, \ldots), ovvero l'insieme dei valori che quell'attributo può assumere.
+\end{itemize}
+L'ordine degli attributi nello schema non ha alcun significato specifico. Notazione standard:
+\begin{verbatim}
+Students(sid: string, name: string, login: string, age: integer, gpa: real)
+\end{verbatim}
+Il numero di attributi definisce il \textbf{grado} (o \textit{arietà}) della relazione (5 nell'esempio sopra).
+
+\subsubsection{Definizione Estensionale}
+
+Un'\textbf{istanza} di uno schema di relazione è un insieme di tuple (o record), ognuna con lo stesso numero di campi dello schema:
+\begin{itemize}
+    \item essendo un insieme, \textbf{non possono esserci duplicati};
+    \item l'ordine delle tuple non ha alcun valore specifico.
+\end{itemize}
+Il numero di istanze (tuple) definisce la \textbf{cardinalità} della relazione.
+
+\subsection{Stato di una Relazione}
+
+Lo stato di una relazione è un sottoinsieme del prodotto cartesiano dei domini dei suoi attributi. Data una relazione $R(A_1, A_2, \ldots, A_n)$, uno specifico stato di $R$ è definito come:
+$$r(R) \subseteq dom(A_1) \times dom(A_2) \times \ldots \times dom(A_n)$$
+ovvero $r(R) = \{t_1, t_2, \ldots, t_n\}$ dove ogni $t_i$ è una tupla, $t_i = \langle v_1, v_2, \ldots, v_n \rangle$ e ogni $v_j$ è un elemento di $dom(A_j)$. Nello stato di una relazione l'ordine delle tuple non conta (è un insieme!).
+
+\paragraph{Esempio.} Sia $R(A_1, A_2)$ con $dom(A_1) = \{0,1\}$ e $dom(A_2) = \{a,b,c\}$. Il prodotto $dom(A_1) \times dom(A_2)$ è l'insieme di tutte le coppie ordinate possibili:
+$$\{\langle 0,a \rangle, \langle 0,b \rangle, \langle 0,c \rangle, \langle 1,a \rangle, \langle 1,b \rangle, \langle 1,c \rangle\}$$
+Un possibile stato $r(R)$ è $\{\langle 0,a \rangle, \langle 0,b \rangle, \langle 1,c \rangle\}$, con cardinalità 3.
+
+\subsection{Chiave di una Relazione}
+
+Ogni riga di una relazione ha un campo (o un insieme di campi) il cui valore identifica univocamente quella riga: si parla di \textbf{chiave} (\textit{key}) della relazione. Talvolta si usano valori convenzionali per identificare una riga: si parla in questo caso di \textbf{chiavi artificiali} (\textit{artificial key}) o \textbf{chiavi surrogate} (\textit{surrogate key}).
+
+\subsection{Terminologia}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Informale} & \textbf{Formale} \\
+\midrule
+Tabella & Relazione \\
+Intestazione colonna & Attributo \\
+Tutti i possibili valori di una colonna & Dominio \\
+Riga della tabella & Tupla \\
+Definizione della tabella & Schema della relazione \\
+Tabella popolata & Stato della Relazione \\
+\bottomrule
+\end{tabular}
+\caption{Corrispondenza tra terminologia informale e formale}
+\end{table}
+
+\subsection{Vincoli}
+
+I vincoli determinano quali stati di una relazione sono ammissibili. Sono di tre tipi:
+\begin{enumerate}
+    \item \textbf{Vincoli impliciti}: dipendono dal data model stesso (es. il modello relazionale non ammette liste come valore di un attributo);
+    \item \textbf{Vincoli basati sullo schema} (o espliciti): definiti nello schema con gli strumenti forniti dal modello (es. un vincolo di integrità referenziale);
+    \item \textbf{Vincoli applicativi o semantici}: vanno oltre il potere espressivo del modello e devono essere imposti a livello di programma applicativo (es. un libro deve essere restituito entro 30 giorni dal prestito).
+\end{enumerate}
+
+I principali vincoli espliciti nel modello relazionale sono:
+\begin{itemize}
+    \item vincolo di dominio;
+    \item vincolo di chiave;
+    \item vincolo di integrità delle entità;
+    \item vincolo di integrità referenziale.
+\end{itemize}
+
+\subsection{Vincolo di Chiave}
+
+\begin{itemize}
+    \item \textbf{Superchiave} di $R$: insieme di attributi $SK$ tale che non esistono due tuple distinte $t_1, t_2$ di $r(R)$ con $t_1[SK] = t_2[SK]$; la condizione deve valere in ogni stato valido di $R$.
+    \item \textbf{Superchiave minimale} (o \textbf{chiave candidata}): una superchiave tale che rimuovendo un qualsiasi attributo si ottiene un insieme che non è più superchiave.
+    \item Una chiave è sempre una superchiave, ma non viceversa.
+\end{itemize}
+
+\paragraph{Esempio.} La relazione STUDENT ha due chiavi candidate: $\{sid\}$ e $\{login\}$. L'insieme $\{sid, name\}$ è una superchiave ma \emph{non} una chiave (contiene una chiave, ma non è minimale). Ogni insieme di attributi che contiene una chiave è ovviamente una superchiave.
+
+Se una relazione ha più chiavi candidate, una viene scelta (tipicamente dal DBA) come \textbf{chiave primaria}: in genere la più piccola per numero di attributi; quando ciò non è possibile, possono intervenire fattori soggettivi. I valori della chiave primaria identificano univocamente ogni tupla e possono essere usati per riferirsi ad essa da un'altra relazione.
+
+\subsection{Vincolo di Integrità dell'Entità (Entity Integrity)}
+
+Nessuno degli attributi che compongono la chiave primaria $PK$ di una relazione $R$ può avere valore \texttt{NULL} in alcuna tupla di $r(R)$:
+$$t[PK] \neq null \quad \forall t \in r(R)$$
+Se $PK$ ha più attributi, \texttt{NULL} non è ammesso per nessuno di essi. È comunque possibile imporre che anche altri attributi (non chiave primaria) non possano assumere valore \texttt{NULL}.
+
+\subsection{Vincoli di Integrità Referenziale}
+
+A differenza degli altri, un vincolo di integrità referenziale coinvolge \textbf{due relazioni}: una relazione \textbf{referenziante} $R_1$ e una \textbf{referenziata} $R_2$. In $R_1$ un insieme di attributi $FK$ (\textbf{chiave esterna}, \textit{Foreign Key}) fa riferimento alla chiave primaria $PK$ di $R_2$: una tupla $t_1 \in R_1$ referenzia $t_2 \in R_2$ se $t_1[FK] = t_2[PK]$.
+
+\paragraph{Esempio.} \texttt{Enrolled} è la relazione referenziante, \texttt{Students} quella referenziata: \texttt{Enrolled.sid} è la chiave esterna che referenzia \texttt{Students.sid}.
+
+I valori della FK possono essere:
+\begin{enumerate}
+    \item uno dei valori del corrispondente attributo PK in $R_2$, oppure
+    \item il valore \texttt{NULL} (ma solo se la FK non fa parte della chiave primaria di $R_1$).
+\end{enumerate}
+
+\textbf{Osservazioni:}
+\begin{itemize}
+    \item la FK può fare riferimento alla \emph{stessa} relazione a cui appartiene la PK;
+    \item gli attributi della FK non devono necessariamente avere lo stesso nome dei corrispondenti attributi della PK.
+\end{itemize}
+
+\paragraph{Esempio: database COMPANY.} Vincoli di integrità referenziale tipici in uno schema aziendale:
+\begin{itemize}
+    \item \texttt{EMPLOYEE.Dno} $\rightarrow$ \texttt{DEPARTMENT.Dnumber}
+    \item \texttt{EMPLOYEE.Super\_ssn} $\rightarrow$ \texttt{EMPLOYEE.Ssn} \textit{(la FK referenzia la stessa relazione della PK — vedi Osservazione 1)}
+    \item \texttt{DEPARTMENT.Mgr\_ssn} $\rightarrow$ \texttt{EMPLOYEE.Ssn}
+    \item \texttt{DEPT\_LOCATIONS.Dnumber} $\rightarrow$ \texttt{DEPARTMENT.Dnumber}
+    \item \texttt{PROJECT.Dnum} $\rightarrow$ \texttt{DEPARTMENT.Dnumber}
+    \item \texttt{WORKS\_ON.Essn} $\rightarrow$ \texttt{EMPLOYEE.Ssn}; \texttt{WORKS\_ON.Pno} $\rightarrow$ \texttt{PROJECT.Pnumber}
+    \item \texttt{DEPENDENT.Essn} $\rightarrow$ \texttt{EMPLOYEE.Ssn}
+\end{itemize}
+
+% Fonte: provetta_11-23, domanda 11
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Dati gli schemi $R(A,B)$, $S(B,C)$ con \texttt{Primary Key (A)} e \texttt{Foreign Key (B) references S(B)}, cosa si può concludere?
+\begin{itemize}
+    \item[a)] $A$ non può essere \texttt{NULL} ma $B$ sì
+    \item[b)] $A$ e $B$ possono essere \texttt{NULL}
+    \item[c)] La primary key è parte della dichiarazione di $R$, la foreign key è nella dichiarazione di $S$
+    \item[d)] $B$ è una chiave primaria o una chiave candidata per $S$
+\end{itemize}
+\end{tcolorbox}
+\textbf{Soluzione:} d) — per definizione, una chiave esterna deve fare riferimento a una chiave primaria (o comunque candidata) della relazione referenziata, altrimenti il vincolo di integrità referenziale non sarebbe ben definito.
+
+\subsection{Schema di un Database Relazionale}
+
+I vincoli di integrità referenziale coinvolgono più di una relazione: non basta quindi considerare lo schema di una singola relazione. Uno \textbf{schema di database relazionale} è un insieme $S$ di schemi di relazione appartenenti alla stessa base di dati:
+$$S = \langle \{R_1, R_2, \ldots, R_n\}, IC \rangle$$
+dove $R_1, \ldots, R_n$ sono i nomi degli schemi di relazione e $IC$ è l'insieme dei vincoli di integrità.
+
+\subsection{Altri Tipi di Vincolo}
+
+I \textbf{vincoli di integrità semantica} si riferiscono al significato dell'applicazione e non possono essere espressi nel modello in sé (es. "il numero massimo di ore che un dipendente può lavorare su tutti i progetti è di 46 ore per settimana"). Serve quindi un linguaggio per la specifica di vincoli: SQL-99 introduce \textit{trigger} e \textit{asserzioni}, non implementati in modo uniforme da tutti i DBMS. In MySQL si può usare \texttt{CHECK}:
+\begin{verbatim}
+CREATE TABLE Person (...,
+    Age int CHECK (Age >= 18));
+\end{verbatim}
+
+\subsection{Stato di una Base di Dati Relazionale}
+
+Uno stato di una base di dati relazionale con schema $S$ è un insieme di stati di relazione $\{r_1, r_2, \ldots, r_m\}$ tale che ogni $r_i$ è uno stato di $R_i$ e soddisfa i vincoli di integrità in $IC$. Uno stato di una base di dati è talvolta chiamato \textbf{istantanea} (\textit{snapshot}) o \textbf{istanza} (\textit{instance}). Uno stato che non rispetta i vincoli in $IC$ è uno \textbf{stato non valido}.
+
+\subsection{Operazioni di Aggiornamento e Violazione dei Vincoli}
+
+Le principali operazioni per cambiare lo stato di una base di dati sono:
+\begin{itemize}
+    \item \textbf{INSERT}: inserimento di una nuova tupla;
+    \item \textbf{DELETE}: cancellazione di una tupla;
+    \item \textbf{MODIFY}: modifica di un attributo di una tupla.
+\end{itemize}
+Queste operazioni non devono mai portare alla violazione di un vincolo di integrità: garantire questa condizione può richiedere di propagare automaticamente gli aggiornamenti. Se si verifica una violazione, le opzioni possibili sono:
+\begin{itemize}
+    \item \textbf{RESTRICT} (\textit{NO ACTION}, \textit{REJECT}): impedire l'operazione;
+    \item \textbf{CASCADE}, \textbf{SET NULL}, \textbf{SET DEFAULT}: avviare altri aggiornamenti per eliminare la violazione;
+    \item eseguire routine specifiche definite dall'utente.
+\end{itemize}
+
+\subsubsection{Violazioni per Operazione INSERT}
+
+L'INSERT può violare \textbf{tutti} i vincoli:
+\begin{itemize}
+    \item \textbf{dominio}: il valore di un attributo non appartiene al dominio specificato;
+    \item \textbf{chiave}: inserimento di una tupla il cui valore di chiave esiste già;
+    \item \textbf{integrità referenziale}: valore di FK che non esiste come valore di PK nella relazione referenziata;
+    \item \textbf{integrità dell'entità}: valore della chiave primaria della nuova tupla è \texttt{NULL}.
+\end{itemize}
+
+% Fonte: provetta_11-23, domanda 7
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+Un'operazione di \texttt{INSERT} in una relazione può produrre la violazione di quale vincolo? (Dominio / Chiave / Integrità referenziale / Integrità delle entità / Nessuna / Tutte)
+\end{tcolorbox}
+\textbf{Soluzione:} Tutte — come visto sopra, l'INSERT è l'unica operazione che può potenzialmente violare ciascuno dei quattro vincoli contemporaneamente.
+
+\subsubsection{Violazioni per Operazione DELETE}
+
+Il DELETE può violare \textbf{solo} vincoli di integrità referenziale, se si rimuove una tupla la cui chiave primaria è referenziata da altre tuple.
+
+% Fonte: trascrizione fornita, Esercizio 10
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 3}]
+Dato lo schema \texttt{Enrolled(sid, cid, grade)} e \texttt{Students(sid, name, login, age, gpa)}, con \texttt{sid} chiave esterna di \texttt{Enrolled} verso \texttt{Students(sid)}: la cancellazione di una qualsiasi tupla nella tabella \texttt{ENROLLED} non può produrre la violazione di alcun vincolo. Vero o Falso?
+\end{tcolorbox}
+\textbf{Soluzione:} Vero — \texttt{Enrolled} è la relazione "figlia" (referenziante): eliminare un suo record non viola mai l'integrità referenziale. La violazione scatterebbe solo cancellando un record "padre" in \texttt{Students} ancora referenziato da altre tuple.
+
+\subsubsection{Violazioni per Operazione UPDATE}
+
+L'UPDATE può violare tutti i vincoli, a seconda dell'attributo modificato:
+\begin{itemize}
+    \item update della \textbf{chiave primaria}: integrità referenziale;
+    \item update di una \textbf{chiave esterna}: integrità referenziale;
+    \item update di un attributo ordinario: vincoli di dominio, o vincoli \texttt{UNIQUE}/\texttt{NOT NULL}.
+\end{itemize}
+
+\subsection{Come Preservare l'Integrità Referenziale}
+
+\begin{itemize}
+    \item \textbf{RESTRICT} (\textit{NO ACTION}): rifiuta l'operazione;
+    \item \textbf{CASCADE}: cancella tutte le tuple che referenziavano la PK della tupla cancellata/modificata;
+    \item \textbf{SET NULL}: assegna \texttt{NULL} alla FK delle tuple che referenziavano la tupla cancellata/modificata;
+    \item \textbf{SET DEFAULT}: assegna un valore di default alla FK delle tuple che referenziavano la tupla cancellata/modificata.
+\end{itemize}
+
+\textbf{Attenzione}: le opzioni \texttt{SET NULL} e \texttt{SET DEFAULT} \emph{non} sono disponibili se la chiave esterna include attributi che sono anche chiave primaria della tabella referenziante (altrimenti si violerebbe l'integrità dell'entità).
+
+\paragraph{Esempio in SQL.}
+\begin{verbatim}
+CREATE TABLE Enrolled (
+    studid  CHAR(20),
+    cid     CHAR(20),
+    grade   CHAR(10),
+    PRIMARY KEY (studid, cid),
+    FOREIGN KEY (studid) REFERENCES Students
+        ON DELETE CASCADE
+        ON UPDATE NO ACTION
+);
+\end{verbatim}
+
+
+
+\section{Algebra Relazionale}
+
+\subsection{Introduzione}
+
+L'\textcolor{tocsec}{\textbf{algebra relazionale}} è un linguaggio di interrogazione formale e \textbf{procedurale}: ogni operatore prende in input una o due relazioni e produce in output una relazione (proprietà di \textbf{chiusura}). Questo permette di comporre e annidare espressioni, applicando un operatore al risultato di un altro. L'algebra relazionale è alla base dei linguaggi pratici come SQL.
+
+\textbf{Operatori di base} (un insieme completo, da cui derivano tutti gli altri):
+\begin{itemize}
+    \item Selezione ($\sigma$), Proiezione ($\pi$);
+    \item Unione ($\cup$), Differenza ($-$);
+    \item Prodotto Cartesiano ($\times$);
+    \item Ridenominazione ($\rho$).
+\end{itemize}
+
+\textbf{Operatori derivati} (esprimibili in funzione dei precedenti, ma usati per comodità):
+\begin{itemize}
+    \item Intersezione ($\cap$);
+    \item Join ($\bowtie$): theta-join, equijoin, join naturale;
+    \item Divisione ($\div$).
+\end{itemize}
+
+\subsection{Schema e Dati di Riferimento}
+
+Negli esempi che seguono si userà questo schema:
+\begin{verbatim}
+Sailors(sid: integer, sname: string, rating: integer, age: real)
+Boats(bid: integer, bname: string, color: string)
+Reserves(sid: integer, bid: integer, day: date)
+\end{verbatim}
+
+con le seguenti istanze di esempio:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\multicolumn{4}{c}{\textbf{S1} (istanza di Sailors)} \\
+\midrule
+sid & sname & rating & age \\
+\midrule
+22 & dustin & 7 & 45.0 \\
+31 & lubber & 8 & 55.5 \\
+58 & rusty & 10 & 35.0 \\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\multicolumn{4}{c}{\textbf{S2} (istanza di Sailors)} \\
+\midrule
+sid & sname & rating & age \\
+\midrule
+28 & yuppy & 9 & 35.0 \\
+31 & lubber & 8 & 55.5 \\
+44 & guppy & 5 & 35.0 \\
+58 & rusty & 10 & 35.0 \\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{@{}ccc@{}}
+\toprule
+\multicolumn{3}{c}{\textbf{R1} (istanza di Reserves)} \\
+\midrule
+sid & bid & day \\
+\midrule
+22 & 101 & 10/10/96 \\
+58 & 103 & 11/12/96 \\
+\bottomrule
+\end{tabular}
+\caption{Istanze di esempio usate negli operatori seguenti}
+\end{table}
+
+\subsection{Selezione (SELECT, $\sigma$)}
+
+L'operatore di \textbf{selezione} $\sigma$ permette di selezionare un sottoinsieme delle tuple di una relazione, applicando a ciascuna di esse una formula booleana $F$.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+& \textbf{Espressione: $\sigma_F(R)$} \\
+\midrule
+Schema & $R(X) \rightarrow X$ \\
+Istanza & $r \rightarrow \sigma_F(r) = \{t \mid t \in r \text{ AND } F(t) = \text{vero}\}$ \\
+\bottomrule
+\end{tabular}
+\caption{Definizione formale di SELECT}
+\end{table}
+
+$F$ si compone di predicati connessi da AND ($\wedge$), OR ($\vee$) e NOT ($\neg$). Ogni predicato è del tipo $A \, \theta \, c$ oppure $A \, \theta \, B$, dove:
+\begin{itemize}
+    \item $A$ e $B$ sono attributi in $X$;
+    \item $c \in dom(A)$ è una costante;
+    \item $\theta$ è un operatore di confronto, $\theta \in \{=, \neq, <, >, \leq, \geq\}$.
+\end{itemize}
+
+\paragraph{Esempio.} Trovare in S2 tutti i sailor che hanno giudizio superiore a 8: $\sigma_{rating > 8}(S2)$.
+
+\textbf{Risultato:} $\{\langle 28,\text{yuppy},9,35.0\rangle, \langle 58,\text{rusty},10,35.0\rangle\}$ — stesso numero di attributi, selezionate le due (sole) tuple che soddisfano \textit{rating > 8}.
+
+\subsection{Proiezione (PROJECT, $\pi$)}
+
+L'operatore di \textbf{proiezione} $\pi$ estrae, da ogni tupla della relazione di input, solo gli attributi specificati, eliminando le colonne non richieste. Essendo il risultato un insieme, eventuali \textbf{tuple duplicate vengono eliminate}: per questo il numero di tuple del risultato può essere inferiore a quello della relazione di partenza.
+
+\paragraph{Esempio.} Trovare nome e giudizio di tutti i sailor (istanza S2): $\pi_{sname,rating}(S2)$.
+
+\textbf{Risultato:} $\{\langle\text{yuppy},9\rangle, \langle\text{lubber},8\rangle, \langle\text{guppy},5\rangle, \langle\text{rusty},10\rangle\}$.
+
+\subsection{Unione, Differenza e Intersezione}
+
+Questi operatori insiemistici richiedono che le due relazioni operande siano \textbf{union-compatibili}: stesso numero di attributi, con domini corrispondenti compatibili.
+\begin{itemize}
+    \item $R \cup S$: tutte le tuple che appartengono a $R$ o a $S$ (o entrambe);
+    \item $R - S$: le tuple che appartengono a $R$ ma non a $S$;
+    \item $R \cap S$ (\textit{derivato}): le tuple che appartengono sia a $R$ sia a $S$; $R \cap S = R - (R - S)$.
+\end{itemize}
+$\cup$ e $\cap$ sono \textbf{commutativi}; $-$ \textbf{non} lo è.
+
+\subsection{Prodotto Cartesiano ($\times$)}
+
+$R \times S$ combina \textbf{ogni} tupla di $R$ con \textbf{ogni} tupla di $S$: lo schema del risultato è la concatenazione degli attributi di $R$ e di $S$ (con $|R|\cdot|S|$ tuple in output). Se $R$ e $S$ hanno un attributo con lo stesso nome, questo compare due volte nello schema risultato, creando ambiguità.
+
+\paragraph{Esempio.} $S1 \times R1$: 6 tuple ($3 \times 2$), con la colonna \texttt{sid} duplicata (una da S1, una da R1) — l'ambiguità che motiva l'operatore di ridenominazione.
+
+\subsection{Ridenominazione (RENAME, $\rho$)}
+
+L'operatore $\rho$ rinomina la relazione e/o i suoi attributi, senza modificare i dati, per risolvere ambiguità come quella del prodotto cartesiano.
+
+\paragraph{Esempio.} $\rho(C(1 \rightarrow sid1,\, 5 \rightarrow sid2),\; S1 \times R1)$: rinomina il 1° attributo (sid da S1) in \texttt{sid1} e il 5° (sid da R1) in \texttt{sid2}.
+
+\subsection{Join}
+
+\subsubsection{Theta-Join}
+
+Il \textbf{theta-join} $R \bowtie_c S$ equivale a $\sigma_c(R \times S)$: un prodotto cartesiano seguito da una selezione secondo una condizione $c$ qualsiasi (non solo uguaglianze). Lo schema del risultato mantiene \textbf{entrambi} gli attributi coinvolti nella condizione, anche se omonimi.
+
+\paragraph{Esempio.} $S1 \bowtie_{S1.sid < R1.sid} R1$: delle 6 combinazioni possibili, solo 2 soddisfano la condizione $sid_{S1} < sid_{R1}$: $\langle 22,\text{dustin},7,45.0,58,103,\text{11/12/96}\rangle$ e $\langle 31,\text{lubber},8,55.5,58,103,\text{11/12/96}\rangle$.
+
+\subsubsection{Join Naturale}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+& \textbf{Espressione: $R_1 \bowtie R_2$} \\
+\midrule
+Schema & $R_1(X_1), R_2(X_2) \rightarrow X_1 \cup X_2$ \\
+Istanza & $r_1, r_2 \rightarrow r_1 \bowtie r_2 = \{t \mid t[X_1] \in r_1 \text{ AND } t[X_2] \in r_2\}$ \\
+\bottomrule
+\end{tabular}
+\caption{Definizione formale del join naturale}
+\end{table}
+
+Ogni tupla del risultato combina (\textit{match}) una tupla di $r_1$ con una di $r_2$ sulla base dell'\textbf{uguaglianza} dei valori degli attributi comuni ($X_1 \cap X_2$); questi attributi compaiono \textbf{una sola volta} nello schema risultato.
+
+\textbf{Osservazioni:}
+\begin{itemize}
+    \item una tupla che non trova corrispondenza nell'altra relazione si dice \textbf{dangling};
+    \item la cardinalità del join è compresa tra 0 e $|r_1| \cdot |r_2|$;
+    \item se il join è eseguito su una superchiave di $R_1(X_1)$, allora $|r_1 \bowtie r_2| \leq |r_2|$;
+    \item se $X_1 \cap X_2$ è chiave primaria di $R_1(X_1)$ e chiave esterna in $R_2(X_2)$ (vincolo di integrità referenziale), allora $|r_1 \bowtie r_2| = |r_2|$.
+\end{itemize}
+
+\subsubsection{Equijoin}
+
+È la forma di join più comunemente utilizzata: la condizione $c$ include \textbf{soltanto} confronti di uguaglianza ($=$).
+
+\paragraph{Esempio.} $S1 \bowtie_{sid=sid} R1$: risultato $\{\langle 22,\text{dustin},7,45.0,101,\text{10/10/96}\rangle, \langle 58,\text{rusty},10,35.0,103,\text{11/12/96}\rangle\}$ (la tupla con $sid=31$ è \textit{dangling}: nessuna corrispondenza in R1).
+
+% Nota: per come è presentata in queste slide, nell'EQUIJOIN la colonna usata nella condizione compare una sola volta nel risultato (quella della relazione di sinistra) — una semplificazione specifica di queste slide, diversa dal theta-join generico visto sopra.
+
+\subsection{Divisione ($\div$)}
+
+Dati $A(x,y)$ e $B(y)$, $A \div B$ restituisce l'insieme delle tuple $x$ tali che, per \textbf{ogni} tupla $y$ in $B$, la coppia $(x,y)$ compare in $A$. Caso d'uso tipico: "trovare i sailor che hanno prenotato \textbf{tutte} le barche in un certo insieme".
+
+\paragraph{Esempio.} Dato $A(sno,pno)$ con le coppie $\{s_1p_1, s_1p_2, s_1p_3, s_1p_4, s_2p_1, s_2p_2, s_3p_2, s_4p_2, s_4p_4\}$:
+\begin{itemize}
+    \item $B_1 = \{p_2\}$ $\Rightarrow$ $A/B_1 = \{s_1, s_2, s_3, s_4\}$ (tutti prenotano $p_2$);
+    \item $B_2 = \{p_2, p_4\}$ $\Rightarrow$ $A/B_2 = \{s_1, s_4\}$ (solo loro prenotano \textbf{sia} $p_2$ \textbf{sia} $p_4$);
+    \item $B_3 = \{p_1, p_2, p_4\}$ $\Rightarrow$ $A/B_3 = \{s_1\}$ (solo $s_1$ prenota tutte e tre).
+\end{itemize}
+
+\subsection{Outer Join}
+
+A differenza del join (naturale o theta), l'\textbf{outer join} conserva anche le tuple \textit{dangling}, riempiendo con \texttt{NULL} gli attributi mancanti:
+\begin{itemize}
+    \item \textbf{LEFT OUTER JOIN}: conserva le tuple dangling della relazione di sinistra;
+    \item \textbf{RIGHT OUTER JOIN}: conserva le tuple dangling della relazione di destra;
+    \item \textbf{FULL OUTER JOIN}: conserva le tuple dangling di entrambe le relazioni.
+\end{itemize}
+% Nota per me: la slide originale include uno schema a diagramma per illustrare i tre casi che non ho verificato visivamente; il testo sopra riporta solo la definizione.
+
+\subsection{Espressioni ed Alberi di Query}
+
+Un'espressione di algebra relazionale può essere rappresentata come un \textbf{albero di query}: le foglie sono le relazioni di base, i nodi interni sono gli operatori, e la valutazione procede dal basso verso l'alto. Espressioni algebricamente equivalenti (stesso risultato per ogni istanza valida) possono corrispondere ad alberi diversi con costi di esecuzione molto differenti: è la base per l'\textbf{ottimizzazione delle query}, approfondita quando si tratterà l'analisi dei costi.
+% Nota per me: le slide mostrano un esempio concreto di albero di query e un confronto tra due alberi equivalenti con costo diverso, che non ho verificato visivamente — vedi le slide originali per l'esempio specifico.
+
+
+\end{document}

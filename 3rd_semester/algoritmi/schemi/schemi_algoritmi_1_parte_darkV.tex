@@ -1,0 +1,2684 @@
+\documentclass[12pt, a4paper]{article}
+
+\def\islight{true} 
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{eurosym}
+\usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{datetime}
+\usepackage{pmboxdraw}
+\usepackage{array}
+\usepackage{float}
+\usepackage{tcolorbox}
+
+\newcommand{\myfootertext}{}
+\newcommand{\myicon}{}
+
+\ifx\islight\undefined
+    \definecolor{lightergray}{gray}{0.85}
+    \definecolor{tocsec}{gray}{0.85}
+    \definecolor{tocsubsec}{gray}{0.75}
+    \renewcommand{\myicon}{logo_unitn_scuro.png}
+    \renewcommand{\myfootertext}{Appunti redatti per gli studenti del DISI. \\ Eventuali errori possono essere segnalati su GitHub.}
+    \pagecolor{black}
+    \color{white}
+\else
+    \definecolor{lightergray}{gray}{0.35}
+    \definecolor{tocsec}{gray}{0.35}
+    \definecolor{tocsubsec}{gray}{0.45}
+    \renewcommand{\myicon}{logo_unitn_chiaro.png}
+    \renewcommand{\myfootertext}{Versione Light Mode. Disponibile anche la \href{https://github.com/mirconegri/University/blob/main/3rd_semester/algoritmi/schemi/}{versione Dark Mode}.}    \pagecolor{white}
+    \color{black}
+\fi
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=lightergray,
+    urlcolor=cyan,
+    pdftitle={Appunti di Algoritmi e strutture dati},
+    pdfauthor={Mirco Negri}
+}
+
+\renewcommand{\cftsecfont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecpagefont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecleader}{\color{tocsubsec}\cftdotfill{\cftdotsep}}
+
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+
+\begingroup
+    \hypersetup{hidelinks}
+    \href{https://www.unitn.it/}{%
+        \begin{tabular}{@{}c@{}}
+            {\includegraphics[width=0.25\textwidth]{\myicon}} \\[1cm]
+            {\scshape\LARGE Università degli Studi di Trento} \\[0.4cm]
+            {\large Dipartimento di Ingegneria e Scienza dell'Informazione}
+        \end{tabular}%
+    }\par
+    \endgroup    
+    
+    \vspace{2cm}
+    
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://github.com/mirconegri/University}{%
+        \begin{tabular}{@{}c@{}}
+            {\color{cyan}\rule{\textwidth}{1pt}} \\[0.5cm]
+            {\Huge\bfseries Appunti di Algoritmi e strutture dati} \\ [0.5cm]
+            {\Large\itshape Lezioni, e Simulazioni d'esame}\\ [0.4cm]
+            {\color{cyan}\rule{\textwidth}{1pt}}
+        \end{tabular}%
+    }\par
+    \endgroup
+    
+    \vspace{2.5cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\small \textit{\myfootertext} \par}
+    \vspace{0.8cm}
+    
+    {\large \monthname\ \the\year \par}
+\end{titlepage}
+
+\newpage
+\begingroup
+\hypersetup{hidelinks}
+\tableofcontents
+\endgroup
+\newpage
+
+
+\section{Introduzione al Corso}
+
+\subsection{Organizzazione e Obiettivi}
+\begin{itemize}
+\item \textbf{Docente del corso:} Prof. Alberto Montresor.
+\item \textbf{Obiettivi principali:} Imparare ad analizzare il codice degli algoritmi, convincersi del loro funzionamento e implementarli, oltre ad assimilare tecniche standard per risolvere problemi complessi.
+\item \textbf{Valutazione:} L'esame finale è suddiviso in una parte scritta (50% del voto) e una parte orale (50% del voto).
+\item \textbf{Libro di testo adottato:} \textit{Algoritmi e Strutture di Dati} di Bertossi e Montresor (Terza edizione).
+\end{itemize}
+
+\subsection{Programma del Corso}
+Il corso è diviso in due moduli:
+\begin{itemize}
+\item \textbf{Modulo A:} Analisi degli algoritmi (notazione asintotica, ricorrenze, analisi ammortizzata), strutture dati elementari (alberi, grafi, insiemi e dizionari), code con priorità e tecnica del \textit{divide-et-impera}.
+\item \textbf{Modulo B:} Strutture dati avanzate (insiemi disgiunti), programmazione dinamica, algoritmi greedy, ricerca locale, backtrack, algoritmi probabilistici e studio dei problemi NP-completi.
+\end{itemize}
+
+\newpage
+
+\section{Introduzione all'Algoritmica: Il Problema della Somma Massimale}
+
+Per introdurre l'importanza dell'efficienza degli algoritmi, viene presentato un problema classico: la ricerca del sottovettore di somma massimale.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione del Problema: Somma Massimale}]
+\textbf{Input:} Un vettore $A$ contenente $n$ interi (sia negativi che positivi).\
+\textbf{Output:} La somma massimale, definita come il valore massimo che si può ottenere sommando gli elementi di un qualunque sottovettore contiguo di $A$ (ovvero una sequenza di elementi consecutivi).
+\end{tcolorbox}
+
+\subsection{Cenni Storici e Applicazioni}
+\begin{itemize}
+\item Il problema fu introdotto nel 1977 da \textbf{Ulf Grenander} come versione semplificata per il \textit{maximum likelihood in image processing} (immagini 2D).
+\item Nel 1984, \textbf{Jay Kadane} propose un algoritmo lineare per la sua risoluzione.
+\item \textbf{Applicazioni pratiche:} Viene utilizzato nell'analisi delle sequenze genomiche per individuare segmenti biologicamente significativi (es. regioni conservate), assegnando un punteggio (score) a ciascun residuo e cercando il segmento con somma massima.
+\end{itemize}
+
+\subsection{Evoluzione delle Soluzioni Algoritmiche}
+
+Di seguito vengono presentate quattro diverse soluzioni per risolvere il problema, mostrando come ottimizzazioni successive riducano drasticamente il tempo di esecuzione.
+
+\subsubsection{Versione 1: Forza Bruta \textcolor{red}{\texorpdfstring{$\mathcal{O}(n^3)$}{O(n^3)}}}
+L'approccio più banale consiste nel ciclare su tutte le possibili coppie di indici $(i, j)$ con $i \le j$.
+\begin{itemize}
+\item Si calcola la somma per ogni possibile sottovettore chiamando una funzione \texttt{sum()} o usando un terzo ciclo esplicito.
+\item Si aggiorna il valore massimo trovato finora (\texttt{maxSoFar}).
+\end{itemize}
+
+\begin{verbatim}
+// Codice Java - Soluzione O(n^3) con ciclo esplicito
+int maxsum1(int[] A, int n) {
+int maxSoFar = 0; // Massimo trovato finora
+for (int i = 0; i < n; i++) {
+for (int j = i; j < n; j++) {
+int sumSoFar = 0; // Accumulatore per il sottovettore
+for (int k = i; k <= j; k++) {
+sumSoFar = sumSoFar + A[k];
+}
+maxSoFar = Math.max(maxSoFar, sumSoFar);
+}
+}
+return maxSoFar;
+}
+\end{verbatim}
+
+\subsubsection{Versione 2: Ottimizzazione con Accumulatore \textcolor{orange}{$\mathcal{O}(n^2)$}}
+Invece di ricalcolare la somma da zero ogni volta, si sfrutta un'ottimizzazione: se è nota la somma $s$ dei valori in $A[i...j]$, la somma di $A[i...j+1]$ è semplicemente $s + A[j+1]$.
+
+\begin{verbatim}
+
+# Codice Python - Soluzione O(n^2)
+
+def maxsum2(A):
+maxSoFar = 0 # Massimo trovato finora
+for i in range(0, len(A)):
+sum = 0 # Accumulatore
+for j in range(i, len(A)):
+sum = sum + A[j]
+maxSoFar = max(maxSoFar, sum)
+return maxSoFar
+\end{verbatim}
+\textit{Nota del trascrittore: Sulle slide è mostrata anche un'implementazione Python $\mathcal{O}(n^2)$ che fa uso della funzione di libreria \texttt{accumulate} del modulo \texttt{itertools}, la quale risulta più veloce in pratica grazie all'implementazione sottostante in C.}
+
+\subsubsection{Versione 3: Divide-et-Impera \textcolor{cyan}{$\mathcal{O}(n \texorpdfstring{\log}{log} n)$}}
+L'algoritmo suddivide il problema in sottoproblemi più piccoli:
+\begin{itemize}
+\item Si divide il vettore a metà.
+\item Si calcola la somma massimale nella parte sinistra (\texttt{maxL}).
+\item Si calcola la somma massimale nella parte destra (\texttt{maxR}).
+\item Si calcola la somma massimale del sottovettore che "attraversa" la metà, unendo il massimo a sinistra che termina in $m$ (\texttt{maxLL}) e il massimo a destra che inizia in $m+1$ (\texttt{maxRR}).
+\item Si ritorna il massimo tra questi tre valori.
+\end{itemize}
+
+\begin{verbatim}
+
+# Frammento logico in Python - Divide et Impera
+
+# Ritorna il massimo tra parte sx, parte dx e la somma incrociata al centro
+
+return max(maxL, maxR, maxLL + maxRR)
+\end{verbatim}
+
+\subsubsection{Versione 4: Programmazione Dinamica (Algoritmo di Kadane) \textcolor{green}{$\mathcal{O}(n)$}}
+La soluzione ottima lineare si basa sulla programmazione dinamica. Definiamo $maxHere_i$ come il valore del sottovettore di somma massima che termina \textit{esattamente} in posizione $A[i]$.
+
+La formula ricorsiva è:
+
+
+$$maxHere_i = \begin{cases} max(A[0], 0) & i = 0 \\ max(maxHere_{i-1} + A[i], 0) & i > 0 \end{cases}$$
+
+Il risultato finale è il valore massimo contenuto tra tutti i valori calcolati $maxHere_0 ... maxHere_{n-1}$.
+
+\begin{verbatim}
+// Codice Java - Soluzione ottima O(n)
+int maxsum4(int[] A, int n) {
+int maxSoFar = 0;
+int maxHere = 0;
+for (int i = 0; i < n; i++) {
+maxHere = Math.max(maxHere + A[i], 0);
+maxSoFar = Math.max(maxSoFar, maxHere);
+}
+return maxSoFar;
+}
+\end{verbatim}
+\textit{Nota aggiuntiva dal materiale: Esiste una variante Python di questo algoritmo in $\mathcal{O}(n)$ che, oltre a calcolare il valore della somma massimale, tiene traccia e restituisce gli indici \texttt{start} ed \texttt{end} (inizio e fine) del sottovettore trovato.}
+
+
+
+\section{Problemi Computazionali e Algoritmi}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizioni Fondamentali}]
+\textbf{Problema Computazionale:}\
+Dati un dominio di input e un dominio di output, è la relazione matematica che associa ogni elemento dell'input ad uno o più elementi dell'output.
+
+\textbf{Algoritmo:}\
+Dato un problema computazionale, è un procedimento \textit{effettivo}, espresso tramite un insieme di passi elementari ben specificati in un sistema formale di calcolo, che risolve il problema in un tempo finito.
+\end{tcolorbox}
+
+\subsection{Cenni Storici e Origine del Nome}
+\begin{itemize}
+\item I primi algoritmi documentati risalgono all'antichità: il Papiro di Rhind (1850 a.C. circa) conteneva l'algoritmo del contadino per la moltiplicazione. I matematici greci e babilonesi formularono procedure note ancor oggi, come l'algoritmo di Euclide per il massimo comune divisore (MCD).
+\item \textbf{Algoritmo:} La parola deriva dal nome del matematico, astronomo e astrologo \textbf{al-Khwarizmi} (nato in Uzbekistan, operò a Baghdad). L'opera "Algoritmi de numero indorum" introdusse i numeri arabi nel mondo occidentale (dal termine arabo \textit{sifr} = 0, poi tradotto come \textit{zephirum}, deriva \textit{zero} e \textit{cifra}).
+\item \textbf{Algebra:} Deriva dal titolo del suo libro del 820 d.C., "Al-Kitab al-muhtasar fi hisab al-gabr wa-l-muqabala".
+\end{itemize}
+
+\subsection{Pseudo-Codice}
+Il linguaggio naturale è spesso troppo impreciso per descrivere in modo non ambiguo una procedura logica. Per questo motivo viene introdotto lo \textbf{pseudo-codice}, un linguaggio intermedio e formale che astrae dalla specifica sintassi di linguaggi di programmazione come C, Java o Python.
+
+\textbf{Regole principali e convenzioni per lo pseudo-codice adottato nel corso:}
+\begin{itemize}
+\item Assegnamenti: \verb|a = b|, \verb|a += b|, scambio \verb|a, b = b, a| o con variabile temporanea.
+\item Dichiarazioni di array: \verb|T[] A = new T[0...n-1] = {0}| per un array 1D, \verb|T[][] B = new T[0...n-1][0...m-1]| per una matrice.
+\item Operatori logici testuali: \verb|and|, \verb|or|, \verb|not|.
+\item Operatori matematici: $+,\; -,\; \cdot,\; /,\; \lfloor x \rfloor,\; \lceil x \rceil,\; \log,\; x^2$.
+\item Istruzioni condizionali: \verb|if condizione then ... else ...|
+\item Cicli iterativi: \verb|while ... do|, \verb|foreach ... in ... do|. \verb|for indice = inizio to fine do|.
+\item Commenti: Segnalati dal simbolo \verb|%|.
+\item Gestione Oggetti: \verb|r = new RECTANGLE|, \verb|delete r|, \verb|r = nil|.
+\end{itemize}
+
+\newpage
+
+\section{Esempi Noti: Minimo e Ricerca}
+
+Analizziamo due problemi classici confrontando l'approccio \textit{naïf} e ingenuo con la soluzione \textit{efficiente}.
+
+\subsection{Problema 1: Ricerca del Minimo}
+\textbf{Problema:} Trovare il valore minimo all'interno di un insieme $S$.
+Definizione matematica: $min(S) = a \Leftrightarrow \exists a \in S : \forall b \in S : a \le b$
+
+\subsubsection{Algoritmo Naïf \texorpdfstring{\textcolor{red}{$\mathcal{O}(n^2)$}}{O(n²)}}
+Confronta ogni elemento con \textit{tutti} gli altri per verificare se è strettamente il minore. Il costo in termine di operazioni rilevanti (confronti) è $n^2 - n$.
+
+
+\begin{verbatim}
+% Algoritmo Naïf per il minimo (n^2 - n confronti)
+int min(int[] S, int n)
+for i = 0 to n - 1 do
+boolean isMin = true
+for j = 0 to n - 1 do
+if i != j and S[j] < S[i] then
+isMin = false
+if isMin then
+return S[i]
+\end{verbatim}
+
+\subsubsection{Algoritmo Ottimo \texorpdfstring{\textcolor{green}{$\mathcal{O}(n)$}}{O(n)}}
+Si tiene traccia di un "minimo parziale" iterando e aggiornandolo mano a mano. Il costo è di $n - 1$ confronti.
+
+\begin{verbatim}
+% Algoritmo Efficiente per il minimo (n - 1 confronti)
+int min(int[] A, int n)
+int minSoFar = A[0]
+for i = 1 to n - 1 do
+if A[i] < minSoFar then
+minSoFar = A[i]
+return minSoFar
+\end{verbatim}
+
+\subsection{Problema 2: Ricerca in un Array (Lookup)}
+\textbf{Problema:} Dato un vettore $A$ \textbf{ordinato} e privo di duplicati ($a_0 < a_1 < ... < a_{n-1}$), e un valore $v$, restituire l'indice $i$ in cui si trova $v$, oppure \verb|-1| se non esiste.
+
+\subsubsection{Ricerca Lineare Naïf \texorpdfstring{$\mathcal{O}(n)$}{O(n)}}
+Si scorre tutto l'array. L'operazione richiede nel caso peggiore $n$ confronti.
+
+\begin{verbatim}
+int lookup(int[] A, int n, int v)
+for i = 0 to n - 1 do
+if A[i] == v then
+return i
+return -1
+\end{verbatim}
+
+\subsubsection{Ricerca Binaria o Dicotomica \textcolor{cyan}{\texorpdfstring{$\mathcal{O}(\log n)$}{O(log n)}}}
+Poiché l'array è ordinato, si analizza l'elemento centrale (all'indice $m$). Se non è il numero cercato, si restringe il campo di ricerca dimezzando l'array iterativamente (a sinistra se $v < A[m]$, a destra se $v > A[m]$). In questo modo eseguiamo, nel caso pessimo, $2 \lceil \log_2 n \rceil$ operazioni.
+
+\begin{verbatim}
+% Versione Ricorsiva
+int bsRec(int[] A, int v, int start, int end)
+if start > end then
+return -1 % Vettore vuoto o elemento non trovato
+
+
+int m = floor(start + (end - start) / 2) % Calcolo indice centrale sicuro da overflow
+
+if A[m] == v then
+    return m % Trovato!
+else if A[m] < v then
+    return bsRec(A, v, m + 1, end) % Sottovettore di destra
+else
+    return bsRec(A, v, start, m - 1) % Sottovettore di sinistra
+
+
+
+\end{verbatim}
+
+\textit{Nota: Sulle slide è stato fatto notare che calcolare l'indice medio come
+\texttt{m = (start+end)/2} può portare a un bug noto come
+\textbf{integer overflow} per input sufficientemente grandi.
+L'operazione corretta e sicura in logica pseudo-codice è
+\texttt{m = start + (end - start)/2}.}
+
+
+\newpage
+
+\section{Valutazione degli Algoritmi: Efficienza e Correttezza}
+
+\subsection{Analisi dell'Efficienza (Complessità Computazionale)}
+La complessità di un algoritmo analizza le risorse impiegate per la risoluzione, espressa in funzione della dimensione dell'input.
+Le due metriche principali sono:
+\begin{itemize}
+\item \textbf{Spazio:} Memoria utilizzata durante il processo.
+\item \textbf{Tempo:} Non calcolato in "wall-clock time" (tempo d'orologio), poiché influenzato da hardware, sistema operativo, linguaggio e bravura del programmatore, ma stimato contando il \textbf{numero di operazioni rilevanti} o dominanti (es. i confronti per il minimo o la ricerca, o gli accessi alla memoria).
+\end{itemize}
+Questo approccio astrae dalle limitazioni del calcolatore per fornire una formula generalizzata della prestazione pura dell'algoritmo.
+
+\subsection{Dimostrazione di Correttezza}
+Oltre all'efficienza, dobbiamo garantire (tramite dimostrazione matematica formale) che l'algoritmo produca sempre il risultato corretto. Per fare questo per gli algoritmi \textit{iterativi}, ci si avvale del concetto di \textbf{invariante di ciclo}.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione: Invariante di Ciclo}]
+Un invariante di ciclo è una proposizione (una condizione logica) che è \textbf{sempre vera} all'inizio dell'iterazione di un ciclo.
+\end{tcolorbox}
+
+La dimostrazione si basa sul principio di induzione e segue tre passi:
+\begin{enumerate}
+\item \textbf{Inizializzazione (caso base):} La condizione è vera prima che inizi la prima esecuzione del ciclo.
+\item \textbf{Conservazione (passo induttivo):} Se la condizione è vera prima di una generica esecuzione del ciclo, rimarrà vera anche alla fine (ovvero, prima del ciclo successivo).
+\item \textbf{Conclusione:} Alla terminazione del ciclo, unito all'invariante dimostrato, si ottiene la garanzia logica che l'algoritmo ha calcolato il valore desiderato e corretto.
+\end{enumerate}
+
+\textbf{Esempio dell'invariante per l'algoritmo del minimo parziale:}\
+"\textit{All'inizio di ogni iterazione del ciclo for (riga 3), la variabile \texttt{minSoFar} contiene sempre il valore del minimo parziale degli elementi $A[0...i-1]$"}.
+
+Per gli algoritmi \textit{ricorsivi} (come la Binary Search), si utilizza invece la dimostrazione per induzione standard (sulla grandezza $n$ dell'input):
+\begin{itemize}
+\item \textbf{Caso base:} Ad es. $n=0$, il sottovettore è vuoto e viene restituito -1.
+\item \textbf{Ipotesi induttiva:} Si ipotizza vera l'asserzione per i casi $n' < n$.
+\item \textbf{Passo induttivo:} Si dimostra che, se vale per i sottomultipli (chiamate ricorsive), l'output per $n$ è matematicamente corretto.
+\end{itemize}
+
+
+
+\section{Analisi degli Algoritmi: Modelli di Calcolo e Complessità}
+
+\subsection{Obiettivi dell'Analisi}
+L'obiettivo primario dell'analisi di un algoritmo è stimare la sua efficienza, solitamente in termini di tempo. Questa stima serve a:
+\begin{itemize}
+\item Capire quanto tempo impiegherà il programma per un dato input.
+\item Valutare la dimensione massima dell'input gestibile in tempi ragionevoli.
+\item Confrontare e scegliere l'algoritmo migliore tra più alternative.
+\item Ottimizzare i colli di bottiglia.
+\end{itemize}
+
+\subsection{Definizione di Complessità}
+La complessità è una funzione matematica non negativa che lega la \textbf{dimensione dell'input} alle risorse impiegate:
+\begin{itemize}
+\item \textbf{Spazio:} $S: \text{"Dimensione input"} \rightarrow \text{"Spazio in memoria"}$
+\item \textbf{Tempo:} $T: \text{"Dimensione input"} \rightarrow \text{"Tempo di calcolo"}$
+\end{itemize}
+
+La dimensione dell'input varia a seconda del problema (es. numero di elementi in un vettore, numero di bit di un intero).
+
+\subsection{Modelli di Calcolo Astratti}
+Per definire matematicamente il costo di un algoritmo (es. il numero di "istruzioni elementari"), occorre un modello computazionale teorico che bilanci astrazione e realismo.
+\begin{itemize}
+\item \textbf{Macchina di Turing:} Utile per la calcolabilità, ma di livello troppo basso per l'analisi della complessità degli algoritmi pratici.
+\item \textbf{Random Access Machine (RAM):} È il modello di riferimento per il corso.
+\begin{itemize}
+\item Ha un processore singolo.
+\item Memoria ad accesso diretto (costante) divisa in parole di $w$ bit.
+\item Il costo delle istruzioni aritmetico/logiche elementari su singole parole di macchina è assunto \textbf{costante}.
+\end{itemize}
+\end{itemize}
+
+\subsection{Relazioni di Ricorrenza}
+Nel calcolare il tempo per funzioni ricorsive (es. Binary Search), si formula una \textbf{relazione di ricorrenza}.
+Schema generale:
+
+
+$$T(n) = \begin{cases} \text{costo del caso base} & \text{se } n \le n_0 \\ \text{costo chiamate ricorsive} + \text{lavoro locale} & \text{se } n > n_0 \end{cases}$$
+
+Ad esempio, l'equazione di ricorrenza per la ricerca dicotomica è $T(n) = T(n/2) + d$ per $n \ge 1$ (con $T(0) = c$). Espandendola iterativamente fino a $n = 2^k$, risulta una complessità $T(n) = d \log n + e$.
+
+\newpage
+
+\section{Classi di Complessità e Notazione Asintotica}
+
+L'analisi asintotica studia il comportamento della funzione di costo $T(n)$ al tendere all'infinito della dimensione dell'input $n$, ignorando costanti moltiplicative e termini di ordine inferiore.
+
+\subsection{Ordini di Crescita Comuni}
+Gli ordini di grandezza più diffusi, dal più veloce al più lento, sono:
+\begin{enumerate}
+\item Costante: $\mathcal{O}(1)$
+\item Logaritmica: $\mathcal{O}(\log n)$
+\item Lineare: $\mathcal{O}(n)$
+\item Loglineare: $\mathcal{O}(n \log n)$
+\item Quadratica: $\mathcal{O}(n^2)$
+\item Cubica: $\mathcal{O}(n^3)$
+\item Esponenziale: $\mathcal{O}(2^n)$ o simili
+\item Fattoriale: $\mathcal{O}(n!)$
+\end{enumerate}
+
+\subsection{Definizioni Formali}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Notazione $\mathcal{O}$ (Big-O) - Limite Superiore}]
+Indichiamo con $\mathcal{O}(g(n))$ l'insieme delle funzioni $f(n)$ per cui:
+
+
+$$\exists c > 0, \exists m \ge 0 : f(n) \le c \cdot g(n),\; \forall n \ge m$$
+
+
+Significato: $f(n)$ cresce al più come $g(n)$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Notazione $\Omega$ (Omega) - Limite Inferiore}]
+Indichiamo con $\Omega(g(n))$ l'insieme delle funzioni $f(n)$ per cui:
+
+
+$$\exists c > 0, \exists m \ge 0 : f(n) \ge c \cdot g(n),\; \forall n \ge m$$
+
+
+Significato: $f(n)$ cresce almeno quanto $g(n)$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Notazione $\Theta$ (Theta) - Limite Stretto}]
+Indichiamo con $\Theta(g(n))$ l'insieme delle funzioni $f(n)$ per cui:
+
+
+$$\exists c_1 > 0, \exists c_2 > 0, \exists m \ge 0 : c_1 \cdot g(n) \le f(n) \le c_2 \cdot g(n),\; \forall n \ge m$$
+
+
+Significato: $f(n)$ cresce \textit{esattamente} come $g(n)$ a meno di costanti.
+NB: $f(n) = \Theta(g(n)) \Leftrightarrow f(n) = \mathcal{O}(g(n)) \land f(n) = \Omega(g(n))$.
+\end{tcolorbox}
+
+\subsubsection{Notazioni per Limiti Non Stretti}
+\begin{itemize}
+\item \textbf{Piccolo-O ($o$):} Limite superiore \textit{stretto} (strettamente minore asintoticamente).
+\item \textbf{Piccolo-Omega ($\omega$):} Limite inferiore \textit{stretto} (strettamente maggiore asintoticamente).
+\end{itemize}
+Utile il calcolo tramite i limiti per $n \rightarrow \infty$:
+\begin{itemize}
+\item $\lim \frac{f(n)}{g(n)} = 0 \Rightarrow f(n) = o(g(n))$
+\item $\lim \frac{f(n)}{g(n)} = c > 0 \Rightarrow f(n) = \Theta(g(n))$
+\item $\lim \frac{f(n)}{g(n)} = +\infty \Rightarrow f(n) = \omega(g(n))$
+\end{itemize}
+
+\subsection{Proprietà Matematiche della Notazione Asintotica}
+Siano date delle costanti e delle generiche funzioni di costo:
+
+\begin{itemize}
+\item \textbf{Dualità:} $f(n) = \mathcal{O}(g(n)) \Leftrightarrow g(n) = \Omega(f(n))$.
+\item \textbf{Eliminazione Costanti:} $f(n) = \mathcal{O}(g(n)) \Leftrightarrow a \cdot f(n) = \mathcal{O}(g(n)),\; \forall a > 0$.
+\item \textbf{Somma (blocchi in sequenza):} L'ordine di grandezza di una sequenza è dominato dal termine più oneroso:
+
+
+$$f_1(n) + f_2(n) = \mathcal{O}(\max(g_1(n), g_2(n))) \quad \text{se} \quad f_i(n) = \mathcal{O}(g_i(n))$$
+
+
+\item \textbf{Prodotto (cicli annidati):}
+
+
+$$f_1(n) \cdot f_2(n) = \mathcal{O}(g_1(n) \cdot g_2(n))$$
+
+
+\item \textbf{Simmetria e Transitività:} Valgono le proprietà transitiva per tutte le notazioni e di simmetria per il $\Theta$.
+\end{itemize}
+
+\subsection{Regole Pratiche e semplificazioni}
+\begin{itemize}
+\item \textbf{Polinomi:} Qualsiasi polinomio di grado $k$, indipendentemente dai coefficienti (purché $a_k > 0$), è \textbf{$\Theta(n^k)$}.
+\item \textbf{Logaritmi:} Qualsiasi base logaritmica è ininfluente ai fini asintotici ($\log_a n = \Theta(\log n)$). Inoltre, il logaritmo cresce sempre più lentamente di un \textit{qualsiasi} polinomio: $\log n = \mathcal{O}(n^k) \;\forall k > 0$.
+\item \textbf{Esponenziali:} Basi diverse negli esponenziali non sono equivalenti: $2^n \neq \Theta(3^n)$ e anzi $2^n = \mathcal{O}(3^n)$.
+\end{itemize}
+
+
+
+
+\section{Complessità: Algoritmi vs. Problemi}
+
+Esiste una netta distinzione tra valutare l'efficienza di uno specifico \textit{algoritmo} e valutare l'efficienza intrinseca del \textit{problema} in sé.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Complessità di un Problema Computazionale}]
+\begin{itemize}
+\item \textbf{Limite superiore $\mathcal{O}(f(n))$:} Un problema ha limite superiore $\mathcal{O}(f(n))$ se \textbf{esiste almeno un algoritmo} corretto in grado di risolverlo in tempo $\mathcal{O}(f(n))$.
+\item \textbf{Limite inferiore $\Omega(g(n))$:} Un problema ha limite inferiore $\Omega(g(n))$ se \textbf{ogni} possibile algoritmo (anche quelli non ancora inventati) richiede asintoticamente tempo $\Omega(g(n))$.
+\end{itemize}
+Se il limite inferiore e il limite superiore coincidono, l'algoritmo che lo raggiunge è considerato \textbf{asintoticamente ottimo}.
+\end{tcolorbox}
+
+\subsection{Esempio: La Moltiplicazione tra Numeri}
+Spesso tendiamo a valutare un problema basandoci sull'algoritmo naif che ci è stato insegnato.
+\begin{itemize}
+\item L'algoritmo elementare per la somma di due numeri binari di $n$ bit costa $\Theta(n)$.
+\item L'algoritmo elementare per il prodotto di due numeri binari genera $n$ prodotti parziali per $n$ bit e costa $\Theta(n^2)$.
+\end{itemize}
+Questo non significa che la moltiplicazione debba per forza costare $\Theta(n^2)$. È \textit{l'algoritmo classico} a costare così, non il problema.
+
+Nel 1960, Kolmogorov ipotizzò che il limite inferiore del prodotto fosse $\Omega(n^2)$. Una settimana dopo, il suo studente Karatsuba smentì questa teoria inventando un algoritmo Divide-et-impera (che suddivide il prodotto riducendo il numero di chiamate ricorsive da 4 a 3), abbassando il limite superiore a $\mathcal{O}(n^{\log_2 3}) \approx \mathcal{O}(n^{1.585})$. Nel corso dei decenni, nuovi algoritmi (Toom-Cook, FFT) hanno progressivamente abbassato questo limite. Il limite inferiore dimostrato ad oggi è solo $\Omega(n)$.
+
+\newpage
+
+\section{Algoritmi di Ordinamento (Sorting)}
+
+L'ordinamento è fondamentale per comprendere come il comportamento asintotico di un algoritmo dipenda pesantemente dalla conformazione dell'input.
+Per gli algoritmi di ordinamento, si analizza il caso \textit{Peggiore, Medio e Migliore}.
+
+\subsection{Selection Sort}
+Cerca il minimo della parte non ordinata e lo sostituisce, iterando la parte restante.
+\begin{itemize}
+\item \textbf{Costo:} Il numero di confronti è fisso: $\sum_{i=0}^{n-2}(n-i-1) = \frac{n(n-1)}{2} = \Theta(n^2)$.
+\item \textbf{Comportamento:} Non sfrutta ordinamenti parziali, il costo è invariabile. (Migliore = Medio = Peggiore = $\Theta(n^2)$).
+\end{itemize}
+
+\subsection{Insertion Sort}
+Scorre l'array simulando il comportamento di "ordinare una mano di carte", espandendo iterativamente un prefisso già ordinato e inserendo l'elemento $i$-esimo nella posizione adatta spostando verso destra i valori più alti.
+\begin{itemize}
+\item \textbf{Caso Migliore:} Input già ordinato. Nessun elemento viene spostato. Costo $\Theta(n)$.
+\item \textbf{Caso Medio e Peggiore (Ordinato al contrario):} L'elemento va spostato fino all'inizio. Costo $\Theta(n^2)$.
+\end{itemize}
+
+\subsection{Merge Sort}
+Applica rigorosamente il \textit{Divide et Impera}.
+\begin{enumerate}
+\item \textbf{Divide:} Spezza virtualmente a metà il vettore, ricorsivamente fino ad avere array di lunghezza 1.
+\item \textbf{Impera/Combina (\texttt{Merge}):} Confronta i primi elementi di due array già ordinati per rimetterli progressivamente all'interno di un vettore di appoggio $B$ ordinato. (Costo operazione Merge: $\Theta(n)$).
+\end{enumerate}
+L'albero di esecuzione ha profondità $\log n$ e ad ogni livello il costo per ricombinare ($cn$) copre tutto l'array.
+\begin{itemize}
+\item \textbf{Costo Computazionale:} $T(n) = 2T(n/2) + cn = \Theta(n \log n)$ per ogni tipo di input.
+\end{itemize}
+Nota pratica: Nonostante Merge Sort abbia una superiorità asintotica su Insertion Sort, i bassi costi delle costanti e dell'overhead per chiamate ricorsive fanno sì che per $n$ molto bassi (es. $n < 64$) Insertion Sort performi empiricamente meglio. Le implementazioni reali usano un mix (es. Timsort).
+
+\newpage
+
+\section{Limiti Teorici dell'Ordinamento e Modelli Alternativi}
+
+\subsection{Limite Inferiore per l'Ordinamento Basato su Confronti}
+Qualsiasi algoritmo che ordina un array \textbf{effettuando solo confronti} tra coppie di chiavi ha un limite inferiore teorico di \textbf{$\Omega(n \log n)$}.
+\textbf{Dimostrazione:}\
+Per ordinare, un algoritmo deve saper distinguere tutte le possibili permutazioni degli elementi, che sono $n!$. Poiché un confronto ha esito \textit{True} o \textit{False}, i possibili flussi logici formano un albero binario decisionale dove le permutazioni $n!$ risiedono nelle foglie. L'altezza $h$ dell'albero rappresenta il caso pessimo:
+
+
+$$2^h \ge n! \implies h \ge \log_2(n!)$$
+
+
+Stimando matematicamente il termine (considerando che i termini della metà superiore superano $n/2$), si ottiene $\log_2(n!) = \Omega(n \log n)$.
+
+\subsection{Counting Sort: Superare il limite cambiando Modello}
+Se si cambia il modello di calcolo e l'ipotesi sui dati di partenza, si può violare il limite di $\Omega(n \log n)$.
+
+\textbf{Ipotesi:} I dati da ordinare non sono reali o stringhe arbitrarie, ma \textbf{interi} in un range noto e limitato $[0 \dots k-1]$.\
+\textbf{Idea:} Si allocano contatori per ogni possibile valore (array $B$ di dimensione $k$). Si legge ogni input $A[j]$ e non lo si confronta, ma si va \textit{direttamente} all'indice $B[A[j]]$ e lo si incrementa. Infine si ricostruisce l'array scartando iterativamente i contatori.
+\begin{itemize}
+\item \textbf{Costo temporale:} $\Theta(n + k)$.
+\item \textbf{Costo spaziale aggiuntivo:} $\Theta(k)$.
+\end{itemize}
+\textbf{Conseguenze:}
+\begin{itemize}
+\item Se $k = \mathcal{O}(n)$ (es. 1 milione di persone con età tra 0 e 120 anni), il costo è incredibilmente lineare e fulmineo: \textbf{$\Theta(n)$}.
+\item Se $k = \Omega(2^n)$ (intervalli di numeri enormemente grandi rispetto agli elementi totali), diventa inutilizzabile per ragioni di spazio e tempo.
+\end{itemize}
+
+
+
+\section{Risoluzione delle Equazioni di Ricorrenza}
+
+Il costo di un algoritmo ricorsivo dipende dal costo delle chiamate su input di dimensioni ridotte. Questa dipendenza è descritta matematicamente da una \textbf{relazione di ricorrenza}. L'obiettivo dell'analisi è trovare una forma chiusa (asintotica) per tale equazione (es. per il Merge Sort, calcolare che $T(n) = \Theta(n \log n)$).
+
+Esistono tre metodi complementari per risolvere le ricorrenze:
+\begin{enumerate}
+\item \textbf{Analisi per livelli (Albero delle chiamate):} Rende visibili il numero e il costo delle chiamate livello per livello.
+\item \textbf{Metodo della sostituzione:} Formula un'ipotesi e la dimostra rigorosamente per induzione matematica.
+\item \textbf{Teorema dell'esperto (Master Theorem):} Risolve direttamente e in modo meccanico intere famiglie di ricorrenze note.
+\end{enumerate}
+
+\subsection{1. Analisi per Livelli (Albero delle Chiamate)}
+L'idea è espandere l'equazione calcolando, per ogni livello dell'albero di ricorsione:
+\begin{itemize}
+\item Il numero di chiamate e la dimensione dei sottoproblemi.
+\item Il costo non ricorsivo di una singola chiamata (il lavoro locale).
+\item Il costo complessivo del livello.
+\end{itemize}
+
+La complessità totale dipende dal confronto tra la \textbf{crescita del numero di sottoproblemi} e la \textbf{diminuzione del costo del lavoro locale}. Osserviamo tre casi tipici aventi 4 sottoproblemi di dimensione $n/2$:
+
+\begin{itemize}
+\item \textbf{Caso 1: $T(n) = 4T(n/2) + n$}
+\begin{itemize}
+\item Il costo dei livelli cresce scendendo verso il basso.
+\item Dominano le foglie (l'ultimo livello costa $n^2$).
+\item Risultato: $\Theta(n^2)$.
+\end{itemize}
+\item \textbf{Caso 2: $T(n) = 4T(n/2) + n^2$}
+\begin{itemize}
+\item L'aumento delle chiamate compensa esattamente la diminuzione del costo locale.
+\item Tutti i livelli costano $n^2$, e ci sono $\log n$ livelli.
+\item Risultato: $\Theta(n^2 \log n)$.
+\end{itemize}
+\item \textbf{Caso 3: $T(n) = 4T(n/2) + n^3$}
+\begin{itemize}
+\item Il costo diminuisce scendendo nell'albero.
+\item Domina la radice (il primo livello costa $n^3$).
+\item Risultato: $\Theta(n^3)$.
+\end{itemize}
+\end{itemize}
+
+\subsection{2. Metodo della Sostituzione (o per Tentativi)}
+Questo metodo consiste nell'intuire ("indovinare") una possibile soluzione asintotica e dimostrarne la validità tramite \textbf{induzione matematica}.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Procedura del Metodo della Sostituzione}]
+\begin{enumerate}
+\item \textbf{Tentativo:} Si ipotizza un limite (es. $T(n) = \mathcal{O}(n)$ significa ipotizzare $T(n) \le c \cdot n$).
+\item \textbf{Ipotesi Induttiva:} Si assume che l'ipotesi sia vera per ogni $k < n$ (es. $T(k) \le c \cdot k$).
+\item \textbf{Passo Induttivo:} Si sostituisce l'ipotesi induttiva all'interno della ricorrenza di partenza e si dimostra la disequazione per $T(n)$ tramite passaggi algebrici, trovando le costanti valide.
+\item \textbf{Caso Base:} Si verifica la correttezza della costante sul caso base (es. $T(1)$ o $T(2)$).
+\end{enumerate}
+\end{tcolorbox}
+
+\textbf{Complicazioni comuni e astuzie matematiche:}
+\begin{itemize}
+\item \textbf{Problemi con i termini di ordine inferiore:} A volte un limite superiore corretto fallisce nel passo induttivo (es. si ottiene $cn + 1 \le cn$, che è impossibile). In questi casi, bisogna formulare un'ipotesi induttiva \textit{più stretta} sottraendo un termine di grado inferiore: ipotizzare $T(k) \le ck - b$ (con $b>0$).
+\item \textbf{Problemi con i casi base:} A causa della presenza di fattori logaritmici, il caso base $n=1$ potrebbe non essere verificabile (poiché $\log 1 = 0$). Sfruttando le proprietà asintotiche, si può aggirare il problema spostando il caso base a $n=2$ o $n=3$, purché la condizione valga per tutti gli $n \ge m$.
+\end{itemize}
+
+\subsection{3. Il Teorema dell'Esperto (Master Theorem)}
+Risolve in modo diretto le ricorrenze basate sulla tecnica \textit{divide-et-impera}.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Teorema dell'Esperto (Versione Ridotta)}]
+Siano $a \ge 1$ e $b > 1$ costanti, $c, d > 0$ e $\beta \ge 0$. Data la ricorrenza:
+
+
+$$T(n) = \begin{cases} d & n \le 1 \\ aT(n/b) + cn^\beta & n > 1 \end{cases}$$
+
+
+Definiamo \textcolor{red}{$\alpha = \log_b a$}. Confrontando $\alpha$ e $\beta$ si ottiene:
+\begin{itemize}
+\item Se $\alpha > \beta \implies T(n) = \Theta(n^\alpha)$
+\item Se $\alpha = \beta \implies T(n) = \Theta(n^\alpha \log n)$
+\item Se $\alpha < \beta \implies T(n) = \Theta(n^\beta)$
+\end{itemize}
+\end{tcolorbox}
+
+\subsubsection{Versione Estesa e Casi Logaritmici}
+Se il termine non ricorsivo non è un semplice monomio $n^\beta$ ma una funzione $f(n)$, si confronta $f(n)$ con $n^\alpha$:
+\begin{itemize}
+\item Se $f(n) = \mathcal{O}(n^{\alpha - \epsilon})$ per un $\epsilon > 0 \implies \Theta(n^\alpha)$.
+\item Se $f(n) = \Theta(n^\alpha) \implies \Theta(n^\alpha \log n)$.
+\item Se $f(n) = \Omega(n^{\alpha + \epsilon})$ e rispetta la condizione di regolarità ($a f(n/b) \le c f(n)$ per un $c<1$) $\implies \Theta(f(n))$.
+\end{itemize}
+
+\textbf{Estensione con fattori logaritmici:} Se $f(n) = \Theta(n^\beta \log^k n)$ e $\alpha = \beta$:
+\begin{itemize}
+\item Per $k > -1 \implies T(n) = \Theta(n^\alpha \log^{k+1} n)$.
+\item Per $k = -1 \implies T(n) = \Theta(n^\alpha \log \log n)$.
+\end{itemize}
+
+\subsection{Altre Ricorrenze Comuni (Lineari)}
+Non tutti gli algoritmi dividono l'input in frazioni $n/b$. Alcuni riducono l'input di una costante (es. $n-1$, $n-2$).
+Per equazioni del tipo: $T(n) = \sum_{i=1}^h a_i T(n-i) + \Theta(n^\beta)$ (con $a = \sum a_i$):
+\begin{itemize}
+\item Se $a = 1 \implies T(n) = \Theta(n^{\beta+1})$ (es. $T(n) = T(n-1) + n \implies \Theta(n^2)$).
+\item Se $a \ge 2 \implies T(n) = \mathcal{O}(a^n)$ (es. $T(n) = 2T(n-1) + 1 \implies \mathcal{O}(2^n)$).
+\end{itemize}
+
+\newpage
+
+\section{Ritorno alla Somma Massimale: Analisi Formale}
+Applichiamo gli strumenti matematici appena definiti per dimostrare le complessità delle 4 versioni dell'algoritmo della somma massimale viste nell'introduzione del corso.
+
+\begin{itemize}
+\item \textbf{Versione 1 (Forza Bruta - $\Theta(n^3)$):}\
+Si contano le esecuzioni del ciclo più interno:
+
+
+$$T(n) = \sum_{i=0}^{n-1} \sum_{j=i}^{n-1} (j - i + 1)$$
+
+
+Maggiorando le sommatorie si dimostra il limite superiore $T(n) \le \sum \sum n = \sum n^2 = n^3 = \mathcal{O}(n^3)$.
+Minorando opportunamente gli indici, si dimostra il limite inferiore $T(n) \ge \frac{n^3}{32} = \Omega(n^3)$.
+
+\item \textbf{Versione 2 (Ottimizzata - $\Theta(n^2)$):}\\
+Il ciclo più interno viene eseguito $n-i$ volte:
+$$T(n) = \sum_{i=0}^{n-1} (n - i) = \sum_{i=1}^{n} i = \frac{n(n+1)}{2} = \Theta(n^2)$$
+
+\item \textbf{Versione 3 (Divide-et-Impera - $\Theta(n \log n)$):}\\
+L'algoritmo genera due chiamate ricorsive su metà array e un ciclo lineare per unire le soluzioni[cite: 5].
+La ricorrenza è:
+$$T(n) = 2T(n/2) + n$$
+Applicando il \textbf{Master Theorem} (ridotto) con $a=2, b=2, \beta=1 \implies \alpha = \log_2 2 = 1 = \beta$.
+Rientra nel caso 2 del teorema, quindi $T(n) = \Theta(n \log n)$[cite: 5].
+
+\item \textbf{Versione 4 (Programmazione Dinamica - $\Theta(n)$):}\\
+L'algoritmo (Kadane) scansiona l'array con un singolo ciclo \texttt{for} da $0$ a $n-1$. È banale dedurre che $T(n) = \Theta(n)$[cite: 5].
+
+\end{itemize}
+
+
+
+\section{Analisi Ammortizzata}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione: Analisi Ammortizzata}]
+L'analisi ammortizzata è una tecnica utilizzata per valutare il tempo richiesto per eseguire, \textbf{nel caso pessimo, una sequenza di operazioni} su una struttura dati.
+Se le operazioni più costose sono poco frequenti, il loro costo può essere "spalmato" (ammortizzato) dalle operazioni meno costose e più frequenti.
+\end{tcolorbox}
+
+\textbf{Differenza cruciale con il Caso Medio:}
+\begin{itemize}
+\item \textit{Caso medio:} È un'analisi probabilistica basata su una \textit{singola} operazione e sulla distribuzione dell'input.
+\item \textit{Analisi ammortizzata:} È un'analisi \textbf{deterministica} su \textit{operazioni multiple}, valutando un limite garantito nel caso pessimo dell'intera sequenza.
+\end{itemize}
+
+Esistono tre metodi fondamentali per effettuare un'analisi ammortizzata:
+\begin{enumerate}
+\item \textbf{Metodo dell'aggregazione:} Tecnica matematica (calcola la complessità $T(n)$ per $n$ operazioni in sequenza).
+\item \textbf{Metodo degli accantonamenti:} Tecnica di stampo economico (basata su "crediti" e "debiti").
+\item \textbf{Metodo del potenziale:} Tecnica di stampo fisico (basata su "l'energia potenziale" del sistema).
+\end{enumerate}
+
+\subsection{Caso di Studio: Contatore Binario}
+Consideriamo un contatore binario a $k$ bit implementato come un vettore $A$ di booleani ($0/1$), dove $A[0]$ è il LSB e $A[k-1]$ è il MSB. L'operazione da analizzare è l'incremento di $1$.
+
+\begin{verbatim}
+% Operazione di incremento del contatore
+increment(int[] A, int k)
+int i = 0
+% Finché trovo 1, li azzero (riporto)
+while i < k and A[i] == 1 do
+A[i] = 0
+i = i + 1
+% Se non ho superato i bit disponibili, accendo un bit a 1
+if i < k then
+A[i] = 1
+\end{verbatim}
+
+\subsubsection{1. Metodo dell'Aggregazione}
+Si calcola la complessità totale $T(n)$ per eseguire $n$ operazioni e la si divide per $n$, ottenendo la media nel caso pessimo.
+\begin{itemize}
+\item \textit{Analisi grossolana:} Ogni operazione costa al massimo $\mathcal{O}(k) = \mathcal{O}(\log n)$ bit flip. Quindi $n$ operazioni costano $\mathcal{O}(n \log n)$. Costo ammortizzato: \textcolor{red}{$\mathcal{O}(\log n)$}.
+\item \textit{Analisi stretta (Aggregazione):} Non tutti i bit cambiano ogni volta. $A[0]$ cambia ogni incremento, $A[1]$ ogni 2, $A[2]$ ogni 4, e in generale $A[i]$ cambia ogni $2^i$ incrementi.
+\end{itemize}
+Il costo totale reale è la somma dei bit modificati:
+
+
+$$T(n) = \sum_{i=0}^{k-1} \lfloor \frac{n}{2^i} \rfloor \le n \sum_{i=0}^{k-1} \frac{1}{2^i} \le n \sum_{i=0}^{+\infty} \left(\frac{1}{2}\right)^i = 2n$$
+
+
+Costo ammortizzato: $\frac{T(n)}{n} \le \frac{2n}{n} = 2 =$ \textcolor{green}{$\mathcal{O}(1)$}.
+
+\subsubsection{2. Metodo degli Accantonamenti}
+Si assegna un \textbf{costo ammortizzato fittizio} alle operazioni. Le operazioni meno costose vengono caricate di un costo aggiuntivo detto \textit{credito}, che viene consumato per pagare le operazioni più costose in futuro. L'invariante è che il credito totale cumulato $\ge 0$.
+
+\begin{itemize}
+\item Costo effettivo per modificare un bit: $1$.
+\item Fissiamo il \textbf{costo ammortizzato dell'operazione a 2}.
+\item Quando capovolgiamo un $0 \to 1$, paghiamo $1$ per l'operazione reale e \textbf{accantoniamo $1$} come credito associato a quel bit.
+\item Quando, per il riporto, dobbiamo azzerare un $1 \to 0$, il costo reale è $1$, ma è \textbf{pagato dal credito} accumulato precedentemente su quel bit.
+\item Poiché in ogni istante il credito è pari al numero di bit a $1$ (sempre $\ge 0$), il costo totale per $n$ operazioni è limitato da $2n = \mathcal{O}(n)$. Costo ammortizzato: \textcolor{green}{$\mathcal{O}(1)$}.
+\end{itemize}
+
+\subsubsection{3. Metodo del Potenziale}
+Lo stato del sistema è descritto da una \textbf{funzione di potenziale $\Phi(S)$}, che rappresenta il lavoro contabilizzato ma non ancora eseguito.
+Formula del costo ammortizzato dell'i-esima operazione:
+
+
+$$a_i = c_i + \Phi(S_i) - \Phi(S_{i-1})$$
+
+
+(Costo ammortizzato = Costo effettivo + Variazione di potenziale).
+
+Nel contatore binario:
+\begin{itemize}
+\item Poniamo $\Phi(S) =$ numero di bit a $1$ presenti nel contatore.
+\item Durante un incremento incontriamo $t$ bit a $1$ che diventano $0$, e un bit a $0$ che diventa $1$.
+\item \textbf{Costo effettivo:} $c_i = 1 + t$ (i $t$ bit azzerati più l'uno acceso).
+\item \textbf{Variazione di potenziale:} Il numero di bit a 1 aumenta di $1$ e diminuisce di $t \implies \Phi(S_i) - \Phi(S_{i-1}) = 1 - t$.
+\item \textbf{Costo ammortizzato:} $a_i = (1 + t) + (1 - t) = 2 =$ \textcolor{green}{$\mathcal{O}(1)$}.
+\end{itemize}
+Poiché $\Phi(S_0) = 0$ e $\Phi(S_n) \ge 0$, la differenza di potenziale globale è non negativa e l'analisi è valida.
+
+\newpage
+
+\section{Vettori Dinamici (Dynamic Arrays)}
+
+I vettori dinamici (\texttt{ArrayList} in Java, \texttt{std::vector} in C++, \texttt{list} in Python) allocano una memoria di \textit{capacità} prestabilita.
+Gli inserimenti in coda (\texttt{append}) costano $\mathcal{O}(1)$, finché non si raggiunge la capacità massima. Quando la capacità è satura, occorre un'espansione: si alloca un vettore più grande, si copiano gli elementi vecchi ($\mathcal{O}(n)$) e si dealloca il vecchio.
+
+\subsection{Politiche di Espansione}
+Confrontiamo due metodi comuni per scegliere la nuova dimensione:
+
+\subsubsection{1. Incremento Fisso (es. + Costante \texorpdfstring{$d$}{d})}
+\begin{itemize}
+\item Il costo dell'espansione (copia) accade ogni volta che si riempie il blocco $d$.
+\item Il costo dell'i-esima add() vale $i$ se $i \pmod d = 1$, altrimenti $1$.
+\item Costo effettivo per $n$ operazioni: $T(n) = n + d \sum_{j=1}^{n/d} j \le n + \frac{(n/d+1)n}{2} =$ \textcolor{red}{$\mathcal{O}(n^2)$}.\subsection{Costo ammortizzato: \texorpdfstring{$T(n)/n = \mathcal{O}(n)$}{T(n)/n = O(n)}}
+\textbf{Pessimo approccio}.
+\end{itemize}
+
+\subsubsection{2. Raddoppiamento (es. \texorpdfstring{$\times 2$}{x2})}
+\begin{itemize}
+\item Il costo dell'espansione è proporzionale a $i$ solo quando $i = 2^k + 1$.
+\item Costo effettivo per $n$ operazioni: $T(n) = n + \sum_{j=0}^{\log n} 2^j \le n + 2^{\log n + 1} - 1 = n + 2n - 1 =$ \textcolor{green}{$\mathcal{O}(n)$}.
+\item Costo ammortizzato: $T(n)/n =$ \textcolor{green}{$\mathcal{O}(1)$}. \textbf{Approccio standard ed efficiente}.
+\end{itemize}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Reality Check sulle Stringhe (Java/Python)}]
+I vettori dinamici spiegano perché in Java usare \texttt{String} (che è immutabile e genera una nuova copia $\mathcal{O}(n^2)$ ad ogni concatenazione) sia letale rispetto a \texttt{StringBuffer} (che usa internamente un array raddoppiabile con ammortamento $\mathcal{O}(1)$). Per $n$ elevati (es. concatenare 1 milione di stringhe), \texttt{StringBuffer} impiega millisecondi, mentre \texttt{String} impiega minuti.
+\end{tcolorbox}
+
+\subsection{Cancellazione e Contrazione}
+Se rimuoviamo elementi dal vettore dinamico, la memoria rimarrà allocata inutilmente. Dobbiamo eseguire una \textit{contrazione} riducendo la dimensione quando il \textbf{fattore di carico $\alpha = \frac{\text{dim}}{\text{capacità}}$} scende sotto una certa soglia.
+
+\textbf{Il pericolo del Thrashing (Strategia Naïf):}
+Dimezzare il vettore non appena $\alpha = 1/2$ è rischioso. Se la sequenza di operazioni alterna continuamente \textit{Insert, Remove, Insert, Remove} proprio sul bordo della capacità, il sistema farà continue espansioni e contrazioni, producendo un costo ammortizzato lineare $\mathcal{O}(n)$.
+
+\textbf{Soluzione Corretta:}
+Dobbiamo lasciar decrescere il sistema e dimezzare la memoria solo quando \textbf{$\alpha = 1/4$}.
+In questo modo, dopo una contrazione, il vettore si ritrova con $\alpha = 1/2$. C'è quindi un "cuscinetto" di $\mathcal{O}(n)$ operazioni economiche prima che sia necessaria un'altra operazione strutturale.
+
+\textbf{Dimostrazione col Potenziale per la cancellazione:}
+
+$$\Phi = \begin{cases} 2 \cdot dim - capacit\grave{a} & \text{se } \alpha \ge \frac{1}{2} \\ \frac{capacit\grave{a}}{2} - dim & \text{se } \alpha \le \frac{1}{2} \end{cases}$$
+
+
+Con questa funzione:
+\begin{itemize}
+\item Subito dopo un resize ($\alpha = 1/2$), $\Phi = 0$.
+\item Prima di un'espansione ($\alpha = 1$), $\Phi = dim$ (il potenziale accumulato paga l'espansione).
+\item Prima di una contrazione ($\alpha = 1/4 \implies capacit\grave{a} = 4 \cdot dim$), $\Phi = \frac{4 \cdot dim}{2} - dim = dim$ (il potenziale accumulato paga la contrazione).
+\item Il costo ammortizzato $a_i$ risulta sempre limitato dalla costante $3 = \mathcal{O}(1)$.
+\end{itemize}
+
+\newpage
+
+\section{Applicazioni Pratiche e Conclusioni}
+
+L'analisi ammortizzata e i vettori dinamici trovano implementazione diretta in:
+\begin{itemize}
+\item \textbf{Tabelle Hash:} La ristrutturazione (rehashing) di una tabella hash per mantenere basso il fattore di carico $t_\alpha$ si comporta esattamente come i vettori dinamici. Quando $t_\alpha$ supera la soglia (es. 0.75 in Java), la tabella viene raddoppiata. Il caso pessimo della singola operazione è $\mathcal{O}(n)$, ma il \textbf{costo ammortizzato è $\mathcal{O}(1)$}.
+\item \textbf{Insiemi disgiunti} (Union-Find con compressione dei cammini).
+\item \textbf{Heap di Fibonacci}.
+\end{itemize}
+
+
+
+\section{Strutture di Dati Astratte: Definizioni Fondamentali}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizioni: Dato e Tipo di Dato Astratto}]
+\begin{itemize}
+\item \textbf{Dato:} In un linguaggio di programmazione, è un valore che una variabile può assumere.
+\item \textbf{Tipo di dato astratto (ADT):} Un modello matematico definito da una collezione di valori e un insieme di operazioni ammesse su di essi.
+\item \textbf{Tipi di dato primitivi:} Sono i tipi forniti direttamente dal linguaggio di programmazione (es. \texttt{int}, \texttt{boolean}) insieme ai loro operatori base ($+, -, *, /, \%, \&\&, \vert{}\vert{}$).
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Specifica vs Implementazione}
+Nella progettazione del software è fondamentale separare il "cosa" dal "come":
+\begin{itemize}
+\item \textbf{Specifica:} Agisce come un "manuale d'uso"; definisce le operazioni nascondendo i dettagli implementativi all'utilizzatore.
+\item \textbf{Implementazione:} È la realizzazione vera e propria della struttura in memoria e del codice degli algoritmi.
+\item \textit{Esempio pratico:} Una Pila (Stack) può essere specificata in modo astratto, ma implementata concretamente tramite vettori oppure tramite puntatori (nodi collegati).
+\end{itemize}
+
+\subsection{Caratteristiche delle Strutture Dati}
+Le strutture di dati sono collezioni caratterizzate più dall'organizzazione interna che dal tipo di dati contenuti. Possono essere classificate in base a:
+\begin{itemize}
+\item \textbf{Linearità:} Lineari (esiste un concetto di sequenza e successione) vs Non lineari (alberi, grafi).
+\item \textbf{Dinamicità:} Statiche (dimensione fissa) vs Dinamiche (variazione di dimensione e contenuto a runtime).
+\item \textbf{Omogeneità:} Omogenee (dati tutti dello stesso tipo) vs Disomogenee.
+\end{itemize}
+
+\newpage
+
+\section{Tipi di Dato Astratto Principali}
+
+\subsection{1. Sequenza}
+Una struttura dati dinamica e lineare che rappresenta una collezione ordinata di valori.
+\begin{itemize}
+\item L'ordine all'interno della sequenza è fondamentale.
+\item Un valore può comparire più di una volta (sono ammessi duplicati).
+\item Date le posizioni (da $pos_1$ a $pos_n$, più le fittizie $pos_0$ e $pos_{n+1}$), è possibile accedere alla testa, alla coda o sequenzialmente agli elementi.
+\end{itemize}
+
+\begin{verbatim}
+% Pseudocodice: Specifica della Sequenza
+boolean isEmpty()         % Verifica se vuota
+Pos head()                % Posizione primo elemento
+Pos tail()                % Posizione ultimo elemento
+Pos next(Pos p)           % Posizione successore
+Pos prev(Pos p)           % Posizione predecessore
+Pos insert(Pos p, item v) % Inserisce v in posizione p
+Pos remove(Pos p)         % Rimuove l'elemento in p
+item read(Pos p)          % Legge il valore in p
+\end{verbatim}
+
+\subsection{2. Insiemi (Set)}
+Una struttura dati dinamica e non lineare che memorizza una collezione \textbf{non ordinata} e \textbf{senza duplicati}.
+\begin{itemize}
+\item L'ordinamento, se presente, è derivato unicamente dalla relazione d'ordine definita sul tipo degli elementi stessi.
+\item Supporta operazioni matematiche insiemistiche: unione, intersezione e differenza.
+\end{itemize}
+
+\begin{verbatim}
+% Pseudocodice: Specifica dell'Insieme
+int size()                             % Cardinalità
+boolean contains(item x)               % Verifica appartenenza
+insert(item x)                         % Inserisce (se non presente)
+remove(item x)                         % Rimuove (se presente)
+SET union(SET A, SET B)                % Unione insiemistica
+SET intersection(SET A, SET B)         % Intersezione insiemistica
+SET difference(SET A, SET B)           % Differenza insiemistica
+\end{verbatim}
+
+\subsection{3. Dizionari (Mappe / Array Associativi)}
+Rappresenta il concetto matematico di relazione univoca $R: D \rightarrow C$, nota come associazione \textbf{chiave-valore}.
+\begin{itemize}
+\item L'insieme $D$ è il dominio (le \textbf{chiavi}, che devono essere univoche).
+\item L'insieme $C$ è il codominio (i \textbf{valori}).
+\end{itemize}
+
+\begin{verbatim}
+% Pseudocodice: Specifica del Dizionario
+item lookup(item k)       % Restituisce il valore associato a k (o nil)
+insert(item k, item v)    % Associa v a k (sovrascrive se k già esiste)
+remove(item k)            % Rimuove l'associazione per la chiave k
+\end{verbatim}
+
+\subsection{4. Alberi e Grafi}
+\begin{itemize}
+\item \textbf{Alberi ordinati:} Insieme finito di nodi con un nodo designato come \textbf{radice}. I restanti nodi sono partizionati in insiemi disgiunti che formano a loro volta alberi (sottoalberi).
+\item \textbf{Grafi:} Struttura composta da un insieme di nodi (o vertici) e un insieme di coppie di nodi dette \textbf{archi} (orientati o non orientati).
+\item Tutte le operazioni su queste due strutture ruotano attorno alla possibilità di effettuare \textbf{visite} per esplorare i nodi.
+\end{itemize}
+
+\newpage
+
+\section{Implementazione delle Strutture Dati Elementari}
+
+\subsection{Lista (Linked List)}
+È un'implementazione classica della sequenza. È composta da una serie di \textbf{nodi} contenenti dati e puntatori all'elemento successivo (e/o precedente).
+\begin{itemize}
+\item La contiguità logica nella lista \textbf{non} implica contiguità fisica in memoria.
+\item Tutte le operazioni base (inserimento, rimozione in posizione nota) hanno costo $\mathcal{O}(1)$.
+\item \textbf{Varianti:} Monodirezionale, Bidirezionale, Circolare, Con sentinella / Senza sentinella.
+\end{itemize}
+
+\begin{verbatim}
+// Snippet Java: Inserimento in Lista Bidirezionale (senza sentinella)
+public Pos insert(Pos pos, Object v) {
+Pos t = new Pos(v);
+if (head == null) {
+head = tail = t; // Lista vuota
+} else if (pos == null) {
+t.pred = tail;   // Inserimento in coda
+tail.succ = t;
+tail = t;
+} else {
+t.pred = pos.pred; // Inserimento prima di 'pos'
+if (t.pred != null) t.pred.succ = t;
+else head = t;
+t.succ = pos;
+pos.pred = t;
+}
+return t;
+}
+\end{verbatim}
+
+\subsection{Pila (Stack)}
+Struttura dati dinamica e lineare basata sul principio \textbf{LIFO} (Last-In, First-Out): l'elemento rimosso è sempre quello rimasto per meno tempo nell'insieme.
+\begin{itemize}
+\item \textbf{Operazioni base:} \texttt{push} (inserisce in cima), \texttt{pop} (estrae dalla cima), \texttt{top} (legge la cima senza estrarre).
+\item \textbf{Utilizzi pratici:} Gestione dei record di attivazione (stack memory delle funzioni), linguaggi stack-oriented come la JVM (Java bytecode) o Postscript.
+\item \textbf{Implementazioni:} Può essere realizzata tramite liste (puntatore alla testa) o tramite vettori.
+\end{itemize}
+
+\begin{verbatim}
+% Pseudocodice: Pila basata su vettore (Array)
+push(item v)
+precondition: size < capacity
+A[size] = v
+size = size + 1
+
+item pop()
+precondition: size > 0
+size = size - 1
+return A[size]
+\end{verbatim}
+
+\subsection{Coda (Queue)}
+Struttura dati dinamica e lineare basata sul principio \textbf{FIFO} (First-In, First-Out): l'elemento rimosso è quello che per più tempo è rimasto nell'insieme.
+\begin{itemize}
+\item \textbf{Operazioni base:} \texttt{enqueue} (inserisce in fondo), \texttt{dequeue} (estrae dalla testa), \texttt{top} (legge la testa).
+\item \textbf{Utilizzi pratici:} Nei sistemi operativi per gestire le code di attesa dei processi, in quanto la politica FIFO garantisce \textit{fairness} (equità).
+\item \textbf{Implementazioni:} Liste (con due puntatori \texttt{head} e \texttt{tail}) oppure \textbf{Vettori Circolari}.
+\end{itemize}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{La Coda basata su Vettore Circolare}]
+Per evitare lo scorrimento degli elementi all'interno di un vettore dopo ogni \texttt{dequeue}, si usa un vettore in cui la coda "gira" ricollegandosi all'inizio.
+La circolarità è implementata matematicamente tramite l'operatore \textbf{modulo (\%)}.
+\end{tcolorbox}
+
+\begin{verbatim}
+% Pseudocodice: Coda basata su vettore circolare
+enqueue(item v)
+precondition: size < capacity
+% Calcola l'indice di inserimento con il modulo per la circolarità
+A[(head + size) mod capacity] = v
+size = size + 1
+
+item dequeue()
+precondition: size > 0
+item t = A[head]
+% Avanza la testa circolarmente
+head = (head + 1) mod capacity
+size = size - 1
+return t
+\end{verbatim}
+
+
+\section{Alberi}
+
+\subsection{Introduzione e Definizioni Formali}
+Gli alberi sono strutture dati non lineari utilizzate per rappresentare dati con relazioni gerarchiche (es. tassonomie, file system, alberi DOM HTML).
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizioni di Albero Radicato}]
+\textbf{Definizione 1 (strutturale):}\
+Un albero è un insieme di nodi e di archi orientati che connettono coppie di nodi con le seguenti proprietà:
+\begin{itemize}
+\item Un nodo è designato come \textbf{radice}.
+\item Ogni nodo (eccetto la radice) ha esattamente \textbf{un arco entrante}.
+\item Esiste un \textbf{cammino unico} dalla radice a ogni nodo.
+\item L'albero è \textbf{connesso}.
+\end{itemize}
+
+\textbf{Definizione 2 (ricorsiva):}\
+Un albero è dato da un insieme vuoto, oppure da un nodo radice collegato con archi orientati alle radici di zero o più sottoalberi disgiunti.
+\end{tcolorbox}
+
+\subsubsection{Terminologia e Metriche}
+\begin{itemize}
+\item \textbf{Padre / Figli / Fratelli (Siblings):} Nodi con lo stesso padre sono fratelli.
+\item \textbf{Foglie (Leaves):} Nodi privi di figli.
+\item \textbf{Nodi interni:} Nodi che hanno almeno un figlio (non sono foglie).
+\item \textbf{Profondità (Depth):} La lunghezza del cammino semplice (misurato in numero di archi) dalla radice al nodo.
+\item \textbf{Livello (Level):} L'insieme dei nodi che si trovano alla stessa profondità.
+\item \textbf{Altezza (Height):} La profondità massima raggiunta dalle foglie dell'albero.
+\end{itemize}
+
+\newpage
+
+\subsection{Alberi Binari}
+Un albero binario è un albero radicato in cui ogni nodo ha \textbf{al massimo due figli}, identificati esplicitamente come \textbf{figlio sinistro} e \textbf{figlio destro}.
+\textit{Nota cruciale:} Due alberi con gli stessi nodi sono considerati \textbf{distinti} se un nodo è figlio sinistro in un albero ma figlio destro nell'altro.
+
+\subsubsection{Implementazione in Memoria}
+Per memorizzare un albero binario si utilizzano nodi contenenti tre reference (puntatori):
+\begin{itemize}
+\item \texttt{parent}: reference al nodo padre (oppure \texttt{nil} se radice).
+\item \texttt{left}: reference al figlio sinistro.
+\item \texttt{right}: reference al figlio destro.
+\end{itemize}
+
+\begin{verbatim}
+% Operazioni base di inserimento e distruzione per alberi binari
+insertLeft(TREE T)
+if left == nil then
+T.parent = this
+left = T
+
+deleteLeft()
+if left != nil then
+left.deleteLeft()   % Chiamata ricorsiva
+left.deleteRight()  % Chiamata ricorsiva
+delete left
+left = nil
+\end{verbatim}
+
+\subsection{Visite di Alberi (Traversals)}
+Una visita (o ricerca) è una strategia sistematica per analizzare tutti i nodi di un albero.
+\textbf{Costo computazionale:} $\Theta(n)$, poiché ogni nodo viene visitato esattamente una volta.
+
+\subsubsection{1. Visita in Profondità (Depth-First Search - DFS)}
+Esplora l'albero visitando ricorsivamente i sottoalberi scendendo il più possibile in profondità. Tipicamente si appoggia a uno \textbf{Stack} (implicito tramite ricorsione o esplicito). Si divide in tre varianti a seconda di quando viene processata la radice:
+
+\begin{itemize}
+\item \textbf{Pre-Order (Pre-visita):} Stampa radice, visita sx, visita dx.
+\item \textbf{In-Order (In-visita):} Visita sx, stampa radice, visita dx.
+\item \textbf{Post-Order (Post-visita):} Visita sx, visita dx, stampa radice.
+\end{itemize}
+
+\textbf{Esempi di applicazione della DFS:}
+\begin{verbatim}
+% 1. Contare i nodi dell'albero (Utilizza la Post-visita)
+int count(TREE T)
+if T == nil then return 0
+else
+Cl = count(T.left())
+Cr = count(T.right())
+return Cl + Cr + 1
+
+% 2. Stampare espressioni matematiche (Utilizza l'In-visita)
+int printExp(TREE T)
+if T.left() == nil and T.right() == nil then
+print T.read()
+else
+print "("
+printExp(T.left())
+print T.read()
+printExp(T.right())
+print ")"
+\end{verbatim}
+
+\subsubsection{2. Visita in Ampiezza (Breadth-First Search - BFS)}
+Visita l'albero procedendo per \textbf{livelli}: parte dalla radice e visita tutti i nodi di un livello prima di scendere al successivo. Richiede l'uso di una struttura dati ausiliaria di tipo \textbf{Queue} (Coda).
+
+\newpage
+
+\subsection{Alberi Generici}
+In un albero generico, i nodi possono avere un numero arbitrario di figli. La specifica si adatta per gestire le liste di figli.
+Operazioni base principali:
+\begin{itemize}
+\item \texttt{leftmostChild()}: Restituisce il primo figlio (o \texttt{nil} se foglia).
+\item \texttt{rightSibling()}: Restituisce il prossimo fratello (o \texttt{nil} se assente).
+\end{itemize}
+
+\subsubsection{Visite per Alberi Generici}
+Il concetto di \textit{In-Order} perde di significato, ma DFS (Pre e Post) e BFS rimangono validi.
+
+\begin{verbatim}
+% DFS su Albero Generico
+dfs(TREE t)
+if t != nil then
+print t % Pre-order
+TREE u = t.leftmostChild()
+while u != nil do
+dfs(u)
+u = u.rightSibling()
+print t % Post-order
+
+% BFS su Albero Generico
+bfs(TREE t)
+QUEUE Q = Queue()
+Q.enqueue(t)
+while not Q.isEmpty() do
+TREE u = Q.dequeue()
+print u
+u = u.leftmostChild()
+while u != nil do
+Q.enqueue(u)
+u = u.rightSibling()
+\end{verbatim}
+
+\subsubsection{Implementazioni in Memoria per Alberi Generici}
+A seconda del numero massimo/medio di figli, si possono adottare tre strategie di memorizzazione:
+
+\begin{enumerate}
+\item \textbf{Vettore dei figli:} Ogni nodo ha un reference al padre e un array contenente i puntatori ai figli. Può comportare un notevole spreco di spazio se la maggior parte dei nodi ha pochi figli.
+\item \textbf{Primo figlio, prossimo fratello (First-Child / Next-Sibling):}
+È l'implementazione più diffusa ed efficiente in spazio per alberi generici (modella l'albero come una lista concatenata di fratelli).
+I campi memorizzati in ogni nodo sono:
+\begin{itemize}
+\item \texttt{parent}: reference al padre.
+\item \texttt{child}: reference al primo figlio.
+\item \texttt{sibling}: reference al prossimo fratello.
+\end{itemize}
+\begin{verbatim}
+% Esempio inserimento: "Primo figlio, prossimo fratello"
+insertChild(TREE t)
+t.parent = self
+t.sibling = child
+child = t     % t diventa il nuovo primo figlio
+\end{verbatim}
+
+
+\item \textbf{Vettore dei padri:}
+L'albero è rappresentato interamente da un singolo vettore. Ogni elemento in posizione $i$ contiene il \textbf{valore} del nodo e \textbf{l'indice} della posizione di suo padre nel vettore stesso[cite: 8]. Utile per specifiche strutture (come gli insiemi disgiunti)[cite: 8].
+
+
+\end{enumerate}
+
+
+
+
+\section{Alberi Binari di Ricerca (ABR)}
+
+Un \textbf{Albero Binario di Ricerca (ABR)} implementa l'astrazione del \textit{Dizionario} (ricerca, inserimento e cancellazione di associazioni chiave-valore) unendo la flessibilità strutturale degli alberi con la logica della ricerca dicotomica.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Proprietà Fondamentale degli ABR}]
+In un albero binario di ricerca, per ogni nodo $u$:
+\begin{enumerate}
+\item Le chiavi contenute nei nodi del sottoalbero \textbf{sinistro} di $u$ sono \textbf{minori} di $u.key$.
+\item Le chiavi contenute nei nodi del sottoalbero \textbf{destro} di $u$ sono \textbf{maggiori} di $u.key$.
+\end{enumerate}
+Queste due proprietà permettono di scartare interi sottoalberi durante la ricerca, riducendo drasticamente i tempi operativi rispetto a una struttura lineare.
+\end{tcolorbox}
+
+\subsection{Struttura del Nodo}
+Ogni nodo di un ABR mantiene le informazioni strutturali e i dati veri e propri:
+\begin{itemize}
+\item \texttt{parent}, \texttt{left}, \texttt{right}: Reference al padre, al figlio sinistro e al figlio destro.
+\item \texttt{key}, \texttt{value}: Chiave (appartenente a un insieme totalmente ordinato) e valore associato.
+\end{itemize}
+
+\subsection{Operazioni di Base}
+
+\subsubsection{Ricerca (Lookup)}
+La ricerca parte dalla radice e scende a sinistra o a destra confrontando la chiave cercata con la chiave del nodo corrente.
+\begin{verbatim}
+% Implementazione Ricorsiva
+TREE lookupNode(TREE T, item k)
+if T == nil or T.key == k then
+return T
+return lookupNode( iif(k < T.key, T.left, T.right), k )
+
+% Implementazione Iterativa
+TREE lookupNode(TREE T, item k)
+TREE u = T
+while u != nil and u.key != k do
+if k < u.key then u = u.left
+else u = u.right
+return u
+\end{verbatim}
+
+\subsubsection{Ricerca del Minimo e del Massimo}
+Grazie alle proprietà dell'ABR, il minimo si trova percorrendo sempre i rami sinistri, mentre il massimo percorrendo i rami destri.
+\begin{itemize}
+\item \textbf{Minimo:} \texttt{while u.left != nil do u = u.left}.
+\item \textbf{Massimo:} \texttt{while u.right != nil do u = u.right}.
+\end{itemize}
+
+\subsubsection{Successore e Predecessore}
+Il \textbf{successore} di un nodo $u$ è il nodo con la chiave immediatamente superiore (il più piccolo dei maggiori). Si presentano due casi:
+\begin{enumerate}
+\item \textbf{Il nodo ha un figlio destro:} Il successore è il \textit{minimo} del sottoalbero destro.
+\item \textbf{Il nodo NON ha un figlio destro:} Risalendo lungo l'albero tramite i padri, il successore è il primo "avo" $v$ tale per cui $u$ risiede nel sottoalbero sinistro di $v$.
+\end{enumerate}
+\textit{Nota:} La ricerca del \textbf{predecessore} è speculare (massimo del sottoalbero sinistro, oppure primo avo a destra).
+
+\subsection{Inserimento e Cancellazione}
+
+\subsubsection{Inserimento}
+La ricerca del punto di inserimento avviene tramite le stesse regole della funzione \texttt{lookup}. Si inserisce il nuovo nodo come foglia. Se la chiave è già presente, se ne aggiorna il valore.
+
+\subsubsection{Cancellazione}
+La rimozione di un nodo $u$ è complessa e prevede tre casi distinti:
+\begin{itemize}
+\item \textbf{Caso 1 ($u$ è una foglia):} Il nodo viene semplicemente eliminato staccandolo dal padre.
+\item \textbf{Caso 2 ($u$ ha un solo figlio):} Si aggira il nodo $u$ attaccando direttamente il suo unico figlio all'ex-padre di $u$ (\textit{short-cut}).
+\item \textbf{Caso 3 ($u$ ha due figli):}
+\begin{enumerate}
+\item Si individua il \textbf{successore} $s$ di $u$ (che sicuramente non avrà un figlio sinistro).
+\item Si stacca $s$ dal suo padre (ricadendo nel Caso 1 o Caso 2 per $s$).
+\item Si copia il contenuto di $s$ in $u$ e si rimuove il nodo originario di $s$.
+\end{enumerate}
+\end{itemize}
+
+\subsection{Costo Computazionale degli ABR}
+Tutte le operazioni descritte (ricerca, min/max, succ/pred, inserimento, cancellazione) avvengono percorrendo un \textbf{cammino semplice} dalla radice verso una foglia.
+Il tempo operativo dipende quindi dall'\textbf{altezza $h$} dell'albero:
+
+
+$$T(n) = \mathcal{O}(h)$$
+
+
+\begin{itemize}
+\item \textbf{Caso Ottimo:} Albero perfettamente bilanciato $\implies h = \mathcal{O}(\log n)$.
+\item \textbf{Caso Pessimo:} Dati inseriti in modo ordinato (l'albero degenera in una lista) $\implies h = \mathcal{O}(n)$.
+\end{itemize}
+
+\newpage
+
+\section{Alberi Binari di Ricerca Bilanciati: Alberi Red-Black}
+
+Poiché nel caso pessimo un normale ABR degenera a $\mathcal{O}(n)$, nella pratica informatica moderna (es. \texttt{TreeMap} in Java, \texttt{std::map} in C++, \texttt{rbtree} nel kernel Linux) si impiegano \textbf{alberi bilanciati}.
+Un albero si dice bilanciato quando il suo \textbf{fattore di bilanciamento} (la massima differenza di altezza fra i sottoalberi di ogni nodo) è controllato (es. negli alberi AVL è al massimo 1).
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione e Regole degli Alberi Red-Black (RB)}]
+In un albero Red-Black ogni nodo ha un colore (\textcolor{red}{\textbf{Rosso}} o \textbf{Nero}) e le foglie reali contengono i dati, mentre i rami "vuoti" puntano a speciali nodi sentinella \textbf{Nil}. Devono valere quattro rigorosi vincoli strutturali:
+\begin{enumerate}
+\item \textbf{La radice è Nera}.
+\item \textbf{Tutte le foglie (nodi Nil) sono Nere}.
+\item \textbf{Entrambi i figli di un nodo Rosso sono Neri} (Non ci possono essere due nodi rossi consecutivi su un cammino).
+\item \textbf{Altezza Nera Costante:} Ogni cammino semplice da un nodo $u$ a una qualsiasi foglia del suo sottoalbero contiene lo \textbf{stesso numero di nodi Neri}.
+\end{enumerate}
+\end{tcolorbox}
+
+\subsection{Altezza Nera e Teoremi}
+L'\textbf{Altezza Nera $bh(v)$} di un nodo $v$ è il numero di nodi neri lungo ogni cammino da $v$ (escluso) fino alle foglie (incluse).
+
+\textbf{Teoremi fondamentali che garantiscono le prestazioni degli Alberi RB:}
+\begin{itemize}
+\item \textbf{Numero nodi interni:} Un sottoalbero di radice $u$ contiene almeno $n \ge 2^{bh(u)} - 1$ nodi interni.
+\item \textbf{Proporzione nodi neri:} Almeno la metà dei nodi in un percorso radice-foglia deve essere nera (per il vincolo 3, alternanza Rosso-Nero).
+\item \textbf{Sbilanciamento limitato:} Dati due cammini qualsiasi dalla radice alle foglie, uno non può mai essere più del doppio dell'altro.
+\item \textbf{Altezza Massima:} L'altezza massima $h$ di un albero RB con $n$ nodi interni è al più $2 \log(n+1)$. \
+\textit{Dimostrazione:} $n \ge 2^{bh(r)} - 1 \implies n \ge 2^{h/2} - 1 \implies n+1 \ge 2^{h/2} \implies \log(n+1) \ge h/2 \implies h \le 2\log(n+1)$.
+\end{itemize}
+Essendo l'altezza sempre vincolata logaritmicamente, \textbf{tutte le operazioni costano $\mathcal{O}(\log n)$}.
+
+\subsection{Meccanismi di Ribilanciamento: Le Rotazioni}
+Quando inserimenti o cancellazioni violano le regole RB, l'albero si ribilancia usando cambi di colore e \textbf{rotazioni}.
+\begin{itemize}
+\item \textbf{Rotazione a Sinistra su $x$:} $y$ (figlio destro di $x$) diventa il nuovo padre. $x$ diventa il figlio sinistro di $y$. Il sottoalbero sinistro di $y$ diventa il figlio destro di $x$. (Le operazioni mantengono intatto l'ordinamento ABR).
+\item \textbf{Rotazione a Destra:} Procedura speculare.
+\end{itemize}
+
+\subsection{Inserimento negli Alberi Red-Black}
+Il nuovo nodo viene inserito come foglia (con due figli Nil) e \textbf{colorato di Rosso}. Questo può violare solo il vincolo 1 (se è la radice) o il vincolo 3 (se il padre è rosso).
+Sia $t$ il nodo rosso inserito, $p$ il padre, $n$ il nonno e $z$ lo zio. La procedura \texttt{balanceInsert} distingue 5 casi (e 5 speculari):
+
+\begin{itemize}
+\item \textbf{Caso 1:} $t$ è radice $\implies$ Colora $t$ di \textbf{Nero}.
+\item \textbf{Caso 2:} $p$ è \textbf{Nero} $\implies$ Nessun vincolo violato, operazione terminata.
+\item \textbf{Caso 3 ($p$ Rosso, $z$ Rosso):} Colora $p$ e $z$ di \textbf{Nero}, e $n$ di \textcolor{red}{\textbf{Rosso}}. Il problema viene "spinto" in alto verso la radice ($t \leftarrow n$).
+\item \textbf{Caso 4 ($p$ Rosso, $z$ Nero, e nodo $t$ è figlio "interno", es. $t$ figlio dx di $p$, e $p$ figlio sx di $n$):} Si applica una rotazione su $p$ per trasformarlo in un allineamento "esterno" (Caso 5).
+\item \textbf{Caso 5 ($p$ Rosso, $z$ Nero, e nodo $t$ è figlio "esterno"):} Si colora $p$ di \textbf{Nero}, $n$ di \textcolor{red}{\textbf{Rosso}}, e si esegue una rotazione su $n$. I vincoli sono ripristinati e l'algoritmo termina.
+\end{itemize}
+\textbf{Complessità di inserimento:} $\mathcal{O}(\log n)$ discese e risalite; massimo 2 rotazioni (costo $\mathcal{O}(1)$).
+
+\subsection{Cancellazione negli Alberi Red-Black}
+Costruita sull'algoritmo standard di cancellazione ABR.
+Le violazioni avvengono \textbf{solo se il nodo rimosso era Nero} (perché diminuisce l'altezza nera di quel cammino, violando il vincolo 4).
+La procedura \texttt{balanceDelete} risolve lo squilibrio propagando la mancanza di "nero" verso l'alto finché non può compensarla con un nodo rosso o fino a raggiungere la radice. Richiede al massimo $\mathcal{O}(\log n)$ cambi di colore e al più 3 rotazioni in tempo $\mathcal{O}(1)$.
+
+
+
+\section{Hashing e Dizionari}
+
+\subsection{Motivazioni e Implementazione Ideale}
+Un \textbf{dizionario} è una struttura dati utilizzata per memorizzare insiemi dinamici di coppie (chiave, valore), indicizzate in base alla chiave.
+Le implementazioni classiche (Vettori ordinati/non ordinati, Liste, Alberi Red-Black) offrono tempi di esecuzione per la ricerca, l'inserimento e la cancellazione che variano da $\mathcal{O}(n)$ a $\mathcal{O}(\log n)$.
+L'obiettivo dell'hashing è raggiungere un'\textbf{implementazione ideale} in cui tutte le operazioni fondamentali (\texttt{insert}, \texttt{lookup}, \texttt{remove}) abbiano un costo temporale pari a \textcolor{green}{$\mathcal{O}(1)$}.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizioni Base: Tabella Hash}]
+Data un'insieme di possibili chiavi (l'insieme universo $\mathcal{U}$ di dimensione $u$), si memorizzano le coppie in un vettore di dimensione $m$ ($m \ll u$), detto \textbf{tabella hash}.
+\begin{itemize}
+\item \textbf{Funzione Hash:} È una funzione matematica $H: \mathcal{U} \rightarrow \{0, 1, \dots, m-1\}$ che mappa una chiave in un indice del vettore.
+\item La coppia $(k, v)$ viene memorizzata esattamente nella posizione $H(k)$.
+\end{itemize}
+\end{tcolorbox}
+
+\subsubsection{Tabelle ad Accesso Diretto e Collisioni}
+Se l'insieme universo $\mathcal{U}$ è molto piccolo e denso (es. i giorni dell'anno da 1 a 366), si può usare una \textbf{tabella ad accesso diretto} con funzione identità $H(k) = k$ e $m = u$.
+Tuttavia, nella realtà lo spazio delle chiavi è enorme e sparso. Riducendo $m$, si verifica il problema delle \textbf{collisioni}: due o più chiavi diverse ottengono lo stesso indice hash ($H(k_1) = H(k_2)$).
+
+\newpage
+
+\section{Progettazione delle Funzioni Hash}
+
+Una \textbf{funzione hash perfetta} (iniettiva, zero collisioni) è impraticabile da ottenere per domini sparsi. L'obiettivo è quindi \textbf{minimizzare le collisioni} distribuendo uniformemente le chiavi nella tabella.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Uniformità Semplice}]
+Sia $P(k)$ la probabilità che la chiave $k$ sia inserita, e $Q(i)$ la probabilità che finisca nella cella $i$.
+Una funzione hash gode di \textbf{uniformità semplice} se ogni indice è equiprobabile:
+
+
+$$\forall i \in [0, \dots, m-1] : Q(i) = \frac{1}{m}$$
+
+
+\end{tcolorbox}
+
+\subsection{Metodi Comuni per Funzioni Hash Semplici}
+Generalmente si assume che le chiavi testuali o complesse vengano prima tradotte in valori numerici interi (es. convertendo e concatenando i valori ASCII dei caratteri in binario).
+
+\begin{itemize}
+\item \textbf{Estrazione e XOR:} Si estraggono $p$ bit specifici dalla chiave, oppure si fondono gruppi di bit tramite operatore XOR. \textit{Svantaggi:} Possono generare collisioni sistemiche (es. lo XOR mappa anagrammi nello stesso indice).
+
+
+\item \textbf{Metodo della Divisione:}
+$$H(k) = k \bmod m$$
+
+
+
+
+\textit{Regola d'oro:} $m$ deve essere dispari, preferibilmente un \textbf{numero primo} distante da potenze di 2 e 10. Valori come $m = 2^p$ sono pessimi perché l'hash dipenderebbe solo dai $p$ bit meno significativi della chiave.
+
+
+\item \textbf{Metodo della Moltiplicazione (Knuth):}
+$$H(k) = \lfloor m \cdot (C \cdot k - \lfloor C \cdot k \rfloor) \rfloor$$
+
+
+
+
+Vantaggi: $m$ può essere qualsiasi (spesso si sceglie una potenza di 2, $m=2^p$, per efficienza hardware). La costante $C$ deve essere $0 < C < 1$; un valore suggerito è legato alla sezione aurea $C \approx \frac{\sqrt{5}-1}{2}$.
+\end{itemize}
+
+\textit{Nota pratica (Reality Check):} I metodi classici spesso non superano test statistici moderni (effetto valanga/avalanche effect). Nelle implementazioni reali si usano funzioni hash non-crittografiche estremamente veloci (es. \textit{CityHash, FarmHash, MurmurHash}) o crittografiche (es. \textit{SHA-1}) se è richiesta sicurezza.
+
+\newpage
+
+\section{Gestione delle Collisioni}
+
+Esistono due macro-famiglie per gestire il caso in cui due chiavi finiscano nello stesso slot: \textbf{Liste di Trabocco} e \textbf{Indirizzamento Aperto}.
+
+\subsection{1. Liste/Vettori di Trabocco (Chaining)}
+Le chiavi con lo stesso indice hash vengono memorizzate in una struttura dinamica esterna (lista monodirezionale o vettore) allocata nello slot $H(k)$.
+\begin{itemize}
+\item \textbf{Fattore di carico:} Definito come $\alpha = \frac{n}{m}$ (numero di elementi totali fratto capacità della tabella). Rappresenta la lunghezza media delle liste.
+\item \textbf{Operazione di \texttt{insert}:} Costo $\Theta(1)$ (inserimento in testa alla lista).
+\item \textbf{Operazioni \texttt{lookup} e \texttt{remove}:} Richiedono la scansione della lista. Costo $\Theta(n)$ nel caso pessimo (tutte le chiavi nella stessa lista).
+\item \textbf{Analisi del caso medio:} Una ricerca con \textit{insuccesso} esamina in media $\Theta(1) + \alpha$ nodi. Una ricerca con \textit{successo} esamina in media $\Theta(1) + \frac{\alpha}{2}$ nodi. Se $n = \mathcal{O}(m)$, allora $\alpha = \mathcal{O}(1)$ e le operazioni costano in media \textcolor{green}{$\mathcal{O}(1)$}.
+\end{itemize}
+
+\subsection{2. Indirizzamento Aperto (Open Addressing)}
+Nessuna struttura esterna: tutte le chiavi risiedono \textbf{direttamente nella tabella hash}. Il fattore di carico $\alpha$ è strettamente limitato a $\alpha \le 1$.
+Se lo slot $H(k)$ è occupato, si ispezionano posizioni alternative basandosi su un \textbf{numero di ispezione $i$}.
+La funzione hash diventa:
+
+
+$$H: \mathcal{U} \times [0 \dots m-1] \rightarrow [0 \dots m-1]$$
+
+
+La \textbf{sequenza di ispezione} per una chiave deve generare una permutazione completa degli indici $[0 \dots m-1]$ per garantire di poter esaminare tutta la tabella senza loop infiniti.
+
+\subsubsection{Tecniche di Ispezione}
+\begin{enumerate}
+\item \textbf{Ispezione Lineare:} $H(k, i) = (H_0(k) + \delta \cdot i) \bmod m$.
+\begin{itemize}
+\item \textit{Svantaggio:} Soffre di \textbf{agglomerazione primaria (primary clustering)}. Sequenze continue di slot occupati tendono ad allungarsi, poiché uno slot vuoto preceduto da $i$ slot pieni ha un'alta probabilità ($\frac{i+1}{m}$) di essere riempito al prossimo inserimento, degradando le prestazioni.
+\end{itemize}
+\item \textbf{Ispezione Quadratica:} $H(k, i) = (H_0(k) + \delta \cdot i^2) \bmod m$.
+\begin{itemize}
+\item \textit{Svantaggio:} Soffre di \textbf{agglomerazione secondaria} (chiavi con lo stesso hash iniziale generano identiche sequenze di ispezione alternative).
+\end{itemize}
+\item \textbf{Doppio Hashing:} $H(k, i) = (H_0(k) + H_\delta(k) \cdot i) \bmod m$.
+\begin{itemize}
+\item Usa due funzioni hash indipendenti. Genera $m^2$ sequenze di ispezione distinte, avvicinandosi all'ideale dell'\textit{hashing uniforme}.
+\item \textit{Vincolo matematico:} Per generare una permutazione completa, $H_\delta(k)$ deve essere primo rispetto ad $m$. (Es: se $m$ è potenza di 2, $H_\delta(k)$ deve essere dispari; se $m$ è primo, $H_\delta(k) < m$).
+\end{itemize}
+\end{enumerate}
+
+\subsubsection{La Cancellazione nell'Indirizzamento Aperto}
+La \texttt{remove()} è problematica: \textbf{non si può sovrascrivere la cella con \texttt{nil}}. Se lo si facesse, si interromperebbe irreparabilmente la sequenza di ispezione per chiavi inserite successivamente che avevano trovato "traffico" in quello slot.
+\begin{itemize}
+\item \textbf{Soluzione:} Sostituire il valore con un marcatore speciale \textcolor{red}{\texttt{deleted}} (spesso chiamato \textit{tombstone}).
+\item Durante la \texttt{lookup}, i marcatori \texttt{deleted} vengono ignorati (trattati come slot pieni) e la ricerca prosegue.
+\item Durante la \texttt{insert}, i marcatori \texttt{deleted} vengono trattati come slot vuoti e possono essere sovrascritti.
+\item \textit{Svantaggio:} L'uso massiccio di cancellazioni degrada i tempi di ricerca svincolandoli dal fattore $\alpha$. Per tabelle soggette a molte rimozioni, si preferiscono le liste di trabocco.
+\end{itemize}
+
+\newpage
+
+\section{Reality Check e Considerazioni Pratiche}
+
+\subsection{Implementazioni nel Mondo Reale}
+A causa della facilità di implementazione e della miglior tolleranza alle cancellazioni e ad alti fattori di carico, la soluzione più adottata nell'industria è il \textbf{Chaining (Liste di Trabocco)}.
+\begin{itemize}
+\item \textbf{Java 7 (\texttt{HashMap}):} Liste di trabocco basate su \texttt{LinkedList}. Overhead di memoria e caso pessimo \textcolor{red}{$\mathcal{O}(n)$}.
+\item \textbf{Java 8+ (\texttt{HashMap}):} Usa liste di trabocco, ma quando una singola lista supera una certa soglia, viene convertita automaticamente in un \textbf{Albero Red-Black}, riducendo il caso pessimo a \textcolor{green}{$\mathcal{O}(\log n)$}.
+\item \textbf{Python (\texttt{dict}):} Utilizza invece \textbf{l'indirizzamento aperto} con un fattore di ridimensionamento conservativo ($t_\alpha = 0.66$).
+\end{itemize}
+
+\begin{verbatim}
+% Regole di base in Java per la funzione hashCode()
+
+1. Restituire un intero coerente durante la stessa esecuzione.
+
+
+2. Se a.equals(b) è true, a.hashCode() DEVE essere uguale a b.hashCode().
+
+
+3. (Raccomandato) Se a.equals(b) è false, gli hash dovrebbero essere diversi
+per minimizzare le collisioni.
+% REGOLA AUREA: Fare sempre l'override di hashCode() se si fa l'override di equals()!
+\end{verbatim}
+
+
+
+\subsection{Limiti dell'Hashing}
+Nonostante l'efficienza $\mathcal{O}(1)$ nel caso medio, le tabelle hash presentano alcune criticità intrinseche:
+\begin{enumerate}
+\item \textbf{Mancanza di ordinamento:} Impossibile scorrere le chiavi in ordine (le operazioni min/max costano $\mathcal{O}(m)$).
+\item \textbf{Scarsa Località spaziale (Locality of Reference):} Gli accessi alla memoria sembrano casuali, causando frequenti \textit{cache miss} a livello hardware.
+\end{enumerate}
+
+
+
+
+\section{Insiemi e Dizionari: Riassunto delle Implementazioni}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizioni Fondamentali}]
+\begin{itemize}
+\item \textbf{Insieme:} Una collezione di oggetti. Può essere implementato tramite diverse strutture dati viste finora, ognuna con specifici vantaggi e svantaggi.
+\item \textbf{Dizionario:} Una struttura dati dedicata alla memorizzazione di associazioni chiave-valore.
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{Insiemi realizzati con Vettori Booleani}
+L'insieme è rappresentato considerando un universo di interi da $0$ a $m-1$. La collezione di oggetti viene memorizzata utilizzando un vettore booleano di $m$ elementi.
+\begin{itemize}
+\item \textbf{Vantaggi:} Implementazione notevolmente semplice; è estremamente efficiente ($\mathcal{O}(1)$) verificare se un elemento appartiene all'insieme.
+\item \textbf{Svantaggi:} La memoria occupata è sempre $\mathcal{O}(m)$, totalmente indipendente dalle dimensioni effettive dell'insieme (ovvero dal numero di elementi realmente contenuti). Alcune operazioni, come l'iterazione, risultano inefficienti e costano $\mathcal{O}(m)$.
+\end{itemize}
+
+\begin{verbatim}
+% Pseudocodice: Operazioni base con vettore booleano
+SET Set(int m)
+SET t = new SET
+t.size = 0
+t.dim = m
+t.V = new boolean[0 ... m - 1] = {false}
+return t
+
+boolean contains(int x)
+if 0 <= x <= dim - 1 then return V[x]
+else return false
+
+insert(int x)
+if 0 <= x <= dim - 1 then
+if not V[x] then
+size = size + 1
+V[x] = true
+\end{verbatim}
+
+\begin{verbatim}
+% Pseudocodice: Operazioni insiemistiche con vettore booleano (Costo O(m))
+SET union(SET A, SET B)
+int newsize = max(A.dim, B.dim)
+SET C = Set(newsize)
+for i = 0 to A.dim - 1 do
+if A.contains(i) then C.insert(i)
+for i = 0 to B.dim - 1 do
+if B.contains(i) then C.insert(i)
+return C
+
+SET intersection(SET A, SET B)
+int newsize = min(A.dim, B.dim)
+SET C = Set(newsize)
+for i = 0 to min(A.dim, B.dim) - 1 do
+if A.contains(i) and B.contains(i) then C.insert(i)
+return C
+\end{verbatim}
+
+\textbf{Implementazioni Reali:}
+\begin{itemize}
+\item \textbf{Java:} Classe \texttt{java.util.BitSet}. I metodi principali includono \texttt{and} (Intersection), \texttt{or} (Union), \texttt{cardinality} (Set size), \texttt{clear} (Remove), \texttt{set} (Insert), \texttt{get} (Contains).
+\item \textbf{C++ (STL):} \texttt{std::bitset} (dimensione fissata a tempo di compilazione tramite template) e \texttt{std::vector} (specializzazione per ottimizzare la memoria, con dimensione dinamica).
+\end{itemize}
+
+\subsection{Insiemi realizzati con Liste o Vettori Non Ordinati}
+\begin{itemize}
+\item Le operazioni di ricerca (\texttt{lookup}), inserimento controllato e cancellazione costano $\mathcal{O}(n)$.
+\item L'inserimento puro (assumendo a priori l'assenza dell'elemento) costa $\mathcal{O}(1)$.
+\item Le operazioni insiemistiche (unione, intersezione, differenza) costano $\mathcal{O}(nm)$ poiché per ogni elemento del primo insieme bisogna scorrere il secondo.
+\end{itemize}
+
+\begin{verbatim}
+% Pseudocodice: Differenza con liste non ordinate
+SET difference(SET A, SET B)
+SET C = Set()
+foreach s in A do
+if not B.contains(s) then
+C.insert(s)
+return C
+\end{verbatim}
+
+\subsection{Insiemi realizzati con Liste o Vettori Ordinati}
+Mantenere l'ordinamento ottimizza alcune operazioni asintotiche:
+\begin{itemize}
+\item \textbf{Ricerca:} Costa $\mathcal{O}(n)$ per le liste (scorrimento sequenziale), ma scende a $\mathcal{O}(\log n)$ per i vettori ordinati grazie alla ricerca dicotomica.
+\item \textbf{Inserimento e cancellazione:} Costano sempre $\mathcal{O}(n)$ (necessità di far scorrere gli elementi per fare spazio o riempire i buchi).
+\item \textbf{Unione, intersezione e differenza:} Scendono a $\mathcal{O}(n)$ scorrendo simultaneamente entrambe le strutture (simile alla procedura di \texttt{Merge}).
+\end{itemize}
+
+\begin{verbatim}
+% Pseudocodice: Intersezione efficiente O(n) con Liste Ordinate
+LIST intersection(LIST A, LIST B)
+LIST C = Set()
+Pos pos_a = A.head()
+Pos pos_b = B.head()
+while not A.finished(pos_a) and not B.finished(pos_b) do
+if A.read(pos_a) == B.read(pos_b) then
+C.insert(C.tail(), A.read(pos_a))
+pos_a = A.next(pos_a)
+pos_b = B.next(pos_b)
+else if A.read(pos_a) < B.read(pos_b) then
+pos_a = A.next(pos_a)
+else
+pos_b = B.next(pos_b)
+return C
+\end{verbatim}
+
+\subsection{Insiemi tramite Strutture Dati Complesse}
+Per performance ottimali si ricorre ad alberi bilanciati o tabelle hash.
+
+\begin{itemize}
+    \item \textbf{Alberi Bilanciati:} Garantiscono $\mathcal{O}(\log n)$ per ricerca, inserimento e cancellazione. L'iterazione costa $\mathcal{O}(n)$ e mantiene l'ordinamento naturale delle chiavi.
+
+    \textit{Implementazioni:} \texttt{TreeSet} in Java, \texttt{OrderedSet} in Python, \texttt{std::set} in C++ STL.
+
+    \item \textbf{Tabelle Hash:} Offrono costo atteso $\mathcal{O}(1)$ per ricerca, inserimento e cancellazione. L'iterazione costa $\mathcal{O}(m)$ e l'ordinamento non è preservato.
+\end{itemize}
+\textit{Implementazioni:} \texttt{HashSet} in Java, \texttt{set} in Python,
+\texttt{std::unordered\_set} in C++ STL.
+
+\subsection{Riepilogo Asintotico delle Implementazioni}
+
+La seguente tabella riassume i costi computazionali delle diverse implementazioni per Insiemi/Dizionari, dove $m$ rappresenta la dimensione del vettore booleano o della tabella hash e $n$ il numero di elementi inseriti.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+\textbf{Struttura} & \textbf{contains} & \textbf{insert} & \textbf{remove} & \textbf{min} & \textbf{foreach} & \textbf{Ordine} \\ \midrule
+
+Vettore booleano & $\mathcal{O}(1)$ & $\mathcal{O}(1)$ & $\mathcal{O}(1)$ & $\mathcal{O}(m)$ & $\mathcal{O}(m)$ & Sì \\
+
+Lista non ordinata & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ & No \\
+
+Lista ordinata & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ & $\mathcal{O}(1)$ & $\mathcal{O}(n)$ & Sì \\
+
+Vettore ordinato & $\mathcal{O}(\log n)$ & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ & $\mathcal{O}(1)$ & $\mathcal{O}(n)$ & Sì \\
+
+Alberi bilanciati & $\mathcal{O}(\log n)$ & $\mathcal{O}(\log n)$ & $\mathcal{O}(\log n)$ & $\mathcal{O}(\log n)$ & $\mathcal{O}(n)$ & Sì \\
+
+Hash (Mem. interna) & $\mathcal{O}(1)$ & $\mathcal{O}(1)$ & $\mathcal{O}(1)$ & $\mathcal{O}(m)$ & $\mathcal{O}(m)$ & No \\
+
+Hash (Mem. esterna) & $\mathcal{O}(1)$ & $\mathcal{O}(1)$ & $\mathcal{O}(1)$ & $\mathcal{O}(m+n)$ & $\mathcal{O}(m+n)$ & No \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+\subsection{Costi Computazionali in Python}
+
+Di seguito vengono analizzati i costi per le strutture dati native \texttt{list} (vettore dinamico) e \texttt{set} (basato su hash table) nel linguaggio Python.
+
+\textbf{Complessità di Python \texttt{list} ($n = len(L)$, $k =$ lunghezza operando):}
+\begin{itemize}
+\item \textbf{Caso ammortizzato $\mathcal{O}(1)$:} \texttt{L.append(x)}, \texttt{L[i]} (Index), \texttt{len(L)}.
+\item \textbf{Caso $\mathcal{O}(k)$:} \texttt{L[i:i+k]} (Slicing), \texttt{L.extend(s)}.
+\item \textbf{Caso pessimo $\mathcal{O}(n)$:} \texttt{L.copy()}, \texttt{L.insert(i,x)}, \texttt{L.remove(x)}, \texttt{for x in L} (Iterator), \texttt{x in L} (Contains), \texttt{min(L) / max(L)}.
+\end{itemize}
+
+\textbf{Complessità di Python \texttt{set} ($n = len(S)$, $m = len(T)$):}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Codice} & \textbf{Operazione} & \textbf{Caso medio} & \textbf{Caso pessimo} \\ \midrule
+
+\texttt{x in S} & Contains & $\mathcal{O}(1)$ & $\mathcal{O}(n)$ \\
+
+\texttt{for x in S} & Iterator & $\mathcal{O}(n)$ & $\mathcal{O}(n)$ \\
+
+\texttt{S.add(x)} & Insert & $\mathcal{O}(1)$ & $\mathcal{O}(n)$ \\
+
+\texttt{S.remove(x)} & Remove & $\mathcal{O}(1)$ & $\mathcal{O}(n)$ \\
+
+\texttt{S | T} & Union & $\mathcal{O}(n+m)$ & $\mathcal{O}(n \cdot m)$ \\
+
+\texttt{S \& T} & Intersection & $\mathcal{O}(\min(n,m))$ & $\mathcal{O}(n \cdot m)$ \\
+
+\texttt{S - T} & Difference & $\mathcal{O}(n)$ & $\mathcal{O}(n \cdot m)$ \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Grafi}
+
+Un grafo è una struttura dati non lineare fondamentale per modellare relazioni tra entità. Le applicazioni sono vastissime: reti sociali (es. gradi di separazione su LinkedIn), dipendenze software (Makefiles, linker), model checking e reti stradali.
+
+\subsection{Definizioni Formali}
+Un grafo è definito come una coppia $G = (V, E)$, dove:
+\begin{itemize}
+\item $V$ è un insieme di \textbf{nodi} (o vertici).
+\item $E$ è un insieme di coppie di nodi, dette \textbf{archi} (o lati).
+\end{itemize}
+
+\textbf{Classificazione principale:}
+\begin{itemize}
+\item \textbf{Grafi Orientati (Directed):} Le coppie di $E$ sono \textit{ordinate}. L'arco $(u, v)$ è distinto da $(v, u)$ ed è detto incidente \textit{da} $u$ \textit{a} $v$.
+\item \textbf{Grafi Non Orientati (Undirected):} Le coppie di $E$ \textit{non} sono ordinate. L'arco $(u, v)$ è equivalente a $(v, u)$ e la relazione di adiacenza è simmetrica.
+\end{itemize}
+
+\textbf{Metriche del grafo:}
+\begin{itemize}
+\item \textbf{Adiacenza:} Un nodo $v$ è adiacente a $u$ se esiste l'arco $(u, v)$.
+\item \textbf{Grado (Degree):} Numero di archi incidenti su un nodo (nei grafi orientati si divide in \textit{in-degree} e \textit{out-degree}).
+\item $n = \vert{}V\vert{}$ è il numero di nodi.
+\item $m = \vert{}E\vert{}$ è il numero di archi. In un grafo denso $m = \mathcal{O}(n^2)$, mentre in un grafo sparso $m = \mathcal{O}(n)$ o $\mathcal{O}(n \log n)$.
+\end{itemize}
+
+\newpage
+
+\section{Memorizzazione e Implementazione}
+
+Esistono due approcci principali per memorizzare un grafo nella RAM, con caratteristiche asintotiche opposte.
+
+\subsection{Matrice di Adiacenza}
+Si utilizza una matrice quadrata $n \times n$. Se $G$ è pesato con funzione di peso $w$, la cella contiene il peso, altrimenti contiene un booleano $1/0$:
+
+
+$$m_{uv} = \begin{cases} w(u,v) & \text{se } (u,v) \in E \\ 0 \; (\text{o } +\infty) & \text{se } (u,v) \notin E \end{cases}$$
+
+
+\begin{itemize}
+\item \textbf{Spazio occupato:} $\mathcal{O}(n^2)$.
+\item \textbf{Verifica adiacenza:} $\mathcal{O}(1)$.
+\item \textbf{Iterazione su tutti gli archi:} $\mathcal{O}(n^2)$.
+\item \textit{Ideale per:} Grafi \textbf{densi}.
+\end{itemize}
+
+\subsection{Liste di Adiacenza (o Vettori di Adiacenza)}
+Ogni nodo $u$ possiede una lista contenente tutti e soli i nodi $v$ per i quali esiste un arco $(u, v)$. Se il grafo è pesato, si memorizza la coppia $(v, w)$.
+\begin{itemize}
+\item \textbf{Spazio occupato:} $\mathcal{O}(n + m)$.
+\item \textbf{Verifica adiacenza:} $\mathcal{O}(n)$ nel caso pessimo (bisogna scorrere la lista).
+\item \textbf{Iterazione su tutti gli archi:} $\mathcal{O}(n + m)$.
+\item \textit{Ideale per:} Grafi \textbf{sparsi} e implementazioni algoritmiche. (Spesso in Python si utilizza un dizionario di dizionari per unire l'efficienza $\mathcal{O}(1)$ del lookup alla flessibilità dello spazio).
+\end{itemize}
+
+\newpage
+
+\section{Visite dei Grafi (Graph Traversal)}
+
+\subsection{Visita in Ampiezza (Breadth-First Search - BFS)}
+Esplora il grafo procedendo per "livelli" (o cerchi concentrici) a partire da una sorgente $r$. Utilizza una \textbf{Coda (Queue)}.
+\begin{itemize}
+\item \textbf{Applicazioni:} Calcolare il cammino più breve (in numero di archi) tra $r$ e gli altri nodi (es. calcolo del \textit{Numero di Erdös}). Genera un albero di copertura (BFS Tree).
+\item \textbf{Complessità:} $\mathcal{O}(n + m)$, poiché ogni nodo viene accodato una sola volta e i suoi archi in uscita ispezionati una sola volta.
+\end{itemize}
+
+\subsection{Visita in Profondità (Depth-First Search - DFS)}
+Esplora il grafo seguendo ogni ramo fino in fondo prima di tornare indietro. Si basa su uno \textbf{Stack} (implicito tramite chiamate ricorsive, o esplicito iterativo per evitare \textit{StackOverflow} su grafi enormi).
+Durante la DFS è utile classificare gli archi incontrati (archi dell'albero DFS, archi in avanti, archi all'indietro, archi di attraversamento) in base al "tempo di scoperta" (\texttt{discovery time}) e "tempo di fine" (\texttt{finish time}) dei nodi.
+\begin{itemize}
+\item \textbf{Complessità:} $\mathcal{O}(n + m)$.
+\end{itemize}
+
+\newpage
+
+\section{Applicazioni Pratiche della DFS}
+
+\subsection{1. Componenti Connesse (Grafi Non Orientati)}
+Un grafo non orientato è \textit{connesso} se ogni suo nodo è raggiungibile da ogni altro nodo. Una \textit{componente connessa} è un sottografo connesso e massimale.
+\begin{itemize}
+\item L'algoritmo esegue una DFS a partire da un nodo non marcato, assegnando un ID univoco a tutti i nodi scoperti in quella sessione. Se restano nodi non marcati, incrementa l'ID e riavvia la DFS per mappare le restanti componenti.
+\end{itemize}
+
+\subsection{2. Ciclicità e Grafi Aciclici (DAG)}
+Un \textbf{ciclo} è un cammino in cui il primo e l'ultimo nodo coincidono.
+\begin{itemize}
+\item \textbf{Grafo non orientato:} Si ha un ciclo se durante la DFS si incontra un nodo già visitato (che non sia il padre diretto da cui si proviene).
+\item \textbf{Grafo orientato aciclico (DAG):} Un grafo orientato ha un ciclo \textit{se e solo se} la DFS rileva un \textbf{arco all'indietro} (cioè un arco che punta verso un "antenato" nell'albero di ricerca, individuabile se l'antenato non ha ancora concluso il suo \texttt{finish time}).
+\end{itemize}
+
+\subsection{3. Ordinamento Topologico (solo per DAG)}
+Un ordinamento topologico è una disposizione lineare dei nodi tale che se esiste un arco $(u, v)$, allora $u$ appare \textit{prima} di $v$ nell'ordinamento. Non può esistere in presenza di cicli.
+\begin{itemize}
+\item \textbf{Algoritmo DFS-based:} Esegue una DFS. Nel momento della "post-visita" (tempo di fine, quando tutti i discendenti sono stati visitati), inserisce il nodo in cima a uno Stack (ordinamento LIFO).
+\item \textbf{Applicazioni:} Risoluzione dipendenze in pacchetti software, Makefile, calcolo celle spreadsheet.
+\end{itemize}
+
+\subsection{4. Componenti Fortemente Connesse (SCC - Grafi Orientati)}
+Un grafo orientato è fortemente connesso se ogni nodo è mutuamente raggiungibile da ogni altro nodo. Una \textbf{SCC} è un sottografo fortemente connesso e massimale.
+Identificarle richiede una procedura specifica. La soluzione più elegante è l'\textbf{Algoritmo di Kosaraju (1978)}:
+\begin{enumerate}
+\item Eseguire un Ordinamento Topologico sul grafo $G$ (tramite DFS).
+\item Calcolare il \textbf{Grafo Trasposto $G^T$} invertendo la direzione di tutti gli archi ($\mathcal{O}(n+m)$).
+\item Eseguire l'algoritmo delle componenti connesse standard sul grafo $G^T$, scegliendo però le radici di partenza in base all'ordine LIFO restituito dallo Stack generato al punto 1.
+\end{enumerate}
+La complessità totale rimane rigorosamente \textcolor{green}{$\mathcal{O}(n + m)$}. (Esiste anche l'Algoritmo di Tarjan, anch'esso $\mathcal{O}(n+m)$, che evita la creazione del grafo trasposto eseguendo una singola passata).
+
+
+
+\section{Strutture Dati Speciali: Code con Priorità}
+
+In molte applicazioni non è necessario avere a disposizione l'intero set di operazioni di un dizionario (come la ricerca di elementi arbitrari); in questi casi, è possibile progettare strutture dati \textit{specializzate} e molto più efficienti.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione: Coda con Priorità (Priority Queue)}]
+Una coda con priorità è una struttura dati astratta simile ad una coda (Queue), in cui però ogni elemento inserito possiede una \textbf{priorità} associata.
+L'estrazione non avviene in base all'ordine di arrivo (FIFO), ma in base alla priorità:
+\begin{itemize}
+\item \textbf{Min-priority queue:} Estrazione per valori \textit{crescenti} di priorità (il minimo viene estratto per primo).
+\item \textbf{Max-priority queue:} Estrazione per valori \textit{decrescenti} di priorità (il massimo viene estratto per primo).
+\end{itemize}
+\end{tcolorbox}
+
+Le applicazioni tipiche includono simulatori \textit{event-driven} (dove la priorità è il timestamp dell'evento), l'algoritmo di Dijkstra per i cammini minimi, la codifica di Huffman e l'algoritmo di Prim.
+
+\subsection{Specifica del Tipo di Dato}
+\begin{verbatim}
+% Pseudocodice: Specifica di una Min-Priority Queue
+PRIORITYQUEUE PriorityQueue(int n)   % Crea coda vuota di capacità n
+boolean isEmpty()                    % Verifica se vuota
+item min()                           % Legge l'elemento minimo
+item deleteMin()                     % Rimuove e restituisce il minimo
+PRIORITYITEM insert(item x, int p)   % Inserisce x con priorità p
+decrease(PRIORITYITEM y, int p)      % Abbassa la priorità dell'oggetto y a p
+\end{verbatim}
+
+\subsection{L'Albero Heap}
+Confrontando le possibili implementazioni, si nota che vettori ordinati e liste non offrono un bilanciamento ottimale tra i costi di inserimento ed estrazione. L'\textbf{Heap} è una struttura inventata da J. Williams (1964) che unisce i vantaggi di un albero (esecuzione in \textcolor{green}{$\mathcal{O}(\log n)$}) ai vantaggi di un vettore (memorizzazione contigua ed efficiente).
+
+Per definire un Heap, dobbiamo ricordare due tipologie di alberi:
+\begin{enumerate}
+\item \textbf{Albero binario perfetto:} Tutte le foglie hanno la stessa profondità $h$ e i nodi interni hanno grado 2. Ha $n = 2^{h+1}-1$ nodi.
+\item \textbf{Albero binario completo:} Tutte le foglie hanno profondità $h$ o $h-1$. Tutti i nodi al livello $h$ sono "accatastati" a sinistra.
+\end{enumerate}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Proprietà Heap}]
+Un albero \textbf{max-heap} (o \textbf{min-heap}) è un \textbf{albero binario completo} tale che il valore memorizzato in ogni nodo è \textbf{maggiore} (o \textbf{minore}) dei valori memorizzati nei suoi figli.
+\end{tcolorbox}
+Questa proprietà non impone un ordinamento totale tra i rami (è un \textit{ordinamento parziale}).
+
+\subsubsection{Memorizzazione su Vettore (Vettore Heap)}
+Grazie alla struttura completa dell'albero, un heap viene memorizzato compattamente in un \textbf{vettore $A$}, usando indici matematici per muoversi tra padre e figli:
+\begin{itemize}
+\item Radice: $root() = 0$
+\item Padre del nodo $i$: $p(i) = \lfloor (i-1)/2 \rfloor$
+\item Figlio sinistro del nodo $i$: $l(i) = 2i + 1$
+\item Figlio destro del nodo $i$: $r(i) = 2i + 2$
+\end{itemize}
+
+\subsection{L'algoritmo HeapSort}
+HeapSort ordina un vettore \textit{in-place} costruendo prima un max-heap e poi spostando iterativamente l'elemento massimo in ultima posizione.
+
+\subsubsection{1. Ripristino della Proprietà Heap (\texttt{maxHeapRestore})}
+Se un nodo $i$ viola la proprietà heap rispetto ai suoi figli (ma i suoi sottoalberi sono heap validi), si scambia il nodo con il maggiore dei suoi figli e si propaga la correzione verso il basso.
+\begin{verbatim}
+% Ripristina la proprietà max-heap scendendo nell'albero
+maxHeapRestore(item[] A, int i, int dim)
+int max = i
+if l(i) < dim and A[l(i)] > A[max] then max = l(i)
+if r(i) < dim and A[r(i)] > A[max] then max = r(i)
+if i != max then
+swap(A, i, max)
+maxHeapRestore(A, max, dim) % Chiamata ricorsiva sul figlio
+\end{verbatim}
+\textbf{Costo computazionale:} Poiché l'albero ha altezza $\lfloor \log n \rfloor$, l'algoritmo costa \textcolor{cyan}{$\mathcal{O}(\log n)$}.
+
+\subsubsection{2. Costruzione dell'Heap (\texttt{heapBuild})}
+Costruisce un max-heap a partire da un vettore non ordinato.
+\begin{verbatim}
+% Costruisce un max-heap procedendo dal basso verso l'alto
+heapBuild(item[] A, int n)
+% I nodi da n/2 a n-1 sono foglie (heap di 1 elemento validi)
+for i = floor(n/2) - 1 downto 0 do
+maxHeapRestore(A, i, n)
+\end{verbatim}
+\textbf{Costo computazionale:} Sebbene sembri $\mathcal{O}(n \log n)$, un'analisi matematica rigorosa dimostra che \texttt{maxHeapRestore} viene eseguito su alberi via via più grandi, ma la maggior parte dei nodi è vicina alle foglie. La serie converge e il costo totale è strettamente \textcolor{green}{$\Theta(n)$}.
+
+\subsubsection{3. Algoritmo di Ordinamento Finale (\texttt{heapsort})}
+\begin{verbatim}
+heapsort(item[] A, int n)
+heapBuild(A, n)
+for capacity = n - 1 downto 1 do
+swap(A, 0, capacity)             % Sposta il massimo in fondo
+maxHeapRestore(A, 0, capacity)   % Ripristina l'heap sulla parte restante
+\end{verbatim}
+\textbf{Costo globale:} $\mathcal{O}(n)$ per la costruzione + $(n-1) \times \mathcal{O}(\log n)$ per i ripristini = \textcolor{cyan}{$\Theta(n \log n)$}. Gode di $\mathcal{O}(1)$ memoria ausiliaria ed è usato nel kernel Linux.
+
+\subsection{Implementazione della Coda con Priorità (Min-Heap)}
+Per realizzare la coda con priorità, i nodi memorizzano non solo il valore e la priorità, ma anche la loro \textbf{posizione corrente} nel vettore. Questo è indispensabile per la funzione \texttt{decrease}.
+
+\begin{verbatim}
+PRIORITYITEM
+int priority
+item value
+int pos      % Posizione attuale nel vettore heap
+
+% Inserimento in fondo e risalita (up-heap)
+PRIORITYITEM insert(item x, int p)
+% ... inizializza H[dim] con x, p, e pos = dim
+int i = dim
+dim = dim + 1
+% Se è minore del padre, sale verso l'alto
+while i > 0 and H[i].priority < H[p(i)].priority do
+swap(H, i, p(i))
+i = p(i)
+return H[i]
+
+% Estrazione del minimo e discesa (down-heap tramite Restore)
+item deleteMin()
+item temp = H[0].value
+dim = dim - 1
+swap(H, 0, dim)
+minHeapRestore(H, 0, dim)
+return temp
+\end{verbatim}
+\textbf{Complessità Operazioni Priority Queue:}
+\begin{itemize}
+\item \texttt{min()}: \textcolor{green}{$\Theta(1)$}
+\item \texttt{insert()}, \texttt{deleteMin()}, \texttt{decrease()}: \textcolor{cyan}{$\mathcal{O}(\log n)$}
+\end{itemize}
+
+\newpage
+
+\section{Insiemi Disgiunti (Merge-Find Set)}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione}]
+Un \textit{Merge-Find Set} serve a gestire una collezione $S = \{S_1, S_2, \dots, S_k\}$ di insiemi \textbf{dinamici e mutuamente disgiunti} ($\forall i \neq j \implies S_i \cap S_j = \emptyset$).
+Ogni insieme è identificato da un \textbf{rappresentante univoco} scelto tra i suoi membri.
+\end{tcolorbox}
+
+\textbf{Operazioni supportate:}
+\begin{itemize}
+\item \texttt{Mfset(int n)}: Crea $n$ insiemi disgiunti composti da un solo elemento $\{0\}, \dots, \{n-1\}$.
+\item \texttt{find(int x)}: Restituisce il rappresentante dell'insieme a cui appartiene $x$.
+\item \texttt{merge(int x, int y)}: Unisce l'insieme contenente $x$ con l'insieme contenente $y$.
+\end{itemize}
+\textbf{Applicazione principe:} Calcolo dinamico delle componenti connesse in un grafo non orientato (utile nell'algoritmo di Kruskal).
+
+\subsection{1. Realizzazione basata su Liste}
+Ogni insieme è una \textbf{lista concatenata}. La testa della lista funge da rappresentante. Ogni nodo ha un puntatore al successivo e un \textbf{puntatore diretto al rappresentante}.
+\begin{itemize}
+\item \texttt{find(x)}: Costa \textcolor{green}{$\mathcal{O}(1)$} seguendo il puntatore diretto alla testa.
+\item \texttt{merge(x, y)}: Appende la lista di $y$ in coda a quella di $x$. Richiede di aggiornare tutti i puntatori al rappresentante nella lista "appesa". Costo pessimo $\mathcal{O}(n^2)$ per $n$ operazioni, costo ammortizzato \textcolor{orange}{$\mathcal{O}(n)$}.
+\end{itemize}
+
+\subsection{2. Realizzazione basata su Alberi (Foresta)}
+Ogni insieme è un albero. La \textbf{radice è il rappresentante}. I nodi possiedono \textbf{solo un puntatore verso il padre}.
+\begin{itemize}
+\item \texttt{merge(x, y)}: Modifica il puntatore del padre della radice di $y$, agganciandolo alla radice di $x$. Costa \textcolor{green}{$\mathcal{O}(1)$}.
+\item \texttt{find(x)}: Risale la catena dei padri fino alla radice. Costa \textcolor{red}{$\mathcal{O}(n)$} nel caso pessimo (albero degenere a lista).
+\end{itemize}
+
+\subsection{Ottimizzazioni: Euristiche}
+Per migliorare le performance, si utilizzano algoritmi euristici.
+
+\subsubsection{Euristica sul Peso (per Liste)}
+Per ottimizzare la \texttt{merge}, le liste memorizzano la loro lunghezza. Si \textbf{aggancia sempre la lista più corta a quella più lunga}.
+\begin{itemize}
+\item In questo modo, un nodo vede cambiare il proprio rappresentante solo quando la dimensione del suo insieme almeno raddoppia.
+\item \textbf{Vantaggio:} Il costo di \texttt{merge} scende a \textcolor{cyan}{$\mathcal{O}(\log n)$} ammortizzato.
+\end{itemize}
+
+\subsubsection{Euristica sul Rango (per Alberi)}
+Ogni nodo mantiene il proprio \textbf{rango} (limite superiore all'altezza del sottoalbero). Si aggancia l'albero con rango \textit{più basso} alla radice di quello con rango \textit{più alto}. Se i ranghi sono uguali, se ne aggancia uno all'altro e il rango del vincitore aumenta di 1.
+\begin{itemize}
+\item Si dimostra che un albero MFSET con radice $r$ ha almeno $2^{rank[r]}$ nodi.
+\item \textbf{Vantaggio:} L'altezza massima dell'albero è limitata a $\log n$. Il costo di \texttt{find} scende a \textcolor{cyan}{$\mathcal{O}(\log n)$}.
+\end{itemize}
+
+\subsubsection{Euristica della Compressione dei Cammini (per Alberi)}
+Durante l'operazione \texttt{find}, l'albero viene "appiattito": tutti i nodi visitati durante la risalita vengono \textbf{agganciati direttamente alla radice}.
+\begin{verbatim}
+% Find ricorsiva con compressione dei cammini
+int find(int x)
+if p[x] != x then
+p[x] = find(p[x])  % Aggiorna il padre collegandolo alla radice
+return p[x]
+\end{verbatim}
+
+\subsubsection{Combinazione: Rango + Compressione}
+Applicando entrambe le euristiche agli alberi, si ottiene la struttura definitiva per i Merge-Find Set.
+\begin{itemize}
+\item \textbf{Complessità Ammortizzata:} Eseguire $m$ operazioni \texttt{merge}/\texttt{find} su $n$ elementi ha un costo complessivo $\mathcal{O}(m \cdot \alpha(n))$.
+\item $\alpha(n)$ è la \textbf{funzione inversa di Ackermann}, che cresce così lentamente da risultare $\le 5$ per qualsiasi valore di $n \le 2^{65536}$. Pertanto, il costo delle operazioni può essere considerato \textcolor{green}{$\mathcal{O}(1)$} a fini pratici.
+\end{itemize}
+
+
+\section{Il Problema dei Cammini Minimi e la Scelta della Struttura Dati}
+
+L'obiettivo di questa sezione è dimostrare come la scelta della struttura dati sia una tecnica algoritmica fondamentale che può alterare drasticamente la complessità di un algoritmo. Questo concetto viene illustrato attraverso il \textbf{problema dei cammini minimi (Shortest Path)}.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione: Cammini Minimi da Singola Sorgente (SSSP)}]
+\textbf{Input:}
+\begin{itemize}
+\item Un grafo orientato $G = (V,E)$.
+\item Un nodo sorgente $s$.
+\item Una funzione di peso $w: E \rightarrow \mathbb{R}$.
+\end{itemize}
+\textbf{Definizione di Costo:} Dato un cammino $p = \langle v_0, v_1, \dots, v_k \rangle$, il suo costo è la somma dei pesi degli archi: $w(p) = \sum_{i=1}^k w(v_{i-1}, v_i)$.\
+\textbf{Output:} Trovare, per ogni nodo $u \in V$, un cammino da $s$ ad $u$ il cui costo sia \textbf{minimo} tra tutti i possibili cammini.
+\end{tcolorbox}
+
+\subsection{Caratteristiche delle Soluzioni}
+\begin{itemize}
+\item \textbf{Pesi:} Gli algoritmi differiscono a seconda che i pesi siano solo positivi o anche negativi. La presenza di \textbf{cicli negativi} rende il problema mal definito, in quanto si potrebbe percorrere il ciclo all'infinito per abbassare il costo.
+\item \textbf{Sottostruttura ottima:} Un sotto-cammino di un cammino minimo è necessariamente esso stesso un cammino minimo.
+\item \textbf{Albero dei cammini minimi:} Grazie alla sottostruttura ottima, l'insieme dei cammini minimi da $s$ a tutti i nodi raggiungibili forma un albero di copertura radicato in $s$. La soluzione è quindi descritta da un vettore delle distanze $d$ e da un vettore dei padri $T$.
+\end{itemize}
+
+\newpage
+
+\section{Schema Generico e Teorema di Bellman}
+
+\subsection{Il Teorema di Bellman}
+Come riconoscere se una soluzione ammissibile (descritta da un albero $T$ e da un vettore $d$) è effettivamente quella ottima? Il \textbf{Teorema di Bellman} afferma che una soluzione ammissibile $T$ è ottima \textbf{se e solo se}:
+\begin{itemize}
+\item \textbf{Coerenza:} $d[v] = d[u] + w(u,v) \quad \forall (u,v) \in T$.
+\item \textbf{Nessun miglioramento possibile:} $d[v] \le d[u] + w(u,v) \quad \forall (u,v) \in E$.
+\end{itemize}
+Se la seconda condizione è violata, significa che passare per $u$ offre un cammino più breve per raggiungere $v$.
+
+\subsection{Algoritmo Prototipo e Rilassamento}
+Partendo dal Teorema di Bellman, si definisce l'operazione di \textbf{rilassamento}. Si inizializza la distanza di $s$ a 0 e di tutti gli altri nodi a $+\infty$. Finché esiste un arco $(u,v)$ che viola la disuguaglianza di Bellman, se ne "rilassa" la tensione aggiornando la distanza.
+
+\begin{verbatim}
+% Algoritmo generico per i Cammini Minimi
+(int[], int[]) shortestPath(GRAPH G, NODE s)
+% Inizializzazione...
+DATASTRUCTURE S = DataStructure(); S.add(s)
+
+
+while not S.isEmpty() do
+    int u = S.extract()
+    b[u] = false
+    foreach v in G.adj(u) do
+        % Condizione di Rilassamento di Bellman
+        if d[u] + G.w(u,v) < d[v] then
+            if not b[v] then 
+                S.add(v)
+                b[v] = true
+            else
+                % Azione se v è già in S
+            T[v] = u
+            d[v] = d[u] + G.w(u,v)
+return (T, d)
+
+
+
+\end{verbatim}
+Cambiando la struttura dati \texttt{DATASTRUCTURE S}, si ottengono algoritmi profondamente diversi.
+
+\newpage
+
+\section{Algoritmi per Sorgente Singola (SSSP)}
+
+\subsection{Algoritmo di Dijkstra (1959) - Pesi Positivi}
+Sostituendo \texttt{S} con una \textbf{Coda con Priorità (Priority Queue)}, otteniamo l'algoritmo di Dijkstra. Funziona correttamente \textbf{solo con pesi non negativi}. È basato su una strategia greedy: ogni volta che un nodo $u$ viene estratto, la sua distanza $d[u]$ è garantita essere quella minima definitiva.
+
+La complessità dipende dall'implementazione della coda con priorità:
+\begin{itemize}
+\item \textbf{Vettore non ordinato (Dijkstra originale):} Estrazione costa $\mathcal{O}(n)$, diminuzione priorità costa $\mathcal{O}(1)$ $\implies$ \textcolor{red}{$\mathcal{O}(n^2)$}. Ideale per grafi densi.
+\item \textbf{Heap Binario (Algoritmo di Johnson, 1977):} Estrazione e decremento priorità costano $\mathcal{O}(\log n)$ $\implies$ \textcolor{green}{$\mathcal{O}(m \log n)$}. Ottimale per grafi sparsi.
+\item \textbf{Heap di Fibonacci (Fredman-Tarjan, 1987):} Decremento costa $\mathcal{O}(1)$ ammortizzato $\implies$ \textcolor{cyan}{$\mathcal{O}(m + n \log n)$}. Ideale per grafi enormi e densi.
+\end{itemize}
+
+\subsection{Algoritmo di Bellman-Ford-Moore (1958) - Pesi Negativi}
+Sostituendo \texttt{S} con una \textbf{Coda semplice (Queue - FIFO)}, si ottiene la variante SPFA (Shortest Path Faster Algorithm) di Bellman-Ford.
+\begin{itemize}
+\item \textbf{Funzionamento:} Un nodo può essere inserito ed estratto dalla coda fino a $n-1$ volte. Al termine della $k$-esima passata sulla coda, le distanze calcolate sono i cammini minimi formati da al più $k$ archi.
+\item \textbf{Vantaggio:} Gestisce correttamente i \textbf{pesi negativi}.
+\item \textbf{Svantaggio:} Costo computazionale pesante pari a \textcolor{orange}{$\mathcal{O}(n \cdot m)$}.
+\end{itemize}
+
+\subsection{Caso Speciale: Grafi Orientati Aciclici (DAG)}
+In un DAG non esistono cicli (e quindi neanche cicli negativi), quindi il problema è più semplice.
+\begin{itemize}
+\item \textbf{Algoritmo:} Sostituendo \texttt{S} con lo \textbf{Stack dell'ordinamento topologico}, si estraggono e rilassano gli archi una volta sola seguendo la direzionalità imposta dal grafo.
+\item \textbf{Complessità:} Estremamente rapido, tempo lineare \textcolor{green}{$\mathcal{O}(m + n)$}.
+\end{itemize}
+
+\newpage
+
+\section{Cammini Minimi per Tutte le Coppie (APSP)}
+
+Se si vuole calcolare la distanza minima tra \textbf{tutte} le coppie di vertici, si può applicare ripetutamente un algoritmo a singola sorgente per ogni nodo ($\mathcal{O}(n \cdot m \log n)$ per grafi sparsi positivi), ma in presenza di pesi negativi su grafi densi è più efficiente ricorrere alla \textbf{Programmazione Dinamica}.
+
+\subsection{Algoritmo di Floyd-Warshall (1962)}
+Floyd-Warshall lavora sul concetto di \textbf{cammino minimo $k$-vincolato}.
+Un cammino $p_{xy}^k$ è il percorso minimo tra $x$ e $y$ che passa \textit{esclusivamente} per nodi intermedi appartenenti al set ristretto $\{v_0, \dots, v_{k-1}\}$.
+
+\textbf{Formulazione Ricorsiva:}
+
+$$d^k[x][y] = \begin{cases} w(x,y) & \text{se } k = 0 \\ \min(d^{k-1}[x][y], \; d^{k-1}[x][k-1] + d^{k-1}[k-1][y]) & \text{se } k > 0 \end{cases}$$
+
+
+\begin{itemize}
+\item Il caso base ($k=0$) rappresenta i collegamenti diretti tra due nodi senza intermediari.
+\item Il passo ricorsivo controlla se includere il vertice $(k-1)$ come tappa intermedia migliora la distanza precedente.
+\end{itemize}
+
+\begin{verbatim}
+% Programmazione Dinamica - O(n^3)
+(int[][], int[][]) floydWarshall(GRAPH G)
+% d: matrice delle distanze, T: matrice dei padri
+% Inizializzazione matrice d con pesi diretti w(u,v) e T con i padri diretti
+
+
+for k = 1 to G.n do
+    foreach u in G.V() do
+        foreach v in G.V() do
+            if d[u][k-1] + d[k-1][v] < d[u][v] then
+                d[u][v] = d[u][k-1] + d[k-1][v]
+                T[u][v] = T[k-1][v]
+                
+return (d, T)
+
+
+
+\end{verbatim}
+\textbf{Complessità:} Triplo ciclo annidato sui vertici $\implies$ \textcolor{red}{$\mathcal{O}(n^3)$}. Estremamente elegante ed efficiente per grafi densi con pesi negativi.
+
+\subsection{Chiusura Transitiva (Algoritmo di Warshall)}
+Derivato dalla logica precedente, calcola il grafo orientato $G^* = (V, E^*)$ in cui l'arco $(u, v) \in E^*$ se e solo se esiste un qualsiasi cammino (di lunghezza $\ge 1$) da $u$ a $v$ in $G$.
+Si implementa con una logica booleana (AND/OR logici) anziché somme aritmetiche, mantenendo un costo di $\mathcal{O}(n^3)$:
+
+
+$$M^k[x][y] = \begin{cases} y \in G.adj(x) & k = 0 \\ M^{k-1}[x][y] \lor (M^{k-1}[x][k-1] \land M^{k-1}[k-1][y]) & k > 0 \end{cases}$$
+
+
+
+
+
+
+\section{Metodologia di Risoluzione dei Problemi}
+
+Di fronte a un problema computazionale, non esistono "ricette generali" per risolverlo in modo efficiente, ma il processo di progettazione si divide in quattro fasi principali:
+\begin{enumerate}
+\item \textbf{Classificazione del problema}.
+\item \textbf{Caratterizzazione della soluzione}.
+\item \textbf{Scelta della tecnica di progetto}.
+\item \textbf{Utilizzo di strutture dati adeguate}.
+\end{enumerate}
+
+\subsection{Classificazione dei Problemi}
+I problemi si dividono in tre grandi categorie:
+\begin{itemize}
+\item \textbf{Problemi decisionali:} Verificano se il dato di ingresso soddisfa una certa proprietà. La soluzione è strettamente \textit{Sì/No} (es. Stabilire se un grafo è connesso).
+\item \textbf{Problemi di ricerca:} Dato uno spazio di ricerca, mirano a trovare una "soluzione ammissibile" che rispetti determinati vincoli (es. trovare la posizione di una sottostringa in un testo).
+\item \textbf{Problemi di ottimizzazione:} Ogni soluzione ammissibile è associata a una \textbf{funzione di costo}. L'obiettivo è trovare la soluzione con il costo minimo o massimo assoluto (es. il cammino più breve tra due nodi).
+\end{itemize}
+
+La rigorosa definizione matematica del problema può suggerire direttamente la tecnica di risoluzione ottima (es. la presenza di una \textit{sottostruttura ottima} suggerisce l'uso della programmazione dinamica, mentre una \textit{proprietà greedy} porta all'omonima tecnica).
+
+\newpage
+
+\section{La Tecnica del Divide-et-Impera}
+
+Il \textbf{Divide-et-impera} è una tecnica top-down applicata tipicamente a problemi di decisione e ricerca. Si struttura rigorosamente in tre fasi:
+\begin{enumerate}
+\item \textbf{Divide:} Si divide il problema di partenza in sotto-problemi più piccoli e reciprocamente indipendenti.
+\item \textbf{Impera:} Si risolvono i sotto-problemi in modo ricorsivo.
+\item \textbf{Combina:} Si uniscono le soluzioni dei sotto-problemi per ottenere la soluzione del problema originale.
+\end{enumerate}
+
+\textbf{Quando applicarlo:}
+Questa tecnica risulta vantaggiosa solo quando i passi di \textit{divide} e \textit{combina} sono operativamente semplici e il costo asintotico globale è strettamente inferiore a quello del corrispondente algoritmo iterativo naif.
+Ad esempio, cercare il minimo in un vettore tramite divide-et-impera produce la ricorrenza $T(n) = 2T(n/2) + 1 = \Theta(n)$, non portando alcun vantaggio rispetto alla banale scansione iterativa. Al contrario, porta enormi vantaggi nell'ordinamento (es. Merge Sort, Quicksort).
+Inoltre, il divide-et-impera facilita la \textbf{parallelizzazione} e favorisce un utilizzo ottimale della cache di memoria (\textit{cache oblivious}).
+
+\subsection{Esempio Introduttivo: Torri di Hanoi}
+Un classico problema risolvibile unicamente con questa tecnica è il gioco delle Torri di Hanoi: spostare $n$ dischi da un piolo sorgente a uno destinazione usando un piolo di appoggio, muovendo un disco alla volta senza mai mettere un disco più grande sopra uno più piccolo.
+
+\begin{verbatim}
+% Pseudocodice Torri di Hanoi
+hanoi(int n, int src, int dest, int middle)
+if n == 1 then
+print src -> dest
+else
+hanoi(n - 1, src, middle, dest) % n-1 dischi da src a middle
+print src -> dest               % il disco più grande da src a dest
+hanoi(n - 1, middle, dest, src) % n-1 dischi da middle a dest
+\end{verbatim}
+
+\textbf{Complessità:} L'equazione di ricorrenza generata è $T(n) = 2T(n-1) + 1$, la cui forma chiusa è \textcolor{red}{$\mathcal{O}(2^n)$}. Tale soluzione esponenziale è matematicamente l'ottimo per questo specifico problema.
+
+\newpage
+
+\section{Quicksort (Hoare, 1961)}
+
+Il Quicksort è un celebre algoritmo di ordinamento \textit{in-memory} (non richiede vettori di appoggio ausiliari) basato sul divide-et-impera. Le sue fasi sono sbilanciate rispetto al Merge Sort:
+\begin{itemize}
+\item \textbf{Divide (Fase complessa):} Sceglie un valore detto \textbf{perno (pivot)} all'interno del vettore e sposta gli elementi in modo da isolare il pivot nella sua posizione definitiva $j$. A sinistra del pivot ci saranno solo valori $< pivot$, a destra solo valori $\ge pivot$.
+\item \textbf{Impera:} Richiama ricorsivamente il Quicksort sui due sottovettori (escluso il pivot).
+\item \textbf{Combina (Fase nulla):} Non fa nulla, poiché ordinare i due sottovettori partizionati implica implicitamente ordinare l'intero vettore.
+\end{itemize}
+
+\subsection{Implementazione}
+\begin{verbatim}
+% Procedura principale
+QuickSort(item[] A, int start, int end)
+if start < end then
+int j = perno(A, start, end)
+QuickSort(A, start, j - 1)
+QuickSort(A, j + 1, end)
+
+% Funzione di partizionamento: sposta gli elementi e trova l'indice j
+int perno(item[] A, int start, int end)
+item pivot = A[start] % Scelta naif: il primo elemento è il pivot
+int j = start
+for i = start + 1 to end do
+if A[i] < pivot then
+j = j + 1
+swap(A, i, j)
+% Posiziona il pivot esattamente in mezzo ai due insiemi creati
+swap(A, start, j)
+return j
+\end{verbatim}
+
+\subsection{Analisi della Complessità}
+Il costo della funzione \texttt{perno()} è strettamente $\Theta(n)$ per la scansione lineare dell'intervallo.
+\begin{itemize}
+\item \textbf{Caso Ottimo:} Ad ogni passo il pivot divide esattamente il vettore a metà. $T(n) = 2T(n/2) + \Theta(n) \implies \textcolor{green}{\Theta(n \log n)}$.
+\item \textbf{Caso Pessimo:} Il vettore è già ordinato (o ordinato al contrario) e la divisione produce sottovettori di dimensione $0$ e $n-1$. $T(n) = T(n-1) + T(0) + \Theta(n) \implies \textcolor{red}{\Theta(n^2)}$.
+\item \textbf{Caso Medio:} Il comportamento reale è molto più vicino al caso ottimo. Anche partizionamenti fortemente sbilanciati (es. 99-a-1) producono una complessità $\Theta(n \log n)$ poiché limitano la profondità dell'albero delle chiamate in modo logaritmico. Statisticamente, i partizionamenti mediamente bilanciati dominano su quelli pessimi, mantenendo l'attesa a \textcolor{green}{$\Theta(n \log n)$}.
+\end{itemize}
+
+\textbf{Miglioramento Euristico (Selezione del Pivot):}\
+Per evitare il caso pessimo su array quasi ordinati, anziché prendere il primo elemento \texttt{A[start]}, si seleziona il \textbf{valore mediano} tra il primo elemento, l'ultimo e quello centrale, posizionandolo poi in testa al vettore prima di lanciare la scansione.
+
+\newpage
+
+\section{Algoritmo di Strassen (Moltiplicazione di Matrici)}
+
+Il prodotto classico fra due matrici $A$ e $B$ quadrate $n \times n$ costa, calcolando riga per colonna, \textbf{$\Theta(n^3)$}.
+Applicando un approccio divide-et-impera elementare, si suddividono le matrici $n \times n$ in $4$ sottomatrici $\frac{n}{2} \times \frac{n}{2}$ e si eseguono 8 moltiplicazioni. L'equazione di ricorrenza $T(n) = 8T(n/2) + n^2$ porta comunque a una complessità $\Theta(n^3)$.
+
+\textbf{L'intuizione di Strassen (1969):}
+Strassen ha dimostrato che manipolando algebricamente i blocchi, è possibile ricalcolare la matrice finale C effettuando \textbf{solo 7 moltiplicazioni ricorsive} al posto di 8, a costo di un maggior numero di addizioni/sottrazioni (costo $\Theta(n^2)$).
+
+
+$$T(n) = 7T(n/2) + \Theta(n^2)$$
+
+
+Risolvendo la ricorrenza con il Master Theorem:
+
+
+$$\alpha = \log_2 7 \approx 2.81 \implies \textcolor{green}{T(n) = \Theta(n^{2.81})}$$
+
+\textit{Nota pratica:} Pur essendo asintoticamente superiore, l'algoritmo di Strassen ha costanti moltiplicative alte e una stabilità numerica inferiore. La \textit{rule-of-thumb} è utilizzarlo solo per matrici di grosse dimensioni ($n \ge 100$). Al giorno d'oggi, la ricerca matematica ha abbassato ulteriormente questo limite (es. algoritmi della famiglia Coppersmith e Winograd fino a $\approx \mathcal{O}(n^{2.37})$), ma l'algoritmo standard e quello di Strassen restano i più implementati.
+
+\newpage
+
+\section{Applicazione Pratica: Ricerca di un Gap}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: Trovare il Gap}]
+\textbf{Definizione:} In un vettore $V$ contenente $n \ge 2$ interi, un \textbf{gap} è un indice $i$ ($0 < i \le n-1$) tale che $V[i-1] < V[i]$. \
+\textbf{Teorema:} Se $n \ge 2$ e \textbf{$V[0] < V[n-1]$}, allora $V$ contiene con certezza almeno un gap.
+\end{tcolorbox}
+
+\textbf{Dimostrazione per assurdo:}
+Se non ci fossero gap, ogni elemento sarebbe decrescente o uguale al successivo: $V[0] \ge V[1] \ge \dots \ge V[n-1]$. Ciò contraddice palesemente la premessa $V[0] < V[n-1]$.
+
+\textbf{Soluzione Algoritmica (Divide-et-Impera):}
+Sfruttando questa proprietà topologica, possiamo trattare il vettore come uno spazio dicotomico, portando la ricerca da $\mathcal{O}(n)$ (scansione lineare) a \textcolor{cyan}{$\mathcal{O}(\log n)$}.
+
+\begin{verbatim}
+% Algoritmo efficiente O(log n)
+int gap(int[] V, int n)
+return gapRec(V, 1, n - 1) % Nota: l'intervallo è tra gli indici 1 e n-1
+
+int gapRec(int[] V, int i, int j)
+% Caso base: sottovettore di due soli elementi
+if j == i + 1 then
+return j
+
+% Caso ricorsivo
+int m = floor((i + j) / 2)
+
+% Se l'estremo destro è maggiore del punto medio, 
+% per il teorema esiste di sicuro un gap a destra
+if V[m] < V[j] then
+    return gapRec(V, m, j)
+% Altrimenti, se V[m] >= V[j], sapendo che originariamente V[i] < V[j],
+% per transitività deve esserci una "risalita" a sinistra.
+else
+    return gapRec(V, i, m)
+
+
+\end{verbatim}
+
+
+
+\section{Programmazione Dinamica}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Principi della Programmazione Dinamica}]
+La Programmazione Dinamica è una tecnica di risoluzione dei problemi, prevalentemente usata per l'\textbf{ottimizzazione}.
+Si basa sul principio per cui un problema complesso viene spezzato in \textbf{sottoproblemi ripetuti}. Per evitare di ricalcolare più volte lo stesso sottoproblema, \textbf{ogni sottoproblema viene risolto una volta sola e la sua soluzione viene memorizzata in una tabella (array o matrice)}.
+L'iterazione avviene in logica \textbf{bottom-up}: si parte dai problemi più piccoli (casi base) e si sale calcolando i problemi via via più grandi.
+\end{tcolorbox}
+\textit{"Those who cannot remember the past are condemned to repeat it" – George Santayana}
+
+La tecnica \textbf{top-down} parallela alla programmazione dinamica prende il nome di \textbf{Memoization (Annotazione)}: la formula resta ricorsiva, ma prima di calcolarla si verifica se il risultato è già salvato in tabella.
+
+\subsection{Approccio Metodologico}
+Per sviluppare un algoritmo con programmazione dinamica si seguono tre fasi principali:
+\begin{enumerate}
+\item \textbf{Definire il valore della soluzione in maniera ricorsiva (Sottostruttura ottima)}: Formulare l'equazione di ricorrenza (tipicamente una funzione $DP[\dots]$).
+\item \textbf{Tabella delle soluzioni}: Costruire un algoritmo iterativo (o ricorsivo memoizzato) per riempire la tabella partendo dai casi base.
+\item \textbf{Ricostruzione della soluzione}: Retrocedere lungo la tabella $DP$ per identificare quali scelte hanno portato alla soluzione ottima.
+\end{enumerate}
+
+\newpage
+
+\section{Esempi Classici}
+
+\subsection{1. Il Problema del Domino}
+\textbf{Problema:} Trovare il numero di possibili disposizioni di $n$ tessere $2 \times 1$ in un rettangolo di dimensioni $2 \times n$.
+
+\textbf{Definizione Ricorsiva:}
+Se posiziono l'ultima tessera in verticale, devo riempire lo spazio rimanente di $n-1$. Se la posiziono in orizzontale, devo obbligatoriamente metterne due orizzontali una sopra l'altra, restando con $n-2$ da riempire. Le disposizioni si sommano:
+
+
+$$DP[n] = \begin{cases} 1 & \text{se } n \le 1 \\ DP[n-2] + DP[n-1] & \text{se } n > 1 \end{cases}$$
+
+
+Questo genera la \textbf{Successione di Fibonacci}.
+
+\textbf{Evoluzione delle Soluzioni:}
+\begin{itemize}
+\item \textbf{Ricorsione Pura:} Algoritmo naif con costo temporale esponenziale \textcolor{red}{$\mathcal{O}(2^n)$} a causa dei sottoproblemi risolti ripetutamente.
+\item \textbf{Programmazione Dinamica (Vettore completo):} Si alloca un array \texttt{DP[0...n]}. Tempo $\mathcal{O}(n)$, Spazio $\mathcal{O}(n)$. (Assumendo costo $\mathcal{O}(1)$ per la somma).
+\item \textbf{Ottimizzazione Spaziale:} Poiché per calcolare il passo $i$ servono solo i passi $i-1$ e $i-2$, è sufficiente mantenere in memoria tre variabili intere. Tempo $\mathcal{O}(n)$, Spazio \textcolor{green}{$\mathcal{O}(1)$}.
+\end{itemize}
+\textit{Nota teorica sui calcoli:} Se assumiamo un modello di \textbf{costo logaritmico} (in cui la somma di due grandi numeri non costa $\mathcal{O}(1)$ ma un tempo proporzionale ai bit, $\Theta(n)$), l'algoritmo dinamico costerebbe $\mathcal{O}(n^2)$.
+
+\subsection{2. Il Problema di Hateville}
+\textbf{Problema:} Una strada con $n$ case. Ogni casa $i$ offre una donazione $D[i]$, ma non si possono accettare donazioni da due case adiacenti. Massimizzare il totale raccolto.
+
+\textbf{Sottostruttura ottima:}
+Considerando l'iesima casa, si hanno due scelte mutuamente esclusive:
+\begin{enumerate}
+\item \textbf{Non la prendo:} Il profitto massimo è pari al profitto ottenuto considerando le prime $i-1$ case ($DP[i-1]$).
+\item \textbf{La prendo:} Prendo $D[i]$ ma non posso prendere la casa $i-1$. Il profitto totale è il profitto delle prime $i-2$ case sommato a $D[i]$ ($DP[i-2] + D[i]$).
+\end{enumerate}
+
+
+$$DP[i] = \begin{cases} 0 & i = 0 \\ D[0] & i = 1 \\ \max(DP[i-1], \; DP[i-2] + D[i-1]) & i \ge 2 \end{cases}$$
+
+
+\textit{Nota sugli indici:} Si usa $D[i-1]$ per allineare matematicamente l'identificativo $1$-based dell'equazione ricorsiva ($DP$) all'indice $0$-based del vettore $D$.
+
+\textbf{Ricostruzione della soluzione (Backtracking sulla Tabella):}
+Per risalire alle case effettivamente scelte, si parte dal fondo dell'array $DP[n]$.
+Se $DP[i] == DP[i-1]$, significa che la casa $i$ non è stata scelta, e si prosegue ricorsivamente con $i-1$. Altrimenti, è stata scelta, e si prosegue con $i-2$.
+\textbf{Complessità:} Tempo $\mathcal{O}(n)$ per la costruzione, Spazio $\mathcal{O}(n)$ (indispensabile per la ricostruzione).
+
+\subsection{3. Il Problema dello Zaino (Knapsack 0/1)}
+\textbf{Problema:} Dato un set di $n$ oggetti, ognuno con un peso $w[i]$ e un profitto $p[i]$, e uno zaino di capacità massima $C$, massimizzare il profitto senza superare il peso.
+
+\textbf{Definizione Ricorsiva del Valore:}
+Definiamo $DP[i][c]$ come il massimo profitto ottenibile considerando solo i primi $i$ oggetti, avendo a disposizione una capacità residua $c$.
+Per l'oggetto $i$-esimo:
+\begin{itemize}
+\item Se lo scarto (\textbf{Non Preso}): La capacità resta $c$, e il profitto è lo stesso ottenuto usando $i-1$ oggetti: $DP[i-1][c]$.
+\item Se lo prendo (\textbf{Preso}): Consumo la capacità $w[i-1]$, quindi al valore dell'oggetto $p[i-1]$ devo sommare il miglior profitto ottenibile con gli $i-1$ oggetti rimanenti nello spazio residuo $c - w[i-1]$.
+\end{itemize}
+
+$$DP[i][c] = \begin{cases} 0 & \text{se } i=0 \text{ o } c=0 \\ -\infty & \text{se } c < 0 \\ \max(DP[i-1][c-w[i-1]] + p[i-1], \; DP[i-1][c]) & \text{altrimenti} \end{cases}$$
+
+\begin{verbatim}
+% Implementazione Bottom-up
+int knapsack(int[] w, int[] p, int n, int C)
+DP = new int[0...n][0...C]
+% Inizializzazione casi base a 0 per i=0 e c=0
+for i = 1 to n do
+for c = 1 to C do
+% Se l'oggetto ci sta nello zaino (capacità residua sufficiente)
+if w[i-1] <= c then
+DP[i][c] = max(DP[i-1][c-w[i-1]] + p[i-1], DP[i-1][c])
+else
+% L'oggetto non ci sta, devo scartarlo per forza
+DP[i][c] = DP[i-1][c]
+
+return DP[n][C]
+
+
+\end{verbatim}
+
+\textbf{Complessità: $\mathcal{O}(n \cdot C)$} \
+Questo algoritmo è definito \textbf{pseudo-polinomiale}. Non è un algoritmo strettamente polinomiale, perché la complessità dipende dal \textit{valore} di $C$ (che richiede $k = \log_2 C$ bit per essere rappresentato). La complessità reale rispetto alla grandezza dell'input binario è $\mathcal{O}(n \cdot 2^k)$, quindi esponenziale rispetto al numero di bit che rappresentano la capacità dello zaino.
+
+
+
+
+
+\section{Programmazione Dinamica: Memoization e Varianti}
+
+\subsection{Zaino 0/1 con Memoization}
+Risolvere il problema dello Zaino in pura ricorsione genera un albero delle chiamate con molti sottoproblemi ripetuti. L'equazione di ricorrenza risultante per il caso puramente ricorsivo è $T(n) = 2T(n-1) + 1$, che porta a una complessità esponenziale \textcolor{red}{$\mathcal{O}(2^n)$}.
+Poiché non tutti gli elementi della matrice programmatica sono necessari per la risoluzione del problema originario, si può ottimizzare l'approccio unendo il top-down (ricorsione) con la memorizzazione tipica della programmazione dinamica: questa tecnica prende il nome di \textbf{Memoization} (annotazione).
+
+\begin{itemize}
+\item Si crea una tabella $DP$ inizializzata con un valore speciale (es. $-1$) che indica che un sottoproblema non è ancora stato risolto.
+\item Quando la ricorsione incontra un sottoproblema, controlla la tabella.
+\item Se il valore non è $-1$, si riutilizza il risultato salvato in \textcolor{green}{$\mathcal{O}(1)$}. Altrimenti, si calcola il risultato e lo si memorizza prima di ritornarlo.
+\end{itemize}
+
+\textbf{Dizionario vs Tabella:}
+L'inizializzazione di una matrice $n \times C$ costa $\mathcal{O}(nC)$, azzerando in partenza il vantaggio di non esplorare tutta la tabella. L'implementazione in linguaggi come Python avviene spesso utilizzando un \textbf{dizionario} (Hash Table). In questo modo, l'inizializzazione è istantanea e il costo computazionale scende a \textcolor{cyan}{$\mathcal{O}(\min(2^n, nC))$}. In Python, questo processo può essere del tutto automatizzato tramite un decoratore (es. \texttt{@memo} o \texttt{@lru_cache}) posto sopra la funzione ricorsiva originaria.
+
+\subsection{Variante dello Zaino, Senza Limiti (Unbounded Knapsack)}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione}]
+Dato uno zaino di capacità $C$ e $n$ oggetti caratterizzati da peso $w$ e profitto $p$, individuare il massimo profitto, \textbf{senza porre limiti al numero di volte che un oggetto può essere selezionato}.
+\end{tcolorbox}
+
+La formula ricorsiva cambia lievemente: se decido di prendere l'oggetto $i$-esimo, continuo a valutarlo riducendo la capacità ma senza esaurire l'oggetto (l'indice rimane $i$, non $i-1$):
+
+
+$$DP[i][c]=\max(DP[i][c-w[i-1]]+p[i-1],DP[i-1][c])$$
+
+\subsubsection{Semplificazione ad un vettore unidimensionale}
+In questo specifico caso, poiché la disponibilità degli oggetti è illimitata, si può eliminare la dimensione degli oggetti $i$ dallo stato e definire la tabella in base alla sola capacità.
+Definiamo $DP[c]$ come il massimo profitto ottenibile da uno zaino di capacità $c \le C$:
+
+
+$$DP[c]=\begin{cases}0&c=0\\\max_{w[i-1]\le c}\{DP[c-w[i-1]]+p[i-1]\}&c>0\end{cases}$$
+
+\begin{verbatim}
+% Pseudocodice per Zaino Senza Limiti con Memoization
+int knapsackRec(int[] w, int[] p, int n, int c, int[] DP, int[] pos)
+if c == 0 then return 0
+if DP[c] < 0 then
+DP[c] = 0
+for i = 1 to n do
+if w[i-1] <= c then
+int val = knapsackRec(w, p, n, c-w[i-1], DP, pos) + p[i-1]
+if val >= DP[c] then
+DP[c] = val
+pos[c] = i - 1  % Salvo l'indice per ricostruire la soluzione
+return DP[c]
+\end{verbatim}
+
+\textbf{Vantaggi e Svantaggi:}
+La complessità in spazio cala drasticamente a $\Theta(C)$. Tuttavia, il compattamento dell'informazione in un solo vettore unidimensionale rende necessario memorizzare un vettore ausiliario \texttt{pos} (che tiene traccia dell'ultimo oggetto aggiunto) per poter \textbf{ricostruire la soluzione ottima}.
+
+\newpage
+
+\section{La Sottosequenza Comune Massimale (LCS)}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizioni}]
+\begin{itemize}
+\item \textbf{Sottosequenza:} $P$ è sottosequenza di $T$ se è ottenuta da $T$ rimuovendo zero o più elementi, mantenendo il medesimo ordine per i rimanenti (non necessariamente contigui). Nota: la sequenza vuota è sottosequenza di ogni sequenza.
+\item \textbf{Sottosequenza Comune Massimale (LCS):} Date due sequenze $T$ e $U$, una sequenza $X$ è la LCS se è sottosequenza di entrambe, e non esiste un'altra sottosequenza comune $Y$ tale che $\vert{}Y\vert{} > \vert{}X\vert{}$.
+\end{itemize}
+\end{tcolorbox}
+
+Il problema di trovare la LCS ha numerose applicazioni in bioinformatica (valutare similarità tra sequenze di DNA) e nel campo informatico (distanza di edit).
+Una soluzione di forza bruta prevede di testare tutte le $2^n$ sottosequenze possibili di $T$ e verificarne l'appartenenza a $U$, con complessità asintotica inaccettabile \textcolor{red}{$\Theta(2^n(m+n))$}.
+
+\subsection{Sottostruttura Ottima e Formula Ricorsiva}
+Il problema presenta una sottostruttura ottima valutando i prefissi delle sequenze. Sia $T(i)$ il prefisso composto dai primi $i$ caratteri di $T$, e $U(j)$ il prefisso dei primi $j$ caratteri di $U$.
+Esistono due macro-casi per calcolare la LCS:
+\begin{enumerate}
+\item \textbf{I caratteri finali coincidono} ($t_i = u_j$).
+La LCS si ottiene prendendo la LCS dei prefissi di dimensione $i-1$ e $j-1$, concatenando ad essa il carattere $t_i$.
+
+
+$$LCS(T(i), U(j)) = LCS(T(i-1), U(j-1)) \oplus t_i$$
+
+
+\item \textbf{I caratteri finali non coincidono} ($t_i \neq u_j$).
+Bisogna calcolare le LCS scartando una volta il carattere di $T$ e una volta quello di $U$, e prendere la più lunga tra le due.
+
+
+$$LCS(T(i), U(j)) = \text{longest}(LCS(T(i-1), U(j)), LCS(T(i), U(j-1)))$$
+
+
+\end{enumerate}
+
+\subsubsection{Algoritmo Dinamico}
+Da queste definizioni deriva l'algoritmo di calcolo \textit{Bottom-Up} per trovare solo la \textbf{lunghezza} della LCS. Inizializziamo a $0$ la prima riga e la prima colonna (i casi in cui uno dei prefissi è vuoto).
+
+\begin{verbatim}
+int lcs(item[] T, item[] U, int n, int m)
+int[][] DP = new int[0...n][0...m]
+for i = 0 to n do DP[i][0] = 0
+for j = 0 to m do DP[0][j] = 0
+
+
+for i = 1 to n do
+    for j = 1 to m do
+        if T[i-1] == U[j-1] then
+            DP[i][j] = DP[i-1][j-1] + 1
+        else
+            DP[i][j] = max(DP[i-1][j], DP[i][j-1])
+return DP[n][m]
+
+
+
+\end{verbatim}
+\textbf{Complessità computazionale:} \textcolor{green}{$\mathcal{O}(mn)$}.
+
+\subsection{Ricostruzione della Soluzione e Ottimizzazione}
+\begin{itemize}
+\item \textbf{Ricostruzione:} Partendo dalla cella $DP[n][m]$, si risale l'albero delle decisioni. Se i caratteri corrispondenti in $T$ e $U$ sono uguali (il valore deriva dalla diagonale in alto a sinistra $i-1, j-1$), quel carattere fa parte della LCS. Se sono diversi, ci si sposta verso la cella (sopra o a sinistra) che ha originato il valore massimo. Questa operazione ha costo \textcolor{cyan}{$\mathcal{O}(n+m)$}.
+\item \textbf{Risparmio Spaziale:} Se è richiesta solo la misura della similitudine (la lunghezza della LCS) e non l'estrazione testuale della stringa, è possibile ottimizzare pesantemente lo spazio. Siccome il calcolo della riga $i$ richiede unicamente l'accesso alla riga precedente $i-1$, \textbf{è sufficiente conservare in memoria solo 2 righe} ($DP'$ e $DP$), abbassando il costo spaziale da $\mathcal{O}(mn)$ a $\mathcal{O}(\min(n, m))$.
+\end{itemize}
+
+\subsection{Reality Check: Il tool \texttt{diff}}
+Un'applicazione pratica onnipresente dell'algoritmo LCS è la utility Unix \texttt{diff}.
+Esamina file di testo ricercando le differenze a livello di righe (considerate come simboli atomici per il calcolo).
+Poiché confrontare intere righe stringa per stringa sarebbe oneroso, \texttt{diff} utilizza internamente \textbf{funzioni hash} per convertire ogni riga in un numero da confrontare. Adotta inoltre \textbf{euristiche preparatorie}, scartando d'ufficio i prefissi e i suffissi identici dei file per concentrare il pesante calcolo LCS (il motore centrale) solo sui blocchi testuali centrali variati.
+
+
+
+
+
+
+
+
+
+
+\section{Programmazione Dinamica: Applicazioni Avanzate}
+
+\subsection{Prodotto di Catena di Matrici}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione del Problema}]
+Data una sequenza di $n$ matrici $A_0, A_1, \dots, A_{n-1}$, compatibili due a due al prodotto, vogliamo calcolare il loro prodotto totale.
+Poiché il prodotto di matrici gode della proprietà \textbf{associativa} (es. $(A \cdot B) \cdot C = A \cdot (B \cdot C)$), l'ordine in cui si eseguono le moltiplicazioni (la \textit{parentesizzazione}) altera drasticamente il numero di operazioni necessarie.
+\textbf{Obiettivo:} Calcolare il prodotto delle $n$ matrici impiegando il più basso numero possibile di moltiplicazioni scalari.
+\end{tcolorbox}
+
+\subsubsection{Parentesizzazione e Numeri di Catalan}
+Il numero di parentesizzazioni possibili $NP[n]$ cresce in modo esponenziale, seguendo i \textbf{Numeri di Catalan}:
+
+
+$$NP[n] = C(n-1) = \frac{1}{n} \binom{2n-2}{n-1} = \Theta\left(\frac{4^n}{n\sqrt{n}}\right)$$
+
+
+Poiché $NP[n] = \Omega(2^n)$, un approccio di forza bruta che provi tutte le combinazioni è computazionalmente inaccettabile.
+
+\subsubsection{Sottostruttura Ottima e Formula Ricorsiva}
+Sia $A[i...j]$ una sottosequenza del prodotto di matrici e $P[i...j]$ una sua parentesizzazione ottima. Deve esistere un "ultimo prodotto" a un certo indice $k$ tale che $P[i...j] = P[i...k] \cdot P[k+1...j]$.
+\textbf{Teorema:} Se la parentesizzazione globale è ottima, anche $P[i...k]$ e $P[k+1...j]$ devono obbligatoriamente essere parentesizzazioni ottime per i rispettivi sottoproblemi.
+
+Sia $DP[i][j]$ il minimo numero di moltiplicazioni scalari necessarie per calcolare $A[i...j]$ e $c[i]$ il vettore delle dimensioni delle matrici ($A_i$ ha $c[i]$ righe e $c[i+1]$ colonne). La formula ricorsiva è:
+
+
+$$DP[i][j] = \begin{cases} 0 & \text{se } i=j \\ \min_{i \le k < j} \{ DP[i][k] + DP[k+1][j] + c[i] \cdot c[k+1] \cdot c[j+1] \} & \text{se } i < j \end{cases}$$
+
+\subsubsection{Algoritmo Bottom-Up}
+Per risolvere il problema si utilizzano due matrici: $DP$ per i costi e \texttt{last} per registrare l'indice $k$ che ha generato il costo minimo (necessario per ricostruire la soluzione).
+\textbf{Attenzione:} Non si può riempire la tabella riga per riga, ma bisogna procedere per \textbf{diagonali} (indicizzate da $h$), risolvendo prima le catene di lunghezza 2, poi 3, e così via.
+
+\begin{verbatim}
+% Programmazione dinamica per la catena di matrici
+computePar(int[] c, int n)
+int[][] DP = new int[0...n-1][0...n-1]
+int[][] last = new int[0...n-1][0...n-1]
+
+
+% Inizializza la diagonale principale (catene di lunghezza 1)
+for i = 0 to n - 1 do DP[i][i] = 0
+
+% h è la lunghezza della catena meno 1
+for h = 1 to n - 1 do
+    for i = 0 to n - h - 1 do
+        int j = i + h
+        DP[i][j] = +∞
+        % Prova tutti i possibili punti di split k
+        for k = i to j - 1 do
+            int temp = DP[i][k] + DP[k+1][j] + c[i]*c[k+1]*c[j+1]
+            if temp < DP[i][j] then
+                DP[i][j] = temp
+                last[i][j] = k
+return DP[0][n-1]
+
+
+
+\end{verbatim}
+\textbf{Complessità computazionale:} \textcolor{red}{$\mathcal{O}(n^3)$}, in quanto ogni cella della sottomatrice superiore (che sono $\Theta(n^2)$) richiede un tempo $\mathcal{O}(n)$ per ispezionare tutti i possibili indici $k$.
+
+\newpage
+
+\subsection{Insieme Indipendente di Intervalli Pesati}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione del Problema}]
+Dati $n$ intervalli temporali $[s[0], f[0]), \dots, [s[n-1], f[n-1])$ della retta reale, ognuno con un profitto associato $w[i]$. Due intervalli sono disgiunti se $f[j] \le s[i]$ oppure $f[i] \le s[j]$.
+\textbf{Obiettivo:} Trovare un sottoinsieme di intervalli \textbf{disgiunti tra loro} che massimizzi la somma dei profitti.
+\end{tcolorbox}
+
+\subsubsection{Pre-elaborazione Necessaria}
+Per applicare correttamente la programmazione dinamica in questo scenario, è obbligatorio effettuare una \textbf{pre-elaborazione} dell'input:
+\begin{enumerate}
+\item Ordinare gli intervalli per tempi di fine non decrescenti ($f[0] \le f[1] \le \dots \le f[n-1]$). Costo $\mathcal{O}(n \log n)$.
+\item Pre-calcolare un vettore dei predecessori \texttt{pred[i] = j}, dove $j < i$ è il \textit{massimo} indice tale per cui l'intervallo $j-1$ è compatibile con l'intervallo $i-1$ ($f[j-1] \le s[i-1]$). Questo può essere calcolato in $\mathcal{O}(n \log n)$ usando la ricerca binaria.
+\end{enumerate}
+
+\subsubsection{Formula DP e Algoritmo}
+$DP[i]$ contiene il profitto massimo ottenibile considerando i primi $i$ intervalli ordinati.
+
+
+$$DP[i] = \begin{cases} 0 & \text{se } i = 0 \\ \max(DP[i-1], \; DP[pred[i]] + w[i-1]) & \text{se } i > 0 \end{cases}$$
+
+
+L'algoritmo valuta se "non prendere" l'intervallo (ereditando $DP[i-1]$) oppure "prenderlo" (sommando il suo profitto al miglior profitto ottenibile prima del suo inizio, $DP[pred[i]]$).
+
+\textbf{Complessità Totale:} Ordinamento $\mathcal{O}(n \log n)$ + calcolo \texttt{pred} $\mathcal{O}(n \log n)$ + riempimento tabella e ricostruzione $\mathcal{O}(n)$ $\implies$ \textcolor{green}{$\mathcal{O}(n \log n)$}.
+
+\newpage
+
+\subsection{String Matching Approssimato}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione del Problema}]
+Date una stringa pattern $P$ di lunghezza $m$ e un testo $T$ di lunghezza $n$.
+Un'occorrenza $k$-approssimata di $P$ in $T$ è una copia che ammette $k$ "errori" di tre tipi:
+\begin{enumerate}
+\item \textbf{Sostituzione:} I caratteri corrispondenti in $P$ e $T$ sono diversi.
+\item \textbf{Inserimento:} Un carattere di $P$ manca in $T$.
+\item \textbf{Cancellazione:} Un carattere di $T$ è di troppo rispetto a $P$.
+\end{enumerate}
+\textbf{Obiettivo:} Trovare un'occorrenza $k$-approssimata di $P$ in $T$ con \textbf{$k$ minimo}. È alla base del calcolo della distanza di edit (Levenshtein) e di tool come \texttt{diff}.
+\end{tcolorbox}
+
+\subsubsection{Sottostruttura Ottima}
+Sia $DP[i][j]$ il minimo numero di errori $k$ per far combaciare il prefisso $P(i)$ con un suffisso del prefisso $T(j)$ terminante in $T[j-1]$.
+Si definisce un indicatore $\delta$ che vale $0$ se i caratteri $P[i-1]$ e $T[j-1]$ coincidono, e $1$ se sono diversi (errore di sostituzione).
+
+
+$$DP[i][j] = \begin{cases} 0 & \text{se } i = 0 \\ i & \text{se } j = 0 \\ \min \begin{cases} DP[i-1][j-1] + \delta \\ DP[i-1][j] + 1 \\ DP[i][j-1] + 1 \end{cases} & \text{altrimenti} \end{cases}$$
+
+\subsubsection{Algoritmo e Take-home Message}
+\begin{verbatim}
+% Algoritmo per String Matching Approssimato
+int stringMatching(item[] P, item[] T, int m, int n)
+int[][] DP = new int[0...m][0...n]
+for j = 0 to n do DP[0][j] = 0
+for i = 1 to m do DP[i][0] = i
+
+for i = 1 to m do
+    for j = 1 to n do
+        int delta = iif(P[i-1] == T[j-1], 0, 1)
+        DP[i][j] = min( DP[i-1][j-1] + delta,
+                        DP[i-1][j] + 1,
+                        DP[i][j-1] + 1 )
+                        
+% Ricerca della soluzione nell'ultima RIGA
+int pos = 1
+for j = 2 to n do
+    if DP[m][j] < DP[m][pos] then pos = j
+return pos - 1
+
+\end{verbatim}
+
+\textbf{Take-home message:} Non è garantito che la soluzione ottima si trovi sempre nella casella in basso a destra ($DP[m][n]$). In questo caso specifico, il pattern potrebbe fare match in \textit{qualsiasi} punto del testo $T$, pertanto la soluzione va cercata scansionando \textbf{tutta l'ultima riga} ($DP[m][j]$) alla ricerca del valore minimo.
+
+
+
+
+
+
+
+
+
+
+\end{document}
