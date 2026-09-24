@@ -1,7 +1,7 @@
 \documentclass[12pt, a4paper]{article}
 \newcounter{esercizio}[section]
 
-%\def\islight{true} 
+\def\islight{true} 
 
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
@@ -1586,5 +1586,814 @@ How passwords and TLS combine in practice & Section~\ref{subsec:login-flow-06} a
 \end{center}
 
 
+
+\section{Authentication II: Single Sign-On, SAML, SPID, and CIE 3.0}
+
+\subsection{Single Sign-On (SSO)}
+
+\subsubsection{Motivation: Password Fatigue}
+The straightforward approach to authentication --- a separate account and password per application --- does not scale. Multiple systems typically require multiple sign-on dialogues, leading to \textbf{password fatigue}: multiple sets of credentials to remember, and credentials to present over and over. This is a headache for both users and administrators; the more security domains a user interacts with, the more separate sign-ons are required. \textbf{Single Sign-On (SSO)} addresses this by \textbf{outsourcing authentication to a trusted third-party identity provider}, so a single act of authentication grants access across many affiliated services.
+
+\begin{quote}
+\textcolor{blue!50!black}{\textbf{Security domain}}: an application, or collection of applications, trusting a common security token for authentication, authorization, or session management. A \textbf{security token} is issued to a user after they have actively authenticated with their identifiers and credentials (e.g., a password, or another authentication factor) to the security domain.
+\end{quote}
+
+\subsubsection{SSO: Basic Idea}
+\label{subsec:sso-basic-06}
+SSO involves four parties: the \textbf{User}, the \textbf{User Agent} (typically the browser), the \textbf{Identity Provider (IdP)}, and the \textbf{Service Provider (SP)}. The basic flow:
+\begin{enumerate}
+    \item The user (via the User Agent) \textbf{accesses an application} at the Service Provider.
+    \item The Service Provider \textbf{refers the User Agent to the Identity Provider} for authentication.
+    \item The Identity Provider \textbf{asks for credentials} (3a); the User Agent \textbf{provides credentials} (3b).
+    \item The Identity Provider \textbf{transfers the User Agent back to the application}, with evidence that the user has successfully authenticated --- this evidence is the \textbf{authentication token} (step 5, really the \emph{content} of the transfer in step 4).
+\end{enumerate}
+\textcolor{blue!50!black}{\textbf{In general, more than one Service Provider can trust the same Identity Provider}} --- this is precisely what turns a single IdP into the hub of an entire federation of services a user can access without re-authenticating at each one.
+
+\subsubsection{SSO Properties}
+\begin{itemize}
+    \item \textcolor{red!70!black}{\textbf{Credentials never leave the \emph{authentication domain}}} (i.e., Identity Provider $+$ User Agent) --- the Service Provider never sees the user's actual password.
+    \item \textbf{Service Providers (affiliated domains) have to trust the authentication domain}: credentials must be asserted correctly, and protected from unauthorised use. This trust runs specifically \emph{from} the SP \emph{toward} the IdP.
+    \item \textbf{Authentication transfer has to be protected}, against two distinct attack classes:
+    \begin{itemize}
+        \item \textbf{Replay}: an authentication token intercepted once could otherwise be reused indefinitely --- mitigated by including a \textbf{nonce} (Section~\ref{subsec:tls-handshake-05}) as a freshness parameter, limiting both reuse and lifetime of the token/assertion.
+        \item \textbf{Interception/masquerade}: an attacker forging or tampering with an assertion --- mitigated by attaching \textbf{cryptographic signatures} to authentication assertions (Section~\ref{subsec:digital-signatures-05}).
+    \end{itemize}
+\end{itemize}
+The resulting trust chain is worth making explicit: the SP grants \textit{``user is entitled to access the provided services''} \textbf{because} it received a valid \textit{``authentication token''}, which in turn packages the claim \textit{``user has been authenticated by means of a password''} --- this whole package is the \textbf{authentication assertion}.
+
+\subsection{SAML: Overview}
+\label{subsec:saml-overview-06}
+
+\subsubsection{What SAML Is}
+\textbf{SAML} (Security Assertion Markup Language) is a security service for authentication, configurable to fit the goals of several different use-case scenarios: a common language and message flow for systems that want to offer users an SSO experience, answering the historical lack of standards and interoperable solutions for exchanging authentication and authorization information across security domains. SAML 1.0 was defined in 2002, SAML 2.0 in 2005; it is an open standard from \textbf{OASIS} (Organization for the Advancement of Structured Information Standards), and relies heavily on mechanisms already implemented in browsers (e.g., HTTP redirections).
+
+SAML is a data format --- for exchanging both authentication and authorization data --- built on \textbf{XML} (Extensible Markup Language, \url{https://www.w3.org/TR/xml11/}). XML is a software- and hardware-independent, self-descriptive framework for storing and transporting data; unlike HTML, which focuses on \emph{how} data looks and uses a fixed, predefined tag set, XML focuses on \emph{what} the data is and lets applications define their own tags.
+
+\subsubsection{SAML's Building Blocks}
+The OASIS specification organizes SAML into four layered building blocks, plus two supporting concepts:
+\begin{itemize}
+    \item \textbf{Assertions} (the base layer): authentication, attribute, and entitlement information.
+    \item \textbf{Protocols}: requests and responses for obtaining assertions and doing identity management.
+    \item \textbf{Bindings}: mappings of SAML protocols onto standard messaging/communication protocols (e.g., HTTP).
+    \item \textbf{Profiles} (the outermost layer): combinations of assertions, protocols, and bindings supporting a specific, defined use case (e.g., Web Browser SSO).
+    \item \textbf{Authentication Context}: detailed data on the type and strength of a given act of authentication.
+    \item \textbf{Metadata}: configuration data describing identity and service providers.
+\end{itemize}
+This section and the next work outward through exactly these layers: assertions first, then protocols and bindings, then the Web Browser SSO profile that ties them together.
+
+\subsubsection{Entities: Identity Provider, Service Provider, Federation}
+SAML distinguishes two main entities:
+\begin{itemize}
+    \item the \textbf{Identity Provider (IdP)}: authenticates the user and provides authorisation information;
+    \item the \textbf{Service Provider (SP)}: a server hosting protected resources, which relies on information provided by the IdP and enforces its own local access policies.
+\end{itemize}
+\textcolor{red!70!black}{\textbf{The authentication act itself is always between a User and an IdP}} --- never directly between the User and an SP. A \textbf{federation} is a group of entities sharing a common policy, managed as a single entity; crucially, \textcolor{blue!50!black}{\textbf{the federation only establishes the \emph{initial} trust among its members}} --- trust relations are set up once, by exchanging metadata, not re-negotiated on every login.
+
+\subsubsection{Metadata and Trust Establishment}
+IdP and SPs share \textbf{metadata} in advance, by whatever means possible, to establish this initial trust. At minimum, the shared metadata must include:
+\begin{itemize}
+    \item the \textbf{Entity ID}: a globally-unique identifier, included in every message the entity issues;
+    \item \textbf{cryptographic keys}: for authentication purposes, a SAML message may be digitally signed by its issuer, and its content can be protected with a public encryption key belonging to the ultimate receiver --- so trusted public keys must be shared \emph{in advance}, exactly the PKI bootstrapping problem from Section~\ref{subsec:pki-05}.
+\end{itemize}
+\textcolor{gray}{\textit{Ulteriori dettagli: \url{https://en.wikipedia.org/wiki/SAML_metadata}.}}
+
+\subsubsection{Worked Example: Alice, the Airline, and the Car Rental}
+\begin{enumerate}
+    \item Alice visits an airline website to book her trip and provides her credentials to it; the airline site plays the role of \textbf{Identity Provider} (and, simultaneously, of an SP for her booking).
+    \item After booking, she follows a link to a partner car rental site.
+    \item She visits the car rental website --- and \textcolor{ForestGreen!60!black}{\textbf{rents a car without signing in again}}, because the car rental site (the \textbf{Service Provider}) trusts the airline site, and accepts the authentication assertion it transmits (e.g., \textit{``Alice is a VIP member''}).
+\end{enumerate}
+Concretely: (1) Alice authenticates to the airline site; (2) the airline site asserts \textit{``Alice is a VIP member''} to the car rental site; (3) Alice accesses car-rental resources directly, with no second login. \textbf{All of these steps are backed by a SAML assertion, in XML format} --- the subject of the next subsection.
+
+\subsubsection{Choosing an IdP: the Discovery Service}
+When a user can, in principle, authenticate via any one of several IdPs, a \textbf{Discovery Service} helps them choose which:
+\begin{enumerate}
+    \item the user wants to access an SP;
+    \item the user is redirected to a Discovery Service (which can be external, or embedded in the SP itself), which lets the user choose their IdP;
+    \item the user goes back to the SP carrying the ID of their own IdP;
+    \item the user is redirected to that IdP;
+    \item authentication is performed;
+    \item the user goes back to the SP, now carrying proof of authentication.
+\end{enumerate}
+
+
+
+
+
+
+
+
+
+
+
+\subsection{SAML: Assertions in Detail}
+\label{subsec:saml-assertions-06}
+
+An \textbf{assertion} is a set of statements (claims) made by a SAML authority (the ``asserting party''); it is the basic unit of information exchanged in SAML. There are three types:
+\begin{itemize}
+    \item \textbf{Authentication assertion}: issued by the party that authenticates users. It describes who issued the assertion, the authenticated \textbf{Subject}, the assertion's \textbf{validity period}, and other authentication-related information.
+    \item \textbf{Attribute assertion}: defines specific details \emph{about} the Subject. Example: \textit{``Alice has `VIP member' status.''}
+    \item \textbf{Authorization assertion}: defines something the Subject is \emph{entitled to do}. Example: \textit{``Alice is permitted to rent a car when on a business trip.''}
+\end{itemize}
+
+\subsubsection{Worked Example: an Authentication Assertion}
+\begin{verbatim}
+1:  <saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+2:    Version="2.0"
+3:    IssueInstant="2005-01-31T12:00:00Z">
+4:    <saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">
+5:      http://idp.example.org
+6:    </saml:Issuer>
+7:    <saml:Subject>
+8:      <saml:NameID
+9:        Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">
+10:       j.doe@example.com
+11:     </saml:NameID>
+12:   </saml:Subject>
+13:   <saml:Conditions
+14:     NotBefore="2005-01-31T12:00:00Z"
+15:     NotOnOrAfter="2005-01-31T12:10:00Z">
+16:   </saml:Conditions>
+17:   <saml:AuthnStatement
+18:     AuthnInstant="2005-01-31T12:00:00Z" SessionIndex="67775277772">
+19:     <saml:AuthnContext>
+20:       <saml:AuthnContextClassRef>
+21:         urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+22:       </saml:AuthnContextClassRef>
+23:     </saml:AuthnContext>
+24:   </saml:AuthnStatement>
+25: </saml:Assertion>
+\end{verbatim}
+Reading it top to bottom: lines 4--6 (\texttt{<saml:Issuer>}) identify the \textbf{SAML authority making the claim} --- here, \texttt{idp.example.org}. Lines 7--12 (\texttt{<saml:Subject>}) identify the \textbf{entity about which the claim is being made} --- here, \texttt{j.doe@example.com}. Lines 13--16 (\texttt{<saml:Conditions>}) give the \textbf{assertion's validity period} (from 12:00:00Z, until 12:10:00Z --- only ten minutes). Lines 17--24 (\texttt{<saml:AuthnStatement>}) are the \textbf{AuthN element describing the act of authentication at the identity provider} --- here, that it happened via \texttt{PasswordProtectedTransport}.
+
+\textcolor{red!70!black}{\textbf{Notice carefully: authentication itself is \emph{not} part of SAML.}} This statement merely \emph{refers} to an authentication act that took place at some \emph{prior} time (the actual login, at the IdP) --- SAML packages and transports the \emph{claim} that authentication happened, it does not perform the authentication.
+
+\subsubsection{Worked Example: an Attribute Assertion}
+\begin{verbatim}
+1:  <saml:AttributeStatement>
+2:    <saml:Attribute
+3:      xmlns:x500="urn:oasis:names:tc:SAML:2.0:profiles:attribute:X500"
+4:      NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+5:      Name="urn:oid:2.5.4.42"
+6:      FriendlyName="givenName">
+7:      <saml:AttributeValue xsi:type="xs:string"
+8:        x500:Encoding="LDAP">John</saml:AttributeValue>
+9:    </saml:Attribute>
+10:   <saml:Attribute
+11:     NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic"
+12:     Name="LastName">
+13:     <saml:AttributeValue
+14:       xsi:type="xs:string">Doe</saml:AttributeValue>
+15:   </saml:Attribute>
+16:   <saml:Attribute
+17:     NameFormat="http://smithco.com/attr-formats"
+18:     Name="CreditLimit"
+19:     xmlns:smithco="http://www.smithco.com/smithco-schema.xsd">
+20:     <saml:AttributeValue xsi:type="smithco:type">
+21:       <smithco:amount currency="USD">500.00</smithco:amount>
+22:     </saml:AttributeValue>
+23:   </saml:Attribute>
+24: </saml:AttributeStatement>
+\end{verbatim}
+Each \texttt{<saml:Attribute>} block \textbf{asserts that the enclosing assertion's subject is associated with attribute \textit{attrib} with value \textit{val}}: here, lines 10--15 assert that \textbf{the value of the attribute ``LastName'' associated with the assertion's subject is ``Doe.''} The third attribute (lines 16--23) shows SAML's extensibility: \texttt{CreditLimit} is not a standard attribute at all, but one defined in a completely custom namespace (\texttt{smithco}) with its own value type --- SAML places no restriction on what attributes an IdP can assert, only on how they must be structured.
+
+\subsection{SAML: Protocols and Bindings}
+
+\subsubsection{Protocols}
+A \textbf{communication protocol} is a system that allows two or more entities to exchange information, by defining the rules, syntax, semantics, and synchronization of that communication. A \textbf{cryptographic protocol} is typically a much smaller, more compact communication --- often just a few exchanged messages in given formats --- designed to secure communication (toward various security goals) using cryptographic primitives (ciphers, hash functions, \dots). \textcolor{blue!50!black}{\textbf{The typical security goal of SAML's protocols is user authentication: the SP authenticates the user \emph{through} an IdP assertion}}, never directly.
+
+SAML defines several protocol flows, including:
+\begin{itemize}
+    \item \textbf{Assertion query and request}: for obtaining SAML assertions.
+    \item \textbf{Authentication request}.
+    \item \textbf{Artifact resolution}: a mechanism by which protocol messages may be passed \emph{by reference} (an ``artifact,'' a small reference token) rather than by full value, with the actual message fetched separately.
+    \item \textbf{Single logout} (Section~\ref{subsec:saml-sso-federated-06} below).
+\end{itemize}
+\textcolor{gray}{\textit{Nota importante dalla slide: il comportamento di un protocollo è tipicamente indipendente da come esso venga effettivamente implementato.}}
+
+\subsubsection{Bindings}
+Recall that \textbf{HTTP} (HyperText Transfer Protocol) is the application-layer protocol used to load web pages via links, transferring information between networked devices on top of the rest of the network stack; a typical flow has a client making a request to a server, which sends back a response.
+
+SAML requestors and responders communicate by exchanging messages; the mechanism used to \textbf{transport} these messages is a \textbf{SAML binding}. Types include \textbf{SAML URI}, \textbf{SAML SOAP}, \textbf{HTTP redirect}, \textbf{HTTP POST}, and \textbf{HTTP artifact}. \textbf{HTTP redirect} enables SAML protocol messages to be transmitted within URL parameters, letting SAML requestors and responders communicate through an HTTP user agent acting as an intermediary --- necessary either when the two entities have no direct communication path, or when the responder needs to interact with the user agent directly (e.g., an authentication agent asking the user to log in). HTTP redirect is sometimes called \textbf{browser redirect} in SSO contexts, and is the \textbf{default} profile choice.
+
+\textcolor{gray}{\textit{Richiamo sulla struttura di una URL (\textit{Unique Resource Locator}): \texttt{https://www.fbk.eu/en/about-fbk/} si scompone in \textbf{protocollo} (\texttt{https}), \textbf{hostname} (\texttt{www.fbk.eu}) e \textbf{file/percorso} (\texttt{/en/about-fbk/}); lo schema \texttt{https} indica per l'appunto ``HTTP over TLS/SSL'' (Sezione~\ref{subsec:tls-protocols-05}).}}
+
+\subsection{SSO Within a Domain vs.\ Federated SSO Across Domains}
+\label{subsec:saml-sso-federated-06}
+A distinction worth making precise: plain \textbf{SSO} enables access to applications and resources within a \emph{single} security domain (recall the definition: an application or collection of applications trusting a common security token). \textcolor{red!70!black}{\textbf{\emph{Federated} SSO}}, by contrast, enables SSO to applications \emph{across multiple} security domains --- and this is exactly what \textbf{SAML 2.0 profiles} are for: combining protocols, assertions, and bindings to \emph{create} a federation and enable federated single sign-on.
+
+SAML defines several profile types, including \textbf{Web Browser SSO} (the main subject of the next subsection) and \textbf{Artifact Resolution}, plus:
+\begin{itemize}
+    \item The \textbf{Web Browser SSO} profile offers two independent choices: \emph{flow initiation} (the message flow can start at either the Identity Provider or the Service Provider --- the two scenarios detailed next) and \emph{bindings} (HTTP redirect, HTTP POST, or HTTP artifact).
+    \item The \textbf{Single Logout} profile terminates \emph{all} of a specified user's currently active login sessions within the federation at once. A user who achieves SSO across a federation ends up with sessions established at \emph{multiple} participants simultaneously; these sessions are tracked by a \textbf{session authority} (often the IdP itself). When the user wants to end every session at once, the session authority uses the Single Logout profile to globally terminate all of them --- rather than the user having to log out of each participant individually.
+\end{itemize}
+
+\subsection{The Web Browser SSO Profile, Step by Step}
+\label{subsec:saml-websso-06}
+
+\subsubsection{IdP-Initiated SSO}
+\textbf{Scenario:} a user has an active login session on one site (say, \texttt{airline.example.com}, playing IdP) and is accessing resources there. At some point they are directed --- explicitly or transparently --- to a partner site (\texttt{cars.example.co.uk}, playing SP), \emph{assuming a federated identity for the user has already been established} between the two sites via a prior business agreement. The IdP site asserts to the SP site that the user is known (by reference to their federated identity), has authenticated to it, and has certain identity attributes (e.g., ``has a Gold membership''). Since the SP trusts the IdP, it trusts that the user is valid and properly authenticated, and creates a local session for them --- no second login.
+
+\textbf{Detailed flow (HTTP POST binding), between Browser, Service Provider (\texttt{sp.example.com}), and Identity Provider (\texttt{idp.example.org}):}
+\begin{enumerate}
+    \item User selects a menu option or link \emph{on the IdP} requesting access to the SP website --- this calls the IdP's \textbf{Single Sign-On Service} (``select remote resource'').
+    \item The IdP challenges the user for credentials (``challenge for credentials'').
+    \item The user provides valid credentials; a local logon security context is created at the IdP (``user login'').
+    \item The IdP's SSO Service \textbf{builds a SAML assertion} representing the user's logon security context.
+    \item The browser issues an \textbf{HTTP POST} request, sending a form containing the signed \texttt{<Response>} to the SP's \textbf{Assertion Consumer Service}.
+    \item The SP performs a final \textbf{access check} to allow or deny access to the resource.
+    \item The SP supplies the requested resource to the browser.
+\end{enumerate}
+
+\subsubsection{SP-Initiated SSO}
+\textbf{Scenario (the more common case in practice):} a user visits an SP site \emph{first}, possibly accessing resources that need no special authentication or authorisation. When they subsequently attempt to access a \emph{protected} resource, the SP sends the user to the IdP with an authentication request, so the user can log in there. Once logged in, the IdP produces an assertion the SP can use to validate the user's access rights to the protected resource.
+
+\textbf{Detailed flow (redirect \texttt{+} POST bindings):}
+\begin{enumerate}
+    \item User attempts to \textbf{access a resource} directly on the SP.
+    \item The SP's \textbf{access check} finds no valid session, and sends a \textbf{redirect response} carrying an \texttt{<AuthnRequest>}.
+    \item The browser performs a \textbf{GET} to the IdP's \textbf{Single Sign-On Service} using that \texttt{<AuthnRequest>}; the SSO Service determines whether the user already has an existing logon security context at the IdP --- if not, the IdP challenges the user for credentials.
+    \item The user provides valid credentials (``user login''); a local logon security context is created.
+    \item The IdP's SSO Service \textbf{builds a SAML assertion} representing the user's logon security context.
+    \item The browser issues an \textbf{HTTP POST} request, sending the signed \texttt{<Response>} form to the SP's \textbf{Assertion Consumer Service}.
+    \item The SP performs its final \textbf{access check} and \textbf{supplies the resource} to the browser.
+\end{enumerate}
+\textcolor{blue!50!black}{\textbf{Comparing the two:}} the steps are almost identical once the flow reaches the IdP --- credential challenge, login, assertion built, POSTed back, access check. The \emph{only} structural difference is \emph{where the flow starts}: at the IdP's own SSO menu (IdP-initiated) versus at the SP redirecting an unauthenticated visitor outward (SP-initiated, triggered by an \texttt{<AuthnRequest>} the IdP-initiated flow never needs).
+
+
+
+
+
+
+
+
+\subsection{SAML: Security and Privacy Considerations}
+
+\subsubsection{Authentication Context and Assurance Levels}
+The \textbf{Authentication Context} indicates \emph{how} a user authenticated at the Identity Provider. The IdP includes it in an assertion either at the SP's request, or based on the IdP's own configuration; an SP can require this information to establish a level of confidence in the assertion \emph{before} granting access to resources. The motivating idea is a \textbf{Levels Of Assurance (LOA)} model: existing SAML federation deployments categorize the wide variety of authentication methods into a small number of levels, typically reflecting authentication \emph{strength}; SPs then decide which LOA is required for a given protected resource, based on an assessment of its value or risk.
+
+\subsubsection{Metadata, Trust Bootstrapping, and Signing/Encryption in Practice}
+Recall (Section~\ref{subsec:saml-overview-06}) that a minimum metadata set --- \textbf{Entity ID}, \textbf{cryptographic keys}, and \textbf{protocol endpoints} (bindings and URLs) --- must be shared in advance between IdP and SP. Concretely, this bootstraps the signing/encryption process used on the wire:
+\begin{enumerate}
+    \item the issuer signs (and possibly encrypts) the message, then sends it to a \textbf{trusted protocol endpoint} whose location is already known;
+    \item the receiver \textbf{decrypts} it (using its own private key) and \textbf{verifies the signature} (using a trusted public key found in the sender's metadata) \emph{before} mapping the entity ID in the message to a trusted partner.
+\end{enumerate}
+\textcolor{blue!50!black}{\textbf{This whole scheme requires each party to already know the other in advance}} --- exactly the PKI/trust bootstrapping problem from Section~\ref{subsec:pki-05}. In practice, metadata sharing starts simple (even just an email) and, as the number of partners grows, naturally tends toward automation; any real implementation of SAML Web Browser SSO requires a schema-valid metadata file for \emph{every} partner.
+
+\subsubsection{Trust, PKI, and TLS Recommendations}
+\textcolor{red!70!black}{\textbf{Simply providing assertions from an asserting party to a relying party is not, on its own, adequate for a secure system}}: how does the relying party trust what is being asserted? What stops a MITM attacker from grabbing an assertion and \textbf{replaying} it later? SAML defines mechanisms to detect and protect against exactly this. The primary one is for relying party and asserting party to have a \textbf{pre-existing trust relationship}, typically resting on a \textbf{PKI} (Section~\ref{subsec:pki-05}) --- not mandated by the SAML standard, but recommended.
+
+General recommendations, per binding:
+\begin{itemize}
+    \item where message \textbf{integrity and confidentiality} are required, \textbf{SSL/TLS} is recommended;
+    \item when a relying party \emph{requests} an assertion directly from an asserting party, bilateral authentication is required, and \textbf{mutual-authentication TLS} is recommended;
+    \item when a response containing an assertion is delivered \emph{via the user's browser} (e.g., the HTTP POST binding), it is \textbf{mandated} that the response be digitally signed using \textbf{XML Signature}, to guarantee message integrity even though it passes through an untrusted intermediary (the browser).
+\end{itemize}
+
+\subsubsection{A Small Catalogue of SAML-Specific Attacks}
+\begin{itemize}
+    \item \textbf{Message expiration}: a SAML message should carry a timestamp of when it was issued, when it expires, or both; if a message never expires, or an implementation fails to check the expiration, a message that falls into an attacker's hands remains dangerous indefinitely. Mitigation: always check timestamps.
+    \item \textbf{Message replay}: assertions should carry a unique ID, accepted only \emph{once} by the receiving application --- exactly the nonce-based anti-replay logic already seen for SSO tokens (Section~\ref{subsec:sso-basic-06}) and TLS (Section~\ref{subsec:tls-handshake-05}).
+    \item \textbf{SAML intended for a different recipient}: an application should only accept a SAML message that was actually intended for \emph{it}. Skipping this check lets an attacker take a message generated by authenticating to one application, and replay it to a \emph{different} application, walking in as the victim there too.
+    \item \textbf{XML External Entity (XXE)}: a SAML message is, ultimately, user-provided XML processed by the Service Provider --- so it must be checked against the standard XML attack surface (XXE forces the parser to resolve malicious external entities), like any other XML input from an untrusted source.
+\end{itemize}
+
+\subsubsection{Privacy Mechanisms}
+Privacy here means both a user's ability to \textbf{control} how their identity data is shared and used, \emph{and} mechanisms that prevent a user's actions across multiple SPs from being \textbf{inappropriately correlated}. SAML supports several:
+\begin{itemize}
+    \item \textbf{Persistent pseudonyms}, established between one IdP and one SP: unlike a \emph{global} identifier (the same identifier asserted to every SP), a pseudonym specific to one IdP--SP pair does not itself enable different SPs to correlate the same user's activity across them.
+    \item \textbf{One-time/transient identifiers}: guarantee that every SSO login a user performs at a given SP looks like a \emph{fresh, unrecognizable} individual to that SP, even if the same user visited before.
+    \item The \textbf{Authentication Context} lets a user be authenticated at a \emph{sufficient but not excessive} assurance level for the resource they are accessing --- avoiding leaking more about the authentication act than the SP actually needs.
+    \item SAML lets the \emph{fact} of a user's consent to certain operations be expressed between providers --- but \emph{how}, \emph{when}, or \emph{where} that consent was actually obtained is explicitly out of scope for SAML itself.
+\end{itemize}
+
+\subsection{National Identity Infrastructures: SPID}
+\label{subsec:spid-06}
+Italy has two digital-identity solutions built on the concepts above: \textbf{SPID} (\textit{Sistema Pubblico di Identità Digitale}, Public System for Digital Identity) and \textbf{CIE 3.0} (\textit{Carta d'Identità Elettronica 3.0}, Electronic Identity Card, next subsection).
+
+\textbf{SPID} is based directly on \textbf{SAML 2.0} and, specifically, the \textbf{Web Browser SSO Profile} (Section~\ref{subsec:saml-websso-06}). It is regulated by \textbf{AgID} (\textit{Agenzia per l'Italia Digitale}), the technical agency of the Presidency of the Council of Ministers, tasked with coordinating public administrations on Italy's Three-Year Plan for information technology. SPID defines four \textbf{assurance levels}: \textbf{Level 0} (little or no confidence in the asserted identity's validity), \textbf{Level 1} (some confidence), \textbf{Level 2} (high confidence), \textbf{Level 3} (very high confidence).
+
+\textcolor{red!70!black}{\textbf{Real-world friction worth knowing about:}}
+\begin{itemize}
+    \item SPID's \textbf{Identity Providers are private companies} --- trusting them is, at bottom, a philosophical/political question, not just a technical one.
+    \item \textbf{Legal provisions can get in the way} of the technology: at higher assurance levels, the legally-mandated identification requirements can make true SSO (never re-verifying identity) seem practically impossible.
+    \item \textbf{User identification during enrollment is delicate.} An Italian journalist once ``hacked'' the enrollment procedure and successfully obtained a colleague's digital identity (reported by \textit{Il Fatto Quotidiano}, 2016, regarding then--Prime Minister Matteo Renzi) --- a reminder that the SAML/PKI machinery can be flawless while the much lower-tech \emph{identity-proofing step} (verifying a real person is who they claim to be, before ever issuing credentials) remains the weak link.
+    \item Adoption \textbf{lagged for years}, though it rose substantially during the COVID-19 pandemic, when many public services moved online.
+\end{itemize}
+
+\textbf{Metadata management in SPID.} The \textbf{federation registry} is the repository of every entity adhering to SPID, and is the evidence of the ``circle of trust'' the federation establishes. Trust is achieved through \textbf{AgID's own intermediation}, as a third-party guarantor: AgID accredits digital identity providers, attribute authorities, and service providers. Joining SPID means establishing a trust relationship with \emph{every other accredited member}, based on the shared, AgID-guaranteed assurance levels --- membership itself is evidenced simply by an entity's presence in the AgID-managed \textbf{SPID Register}. For each entity, the register stores an \texttt{AuthorityInfo} entry: its SAML identifier, the name of the subject the entity represents, its type (Identity Provider / Attribute Authority / Service Provider), the URL of its metadata provider service, and the list of qualified attributes an Attribute Authority is allowed to certify. The registry is populated and kept updated by AgID as agreements are made and members are supervised.
+
+\subsection{National Identity Infrastructures: CIE 3.0}
+\label{subsec:cie-06}
+\textbf{CIE 3.0} carries: name, surname, place and date of birth, residency, the holder's picture, and (for holders aged 12 or over) two fingerprints, one from each hand --- accessible only by law-enforcement agencies. Validity periods differ by age: \textbf{10 years} for adults (18+), \textbf{5 years} for minors (3--18), \textbf{3 years} for children under 3.
+
+CIE 3.0 uses \textbf{NFC} (Near Field Communication): a set of communication protocols for two electronic devices at a distance of at most 4\,cm, offering a low-speed, simple-to-set-up connection; NFC devices can act as electronic identity documents and keycards, and are also used for contactless/mobile payment. The card's cryptographic toolbox (only certain combinations are actually supported in practice) includes: \textbf{AES} (192 or 256-bit), \textbf{Triple DES} (112-bit), \textbf{SHA-2} or \textbf{SHA-1}, \textbf{Diffie--Hellman} (2048-bit) or \textbf{Elliptic-Curve Diffie--Hellman} (192-bit), \textbf{RSA} (2048-bit, PKCS\#1 v1.5), and an \textbf{X.509 certificate} carrying the holder's personal data, signed by an official CA.
+
+\textbf{Login flow} (compliant with the SAML Web Browser SSO Profile): after a one-time preliminary step --- downloading the \textbf{CieID} smartphone app and registering the physical card to it via NFC --- logging into an SP proceeds as:
+\begin{enumerate}
+    \item the SP shows an ``Entra con CIE'' (``Log in with CIE'') button;
+    \item the user is warned they will need both the physical CIE and their registered smartphone;
+    \item the user is asked to enter a number printed on the CIE;
+    \item the user is shown a QR code and asked to scan it with the CieID app, then follow the app's instructions (which trigger the actual NFC read of the card);
+    \item the user is authenticated.
+\end{enumerate}
+
+\subsection{European Identity Infrastructure: eIDAS}
+\label{subsec:eidas-06}
+
+\subsubsection{Purpose and Architecture}
+\textbf{eIDAS} is, in short, about the \textbf{portability of national digital identities across EU Member States} (and more besides). \textcolor{ForestGreen!60!black}{\textbf{Both of Italy's own solutions are eIDAS-interoperable: SPID is interoperable with eIDAS, and so is CIE.}}
+
+\textbf{Worked example --- opening a bank account:} an Italian citizen wants to authenticate against a \emph{German} online banking service.
+\begin{enumerate}
+    \item The user browses to the German digital service.
+    \item The service redirects the user to \emph{its own} local eIDAS-Node (the German \textbf{eIDAS-Connector}) to authenticate.
+    \item The user is sent, via that Connector, to \emph{his} national eID service --- the Italian \textbf{eIDAS-Node} (playing the role of \textbf{eIDAS-Service}).
+    \item The user signs in with his national eID system (e.g., SPID or CIE).
+\end{enumerate}
+More precisely: the German eIDAS-Connector, directed by the web application, initiates authentication by sending a request to the Italian eIDAS-Service; the Italian node forwards the user to a system equipped to authenticate Italian citizens via the national eID scheme; after authentication, the German eIDAS-Connector receives the citizen's information and forwards it to the web application. \textcolor{red!70!black}{\textbf{eIDAS relies on SAML for the communication between the eIDAS-Connector and the eIDAS-Service}} --- together, these two roles are what is meant by ``eIDAS-Nodes.'' Each Member State is required to run its own eIDAS-Node; the European Commission provides an \textbf{eIDAS-Node Integration Package} as a common implementation basis.
+
+\subsubsection{Case Study: the 2019 eIDAS-Node Signature-Verification Bypass}
+In October 2019, the security firm \textbf{SEC Consult} found a vulnerability in the SAML-parsing code of the reference eIDAS-Node implementation that allowed an attacker to \textbf{bypass signature verification entirely} --- meaning an attacker could send \emph{any} SAML message to an affected eIDAS-Node and have it accepted, e.g., a manipulated SAML response letting them authenticate to a connected service \textbf{as anybody}.
+
+The vulnerable logic for deciding whether to trust the certificate a SAML response was signed with worked in three steps: (1) accept the certificate outright if it is already in the local trust store; (2) otherwise, retrieve the \emph{issuer} certificate of the entity certificate, either from the local trust store or from \emph{supplemental certificates bundled inside the SAML message itself}; (3) if a trust path can be established between that issuer certificate and something in the trust store, accept the entity certificate.
+
+\textcolor{red!70!black}{\textbf{The actual bug was in step 2}}: the application located the ``issuer certificate'' purely by \textbf{string-matching} the Issuer field (DN) of the entity certificate against the Subject field (DN) of candidate issuer certificates --- \emph{without ever verifying that the entity certificate had actually been cryptographically signed by that issuer certificate} (other standard checks, like whether the issuer certificate's basic constraints even permit it to act as a CA, were skipped too). Since the ``supplemental certificates'' establishing this chain came from the attacker-controlled SAML message itself, an attacker could simply \textbf{forge their own certificate} whose Issuer-DN \emph{textually matches} the Subject-DN of some certificate already sitting in the trust store (e.g., a country's real root CA) — say, a forged certificate stating \texttt{CN=FAKE, C=AT} — sign their malicious SAML response with it, and have the buggy verification logic accept the chain as trusted, \emph{without the attacker ever possessing the real CA's private key at all}.
+
+\textcolor{blue!50!black}{\textbf{Why this belongs in this course, precisely:}} this is a textbook illustration of the gap between ``a certificate chain exists'' and ``a certificate chain was actually cryptographically \emph{verified}'' (Section~\ref{subsec:pki-05}) --- confirming a chain of \emph{names} is not the same thing as confirming a chain of \emph{signatures}, and skipping the latter turns a PKI's entire security guarantee into theater.
+
+\subsubsection{Looking Ahead: Digital Identity Wallets}
+A \textbf{personal digital identity wallet} is a user-controlled app empowering citizens to prove their identity or attributes, selectively sharing personal information with services by retrieving \textbf{verifiable credentials} from the wallet \textcolor{gray}{\textit{(la slide dice ``fishing... credentials'': quasi certamente un refuso per ``fetching'')}}. Such a wallet could integrate credentials from private or public providers well beyond the national eID --- e.g., driver's licenses, health certificates, insurance, education, or professional qualifications.
+
+This connects to a broader concept: \textbf{self-sovereign identity} --- users themselves control the verifiable credentials they hold, and their consent is required to use them --- built on \textbf{decentralized identifiers} (identifiers for subjects, where the \emph{controller} decides what/whom they identify) and \textbf{verifiable credentials} (the digital equivalent of physical credentials: passports, driving licenses, qualifications, awards, \dots). The EU is building an eIDAS-compatible \textbf{European Self-Sovereign Identity Framework (ESSIF)}, using decentralized identifiers on top of the \textbf{European Blockchain Services Infrastructure (EBSI)} --- with \textbf{data interoperability} flagged as the main open challenge.
+
+\subsection{Summary}
+\begin{itemize}
+    \item \textbf{SAML lets Service Providers outsource identity management} entirely, reducing administrative burden while improving interoperability, usability, security, and privacy --- so they can focus on their core business instead of building authentication from scratch.
+    \item Of SAML's profiles, \textbf{Web Browser SSO} is by far the most widely adopted, and SSO generally keeps gaining adoption.
+    \item \textbf{Credentials never leave the authentication domain} (Section~\ref{subsec:sso-basic-06}); everything downstream --- assertions, protocols, bindings --- exists to carry \emph{proof} of authentication to other domains without ever carrying the credentials themselves.
+    \item SAML is a genuinely solid \textbf{starting point} for real digital-identity infrastructure at national (\textbf{SPID}, \textbf{CIE}) and European (\textbf{eIDAS}) scale --- but, as both the enrollment-fraud story and the 2019 eIDAS-Node bug show, \textbf{the weakest link is rarely the cryptography itself}: it is identity-proofing at enrollment, and correctly implementing the trust/verification logic around otherwise-sound cryptographic building blocks.
+\end{itemize}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Dal file di domande di ripasso)} In the context of the SAML standard, (a) explain its main goal, (b) describe the two scenarios for the Web Single Sign On profile, namely Identity provider initiated and Service provider initiated, (c) explain how is it possible to guarantee trust in the assertions consumed by the relying party (hint: remember that assertions are cryptographically signed), and (d) explain how it is possible to avoid man-in-the-middle attacks.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(a)] SAML's main goal (Section~\ref{subsec:saml-overview-06}) is to give systems a \textbf{common language and message flow} for exchanging authentication and authorization information across security domains, so that an SSO experience can be offered without every pair of systems having to invent their own bespoke protocol. It packages claims (assertions) about a user --- that they authenticated, or hold some attribute, or are entitled to some action --- in a standard, XML-based format that an Identity Provider issues and a Service Provider consumes.
+    \item[(b)] See Section~\ref{subsec:saml-websso-06} in full. In brief: in \textbf{IdP-initiated} SSO, the user starts already logged in at the IdP and \emph{selects} a link to a partner SP, which trusts the assertion the IdP pushes to it without ever issuing its own authentication request. In \textbf{SP-initiated} SSO --- the more common case --- the user starts at the SP; only when they hit a \emph{protected} resource does the SP redirect them, carrying an \texttt{<AuthnRequest>}, to the IdP to log in, after which the IdP's assertion is POSTed back to the SP.
+    \item[(c)] Trust in a consumed assertion rests on the \textbf{pre-existing trust relationship} established via shared metadata (Section~\ref{subsec:saml-overview-06}) and, typically, a \textbf{PKI} (Section~\ref{subsec:pki-05}): the IdP \textbf{digitally signs} the assertion with its private key; the SP, having obtained the IdP's public key \emph{in advance} (via metadata, not from the message itself), \textbf{verifies} that signature before trusting the assertion's content. Concretely, this is \textbf{mandated} via \textbf{XML Signature} whenever the assertion is delivered through the user's browser (e.g., HTTP POST binding), precisely because the browser is an untrusted intermediary.
+    \item[(d)] The general MITM defense is the same digital-signature mechanism, combined with \textbf{TLS}: SSL/TLS is recommended wherever integrity and confidentiality of the channel are required, and \emph{mutual}-authentication TLS is recommended whenever a relying party requests an assertion directly from an asserting party (so each side authenticates the other, not just one direction). On top of the channel security, signed assertions with \textbf{unique IDs} and \textbf{validity windows} (Section~\ref{subsec:saml-assertions-06}) directly block the specific MITM variant of \emph{capturing} a valid assertion and \textbf{replaying} it later --- a stolen assertion is single-use and expires quickly, so replaying it does the attacker no good even if TLS itself were somehow bypassed.
+\end{itemize}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Domanda di ripasso, dalle slide del corso)} What is SPID? What is eIDAS? Is there a relationship between the two?
+\end{tcolorbox}
+
+\textbf{Soluzione:} \textbf{SPID} (Section~\ref{subsec:spid-06}) is Italy's national digital-identity system, built directly on SAML 2.0's Web Browser SSO Profile and regulated by AgID, letting citizens authenticate to public (and some private) online services with one set of credentials, at one of four AgID-defined assurance levels. \textbf{eIDAS} (Section~\ref{subsec:eidas-06}) is the EU-level framework for the \emph{cross-border portability} of Member States' own national digital identities --- it does not replace SPID, it \emph{sits on top of} it: eIDAS-Nodes (Connector at the relying country, Service at the citizen's home country) exchange the actual authentication using SAML, exactly the same underlying technology SPID itself is built on. In short: \textbf{SPID is Italy's national eID scheme; eIDAS is the plumbing that lets a SPID-authenticated Italian citizen be recognized by another Member State's online services, and vice versa} --- both SPID and CIE are explicitly eIDAS-interoperable.
+
+
+
+
+
+
+
+
+
+
+\section{Access Control I: Basic Notions, the Access Matrix, and DAC/MAC/RBAC}
+
+\subsection{Access Control: Basic Notions}
+
+\subsubsection{Definition and Architecture}
+\label{subsec:ac-architecture-08}
+\textbf{Access control} is the process of (i) mediating requests to the resources and data of a system, and (ii) determining whether a given request should be granted or denied. The basic flow, for a subject $s$ wanting to perform action $a$ on resource $r$:
+\begin{enumerate}
+    \item an \textbf{access request} $(s,a,r)$ is sent to the access control module;
+    \item the module returns \textbf{grant} or \textbf{deny};
+    \item if granted, the system allows $s$ to perform $a$ on $r$; otherwise $s$ is informed it cannot.
+\end{enumerate}
+This is of \textbf{paramount importance} to system security: protecting resources from unauthorized access. What counts as ``unauthorized'' is very context-dependent (an operating system, a military system, online banking, a smartphone, \dots all need different rules) --- which is exactly why access control is defined in terms of a \textbf{policy}: a set of rules to implement specific security properties (recall \textbf{CIA}, Section~\ref{subsec:cia-01}). Equivalently, a policy can be seen as a \emph{contract} between a system's designer/implementor and its customers.
+
+The architecture realizing this has four parts, matching the Policy/Model/Enforcement separation already introduced (Section on access control in the domande file, and generalized here):
+\begin{itemize}
+    \item a \textbf{Subject} (or \textbf{Agent/Principal}) --- any entity, including a program, allowed to ask to access a resource/object. A \textbf{user} is specifically a subject identifying a human being.
+    \item The subject's request passes through the \textbf{Guard}, also called the \textbf{Policy Decision Point (PDP)} or \textbf{Access Control Module} --- this is where \textbf{authorization} actually happens (as opposed to \textbf{authentication}, which establishes \emph{who} the subject is, \emph{before} the request even reaches the Guard).
+    \item The Guard consults the \textbf{Policy} to decide grant/deny, and every decision is recorded in an \textbf{Audit Log}.
+    \item Only if granted does the request reach the \textbf{Object/Resource}.
+\end{itemize}
+
+\textcolor{red!70!black}{\textbf{Isolation boundaries play a key role:}}
+\begin{itemize}
+    \item the \textbf{outer} boundary (wrapping Guard $+$ Policy $+$ Audit Log) prevents \emph{bypassing} the Guard: every authorization request must go through it, be evaluated against the policy, and only then reach the object. It can only be bypassed by \emph{privileged} users (e.g., administrators) who need to install/update policies or perform other routine administrative operations.
+    \item the \textbf{inner} boundary (wrapping just the Audit Log) guarantees the \textbf{integrity} of the log, so it can later be inspected to understand what happened and why. \textcolor{blue!50!black}{\textbf{Unlike the outer boundary, the inner one cannot be bypassed even by privileged users}} --- doing so would enable insider attacks on the log's integrity, making auditing meaningless.
+\end{itemize}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Dal file di domande di ripasso)} In the context of access control, describe the general architecture of an access control enforcement mechanism including (a) subjects, (b) requests, (c) guard, (d) policy, (e) isolation boundaries, (f) audit log, and (g) the role of authentication and authorization.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(a)] A \textbf{Subject} is any entity (user, program, or device) allowed to ask for a resource or service; a \textbf{User} specifically identifies a human being.
+    \item[(b)] A \textbf{Request} $(s,a,r)$ --- subject $s$ asking to perform action $a$ on resource $r$ --- can be granted or denied; every request must be routed to the Guard, which the outer isolation boundary makes mandatory.
+    \item[(c)] The \textbf{Guard} (PDP) is responsible for granting or denying access by evaluating the request against the policy; if authorized, the subject may perform the requested action.
+    \item[(d)] A \textbf{Policy} is a set of rules implementing specific security requirements, specifying which actions a subject can perform on which resources. Policy, model, and enforcement are kept independent (\textbf{separation of concerns}, Section~\ref{subsec:ac-policy-model-enforcement-08}): reasoning about a policy does not require knowing how it is enforced.
+    \item[(e)] \textbf{Isolation boundaries} prevent unauthorized access to sensitive parts of the mechanism. The \textbf{outer} boundary ensures nobody can bypass the Guard --- only privileged users (e.g., administrators performing policy updates) may cross it. The \textbf{inner} boundary protects the Audit Log and can \emph{never} be bypassed, even by administrators, since that could enable integrity attacks on the log itself.
+    \item[(f)] The \textbf{Audit Log} stores every past request together with its outcome, protected by the inner boundary against any modification of already-granted or already-denied decisions.
+    \item[(g)] \textbf{Authentication} and \textbf{authorization} are two distinct processes protecting a system: authentication verifies \emph{who} a subject is (through whatever means match the required assurance level); authorization --- performed by the Guard --- then determines \emph{what} that subject, once identified, is allowed to do, based on the attributes/privileges associated with it.
+\end{itemize}
+
+\subsubsection{A Motivating Example: the Operating System}
+An \textbf{Operating System (OS)} is software managing hardware and software resources, providing common services to programs and letting users communicate with their computer. A \textbf{multi-user} OS lets several users share the same computer (concurrently or at different times); a \textbf{multi-tasking} OS lets multiple software processes run at the same time. Either way, \textcolor{red!70!black}{\textbf{the OS must protect users from each other}}: memory protection, file protection, general control of access to objects, and user authentication. \textbf{The fundamental trade-off of OS security} is exactly \textbf{sharing} (desirable) versus \textbf{protection} (difficult).
+
+Historically, OS protection evolved through levels: \textbf{no protection} (early single-user systems, e.g., early Windows, designed for just one user); \textbf{isolation} (processes unaware of each other, each with its own memory/address space/files --- the OS provides \emph{confinement}, though some resources like libraries, files, or a database still need sharing); and \textbf{share} (either \emph{all-or-nothing} or \emph{granular}).
+
+Managing shared resources well relies on the \textbf{principle of least privilege} (already used implicitly in Lesson 3): every subject --- process, user, or program --- must be able to access only the information and resources strictly necessary for its legitimate purpose. \textcolor{blue!50!black}{\textbf{An important aspect of privacy protection specifically}} is the specification and enforcement of \textbf{purpose}: users should be confident their data is processed only as intended (e.g., an email address collected for billing should not silently be reused for marketing) --- checking this is difficult, which is exactly what makes \textbf{auditing} crucial for \textit{a posteriori} verification.
+
+A useful abstraction supporting granular sharing is \textbf{resource encapsulation}: all data and functions needed to use a resource are packaged into a single, self-contained component, so the OS can allow access or manipulation of the resource only in the way its designer intended --- and, beyond controlling \emph{which operations} are possible on a resource, the OS can further control \emph{which users} may perform \emph{which} of those operations.
+
+\subsubsection{Policy, Model, Enforcement}
+\label{subsec:ac-policy-model-enforcement-08}
+As already introduced: \textbf{Policy} = the rules controlling what actions subjects may perform on resources (\emph{how} policies are specified); \textbf{Model} = a formal (mathematical) representation of the policy and how it works (\emph{the meaning} of policies); \textbf{Enforcement} = the low-level software or hardware functions actually implementing the controls the policy and model formally state (\emph{the implementation} of policies).
+
+\textcolor{ForestGreen!60!black}{\textbf{Why bother separating these three?}} When policy and model are both mathematical objects, the meaning of a policy is \textbf{independent of any particular implementation} --- opening the door to \textbf{automated reasoning} techniques for analyzing policies for correctness, conflicts, or unintended consequences. This is \textbf{separation of concerns}: when reasoning about a policy, one can simply \emph{assume} enforcement works correctly, and forget about it entirely.
+
+\textcolor{gray}{\textit{Motivazione storica per l'attenzione alla correttezza dell'enforcement: il comando Unix \texttt{finger} accettava argomenti di lunghezza arbitraria pur avendo allocato solo 256 byte, e i byte in eccesso finivano per essere eseguiti dalla CPU. Nel 1988 il worm Morris sfruttò esattamente questa vulnerabilità, portando gli attacchi di memory-overwriting (\textit{stack smashing}: un input contenente NOP, shellcode e un nuovo indirizzo di ritorno sovrascrive lo stack per dirottare l'esecuzione) all'attenzione dei media. Il problema — controlli mancanti sulla dimensione degli argomenti — continua a comparire ancora oggi.}}
+
+The access-control models covered in this course were designed for different application contexts: \textbf{AC Matrix, ACLs, and Capabilities} for \textbf{operating systems} (this subsection); \textbf{Multi-Level Security / Bell--La Padula} for \textbf{military systems} (Section~\ref{subsec:mls-08}); \textbf{Role-Based} and \textbf{Attribute-Based} AC for \textbf{enterprise systems} (Section~\ref{subsec:rbac-08}, and the next lesson).
+
+\subsection{The Access Control Matrix, ACLs, and Capabilities}
+
+\subsubsection{The Access Control Matrix (ACM)}
+The meaning of policies of the form \textit{``a subject can perform some actions on an object''} can be given precisely via the \textbf{Access Control Matrix (ACM)}: given all subjects and objects, the ACM simply enumerates which actions are allowed for each subject/object pair --- rows are subjects, columns are objects (or resources), and each cell lists the permitted actions.
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Dalle slide del corso)} Alice can read and write the file \texttt{f1}, can read the file \texttt{f2}, and can execute the file \texttt{f3}. Bob can read \texttt{f1}, can read and write \texttt{f2}, and cannot access \texttt{f3}. (1) Write a set of access control lists for this situation --- which list is associated with which file? (2) Write a set of capability lists for this situation.
+\end{tcolorbox}
+
+\textbf{Soluzione:} the underlying ACM is:
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & \texttt{f1} & \texttt{f2} & \texttt{f3} \\
+\midrule
+Alice & r,w & r & x \\
+Bob & r & r,w & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+An \textbf{Access Control List (ACL)} is enforced \emph{per object}: it lists, for one resource, which subjects may do what to it.
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Object} & \textbf{ACL} \\
+\midrule
+\texttt{f1} & Alice: r,w\quad Bob: r \\
+\texttt{f2} & Alice: r\quad Bob: r,w \\
+\texttt{f3} & Alice: x \\
+\bottomrule
+\end{tabular}
+\end{center}
+A \textbf{Capability List} is the transpose: it is enforced \emph{per subject}, listing which objects that subject may access and how --- a capability itself is a $\langle$\textit{object}, \textit{rights}$\rangle$ pair the subject holds.
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Subject} & \textbf{Capability list} \\
+\midrule
+Alice & \texttt{f1}: r,w\quad \texttt{f3}: x\quad\texttt{f2}: r \\
+Bob & \texttt{f1}: r\quad \texttt{f2}: r,w \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textcolor{gray}{\textit{Nota dalle slide: talvolta il permesso di esecuzione (x) implica anche read (r) e write (w).}}
+
+\subsubsection{Domains of Protection}
+A computer can be viewed as a collection of processes and objects (hardware or software). The \textbf{need-to-know principle}: a process should only have access to the objects it needs to accomplish its task, only for the operations it needs, and only during the time frame it needs them --- directly generalizing least privilege. A \textbf{domain of protection} is formally a set of pairs
+\[
+\langle \text{object}, \{\text{access-right set}\} \rangle,
+\]
+and can be implemented as users, processes, or procedures. \textbf{Example (Unix/Linux):} each \emph{user} corresponds to a domain, defining that user's access rights; changing domains means changing user identifiers, and a program running on a user's behalf inherits that user's identifier, hence that same domain of protection. Precisely because of this, when an executable is given permission to access resources the user running it \emph{cannot itself} access, security issues can arise --- exactly the confused-deputy attack, next.
+
+\subsubsection{The Confused Deputy Attack}
+\label{subsec:confused-deputy-08}
+\begin{quote}
+\textcolor{blue!50!black}{\textbf{Confused deputy}}: a privilege-escalation attack where an adversary who lacks direct access to some sensitive resource indirectly \emph{writes} that resource by confusing a subject (the \textbf{deputy}) who \emph{can} access it.
+\end{quote}
+\textbf{Standard example --- a compiler service.} A compiler service takes a source-file name and an output-file name; it compiles the source, writes the compiled binary to the output file, and --- on the side --- writes a \textbf{billing file} recording how much the caller must pay for using it. The user \textbf{Kenny} wants to compile his own file \texttt{In}, expecting the binary in \texttt{Out}: this needs the authorization queries \texttt{(Kenny,x,Compiler)}, \texttt{(Compiler,r,In)}, \texttt{(Compiler,w,Out)}.
+
+\textcolor{red!70!black}{\textbf{The attack:}} the caller instead tricks the compiler by passing the name of the \textbf{billing file} in place of the output file --- causing the compiler to \emph{overwrite the billing file with a binary}, destroying its integrity. In Linux terms: every process executes on behalf of some user and can access whatever files that user can access \emph{and more}, if the system administrator has granted the executable extra access (here, the compiler needs write access to the billing file to do its job at all).
+
+\textbf{Why ACLs let this happen.} Suppose the following ACLs are in place: \texttt{Compiler -> [Kenny\textbar x]}, \texttt{In -> [Kenny\textbar o,r,w]}, \texttt{Bill -> [Compiler\textbar w]}. Kenny can invoke the compiler (\texttt{x} on \texttt{Compiler}); the compiler, as deputy, can read \texttt{In} (inherited via Kenny's identity) \emph{and} can write \texttt{Bill} (granted directly to the Compiler process by the OS). \textcolor{red!70!black}{\textbf{The confusion is exactly this: the Compiler is delegated rights from two different sources --- by Kenny, to read his source file; by the OS, to write the billing file --- and during execution it cannot tell which right came from where, so it uses both indiscriminately.}} If Kenny now passes \texttt{Bill} as the ``output file'' argument, all three authorization queries --- \texttt{(Kenny,x,Compiler)}, \texttt{(Compiler,r,In)}, \texttt{(Compiler,w,Bill)} --- are still granted under these ACLs, and the billing file gets silently overwritten.
+
+\textcolor{ForestGreen!60!black}{\textbf{How capabilities avoid it.}} Suppose instead \textbf{capabilities} are used: \texttt{Kenny -> [Compiler\textbar x] -> [In\textbar r]}, \texttt{Compiler -> [Bill\textbar w]}. Now the first two queries, \texttt{(Kenny,x,Compiler)} and \texttt{(Compiler,r,In)}, are still granted --- but the third, \texttt{(Compiler,w,Bill)}, is \textbf{denied}. There is no more confusion, because \textbf{Kenny would have to explicitly \emph{pass} his own capability for the target file to the Compiler} for it to be used: he can do this for \texttt{In} (he holds a capability for it), but he has \emph{no} capability for \texttt{Bill} at all, so he cannot pass what he does not have. \textcolor{blue!50!black}{\textbf{This is the deep reason capabilities avoid confused-deputy attacks where ACLs do not: rights travel explicitly \emph{with the subject that holds them}, rather than being silently inherited by whatever process happens to be acting on that subject's behalf.}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Discretionary Access Control (DAC)}
+\label{subsec:dac-08}
+
+Under \textbf{DAC}, the \textbf{owner} of a resource decides how it can be shared: there is \textbf{no central entity} deciding who can do what on which resources, and an owner can choose to grant read/write/\dots access to other users on resources they own. DAC is typically used in operating systems, and usually enforced via \textbf{ACLs} (Section~\ref{subsec:ac-architecture-08}'s worked exercise).
+
+\subsubsection{Groups, for Manageable DAC}
+Large organizations usually group most employees by profile into a small number of categories --- e.g., a bank might have 40--50 such \textbf{groups} (teller, chief teller, branch accountant, branch manager, \dots), with only a handful of remaining individually-managed positions (security manager, chief foreign-exchange dealer, \dots). A group may then appear directly in an ACM or ACL; checking whether a subject has a permission amounts to finding a group the subject belongs to that appears in the relevant ACL with that permission. \textcolor{gray}{\textit{Questo è un antipasto dell'idea alla base di RBAC (Sezione~\ref{subsec:rbac-08}): raggruppare permessi per profilo, non per singolo utente.}}
+
+\subsubsection{DAC: Pros and Cons}
+\begin{itemize}
+    \item \textbf{Pros}: \textbf{flexible} (its main reason for popularity in OSes); \textbf{well understood} (e.g., the Unix implementation); \textbf{intuitive}.
+    \item \textbf{Cons}: \textbf{subjective} --- it relies entirely on the owner's judgement to modify a resource's protection state; it only works if users make no mistakes, which is \emph{impossible} --- losing control of the situation is very easy; and it is \textbf{vulnerable to trojans} (information leakage).
+\end{itemize}
+
+\subsubsection{Worked Example: DAC Defeated by a Trojan}
+\begin{quote}
+\textcolor{blue!50!black}{\textbf{Trojan}}: any malicious computer program that misleads users about its true intent, typically spread via social engineering (e.g., duping a user into executing a disguised email attachment).
+\end{quote}
+Setup: resource $R$ is readable only by Alice.
+\begin{enumerate}
+    \item Bob \textbf{induces Alice} (via social engineering) to install and execute a trojan.
+    \item The trojan runs \textbf{with Alice's own DAC permissions} (it is, after all, just a program she chose to run) --- so it \emph{can} read $R$.
+    \item The trojan \textbf{reads $R$ and copies its content} into a second resource $R'$, which is readable by Bob.
+    \item \textbf{Bob reads $R'$}, and thereby reads the content of $R$ too --- despite never having had permission to access $R$ directly.
+\end{enumerate}
+\textcolor{red!70!black}{\textbf{The root cause is structural, not a bug}}: DAC permissions attach to the \emph{user}, and any program that user runs inherits them fully --- there is no mechanism distinguishing ``Alice, acting deliberately'' from ``a program Alice unknowingly launched, acting on her identity.''
+
+\subsection{Mandatory Access Control (MAC) and Multi-Level Security}
+\label{subsec:mls-08}
+
+Under \textbf{MAC}, by contrast, users operate within an organization, and it is the \textbf{organization} --- a central entity --- that decides how data is shared, not individual resource owners. Example: a hospital owns patient records and limits their sharing, often because of external \textbf{regulatory/legal requirements}. MAC is usually enforced using \textbf{security labels}, leading to \textbf{multi-level security (MLS)} models.
+
+\subsubsection{The Motivating Problem}
+The classic MAC problem --- confidentiality protection in a \textbf{military} setting --- predates computers entirely: given information at various sensitivity levels, and users with various degrees of trustworthiness, how do we control access to protect confidentiality? Information has different sensitivity (a war plan versus a cafeteria menu); users have different trustworthiness (a general versus a janitor). \textbf{Goal}: prevent sensitive information (e.g., war plans) from reaching untrusted users (e.g., janitors).
+
+\subsubsection{Sensitivity Labels}
+To categorize information by sensitivity, each resource (document, folder, file) is labeled $L=(S,N)$:
+\begin{itemize}
+    \item $S$ takes values in a \textbf{linearly ordered} set, e.g., $\text{Top Secret} \geq \text{Secret} \geq \text{Confidential} \geq \text{Unclassified}$. \textcolor{gray}{\textit{Una relazione binaria $\geq$ su un insieme è un ordine lineare se soddisfa: \textbf{antisimmetria} ($a\geq b$ e $b\geq a$ implicano $a=b$), \textbf{transitività} ($a\geq b$ e $b\geq c$ implicano $a\geq c$), e \textbf{proprietà connessa} ($a\geq b$ oppure $b\geq a$, per ogni coppia).}}
+    \item $N$ is a set of \textbf{need-to-know categories}, from an \emph{unordered} set expressing membership in an interest group (e.g., Crypto, Nuclear, Personnel, Janitorial, \dots).
+\end{itemize}
+Example: label $(\text{Secret}, \{\text{Nuclear}, \text{Crypto}\})$ marks a resource with sensitive information about both categories; $(\text{Top Secret}, \{\text{Crypto}\})$ marks something even more sensitive, but about Crypto alone.
+
+At creation time, a resource's originator assigns its sensitivity label according to criteria the MLS model itself leaves unspecified; if a document mixes sensitive and non-sensitive content, the originator must use the \emph{highest} applicable level. When conditions change (e.g., with time), a label may later be \textbf{downgraded} (declassified) as content becomes less sensitive.
+
+\subsubsection{Clearances and the Dominates Relation}
+Symmetrically, each \textbf{user} is assigned a \textbf{clearance} (authorization level) with the same structure, $C=(S,N)$: $S$ is the hierarchical level to which the user has been vetted; $N$ is the set of need-to-know categories in which they are authorized to operate. \textcolor{blue!50!black}{\textbf{Sensitivity labels (on resources) indicate the sensitivity of contained information; clearances (on users) indicate the classes of information a user is authorized to access}} --- and need-to-know categories reflect the \textbf{principle of least privilege} directly: even within one security level (say, Top Secret), not everyone needs to know \emph{everything} classified at that level.
+
+$(S_1,N_1)$ \textbf{dominates} $(S_2,N_2)$ iff $S_1 \geq S_2$ \textbf{and} $N_1 \supseteq N_2$ --- \textbf{both} conditions are required. Examples: $(\text{Secret},\{\text{Crypto}\})$ dominates $(\text{Confidential},\{\text{Crypto}\})$, since $\text{Secret}\geq\text{Confidential}$ and $\{\text{Crypto}\}\supseteq\{\text{Crypto}\}$. But $(\text{Secret},\{\text{Crypto,Nuclear}\})$ does \emph{not} dominate $(\text{Top Secret},\{\text{Crypto}\})$: despite $\{\text{Crypto,Nuclear}\}\supseteq\{\text{Crypto}\}$, we have $\text{Secret} \not\geq \text{Top Secret}$ --- \textcolor{red!70!black}{\textbf{a higher need-to-know set never compensates for an insufficient hierarchical level, and vice versa.}}
+
+\subsubsection{No Read Up, No Write Down}
+Access control policies are then defined directly in terms of dominance:
+\begin{itemize}
+    \item \textbf{No Read Up}: subject $s$ can read resource $r$ only if $(S_s,N_s)$ \textbf{dominates} $(S_r,N_r)$ --- the subject's clearance must dominate the resource's sensitivity label.
+    \item \textbf{No Write Down}: subject $s$ can write to resource $r$ only if $(S_r,N_r)$ \textbf{dominates} $(S_s,N_s)$ --- the resource's sensitivity label must dominate the subject's clearance.
+\end{itemize}
+\textcolor{red!70!black}{\textbf{No Write Down exists specifically to prevent a subject with access to a Top Secret file from copying its content down into an Unclassified file}} --- i.e., laundering sensitive information into a less-protected container.
+
+\subsubsection{The Tranquility Principle}
+An implicit assumption underlies all of this: the \textbf{Tranquility Principle} --- security labels (and clearances) must \emph{not} be changed arbitrarily, or the whole scheme can be subverted. \textbf{Why this matters, concretely}: let $s_1$ have the highest clearance, $s_2$ the lowest, $r_1$ the highest sensitivity, $r_2$ the lowest. After $s_1$ legitimately reads $r_1$ (satisfying No Read Up), suppose $s_1$ were then allowed to \emph{lower their own clearance} to the minimum and write to $r_2$ (which would now satisfy No Write Down, since $r_2$'s low label would dominate $s_1$'s newly-lowered clearance!). \textcolor{red!70!black}{\textbf{Both basic properties are individually satisfied at every step, yet confidentiality is completely broken}}: $s_2$, with the lowest clearance, can now read $r_2$ --- which contains information originally from the highly sensitive $r_1$.
+
+\subsubsection{Bell--La Padula and Its Shortcoming}
+No Read Up, No Write Down, and the Tranquility Principle together are the heart of the \textbf{Bell--La Padula} security model (1973) --- despite its age, still a cornerstone of modern computer security, widely used in military applications.
+
+\textcolor{ForestGreen!60!black}{\textbf{A well-known shortcoming, stated as a question}}: can a corporal with \emph{no} clearance overwrite the war plan (associated with the highest sensitivity level)? No Write Down does \emph{not} prevent this --- and indeed it should not, since \textbf{Bell--La Padula is concerned with confidentiality, not integrity}: writing to a highly sensitive resource by a user without adequate clearance is an \emph{integrity} problem (it is likely to make the resource's content useless), entirely outside Bell--La Padula's scope. This gap is addressed by the \textbf{Biba model} (1977), a mathematically similar model but with a different meaning attached to its labels: an \textbf{integrity label} on a resource characterizes the \emph{trustworthiness} of the information it contains, while an integrity label on a subject measures the confidence placed in that subject's ability to \emph{produce or handle} information.
+
+\subsection{Worked Example: a Military MLS Scenario}
+\textbf{Setup.} Security levels: $\text{Top Secret} \geq \text{Secret} \geq \text{Confidential} \geq \text{Unclassified}$. Categories: \{Nuclear, Army\}.
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Subject} & \textbf{Clearance} \\
+\midrule
+President & (Top Secret, \{Nuclear, Army\}) \\
+Colonel & (Secret, \{Nuclear, Army\}) \\
+Major & (Confidential, \{Army\}) \\
+Soldier & (Unclassified, \{Nuclear\}) \\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Resource} & \textbf{Sensitivity label} \\
+\midrule
+Army position & (Secret, \{Army\}) \\
+Number of army units & (Confidential, \{Army\}) \\
+Number of nuclear units & (Confidential, \{Nuclear\}) \\
+Cost of nuclear program & (Unclassified, \{Nuclear\}) \\
+Cost of army & (Unclassified, \{Army\}) \\
+Nuclear code & (Top Secret, \{Nuclear\}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Dalle slide del corso)} Given the scenario above: (1) Can the president compute the overall defense costs (army $+$ nuclear)? (2) Can the major compute the total number of nuclear and army units? (3) Can the colonel compute the total number of nuclear and army units? (4) Can the colonel change the army position? (5) Can the major change the nuclear code? (6) Can the soldier change the nuclear code? (7) What problem is raised by the previous question?
+\end{tcolorbox}
+
+\textbf{Soluzione:} every answer follows from checking \textbf{No Read Up} (reading needs the subject's clearance to \emph{dominate} the resource) or \textbf{No Write Down} (writing needs the resource's label to \emph{dominate} the subject's clearance).
+\begin{enumerate}
+    \item \textbf{Yes.} Computing costs means \emph{reading} ``Cost of nuclear program'' (Unclassified, \{Nuclear\}) and ``Cost of army'' (Unclassified, \{Army\}). The President's clearance (Top Secret, \{Nuclear,Army\}) dominates both --- Top Secret $\geq$ Unclassified and \{Nuclear,Army\} $\supseteq$ each category set. Read allowed by No Read Up (reading \emph{down} is always fine).
+    \item \textbf{No.} This needs reading ``Number of nuclear units'' (Confidential, \{Nuclear\}), but the Major's clearance is (Confidential, \{Army\}) --- same hierarchical level, but $\{\text{Army}\} \not\supseteq \{\text{Nuclear}\}$. \textbf{Fails need-to-know}, even though the security \emph{level} alone would be sufficient.
+    \item \textbf{Yes.} The Colonel's clearance (Secret, \{Nuclear,Army\}) dominates (Confidential, \{Army\}) \emph{and} (Confidential, \{Nuclear\}) --- Secret $\geq$ Confidential, and the category set covers both. Allowed by No Read Up (again, reading down).
+    \item \textbf{No.} Changing (writing to) the army position needs (Secret, \{Army\}) to \emph{dominate} the writer's clearance (No Write Down). The Colonel's clearance is (Secret, \{Nuclear,Army\}) --- same level (Secret $\geq$ Secret, fine), but $\{\text{Army}\} \not\supseteq \{\text{Nuclear,Army}\}$: the \emph{resource's} category set does not cover the \emph{subject's}. \textbf{Fails need-to-know, despite matching hierarchical levels.}
+    \item \textbf{No.} Writing the nuclear code needs (Top Secret, \{Nuclear\}) to dominate the writer's clearance. The Major's clearance, (Confidential, \{Army\}), fails on \emph{both} counts: Top Secret $\not\geq$ ... wait, dominance needs the resource to dominate the subject, i.e.\ Top Secret $\geq$ Confidential (true) \textbf{and} $\{\text{Nuclear}\} \supseteq \{\text{Army}\}$ (false). \textbf{Fails need-to-know} (the category mismatch), even though the hierarchical levels alone would permit it.
+    \item \textbf{Yes.} The nuclear code's label, (Top Secret, \{Nuclear\}), must dominate the Soldier's clearance, (Unclassified, \{Nuclear\}): Top Secret $\geq$ Unclassified, and $\{\text{Nuclear}\}\supseteq\{\text{Nuclear}\}$ --- \textbf{both} hold, so \textbf{No Write Down is satisfied}, and the write is allowed.
+    \item \textbf{This is exactly Bell--La Padula's known shortcoming} (see above): a Soldier with the \emph{lowest} clearance level is permitted to overwrite the nuclear code, one of the most sensitive resources in the entire scenario. No Write Down protects \emph{confidentiality} only --- it says nothing about whether the Soldier's write is \emph{trustworthy} --- so this is an \textbf{integrity} problem, entirely outside Bell--La Padula's scope (and exactly what the Biba model exists to address).
+\end{enumerate}
+
+\subsection{MAC: Pros, Cons, and Covert Channels}
+
+\begin{itemize}
+    \item \textbf{Pros}: \textbf{not vulnerable to trojans}, precisely because of the No Write Down property (Section~\ref{subsec:dac-08}'s trojan attack relied on a low-privilege process silently writing to a resource a higher-privilege user could read --- No Write Down blocks exactly that direction); \textbf{rigid}, in the sense that this makes the situation easy to keep under control.
+    \item \textbf{Cons}: that same \textbf{rigidity} may hinder business continuity; and information leakage remains possible through a \textbf{covert channel}.
+\end{itemize}
+
+\begin{quote}
+\textcolor{red!70!black}{\textbf{Covert channel}}: a path for the flow of information between subjects within a system, using system resources that were \emph{not} designed to be used for inter-subject communication at all.
+\end{quote}
+\textcolor{blue!50!black}{\textbf{Remarkably, Bell--La Padula's own two key properties --- No Read Up and No Write Down --- can themselves be exploited to build a covert channel}}, letting a high-clearance subject leak information to a low-clearance one \emph{without ever violating either property}:
+\begin{enumerate}
+    \item A \textbf{low-level subject} (e.g., a soldier) creates a dummy object, \texttt{dummy.obj}, at its \emph{own} (low) security level.
+    \item Its \textbf{high-level accomplice} (e.g., a general, colluding with the soldier) either \textbf{upgrades} \texttt{dummy.obj}'s sensitivity level, or \textbf{leaves it unchanged} --- this choice is the ``bit'' the general wants to transmit.
+    \item The low-level subject later \textbf{attempts to read} \texttt{dummy.obj}.
+    \begin{itemize}
+        \item If the object was \textbf{upgraded}: the read \textbf{fails} (No Read Up blocks it) --- the soldier infers, say, a ``0'' bit was sent.
+        \item If the object was \textbf{left unchanged}: the read \textbf{succeeds} --- the soldier infers a ``1'' bit was sent.
+    \end{itemize}
+\end{enumerate}
+\textcolor{red!70!black}{\textbf{Either outcome --- success or failure of the read --- discloses the general's action, and that is exactly one bit of information having flowed from high to low.}} Repeating this exchange (create a fresh dummy object, upgrade-or-not, attempt to read, observe success/failure) as many times as needed lets the high-level accomplice transmit an \emph{arbitrary} amount of information to the low-level subject --- one bit at a time, without either party ever performing an action Bell--La Padula's own rules forbid.
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Closing DAC vs.\ MAC}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Dal file di domande di ripasso --- parti (c)--(e); le parti (a)--(b) sul confused deputy sono state svolte nella prima parte di questa lezione, Sezione~\ref{subsec:confused-deputy-08})} (c) explain the notion of Discretionary Access Control (DAC), (d) explain the notion of Mandatory Access Control (MAC), and (e) discuss the main advantages and disadvantages between DAC and MAC.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item[(c)] \textbf{DAC} (Section~\ref{subsec:dac-08}): the \emph{owner} of a resource decides how it is shared --- there is no central deciding authority, and rights can be granted by whoever currently holds them (typically enforced via ACLs, with groups used to keep administration manageable).
+    \item[(d)] \textbf{MAC} (Section~\ref{subsec:mls-08}): a \emph{central, organizational} authority --- not individual owners --- decides how resources can be shared, typically enforced via security labels (sensitivity labels on resources, clearances on subjects) and the No Read Up / No Write Down properties.
+    \item[(e)] \textbf{DAC}: flexible and easy to implement (pro), but subjective (rests entirely on individual owners' judgement), assumes users never make mistakes (unrealistic), and is vulnerable to trojans --- a low-privilege attacker can leak information out of a resource simply by tricking its legitimate, higher-privilege owner into running malicious code on their behalf (con). \textbf{MAC}: centrally enforced and immune to that specific trojan attack, since No Write Down blocks the disclosure direction the trojan needs (pro), but rigid --- potentially hindering legitimate business continuity --- and still leaks information via covert channels, which do not violate either of its core properties (con).
+\end{itemize}
+
+\subsection{Role-Based Access Control (RBAC)}
+\label{subsec:rbac-08}
+
+\subsubsection{Motivation}
+\textcolor{blue!50!black}{\textbf{DAC is usually too flexible, MAC is usually too restrictive.}} This motivates a search for models that are both flexible \emph{and} expressive: \textbf{Role-Based Access Control (RBAC)} is widely considered superior to both.
+
+\subsubsection{A University Example: the Naive Approach}
+Setting: users Alice, Bob, Charlie, David, Eve, Fred, Greg; permissions \texttt{GrantTenure}, \texttt{AssignGrades}, \texttt{AssignHWScores}, \texttt{ReceiveBenefits}, \texttt{UseGym}, \texttt{Register4Courses} (a \textbf{permission} being an abstraction of an (action, resource) pair). Suppose: Alice has \texttt{GrantTenure}, \texttt{AssignGrades}, \texttt{ReceiveBenefits}, \texttt{UseGym}; Bob and Charlie have \texttt{GrantTenure}, \texttt{AssignGrades}, \texttt{UseGym}; David has \texttt{AssignHWScores}, \texttt{Register4Courses}, \texttt{UseGym}; Eve has \texttt{ReceiveBenefits}, \texttt{UseGym}; Fred has \texttt{Register4Courses}, \texttt{UseGym}; Greg has just \texttt{UseGym}.
+
+The \textbf{naive} implementation is a flat user--permission table (one row per (user, permission) pair). \textcolor{red!70!black}{\textbf{The problem: administration is difficult.}} Suppose Alice resigns from the Promotion Committee and becomes an ordinary Faculty Member: an administrator must find and update \emph{every single row} involving Alice, one permission at a time, very carefully --- easy to get wrong, and it does not scale.
+
+\subsubsection{A Better Answer: Roles, UA, and PA}
+Looking at the permissions above, they naturally group by \emph{profile}: Alice is a \textbf{Promotion Committee (PC) Member}; Bob and Charlie are \textbf{Faculty} members; David is a \textbf{Teaching Assistant (TA)}; Eve is a \textbf{University Employee}; Fred is a \textbf{Student}; Greg is simply a \textbf{University Member}. \textbf{Words in boldface here are exactly the roles} to which \emph{both} users and permissions get associated --- instead of assigning permissions directly to users, RBAC introduces two separate relations:
+\begin{itemize}
+    \item \textbf{User Assignment (UA)}: which users hold which roles;
+    \item \textbf{Permission Assignment (PA)}: which permissions are granted to which roles.
+\end{itemize}
+\[
+\text{User } u \text{ has permission } p \iff \exists \text{ role } r \text{ s.t. } (u,r)\in UA \text{ and } (r,p)\in PA.
+\]
+\textcolor{ForestGreen!60!black}{\textbf{This one indirection fixes the administration problem.}} Reconsidering Alice's resignation: (1) delete $(\text{Alice},\text{PCMember})$ from UA; (2) add $(\text{Alice},\text{Faculty})$ to UA; (3) \textbf{PA is left completely unchanged}. One relation, two small edits --- versus editing every permission row by hand.
+
+\subsubsection{An Even Better Answer: a Role Hierarchy}
+Looking at PA closely reveals redundancy: the permission set for \texttt{PCMember} is a \emph{superset} of \texttt{Faculty}'s; \texttt{Faculty}'s is a superset of \texttt{TA}'s and of \texttt{UEmployee}'s; and so on. Rather than list every inherited permission explicitly for every senior role, RBAC allows a \textbf{role hierarchy (RH)}: a partial order $\succeq$ on roles, so that a senior role automatically inherits everything a junior role can do.
+\[
+\text{User } u \text{ has permission } p \iff \exists \text{ roles } r, r' \text{ s.t. } (u,r')\in UA,\ r' \succeq r,\ \text{and } (r,p)\in PA.
+\]
+By convention, \textbf{more senior (powerful) roles are drawn toward the top} of a role-hierarchy diagram, junior roles toward the bottom.
+
+\subsubsection{Core RBAC: the Formal Model}
+Let $U, R, P, S$ be the sets of users, roles, permissions, and sessions, respectively.
+\begin{itemize}
+    \item $UA \subseteq U \times R$: a many-to-many \textbf{user-role assignment} relation.
+    \item $PA \subseteq P \times R$: a many-to-many \textbf{permission-role assignment} relation.
+    \item $\mathit{user}: S \to U$: maps each session to a user --- \textbf{fixed} for the session's whole lifetime.
+    \item $\mathit{roles}: S \to 2^R$: maps each session $s$ to a set of \emph{currently active} roles, with $\{r \mid (\mathit{user}(s),r) \in UA\} \supseteq \mathit{roles}(s)$ --- \textbf{this} function \emph{can} change during the session, since a user may activate or deactivate roles they hold at will.
+    \item $\mathit{permissions}: S \to 2^P$: $\mathit{permissions}(s) = \bigcup_{r \in \mathit{roles}(s)} \{p \mid (p,r) \in PA\}$.
+\end{itemize}
+\textcolor{blue!50!black}{\textbf{Letting a user activate only a subset of their roles per session}} (rather than always all of them at once) is precisely what helps implement the \textbf{principle of least privilege} in practice: a user with a powerful role need not run \emph{every} task with that role's full power switched on.
+
+\subsubsection{Worked Example: Core RBAC (No Hierarchy)}
+\label{subsec:rbac-core-exercise-08}
+Consider three roles with \emph{no} hierarchy between them: \textbf{Resident} (permissions: $\text{Ops}_1$ on $\text{Object}_1$, $\text{Ops}_2$ on $\text{Object}_2$; users: User1, User2, User3), \textbf{Physician} ($\text{Ops}_3$/$\text{Object}_3$, $\text{Ops}_4$/$\text{Object}_4$; users: User4, User5, User6), \textbf{Cardiologist} ($\text{Ops}_5$/$\text{Object}_5$, $\text{Ops}_6$/$\text{Object}_6$; users: User7, User8, User9).
+
+\textbf{UA} $= \{(\text{User}i,\text{Resident}) \mid i=1,2,3\} \cup \{(\text{User}i,\text{Physician}) \mid i=4,5,6\} \cup \{(\text{User}i,\text{Cardiologist}) \mid i=7,8,9\}$.
+
+\textbf{PA} $= \{(\text{Ops}_1/\text{Obj}_1,\text{Resident}),(\text{Ops}_2/\text{Obj}_2,\text{Resident}),(\text{Ops}_3/\text{Obj}_3,\text{Physician}),(\text{Ops}_4/\text{Obj}_4,\text{Physician}),(\text{Ops}_5/\text{Obj}_5,\text{Cardiologist}),(\text{Ops}_6/\text{Obj}_6,\text{Cardiologist})\}$.
+
+For sessions $S=\{s_1,s_2\}$ with $\mathit{user}(s_1)=\text{User5}$, $\mathit{user}(s_2)=\text{User9}$: since Core RBAC has \emph{no} hierarchy, each user's only possible role is their one direct UA assignment, so the upper bound is exact: $\mathit{roles}(s_1) = \{\text{Physician}\}$, and $\mathit{permissions}(s_2) = \{(\text{Ops}_5,\text{Obj}_5),(\text{Ops}_6,\text{Obj}_6)\}$ (User9's only role is Cardiologist).
+
+The equivalent \textbf{access matrix}:
+\begin{center}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+ & Obj$_1$ & Obj$_2$ & Obj$_3$ & Obj$_4$ & Obj$_5$ & Obj$_6$ \\
+\midrule
+User1,2,3 (Resident) & Ops$_1$ & Ops$_2$ & & & & \\
+User4,5,6 (Physician) & & & Ops$_3$ & Ops$_4$ & & \\
+User7,8,9 (Cardiologist) & & & & & Ops$_5$ & Ops$_6$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{Hierarchical RBAC: the Formal Model}
+Same $U,R,P,S,UA,PA,\mathit{user}$ as Core RBAC, plus $RH \subseteq R \times R$: a \textbf{partial order} on $R$ (written $r \succeq r'$). Both remaining functions are updated to follow the hierarchy:
+\[
+\mathit{roles}(s) \subseteq \{r \mid \exists r' \text{ s.t. } r' \succeq r \text{ and } (\mathit{user}(s),r') \in UA\},
+\]
+\[
+\mathit{permissions}(s) = \bigcup_{r \in \mathit{roles}(s)} \{p \mid \exists r' \text{ s.t. } r \succeq r' \text{ and } (p,r') \in PA\}.
+\]
+In words: a user may activate not only their directly-assigned role, but \emph{any role that role dominates} (its juniors); and once a role is active, it carries \emph{all} permissions assigned to itself \emph{and} to every role it dominates.
+
+\subsubsection{Worked Example: Hierarchical RBAC}
+\label{subsec:rbac-hier-exercise-08}
+Same $U,R,P,UA,PA$ as the Core RBAC example above, now \emph{with} a hierarchy: $\text{Cardiologist} \succeq \text{Physician} \succeq \text{Resident}$ (so, by transitivity, $\text{Cardiologist} \succeq \text{Resident}$ too) --- equivalently, Resident's permissions are inherited by Physician, and Physician's (hence also Resident's) are inherited by Cardiologist.
+
+For the same sessions: the upper bound for $\mathit{roles}(s_1)$ (User5, directly Physician) is $\{\text{Physician}, \text{Resident}\}$ --- Physician itself, plus everything it dominates. For $\mathit{permissions}(s_2)$ (User9, directly Cardiologist), the upper bound for $\mathit{roles}(s_2)$ is $\{\text{Cardiologist},\text{Physician},\text{Resident}\}$, so
+\[
+\mathit{permissions}(s_2) = \{(\text{Ops}_1,\text{Obj}_1),\dots,(\text{Ops}_6,\text{Obj}_6)\} \quad \text{--- \emph{all six} permissions.}
+\]
+
+The equivalent access matrix now reflects inheritance directly:
+\begin{center}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+ & Obj$_1$ & Obj$_2$ & Obj$_3$ & Obj$_4$ & Obj$_5$ & Obj$_6$ \\
+\midrule
+User1,2,3 (Resident) & Ops$_1$ & Ops$_2$ & & & & \\
+User4,5,6 (Physician) & Ops$_1$ & Ops$_2$ & Ops$_3$ & Ops$_4$ & & \\
+User7,8,9 (Cardiologist) & Ops$_1$ & Ops$_2$ & Ops$_3$ & Ops$_4$ & Ops$_5$ & Ops$_6$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textcolor{red!70!black}{\textbf{Notice the difference from Core RBAC is entirely in what a \emph{senior} role's users can now do}} --- a Cardiologist's own direct grant never changed, but the hierarchy means their session can carry every junior role's permissions too, without PA ever having to list them redundantly.
+
+\subsubsection{Mathematical Digression: Binary Relations, Revisited}
+Let $S$ be a set and $R \subseteq S \times S$ a binary relation over $S$. $R$ is:
+\begin{itemize}
+    \item \textbf{reflexive} iff $\forall e \in S: (e,e) \in R$;
+    \item \textbf{antisymmetric} iff $\forall e,e' \in S$: if $(e,e')\in R$ and $(e',e)\in R$ then $e=e'$;
+    \item \textbf{transitive} iff $\forall e,e',e'' \in S$: if $(e,e')\in R$ and $(e',e'')\in R$ then $(e,e'')\in R$.
+\end{itemize}
+A role hierarchy $RH$ is exactly a reflexive, antisymmetric, transitive relation --- i.e., a \textbf{partial order}. \textcolor{blue!50!black}{\textbf{Compare this carefully with the security-level order $S$ used for MLS}} (Section~\ref{subsec:mls-08}): there, $S$ additionally satisfies the \textbf{connex property} ($a\geq b$ or $b\geq a$, for \emph{every} pair), making it a \emph{linear} order --- any two security levels are always comparable. A role hierarchy drops this requirement: two roles (e.g., Nurse and Lab Technician) can simply be \textbf{incomparable}, neither senior to the other, which a strictly linear chain of levels could never express.
+
+A \textbf{Hasse diagram} is a way of drawing a finite partially ordered set via its \textbf{transitive reduction}: the directed graph with the same vertices and as \emph{few} edges as possible, such that every directed path present in the original relation is still reachable in the reduction (i.e., it omits edges implied by transitivity, like Cardiologist $\to$ Resident when Cardiologist $\to$ Physician $\to$ Resident already exists) --- exactly the clean, minimal-arrow diagrams used above for the Physician/Cardiologist/Resident hierarchy.
+
+\subsection{Constrained RBAC: Separation of Duty}
+\textbf{Separation of Duty (SoD)}, also known as the \textbf{four-eyes principle}, is a widely recognized constraint capturing conflict-of-interest policies that restrict the authority of any \emph{single} entity --- key to fraud prevention. Classic example: a single person should not be allowed to \emph{both} approve a check \emph{and} cash it --- whatever roles/permissions structure is built, an SoD constraint additionally forbids any one user from holding \emph{both} capabilities at once. \textcolor{gray}{\textit{Riferimento: D.F.\ Ferraiolo, R.\ Sandhu, S.\ Gavrila, D.R.\ Kuhn, R.\ Chandramouli, ``Proposed NIST Standard for Role-Based Access Control,'' ACM Transactions on Information and System Security, vol.\ 4, no.\ 3, 2001, pp.\ 224--274.}}
+
+\subsection{RBAC: Pros and Cons}
+\begin{itemize}
+    \item \textbf{Pros}: easy to grasp; easy to manage \emph{in principle} --- roles decouple digital identities from permissions, so a new subject is simply assigned roles rather than having access decided resource-by-resource, and authorization is easy to revoke by removing roles; easy to tell, \emph{through} roles, which permissions a subject has and \emph{why}.
+    \item \textbf{Cons}: deciding the right \textbf{granularity} of roles is genuinely difficult (should modifying client information and deleting a client be one role or two? is a role's authorization still appropriate, and not overly broad, for \emph{every} subject holding it?); and a role's \textbf{meaning can be fuzzy} --- an employee's actual position in the company may not line up neatly with the RBAC roles defined for the system, a common source of misunderstanding between administrators and managers who assign them.
+\end{itemize}
+
+\subsection{Summary}
+\begin{itemize}
+    \item Access control is the Guard/PDP mediating every request against a Policy, with isolation boundaries making the Guard un-bypassable and the Audit Log tamper-proof (Section~\ref{subsec:ac-architecture-08}).
+    \item The \textbf{ACM/ACL/Capability} trio (per-object vs.\ per-subject views of the same matrix) is enough to explain a real, subtle vulnerability class: the \textbf{confused deputy} (Section~\ref{subsec:confused-deputy-08}) --- and to show precisely \emph{why} capabilities, not ACLs, close it (rights travel with the holder, not silently with whichever process acts on their behalf).
+    \item \textbf{DAC} (owner-controlled, flexible, trojan-vulnerable) and \textbf{MAC} (centrally-controlled, rigid, covert-channel-vulnerable) sit at opposite ends of a flexibility/control trade-off; \textbf{Bell--La Padula}'s No Read Up/No Write Down solves confidentiality but explicitly \emph{not} integrity (Section~\ref{subsec:mls-08}).
+    \item \textbf{RBAC} threads the needle with one extra layer of indirection --- \textbf{UA} and \textbf{PA} instead of a flat user-permission table --- turning routine reassignment into a couple of UA edits with PA untouched, and a \textbf{role hierarchy} on top removes redundant listing of inherited permissions entirely.
+    \item Across every model in this lesson, the same principle keeps resurfacing in a new guise: \textbf{least privilege} --- confinement in OS design, need-to-know in MLS, granular role activation per session in RBAC.
+\end{itemize}
+
+\stepcounter{esercizio}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio \theesercizio}]
+\textit{(Domanda di ripasso, dalle slide del corso)} How can access control mitigate command injection attacks?
+\end{tcolorbox}
+
+\textbf{Soluzione:} access control cannot \emph{prevent} the injection itself (that is an input-validation problem --- see the SQL-injection discussion in the domande file, and the \texttt{finger}/Morris-worm case above for the same root cause with buffer bounds) --- but the \textbf{principle of least privilege} (Section~\ref{subsec:ac-architecture-08}) directly limits the \emph{damage} a successful injection can do. If the process a command gets injected into runs with only the minimal privileges its legitimate task actually requires (exactly the ``give the sysadmin an ordinary account too, and reserve \texttt{root} only for tasks that truly need it'' example already given for OS security), then even a fully successful injection is confined to whatever that narrow privilege set allows --- it cannot read, write, or execute anything beyond it. Command injection turns into a serious, system-wide compromise specifically when the vulnerable process is over-privileged relative to what it actually needs to do.
+
+\textcolor{gray}{\textit{Domande di ripasso rimanenti dalle slide, già risposte per intero altrove in questa sezione: definizione di AC e sua architettura ($\to$ Sezione~\ref{subsec:ac-architecture-08}), ACM/ACL/Capabilities ($\to$ l'esercizio in Sezione~2 di questa lezione), DAC e MAC con No Read Up/No Write Down ($\to$ Sezioni~\ref{subsec:dac-08}--\ref{subsec:mls-08}), vantaggi/svantaggi DAC vs.\ MAC ($\to$ l'esercizio all'inizio di questa parte), RBAC e la semplificazione amministrativa ($\to$ questa sezione), principio di least privilege, confused deputy, trojan, e covert channel (tutti definiti con esempio completo nelle sezioni indicate sopra).}}
 
 \end{document}
