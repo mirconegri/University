@@ -5,8 +5,6 @@
 [![ML](https://img.shields.io/badge/Language-ML-dc566d?style=for-the-badge)](https://smlfamily.github.io/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-a
-
 > 🌐 **<a href="https://university.mirconegri.com" target="_blank">Visit the project website</a>**
 
 A structured archive of notes, LaTeX cheat sheets, and study materials for Computer Science coursework at the Università degli Studi di Trento — organized by semester and course.
