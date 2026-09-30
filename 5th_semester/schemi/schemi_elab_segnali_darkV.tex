@@ -1,0 +1,2065 @@
+\documentclass[12pt, a4paper]{article}
+\newcounter{esercizio}[section]
+
+%\def\islight{true} 
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{eurosym}
+\usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{datetime}
+\usepackage{pmboxdraw}
+\usepackage{array}
+\usepackage{float}
+\usepackage{tcolorbox}
+
+\newcommand{\myfootertext}{}
+\newcommand{\myicon}{}
+
+\ifx\islight\undefined
+    \definecolor{lightergray}{gray}{0.85}
+    \definecolor{tocsec}{gray}{0.85}
+    \definecolor{tocsubsec}{gray}{0.75}
+    \renewcommand{\myicon}{logo_unitn_scuro.png}
+    \renewcommand{\myfootertext}{Appunti redatti per gli studenti del DISI. \\ Eventuali errori possono essere segnalati su GitHub.}
+    \pagecolor{black}
+    \color{white}
+\else
+    \definecolor{lightergray}{gray}{0.35}
+    \definecolor{tocsec}{gray}{0.35}
+    \definecolor{tocsubsec}{gray}{0.45}
+    \renewcommand{\myicon}{logo_unitn_chiaro.png}
+    \renewcommand{\myfootertext}{Versione Light Mode. Disponibile anche la \href{https://github.com/mirconegri/University/blob/main/5th_semester/elab_segnali/schemi/schemi_elab_segnali_darkV.pdf}{versione Dark Mode}.}    \pagecolor{white}
+    \color{black}
+\fi
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=lightergray,
+    urlcolor=cyan,
+    pdftitle={Appunti di Fondamenti di elaborazione dei segnali},
+    pdfauthor={Mirco Negri}
+}
+
+\renewcommand{\cftsecfont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecpagefont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecleader}{\color{tocsubsec}\cftdotfill{\cftdotsep}}
+
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    
+    \includegraphics[width=0.25\textwidth]{\myicon}
+    \vspace{1cm}
+    
+    {\scshape\LARGE Università degli Studi di Trento \par}
+    \vspace{0.4cm}
+    {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
+    
+    \vspace{2cm}
+    
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://github.com/mirconegri/University}{%
+        \begin{tabular}{@{}c@{}}
+            {\color{cyan}\rule{\textwidth}{1pt}} \\[0.5cm]
+            {\Huge\bfseries Appunti di Fondamenti di} \\ [0.5cm]
+            {\Huge\bfseries elaborazione dei segnali}\\ [0.5cm]
+            {\Large\itshape Lezioni, e Simulazioni d'esame}\\ [0.4cm]
+            {\color{cyan}\rule{\textwidth}{1pt}}
+        \end{tabular}%
+    }\par
+    \endgroup
+    
+    \vspace{2.5cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\small \textit{\myfootertext} \par}
+    \vspace{0.8cm}
+    
+    {\large \monthname\ \the\year \par}
+\end{titlepage}
+
+\newpage
+\begingroup
+\hypersetup{hidelinks}
+\tableofcontents
+\endgroup
+\newpage
+
+
+
+\section{Introduzione}
+
+Il corso tratta l'\textbf{analisi e l'elaborazione dei segnali}. Il percorso seguito sarà:
+\begin{enumerate}
+    \item introdurre il concetto di \textbf{segnale};
+    \item caratterizzare un segnale nel dominio originale (tempo, spazio, \dots) e nel \textbf{dominio delle frequenze} tramite trasformate;
+    \item caratterizzare (e in parte progettare) i \textbf{sistemi} che elaborano i segnali, nel tempo e/o in frequenza;
+    \item passare da segnali continui a segnali discreti (numerici) tramite conversione A/D (campionamento e quantizzazione), e vedere come i concetti precedenti si adattano al caso digitale;
+    \item accennare all'estensione dei concetti visti al caso di segnali e sistemi \textbf{multi-dimensionali} (2D, 3D, \dots).
+\end{enumerate}
+
+\subsection{Cos'è un segnale}
+
+\begin{itemize}
+    \item Ogni cosa nel mondo che ci circonda (noi compresi) genera \textbf{segnali}. Li percepiamo tramite i sensi:
+    \begin{itemize}
+        \item la vista percepisce la \textbf{luce} (segnale visivo: forme e colori);
+        \item l'udito percepisce i \textbf{suoni} (segnale acustico: voce, musica, rumori);
+        \item olfatto e gusto percepiscono odori e sapori (natura di cibi e profumi).
+    \end{itemize}
+    \item Ogni segnale ha una \textbf{natura fisica} e un opportuno recettore:
+    \begin{itemize}
+        \item segnali visivi: radiazioni elettromagnetiche nell'intervallo delle lunghezze d'onda visibili (recettore: occhio);
+        \item segnali acustici: onde di pressione nell'intervallo delle frequenze udibili (recettore: orecchio);
+        \item segnali olfattivi: composti chimici volatili (recettore: naso).
+    \end{itemize}
+    \item Anche il \textbf{dominio} può variare: temporale per un segnale acustico, spaziale per un'immagine, spazio-temporale per un video.
+\end{itemize}
+
+\textbf{Cosa hanno in comune segnali così diversi?}
+\begin{itemize}
+    \item Tutti i segnali permettono il \textbf{trasferimento di informazioni}: trasmettono dei «messaggi» (es. le parole pronunciate da una persona costituiscono il messaggio del segnale vocale).
+    \item I segnali sono legati a \textbf{variazioni} delle relative grandezze fisiche nel dominio di riferimento: senza variazione non c'è trasferimento di informazione (un'immagine uniforme trasmette un'informazione praticamente nulla).
+    \item Le variazioni sono in buona parte \textbf{imprevedibili}: se fossero completamente prevedibili, non ci sarebbe vera trasmissione di informazione.
+\end{itemize}
+
+\textbf{La percezione dei segnali}
+\begin{itemize}
+    \item L'uomo percepisce alcuni tipi di segnali tramite dei \textbf{sensori} (occhi, orecchie, naso, \dots).
+    \item I sensori trasformano i segnali in informazioni comprensibili dal cervello (elettriche e chimiche).
+    \item Un sensore è quindi un \textbf{trasduttore}: un organo in grado di trasformare una grandezza fisica in un'altra (conversione di segnale).
+\end{itemize}
+
+\textbf{Limitazioni}
+\begin{itemize}
+    \item I nostri sensi sono \textbf{limitati}: non percepiamo, ad esempio, luce infrarossa/ultravioletta, ultrasuoni, segnali radio, o ciò che è oltre un muro, sottoterra o dentro il corpo. La tecnologia può \textit{estendere i nostri sensi}, rilevando segnali non percepibili e "traducendoli" in segnali comprensibili dal nostro sistema percettivo.
+    \item Anche i segnali percepibili sono soggetti a fenomeni che ne limitano la percettibilità: i suoni si attenuano rapidamente (impercettibili a breve distanza); la luce si attenua meno ma non attraversa superfici opache, e l'immagine perde risoluzione a grande distanza. La tecnologia può \textit{trasportare i segnali a distanze maggiori} e attraverso ostacoli.
+    \item Ci sono poi i \textbf{disturbi}: parlare in un ambiente affollato è difficile perché i suoni si mescolano. Lo stesso avviene, per vari fenomeni, ovunque ci sia propagazione di segnali:
+    \begin{itemize}
+        \item \textbf{rumore}: disturbi aleatori;
+        \item \textbf{interferenze}: altre sorgenti di segnali;
+        \item \textbf{distorsioni}: alterazioni sistematiche causate dai sistemi fisici.
+    \end{itemize}
+    La tecnologia fornisce strumenti per ridurre l'impatto dei disturbi o rendere comunque utilizzabile il segnale disturbato.
+\end{itemize}
+
+\textbf{Trasmissione e memorizzazione}
+\begin{itemize}
+    \item Il desiderio di comunicare a distanza e archiviare memorie è insito nell'uomo. Gran parte dei segnali non può percorrere grandi distanze nella forma originale, e viene "persa" subito dopo essere prodotta.
+    \item Opportune tecnologie di elaborazione dei segnali permettono di \textbf{inviare un segnale a distanza}, condividerlo o archiviarlo per memoria storica o uso futuro.
+\end{itemize}
+
+\textbf{Elaborazione dei segnali}
+\begin{itemize}
+    \item La natura fisica dei segnali determina molte limitazioni: nel sensing, nella propagazione, nella percezione in presenza di disturbi, nella trasmissione a distanza e/o nell'archiviazione.
+    \item L'\textbf{elaborazione dei segnali} introduce tecniche che permettono di risolvere, almeno in parte, questi problemi, estendendo l'utilizzabilità dei segnali (in definitiva, estendendo i nostri sensi).
+    \item Trattare la grandezza fisica nel suo dominio originale è in genere poco pratico (storicamente, ad es., la tromba del grammofono amplificava il segnale direttamente nel dominio acustico).
+    \item È molto più pratico ed economico \textbf{convertire i segnali in grandezze elettriche} ed elaborarli con apparati elettrici/elettronici (amplificatori, filtri, \dots): si ottengono sistemi più compatti, efficienti ed economici.
+    \item Tramite opportuni processi è anche possibile convertire il segnale in forma \textbf{numerica} e manipolarlo con un sistema di calcolo digitale (computer, GPU, processore di uno smartphone, \dots). L'elaborazione digitale ha il vantaggio di sfruttare hardware \textit{general purpose} (non progettato per una funzione specifica), quindi più adattabile, riutilizzabile ed economico.
+    \item Al termine dell'elaborazione, se il segnale deve essere presentato a un utente, occorre una \textbf{conversione inversa}: il sistema uditivo, ad esempio, percepisce variazioni di pressione, quindi un segnale audio convertito in elettrico per l'elaborazione va riconvertito in pressione per l'ascolto (è ciò che fa una cassa acustica).
+\end{itemize}
+
+\textbf{Catena di elaborazione}
+
+Tipicamente si ha una «catena» di elaborazione: una cascata di sistemi che producono varie conversioni ed elaborazioni del segnale. Esempio (trasmissione radio di un segnale vocale):
+
+\begin{center}
+\small
+segnale acustico $\to$ \textit{trasduttore (microfono)} $\to$ segnale elettrico $\to$ \textit{trasmettitore (radio)} $\to$ segnale elettromagnetico $\to$ \textit{ricevitore (radio)} $\to$ segnale elettrico $\to$ \textit{amplificatore} $\to$ segnale elettrico $\to$ \textit{trasduttore (altoparlante)} $\to$ segnale acustico
+\end{center}
+
+\textbf{Modellazione}
+\begin{itemize}
+    \item Per progettare o caratterizzare sistemi di elaborazione occorrono opportuni \textbf{modelli teorici}: rappresentare i segnali e le azioni che i blocchi di elaborazione attuano su di essi.
+    \item I modelli permettono di capire (entro certi limiti) come ogni blocco modificherà il segnale, senza doverlo realizzare fisicamente. Si possono usare per:
+    \begin{itemize}
+        \item progettare catene di elaborazione che svolgano una funzione voluta;
+        \item prevedere come un sistema dato altererà il segnale che lo attraversa;
+        \item realizzare simulatori (es. software).
+    \end{itemize}
+\end{itemize}
+
+\textbf{Segnali e matematica}
+\begin{itemize}
+    \item I modelli teorici del corso sono di tipo \textbf{matematico}. Un segnale, essendo legato alla variazione di una grandezza fisica in un dominio, può essere espresso come una \textbf{funzione} che restituisce i valori della grandezza fisica nei vari punti del dominio.
+    \item \textit{Esempio}: il microfono restituisce un valore di tensione che varia nel tempo, rappresentabile come una funzione $s(t)$ [Volt].
+\end{itemize}
+
+\subsection{Segnali mono- e multi-dimensionali}
+
+\textbf{Segnali scalari e vettoriali}
+\begin{itemize}
+    \item Un segnale è \textbf{scalare} se per ogni punto del dominio restituisce un unico valore reale.
+    \begin{itemize}
+        \item \textit{Esempio}: il segnale audio $s(t)$ è scalare; anche il segnale ECG è scalare:
+        $$x_{ECG}(t): \mathbb{R} \to \mathbb{R}$$
+        (N.B. la variabile di dominio non è necessariamente il tempo).
+    \end{itemize}
+    \item Un segnale è \textbf{vettoriale} se la funzione restituisce più valori per ogni punto di applicazione.
+    \begin{itemize}
+        \item \textit{Esempio}: l'EEG (elettroencefalogramma) è un segnale vettoriale: per ogni istante temporale si ottengono $N$ valori, uno per ciascun sensore/elettrodo:
+        $$\bar{x}_{EEG}(t): \mathbb{R} \to \mathbb{R}^{19}$$
+    \end{itemize}
+\end{itemize}
+
+\textit{Nota sulla notazione}: nel seguito useremo la barra ($\bar{x}$) per indicare segnali vettoriali o comunque multi-dimensionali, a differenza degli scalari (senza barra).
+
+\textbf{Segnali multi-dimensionali}
+\begin{itemize}
+    \item I segnali visti finora sono tutti \textbf{mono-dimensionali (1-D)}. Esistono anche segnali \textbf{multi-dimensionali (m-D)}.
+    \item \textit{Esempio}: un'immagine statica (foto) ha 2 dimensioni, convenzionalmente $(x,y)$, che definiscono il \textbf{piano immagine}. Per ogni punto $(x,y)$ si ha uno o più valori (immagine scalare o vettoriale). (N.B. qui le variabili di dominio sono spaziali)
+    \begin{itemize}
+        \item immagine a livelli di grigio (scalare): un solo valore di luminanza per punto,
+        $$I(x,y): \mathbb{R}^2 \to \mathbb{R}$$
+        \item immagine a colori (vettoriale): un vettore di 3 valori per punto (es. componenti RGB),
+        $$\bar{I}(x,y): \mathbb{R}^2 \to \mathbb{R}^3$$
+    \end{itemize}
+    \item Il dominio può anche essere una \textbf{combinazione di grandezze fisiche diverse}: una sequenza video a colori è un segnale 3D vettoriale, con dominio spazio-temporale:
+    $$\bar{V}(x,y,t_i): \mathbb{R}^3 \to \mathbb{R}^3$$
+\end{itemize}
+
+\subsection{Classificazione dei segnali}
+
+Si possono classificare i segnali secondo diversi parametri: il modo in cui è rappresentato il \textbf{dominio}, il modo in cui è rappresentata l'\textbf{ampiezza}, la natura \textbf{periodica o aperiodica}, la natura \textbf{deterministica o aleatoria}.
+
+\subsubsection{Dominio}
+\begin{itemize}
+    \item \textbf{Segnali a dominio continuo}: possono essere misurati in ogni punto del dominio (variabile reale).
+    \item \textbf{Segnali a dominio discreto}: possono essere misurati solo in un insieme predefinito di punti (sequenza discreta).
+\end{itemize}
+
+\subsubsection{Ampiezza}
+\begin{itemize}
+    \item \textbf{Segnali ad ampiezza continua}: possono assumere con continuità tutti i valori reali di un certo intervallo (eventualmente illimitato).
+    \item \textbf{Segnali ad ampiezza discreta}: possono assumere valori in un insieme numerabile (eventualmente illimitato).
+\end{itemize}
+
+\subsubsection{Dominio e ampiezza combinati}
+
+Combinando le due proprietà si ottengono quattro categorie:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{l|cc}
+\toprule
+ & \textbf{Dominio continuo} & \textbf{Dominio discreto} \\
+\midrule
+\textbf{Ampiezza continua} & \textcolor{orange!80!black}{\textbf{Analogici}} & \textcolor{orange!80!black}{\textbf{Campionati}} \\
+\textbf{Ampiezza discreta} & \textcolor{orange!80!black}{\textbf{Quantizzati}} & \textcolor{orange!80!black}{\textbf{Digitali}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Analogico}: continuo sia in ampiezza sia nel dominio.
+    \item \textbf{Campionato}: ampiezza continua, ma definito solo in istanti discreti del dominio.
+    \item \textbf{Quantizzato}: dominio continuo, ma ampiezza discretizzata in livelli.
+    \item \textbf{Digitale}: discreto sia in ampiezza sia nel dominio (campionamento + quantizzazione).
+    \item In natura i segnali hanno prevalentemente forma \textbf{analogica} (audio, video, temperatura, pressione, forze, \dots). La controparte digitale si ottiene tramite conversione A/D (campionamento e quantizzazione).
+    \item[] \textit{N.B.} Esistono anche segnali intrinsecamente digitali, es. la sequenza di stati assunti nel tempo da una macchina a stati finiti (FSM).
+    \item In un dominio m-D si possono avere varie combinazioni di continuo/discreto: ad es. i segnali televisivi analogici (PAL, NTSC) erano continui lungo le linee di scansione orizzontali, e discreti in verticale (righe) e nel tempo (quadri).
+\end{itemize}
+
+\subsubsection{Segnali periodici e aperiodici}
+\begin{itemize}
+    \item Un segnale è \textbf{periodico} se si ripete uguale a sé stesso ad ogni intervallo prefissato, detto \textbf{periodo} $T$ (anche lungo più dimensioni in m-D), e la ripetizione continua all'infinito. Analiticamente (caso 1D):
+    $$x(t+kT) = x(t), \qquad T = \text{periodo}$$
+    Non vale per i segnali \textbf{aperiodici}.
+    \item \textit{Esempi di segnali periodici}: sinusoidi, onde quadre, e in generale fenomeni ciclici (pendoli, oscillatori; andamento regolare o pseudo-regolare come il ritmo cardiaco).
+    \item \textit{Esempi di segnali aperiodici}: segnali a durata limitata (rettangoli, triangoli), segnali smorzati (esponenziali negativi), segnali finestrati (prodotto di un segnale con rettangoli o gradini), impulsi.
+    \item[] \textit{N.B.} I segnali periodici sono spesso usati come segnali campione per studiare i sistemi, perché sono facili da generare e hanno caratteristiche note.
+\end{itemize}
+
+\subsubsection{Segnali deterministici e aleatori}
+\begin{itemize}
+    \item Un segnale è \textbf{deterministico} (o determinato) se il suo valore è univocamente definito a priori, una volta fissate le variabili di dominio (tempo, spazio, \dots).
+    \item Un segnale è \textbf{aleatorio} (o stocastico) se non è possibile conoscerne con esattezza a priori il valore in un certo istante: può essere conosciuto solo a posteriori (osservazione) o studiato statisticamente (valor medio, varianza, d.d.p., \dots).
+\end{itemize}
+
+\textbf{Segnali deterministici}
+\begin{itemize}
+    \item Si ha un segnale deterministico quando:
+    \begin{itemize}
+        \item risponde a una funzione analitica nota (es. generato da un generatore di forme d'onda);
+        \item proviene dalla registrazione di un segnale aleatorio (da quel momento sarà sempre uguale);
+        \item è generato tramite un processo deterministico (es. una sequenza nota).
+    \end{itemize}
+    \item Spesso i segnali deterministici sono usati per valutare le prestazioni di un sistema, poiché essendo completamente noti è più facile svolgere calcoli analitici.
+\end{itemize}
+
+\textbf{Segnali aleatori (processi)}
+\begin{itemize}
+    \item Sono i più comuni in natura: risultato di un processo non completamente determinato (quindi in presenza di un vero trasferimento di informazione).
+    \item Possono essere conosciuti solo in modo statistico, tramite modelli parametrici e/o osservando le loro realizzazioni (le specifiche istanze del processo).
+    \item Sono utilizzati per modellare fenomeni stocastici come rumore o interferenze; la loro caratterizzazione statistica permette di ricavare informazioni utili per la progettazione di sistemi di elaborazione e trasmissione.
+\end{itemize}
+
+\textit{Esempi}: segnali deterministici sono quelli prodotti da generatori di forme d'onda, quelli memorizzati su supporti fisici, quelli emessi da sorgenti perfettamente note. Segnali aleatori sono il rumore da agitazione termica degli elettroni, da sorgenti interferenti, da perturbazioni pseudo-casuali dei parametri di un sistema.
+
+\textit{N.B.} In questo corso ci occuperemo di \textbf{segnali deterministici}; per i segnali aleatori si rimanda a corsi successivi.
+
+\section{Richiami di teoria e proprietà dei segnali}
+
+\subsection{Numeri complessi e funzioni complesse}
+
+\subsubsection{Numeri complessi}
+\begin{itemize}
+    \item Un numero complesso si scrive $z = x+jy \in \mathbb{C}$, con
+    $$\begin{cases} x = \text{Re}\{z\} \in \mathbb{R} \\ y = \text{Im}\{z\} \in \mathbb{R}\end{cases}$$
+    \item \textbf{Modulo}: $r = |z| = \sqrt{x^2+y^2} \in \mathbb{R}$
+    \item \textbf{Fase}: $\varphi = \arg(z) = \arctan\left(\dfrac{y}{x}\right) \in \mathbb{R}$
+    \item Da modulo e fase si ricavano parte reale e immaginaria:
+    $$x = r\cos\varphi, \qquad y = r\sin\varphi \quad\Rightarrow\quad z = r(\cos\varphi + j\sin\varphi)$$
+    \item \textbf{Formule di Eulero}:
+    $$\cos\varphi = \frac{e^{j\varphi}+e^{-j\varphi}}{2}, \qquad \sin\varphi = \frac{e^{j\varphi}-e^{-j\varphi}}{2j}, \qquad e^{j\varphi} = \cos\varphi + j\sin\varphi$$
+    \item Da cui la \textbf{rappresentazione in coordinate polari}: $z = re^{j\varphi}$
+\end{itemize}
+
+\subsubsection{Funzioni complesse}
+\begin{itemize}
+    \item Una \textbf{funzione complessa} è una funzione di variabile reale o complessa che restituisce valori complessi (es. la trasformata di Laplace $L(s)$, con $s=\sigma+j\omega$, è una funzione di variabile complessa).
+    \item In analogia con i numeri complessi, si può definire un modulo e una fase (funzioni reali), oppure una parte reale e una parte immaginaria (anch'esse funzioni reali).
+    \item \textit{Esempio}: data $S(\nu): \mathbb{R}\to\mathbb{C}$,
+    $$S(\nu) = |S(\nu)|\, e^{j\arg(S(\nu))}$$
+    $$|S(\nu)| = \sqrt{\text{Re}\{S(\nu)\}^2+\text{Im}\{S(\nu)\}^2}, \qquad \arg(S(\nu)) = \arctan\left(\frac{\text{Im}\{S(\nu)\}}{\text{Re}\{S(\nu)\}}\right)$$
+\end{itemize}
+
+\subsection{Proprietà dei segnali}
+
+\subsubsection{Simmetria}
+\begin{itemize}
+    \item Una funzione ha \textbf{simmetria pari} nel dominio $D_x$ se:
+    $$x(t) = x(-t) \qquad \forall t \in D_x$$
+    \item Ha invece \textbf{simmetria dispari} se:
+    $$x(-t) = -x(t) \qquad \forall t \in D_x$$
+    \item Altrimenti la funzione non ha proprietà di simmetria.
+\end{itemize}
+
+\subsubsection{Causalità}
+\begin{itemize}
+    \item Un segnale è \textbf{causale} se è nullo prima di un dato istante $t_0$:
+    $$x(t) = \begin{cases} x_{st} & t \ge t_0 \\ 0 & t < t_0\end{cases}$$
+    \item $t_0$ è l'\textbf{origine} del segnale: l'istante in cui si verifica un evento che produce $x(t)$ (la sua causa). Il principio di causa-effetto impone che $x(t)$ non possa esistere prima di tale istante.
+    \item \textit{Esempio}: un generatore di forme d'onda acceso all'istante $t_0=0$ ha uscita $x(t)$ nulla su tutto il semiasse negativo.
+    \item Il caso più comune di segnale causale è il \textbf{gradino unitario} $u(t)$ (con $t_0=0$): può essere pensato come l'accensione di un generatore di tensione continua di ampiezza unitaria all'istante zero.
+    \item Qualsiasi segnale causale può essere scritto come prodotto tra un segnale qualsiasi e il gradino unitario traslato in $t_0$:
+    $$x(t) = x_{st}\cdot u(t-t_0)$$
+\end{itemize}
+
+\subsection{Funzioni notevoli}
+\begin{itemize}
+    \item \textbf{\textcolor{orange!80!black}{Rettangolo simmetrico}}:
+    $$A\,\Pi\left(\frac{t}{T}\right) = \begin{cases} A & |t| \le T/2 \\ 0 & \text{altrove}\end{cases}$$
+    Funzione reale, lineare a tratti, a simmetria pari.
+    \item \textbf{\textcolor{orange!80!black}{Gradino unitario}}:
+    $$u(t) = 1(t) = \begin{cases} 1 & t \ge 0 \\ 0 & \text{altrove}\end{cases}$$
+    Funzione reale, lineare a tratti.
+    \item \textbf{\textcolor{orange!80!black}{Funzione segno}}:
+    $$s(t) = \begin{cases} 1 & t > 0 \\ -1 & t < 0\end{cases}$$
+    Funzione reale, lineare a tratti, a simmetria dispari. \textit{N.B.} $u(t) = \dfrac{1}{2}(s(t)+1)$.
+    \item \textbf{\textcolor{orange!80!black}{Triangolo simmetrico}}:
+    $$A\,\Lambda\left(\frac{t}{T}\right) = \begin{cases} \dfrac{A(T/2-|t|)}{T/2} & |t|\le T/2 \\ 0 & \text{altrove}\end{cases}$$
+    Funzione reale, lineare a tratti, a simmetria pari.
+    \item \textbf{\textcolor{orange!80!black}{Funzione sinc}}:
+    $$\text{sinc}(x) = \frac{\sin(\pi x)}{\pi x}$$
+    Funzione reale a simmetria pari. Nello zero è definita al limite e vale $1$; si annulla in $x=k$, $k\in\mathbb{N}$. \textit{N.B.} in questa definizione il termine $\pi$ compare sia nell'argomento del seno sia a denominatore.
+\end{itemize}
+
+\subsection{Funzioni generalizzate}
+\begin{itemize}
+    \item L'\textbf{impulso unitario} o \textbf{delta di Dirac} $\delta(t)$ è una \textbf{funzione generalizzata} (distribuzione): è definita unicamente sulla base delle sue proprietà integrali, non puntualmente.
+    \item Per ogni funzione di test $f(t)$ continua e integrabile:
+    $$\int_{-\infty}^{+\infty} f(t)\,\delta(t)\,dt = f(0)$$
+    \item Si può ottenere come limite di un rettangolo di area unitaria e durata $T$:
+    $$\delta(t) = \lim_{T\to0} \frac1T \Pi\left(\frac tT\right) = \begin{cases} +\infty & t=0 \\ 0 & \text{altrove}\end{cases}$$
+    Si rappresenta con una freccia: vale infinito in zero e zero altrove, ma l'area resta unitaria.
+    \item \textit{N.B.} un comportamento impulsivo ideale non può esistere nella realtà (corrisponderebbe a un valore infinito di una grandezza fisica, distruggendo qualsiasi sistema reale); la delta di Dirac serve però a modellare matematicamente il comportamento ideale di alcuni sistemi.
+\end{itemize}
+
+\subsection{Manipolazione di segnali}
+
+\subsubsection{Traslazione temporale}
+\begin{itemize}
+    \item Introduce un anticipo o un ritardo agendo sull'asse temporale: $x(t) \to x(t-\tau)$.
+    \item $\tau > 0 \Rightarrow$ \textbf{ritardo}; $\tau < 0 \Rightarrow$ \textbf{anticipo}.
+    \item In pratica: se $\Delta t>0$, il segnale è ritardato, $x(t-\Delta t)$; se $\Delta t<0$, il segnale è anticipato, $x(t-\Delta t) = x(t+|\Delta t|)$.
+    \item Schema a blocchi: blocco rettangolare associato all'intervallo di tempo $\tau$.
+\end{itemize}
+
+\subsubsection{Riscalamento temporale}
+\begin{itemize}
+    \item Introduce una compressione o un'espansione agendo sull'asse temporale: $x(t) \to x(kt)$, $k>0$.
+    \item Schema a blocchi: blocco con freccia verso il basso e fattore di scala $k$.
+    \item $0<k<1$: \textbf{espansione} del segnale (si comprime l'asse dei tempi); $k>1$: \textbf{compressione}.
+    \item \textbf{Ribaltamento temporale}: se $k$ diventa negativo, oltre a un'eventuale compressione/espansione si ha uno specchiamento del segnale rispetto all'asse $y$ (è come invertire l'asse temporale). Con $k=-1$ la durata resta invariata ma il segnale si specularizza: $r(t) \to r(-t)$.
+\end{itemize}
+
+\subsubsection{Fattore di guadagno}
+\begin{itemize}
+    \item Introduce un'amplificazione o un'attenuazione agendo sull'\textbf{ampiezza} del segnale: $x(t) \to g\cdot x(t)$, $g>0$.
+    \item Schema a blocchi: blocco triangolare associato al fattore di guadagno $g$.
+    \item $g>1$: \textbf{amplificazione}; $0<g<1$: \textbf{attenuazione}.
+    \item \textbf{Inversione del segnale}: se $g$ diventa negativo si ha anche un'inversione (specularizzazione rispetto all'asse $x$). Con $g=-1$ l'escursione resta invariata ma il segnale si inverte: $r(t) \to -r(t)$.
+\end{itemize}
+
+\subsubsection{Integrazione e derivazione}
+\begin{itemize}
+    \item Essendo i segnali descrivibili come funzioni, si possono integrare e derivare nel modo consueto:
+    \begin{itemize}
+        \item[] \textbf{Derivata}: $x(t) \to y(t) = \dfrac{dx(t)}{dt}$
+        \item[] \textbf{Integrale}: $x(t) \to y(t) = \displaystyle\int_{-\infty}^{t} x(t)\,dt$
+    \end{itemize}
+    \item \textit{Esempio (derivata)}: se $x(t)$ è un triangolo simmetrico di semibase $T/2$ e altezza $A$, $y(t)=\frac{d}{dt}x(t)$ è un rettangolo bipolare: vale $+2A/T$ per $-T/2<t<0$ e $-2A/T$ per $0<t<T/2$ (le pendenze dei due tratti lineari del triangolo).
+    \item \textit{Esempio (integrale)}: se $x(t) = A\,\Pi(t/T)$ è un rettangolo di ampiezza $A$ su $[-T/2,T/2]$, $y(t)=\int_{-\infty}^t x(t)\,dt$ è una rampa che cresce da $0$ ad $AT$ durante il rettangolo, per poi restare costante ad $AT$.
+    \item \textbf{Caso delle funzioni generalizzate}: si dimostra che l'integrale di un impulso è un gradino,
+    $$\int_{-\infty}^{t} \delta(t)\,dt = u(t)$$
+    e viceversa, derivando un gradino si ottiene un impulso.
+    \item Derivando un impulso si ottiene invece un \textbf{doppietto} $\delta'(t)$: una coppia di impulsi, uno positivo e uno negativo, centrati nell'origine (in $0^-$ e $0^+$).
+    \item Il doppietto è ancora più particolare dell'impulso e si definisce solo tramite le sue proprietà integrali:
+    $$\int_{-\infty}^{+\infty} \delta'(t)\cdot f(t)\,dt = -\int_{-\infty}^{+\infty}\delta(t)\cdot f'(t)\,dt = -f'(0)$$
+    In pratica restituisce, cambiata di segno, la derivata della funzione di test nell'origine.
+\end{itemize}
+
+\subsection{Statistiche dei segnali}
+
+Le misure statistiche si calcolano di norma su segnali aleatori (medie stocastiche, valori attesi); è tuttavia possibile calcolarne alcune anche per segnali deterministici, valutando andamenti nel proprio dominio (es. medie temporali). Nei processi ergodici le due cose coincidono.
+
+\subsubsection{Valor medio}
+\begin{itemize}
+    \item Valor medio di un segnale deterministico in un intervallo $(t_1,t_2)$:
+    $$\langle x(t)\rangle_{(t_1,t_2)} = \frac{1}{t_2-t_1}\int_{t_1}^{t_2} x(t)\,dt$$
+    \item Esteso a tutto il dominio temporale, al limite:
+    $$\bar x = \langle x(t)\rangle = \lim_{T\to\infty} \frac1T \int_{-T/2}^{T/2} x(t)\,dt$$
+    \item Il valor medio, se presente, indica una quantità costante (\textbf{offset}) nel segnale; talvolta viene sottratto per ottenere le sole variazioni (più informative).
+\end{itemize}
+
+\subsubsection{Valore quadratico medio e varianza}
+\begin{itemize}
+    \item Valore quadratico medio:
+    $$\overline{x^2} = \langle x(t)^2\rangle = \lim_{T\to\infty} \frac1T \int_{-T/2}^{T/2} x^2(t)\,dt$$
+    \item Da cui la varianza:
+    $$\sigma_x^2 = \overline{x^2} - \bar x^2 = \lim_{T\to\infty} \frac1T \int_{-T/2}^{T/2} \big(x(t)-\bar x\big)^2\,dt$$
+    \item \textit{N.B.} se il valor medio del segnale è nullo, la varianza coincide con il valore quadratico medio.
+    \item Una varianza elevata è legata a variazioni significative del segnale, tipicamente associate a un più elevato contenuto informativo (es. due immagini con lo stesso valor medio ma diversa varianza: quella a varianza nulla è uniforme e priva di informazione).
+\end{itemize}
+
+\subsubsection{Energia e potenza}
+\begin{itemize}
+    \item \textbf{Energia} del segnale $x(t)$:
+    $$E_x = \int_{-\infty}^{+\infty} x^2(t)\,dt \qquad [\text{Joule}]$$
+    Può risultare infinita per alcuni segnali (es. un segnale periodico). I segnali con $E_x$ finita sono detti \textcolor{orange!80!black}{\textbf{segnali di energia}}.
+    \item Laddove l'energia è infinita, si calcola in alternativa la \textbf{potenza media}:
+    $$P_x = \lim_{T\to\infty} \frac1T \int_{-T/2}^{+T/2} x^2(t)\,dt \qquad [\text{Watt}]$$
+    (dimensionalmente, $P=E/T$). Può essere nulla per alcuni segnali; quelli con $P_x$ non nulla sono detti \textcolor{orange!80!black}{\textbf{segnali di potenza}}. \textit{N.B.} $P_x$ coincide con il valore quadratico medio.
+    \item Le due categorie sono \textbf{mutuamente esclusive}:
+    \begin{itemize}
+        \item i segnali di energia hanno sempre potenza media nulla (es. tutti i segnali deterministici a durata finita);
+        \item i segnali di potenza hanno sempre energia infinita (es. segnali periodici, segnali a valor medio non nullo, segnali aleatori).
+    \end{itemize}
+    \item \textit{Esempio}: per $x(t)=A\,\Pi(t/T_0)$ (segnale di energia): $E_x = A^2T_0$, $P_x=0$. Per $x(t)=\cos t$ (segnale di potenza): $E_x=\infty$, $P_x = \dfrac{1}{2\pi}\displaystyle\int_{-\pi}^{\pi}\cos^2t\,dt = \dfrac12$.
+    \item Energia e potenza sono legate al contenuto informativo del segnale: per un segnale a valor medio nullo, la potenza media coincide con la varianza. Sono utili anche per confrontare segnali dal punto di vista della "forza" (es. rapporto segnale/rumore).
+\end{itemize}
+
+\subsubsection{Cross-correlazione e autocorrelazione}
+\begin{itemize}
+    \item La \textbf{cross-correlazione} misura quanto due segnali sono simili tra loro. Per segnali di energia:
+    $$\mathcal{R}_{xy}(\tau) = \int_{-\infty}^{+\infty} x(t)\,y(t+\tau)\,dt$$
+    Per segnali di potenza:
+    $$\mathcal{R}_{xy}(\tau) = \lim_{T\to\infty} \frac1T \int_{-T/2}^{T/2} x(t)\,y(t+\tau)\,dt$$
+    In entrambi i casi, $\mathcal{R}_{xy}(\tau)$ è un indice di somiglianza tra le due funzioni al variare di uno shift temporale reciproco. È utile per: ricercare un pattern noto in un segnale (\textit{template matching}), misurare il ritardo di un segnale rispetto a un altro (es. eco, sonar, radar), o verificare se due segnali appartengono alla stessa classe.
+    \item L'\textbf{autocorrelazione} è il caso particolare in cui si mette $x(t)$ in relazione con sé stesso (misura l'\textbf{autosomiglianza}). Per segnali di energia:
+    $$\mathcal{R}_x(\tau) = \int_{-\infty}^{+\infty} x(t)\,x(t+\tau)\,dt$$
+    Per segnali di potenza:
+    $$\mathcal{R}_x(\tau) = \lim_{T\to\infty} \frac1T \int_{-T/2}^{T/2} x(t)\,x(t+\tau)\,dt$$
+    \item $\mathcal{R}_x(\tau)$ assume sempre il suo valore massimo per $\tau=0$ (il segnale è identico a sé stesso). Per shift nullo:
+    \begin{itemize}
+        \item segnali di potenza: $\mathcal{R}_x(0) = \overline{x^2}$ (valore quadratico medio);
+        \item segnali di energia: $\mathcal{R}_x(0) = E_x$ (energia).
+    \end{itemize}
+    \item La velocità con cui l'autocorrelazione decresce rispetto al picco misura la \textbf{"memoria"} del segnale: quanto l'andamento futuro è prevedibile sulla base di quello passato (es. tra due texture con lo stesso aspetto medio, quella con autocorrelazione più "stretta" varia più rapidamente e imprevedibilmente, cioè ha meno memoria).
+\end{itemize}
+
+
+\section{Segnali analogici vs. sistemi}
+
+\subsection{Definizione di sistema}
+\begin{itemize}
+    \item Un sistema di elaborazione di segnali è costituito in genere da una \textbf{cascata di blocchi}, ognuno dei quali effettua una data trasformazione del segnale: ogni blocco riceve un segnale in ingresso, lo modifica in qualche modo e produce un segnale in uscita.
+    \item È utile studiare come il sistema modifica il segnale, per poter predire l'uscita di un dato sistema in funzione dell'ingresso e/o modellare, progettare o simulare un nuovo sistema che realizzi una data funzione.
+    \item \textbf{Definizione generale}: a partire dal segnale di ingresso $\bar x(\bar u)$, il sistema $\varphi(\cdot)$ produce un segnale di uscita
+    $$\bar y(\bar v) = \varphi(\bar x(\bar u))$$
+    L'uscita dipende dall'ingresso, dalle caratteristiche del sistema ed eventualmente dallo stato del sistema stesso. \textit{N.B.} il sistema può modificare sia il dominio sia la dimensionalità del segnale (es. un sistema può ricevere in ingresso un segnale vettoriale e restituire in uscita un segnale scalare).
+    \item \textbf{Caso particolare} (quello che considereremo all'inizio): segnali monodimensionali scalari, sistema che restituisce un segnale scalare senza variare il dominio (dominio temporale per comodità):
+    $$y(t) = f(x(t))$$
+    L'obiettivo è calcolare analiticamente $y(t)$ in funzione di $x(t)$ per un dato sistema.
+\end{itemize}
+
+\subsection{Sistemi lineari tempo-invarianti (LTI)}
+\begin{itemize}
+    \item Dato un sistema qualsiasi, la relazione tra $x(t)$ e $y(t)$ può essere molto complessa da studiare. Esiste però una classe di sistemi per cui questo è fattibile: i sistemi \textbf{lineari tempo-invarianti (LTI)}, che godono contemporaneamente di due proprietà: \textbf{linearità} e \textbf{tempo-invarianza}.
+\end{itemize}
+
+\subsubsection{Linearità}
+\begin{itemize}
+    \item Detta anche \textbf{principio di sovrapposizione degli effetti}. Analiticamente:
+    $$\left.\begin{aligned} f(x_1(t)) &= y_1(t) \\ f(x_2(t)) &= y_2(t)\end{aligned}\right\} \Rightarrow f(\alpha x_1(t) + \beta x_2(t)) = \alpha y_1(t) + \beta y_2(t) \qquad \forall\, x_1(t), x_2(t), \alpha, \beta$$
+    In pratica: mandando in ingresso la combinazione lineare di due segnali qualsiasi, il sistema restituisce la stessa combinazione lineare delle relative uscite (gli effetti dei due ingressi si sommano).
+    \item \textit{Esempio (sistema lineare)}: un \textbf{partitore di tensione},
+    $$v_{out}(t) = v_{in}(t)\cdot\frac{R_2}{R_1+R_2} = v_{in}(t)\cdot R_{eq}$$
+    Vale la sovrapposizione:
+    $$v_{out}(t) = (\alpha v_{in1}(t)+\beta v_{in2}(t))R_{eq} = \alpha v_{in1}(t)R_{eq}+\beta v_{in2}(t)R_{eq} = \alpha v_{out1}(t)+\beta v_{out2}(t)$$
+    Notare che la relazione istante per istante tra ingresso e uscita è di semplice \textbf{proporzionalità diretta} (qui data da $R_{eq}$): da qui il termine "sistema lineare".
+    \item \textit{Esempio (sistema non lineare)}: la relazione I/O di un amplificatore operazionale ideale non è una retta. Presi due segnali $v_{i1}(t), v_{i2}(t)$ le cui variazioni stanno nella zona attiva, le uscite corrispondenti sono i valori amplificati $v_{o1}(t)=\alpha v_{i1}(t)$, $v_{o2}(t)=\alpha v_{i2}(t)$; sommando i due segnali, però, le variazioni risultanti escono dalla zona attiva ed entrano in \textbf{saturazione}: la saturazione impedisce all'uscita di continuare a crescere, quindi
+    $$v_{osum}(t) \ne v_{o1}(t)+v_{o2}(t) = \alpha\big(v_{i1}(t)+v_{i2}(t)\big)$$
+\end{itemize}
+
+\subsubsection{Tempo-invarianza}
+\begin{itemize}
+    \item Un sistema non modifica la propria risposta al variare del ritardo del segnale in ingresso. Analiticamente:
+    $$f(x(t)) = y(t) \quad\Rightarrow\quad f(x(t-t_0)) = y(t-t_0)$$
+    In pratica: ritardando l'ingresso di una quantità $t_0$ qualsiasi, il sistema restituisce la stessa uscita ritardata dello stesso intervallo $t_0$.
+    \item \textit{Esempio}: il circuito resistivo visto sopra è idealmente tempo-invariante (il valore delle resistenze non cambia nel tempo, quindi la risposta trasla di pari passo con l'ingresso). Nella realtà la resistenza varia con la temperatura, $R(t)$: il circuito reale è quindi un sistema tempo-variante, almeno durante un transitorio.
+\end{itemize}
+
+\subsection{Risposta dei sistemi LTI: l'integrale di convoluzione}
+\begin{itemize}
+    \item Dato un sistema LTI, è possibile calcolare la risposta a un ingresso $x(t)$ qualsiasi a partire dalla sola conoscenza della risposta a una particolare funzione: l'\textbf{impulso unitario} $\delta(t)$. Questo risultato consente di caratterizzare completamente un sistema LTI. Si dimostra in 4 passi.
+\end{itemize}
+
+\begin{enumerate}
+    \item \textbf{Approssimazione di $x(t)$}: si approssima $x(t)$ con una serie di rettangoli di durata $\Delta T$ e area unitaria, moltiplicati per il valore di $x(t)$ all'inizio dell'intervallo:
+    $$x_R(t) = \sum_k x(k\Delta T)\cdot R(t-k\Delta T)\cdot \Delta T \approx x(t), \qquad R(t) = \frac{1}{\Delta T}\Pi\!\left(\frac{t-\Delta T/2}{\Delta T}\right)$$
+    \item \textbf{Risposta al rettangolo}: sia $h_R(t)$ la risposta del sistema a $R(t)$ (basta mettere in ingresso $R(t)$ e misurare l'uscita). Essendo il sistema LTI: la risposta a una somma pesata di $R(t)$ è la somma pesata (stessi pesi) delle uscite $h_R(t)$; la traslazione di $R(t)$ di $T$ produce la stessa traslazione dell'uscita, $h_R(t-T)$. Quindi la risposta a $x_R(t)$ è:
+    $$y_R(t) = \sum_k x(k\Delta T)\cdot h_R(t-k\Delta T)\cdot \Delta T \approx y(t)$$
+    \item \textbf{Limite per $\Delta T\to 0$}: $R(t)$ tende a una funzione di durata nulla e ampiezza infinita, ad area unitaria, cioè alla \textbf{delta di Dirac}: $\lim_{\Delta t\to 0} R(t) = \delta(t)$. La risposta al rettangolo $h_R(t)$ tende a sua volta alla \textbf{risposta all'impulso} $h(t)$. La sommatoria $x_R(t)$ diventa un integrale di infiniti impulsi pesati e traslati, coincidente con $x(t)$:
+    $$\lim_{\Delta t \to 0} x_R(t) = \int_{-\infty}^{+\infty} x(\tau)\,\delta(t-\tau)\,d\tau = x(t)$$
+    \item \textbf{Stessa cosa per l'uscita}: sovrapposizione degli effetti di infiniti impulsi pesati e traslati, cioè l'integrale delle corrispondenti risposte impulsive:
+    $$\lim_{\Delta t \to 0} y_R(t) = \int_{-\infty}^{+\infty} x(\tau)\,h(t-\tau)\,d\tau = y(t) = x(t) * h(t)$$
+\end{enumerate}
+
+\begin{itemize}
+    \item Questo integrale è l'\textbf{integrale di convoluzione}: rappresenta l'uscita esatta $y(t)$ di un sistema LTI in corrispondenza di un ingresso generico $x(t)$. L'operatore si indica con un asterisco e si legge "$x(t)$ convoluto $h(t)$". \textbf{Conoscere $h(t)$ è sufficiente per modellare completamente un sistema LTI.}
+    \item \textit{Esempio ("black box")}: di un sistema LTI incognito so solo che, immettendo $\delta(t)$, si misura in uscita $h(t)=\delta(t-T)$. Per un ingresso generico $x(t)$:
+    $$y(t) = x(t)*h(t) = \int_{-\infty}^{+\infty} x(\tau)h(t-\tau)\,d\tau = \int_{-\infty}^{+\infty} x(\tau)\,\delta(t-T-\tau)\,d\tau \triangleq x(t-T)$$
+    Si intuisce che il sistema nella black box è un \textbf{blocco di ritardo}.
+\end{itemize}
+
+\subsubsection{Interpretazione grafica della convoluzione}
+\begin{itemize}
+    \item Dati $u(t)$ e la risposta impulsiva $h(t)$, la convoluzione $y(t)=u(t)*h(t)$ si interpreta graficamente come sequenza di tre operazioni:
+    \begin{enumerate}
+        \item \textbf{Ribaltamento} di $h(t)$: $h(\alpha) \to h(-\alpha)$
+        \item \textbf{Scorrimento} di $h(t)$: $h(\alpha) \to h(t-\alpha)$, $t\in(-\infty,+\infty)$
+        \item \textbf{Moltiplicazione/integrazione}: $\displaystyle\int_{-\infty}^{+\infty} u(\alpha)\,h(t-\alpha)\,d\alpha$
+    \end{enumerate}
+\end{itemize}
+
+\subsubsection{Calcolo della convoluzione}
+\begin{itemize}
+    \item \textbf{Per via grafica} (segnali/sistemi con andamenti semplici): si ribalta uno dei due segnali (di solito il più semplice), lo si porta idealmente a $-\infty$, lo si fa scorrere in avanti moltiplicando i due segnali a ogni posizione e calcolandone l'area. L'operazione più delicata è l'ultima, ma per segnali semplici si possono identificare dei "punti chiave" (es. transizioni) e interpolare l'andamento tra ogni coppia di punti.
+    \item \textbf{Per via analitica}: risolvendo l'integrale direttamente. Non sempre è fattibile: la primitiva potrebbe non esistere (funzioni discontinue) o essere troppo complessa; il segnale potrebbe non avere un'espressione analitica (segnali aleatori). Può aiutare sfruttare le proprietà della convoluzione, in particolare la linearità. Nei casi più complessi si può ricorrere alla via numerica.
+\end{itemize}
+
+\subsection{Proprietà della convoluzione}
+\begin{itemize}
+    \item La convoluzione restituisce una funzione di durata \textbf{maggiore} di quella degli operandi: la durata del risultato è pari alla \textbf{somma delle durate} dei due segnali convoluti.
+    \item La convoluzione è un'operazione \textbf{lineare} (è un integrale): un segnale si può suddividere nella somma di segnali più semplici.
+    \item Gode delle proprietà commutativa, associativa e distributiva:
+    $$x(t) * y(t) = y(t) * x(t)$$
+    $$x(t) * \big(y(t) * z(t)\big) = \big(x(t) * y(t)\big) * z(t)$$
+    $$x(t) * \big(y(t) + z(t)\big) = x(t)*y(t) + x(t)*z(t)$$
+\end{itemize}
+
+\subsection{Convoluzioni notevoli}
+
+Alcuni casi particolari in cui la convoluzione è risolvibile facilmente; utili per scomporre segnali complicati in somme di segnali più semplici.
+
+\begin{itemize}
+    \item \textbf{\textcolor{orange!80!black}{Convoluzione con impulsi}}:
+    $$x(t) * \delta(t) = x(t)$$
+    Se la risposta impulsiva di un sistema è un impulso nell'origine, il sistema non fa nulla (\textbf{sistema passa-tutto}).
+    $$x(t) * \delta(t-T) = x(t-T)$$
+    Un sistema con risposta all'impulso pari a un impulso traslato agisce da \textbf{blocco di ritardo}.
+
+    \item \textbf{\textcolor{orange!80!black}{Rettangoli simmetrici di pari durata}}: $x_1(t)=A_1\Pi(t/T)$, $x_2(t)=A_2\Pi(t/T)$.
+    $$y(t) = \int_{-\infty}^{+\infty} x_1(\tau)\,x_2(t-\tau)\,d\tau$$
+    Per $t<-T$ e $t>T$ i rettangoli non si incontrano, $y(t)=0$. Il rettangolo che trasla agisce come finestra di integrazione mobile:
+    $$-T<t<0:\quad y(t)=\int_{-T/2}^{t+T/2} A_1A_2\,d\tau = A_1A_2(t+T)$$
+    $$0<t<T:\quad y(t)=\int_{t-T/2}^{T/2} A_1A_2\,d\tau = A_1A_2(T-t)$$
+    Combinando i pezzi si ottiene un \textbf{triangolo isoscele} centrato nell'origine, di durata $2T$ (coerente con la proprietà della durata):
+    $$x_1(t)*x_2(t) = A_1A_2T\left(1-\frac{|t|}{T}\right) \text{ in } [-T,+T] = A_1A_2T\,\Lambda\!\left(\frac{t}{2T}\right)$$
+
+    \item \textbf{\textcolor{orange!80!black}{Rettangoli simmetrici di diversa durata}} $T_1<T_2$: oltre a $y(t)=0$ per $|t|>(T_1+T_2)/2$, si hanno tre tratti:
+    $$-\frac{T_1+T_2}{2}<t<\frac{T_1-T_2}{2}:\quad y(t) = A_1A_2\left(t+\frac{T_1+T_2}{2}\right)$$
+    $$\frac{T_1-T_2}{2}<t<\frac{T_2-T_1}{2}:\quad y(t) = A_1A_2\,T_1$$
+    $$\frac{T_2-T_1}{2}<t<\frac{T_1+T_2}{2}:\quad y(t) = A_1A_2\left(\frac{T_1+T_2}{2}-t\right)$$
+    Si ottiene un \textbf{trapezio} simmetrico rispetto all'origine.
+
+    \item \textbf{\textcolor{orange!80!black}{Rettangoli non simmetrici}}: si estrapolano dai casi precedenti tramite le proprietà della convoluzione. Prendendo due rettangoli uguali ma traslati in avanti di $T/2$ (persa la simmetria), $x_1(t)=x_2(t)=A\Pi\!\left(\frac{t-T/2}{T}\right) = A\Pi(t/T)*\delta(t-T/2)$:
+    $$x_1(t)*x_1(t) = A\Pi(t/T)*A\Pi(t/T)*\delta(t-T/2)*\delta(t-T/2) = A^2T\,\Lambda\!\left(\frac{t}{2T}\right)*\delta(t-T) = A^2T\,\Lambda\!\left(\frac{t-T}{2T}\right)$$
+    La forma d'onda è la stessa, ma trasla della somma dei ritardi.
+
+    \item \textbf{\textcolor{orange!80!black}{Convoluzione tra gaussiane}}: date $x_1(t)$ e $x_2(t)$ con medie/varianze diverse,
+    $$x_1(t) = \frac{1}{\sqrt{2\pi\sigma_1^2}}e^{-\frac{(t-\mu_1)^2}{2\sigma_1^2}}, \qquad x_2(t) = \frac{1}{\sqrt{2\pi\sigma_2^2}}e^{-\frac{(t-\mu_2)^2}{2\sigma_2^2}}$$
+    si dimostra (calcoli non complessi ma lunghi) che:
+    $$y(t) = x_1(t)*x_2(t) = \frac{1}{\sqrt{2\pi(\sigma_1^2+\sigma_2^2)}}e^{-\frac{(t-(\mu_1+\mu_2))^2}{2(\sigma_1^2+\sigma_2^2)}}$$
+    Cioè: convolvendo due gaussiane si ottiene una nuova gaussiana con \textbf{media pari alla somma delle medie} e \textbf{varianza pari alla somma delle varianze} — coerente con le proprietà di traslazione e di durata viste sopra.
+\end{itemize}
+
+\subsection{Limiti dell'integrale di convoluzione}
+\begin{itemize}
+    \item L'impulso è una funzione generalizzata e non è realizzabile: in casi relativamente semplici si riesce comunque a ricavare la risposta impulsiva analiticamente dalle caratteristiche del sistema.
+    \item L'integrale di convoluzione può essere difficile o impossibile da risolvere in forma chiusa: risolvibile in casi particolari con metodi analitici o grafici; nei casi più complicati occorrono metodi numerici.
+\end{itemize}
+
+\subsection{Convoluzione e intelligenza artificiale}
+\begin{itemize}
+    \item La convoluzione è ampiamente usata nei sistemi di intelligenza artificiale. Nelle \textbf{reti neurali convoluzionali (CNN)}, usate nel riconoscimento di oggetti, i primi layer eseguono migliaia di convoluzioni con vari filtri generati casualmente.
+    \item Questo consente di estrarre dai dati le loro caratteristiche principali, che vengono poi analizzate negli strati successivi.
+\end{itemize}
+
+\subsection{Sistemi non LTI}
+\begin{itemize}
+    \item Se il sistema non è LTI, si può comunque ricavare la risposta all'impulso e calcolare l'integrale di convoluzione, ma \textbf{non è garantito} che il risultato coincida con la risposta reale del sistema (per il risultato visto servono \emph{entrambe} le proprietà dei sistemi LTI).
+    \item In questo caso il sistema si può modellare solo tramite la \textbf{relazione ingresso-uscita}.
+\end{itemize}
+
+\subsection{Relazione ingresso-uscita}
+\begin{itemize}
+    \item Determina l'uscita di un sistema per un dato ingresso in un certo istante: \textbf{non} è una funzione del tempo, è una relazione \textbf{istantanea}.
+\end{itemize}
+
+\subsubsection{Sistemi memoryless}
+\begin{itemize}
+    \item \textbf{Attenzione}: la relazione ingresso-uscita dà informazioni utili solo per i sistemi \textbf{"senza memoria" (memoryless)}: quelli la cui uscita dipende solo dal valore dell'ingresso nello stesso istante.
+    \item Nei sistemi \textbf{con memoria}, invece, l'uscita dipende anche dai valori precedenti (es. un circuito capacitivo: la carica accumulata dai condensatori modifica il comportamento del sistema durante il transitorio).
+    \item La relazione ingresso-uscita dà quindi informazioni utili: sempre nei sistemi memoryless; solo a regime, con ingresso costante (DC), nei sistemi con memoria.
+\end{itemize}
+
+\subsection{Causalità dei sistemi}
+\begin{itemize}
+    \item Un sistema è \textbf{causale} in base alla risposta impulsiva:
+    $$h(t) = 0 \qquad \forall\, t<0$$
+    \item In pratica: un sistema causale non può anticipare la risposta rispetto all'ingresso. \textit{N.B.} tutti i sistemi reali sono causali, ma si incontreranno anche casi "ideali" in cui questa proprietà non è rispettata.
+\end{itemize}
+
+
+\section{Rappresentazione in frequenza}
+
+\subsection{Concetto di frequenza nei segnali}
+\begin{itemize}
+    \item In fisica il concetto di \textbf{frequenza} è tipicamente associato a eventi periodici (es. le oscillazioni di un pendolo). Nei segnali il concetto è più ampio: si vuole definire il \textbf{contenuto frequenziale} anche di un segnale non periodico.
+    \item Le \textbf{alte frequenze} sono associate a segnali che:
+    \begin{itemize}
+        \item presentano variazioni più intense per unità di tempo (simile alla periodicità);
+        \item presentano variazioni più \textbf{brusche} (meno intuitivo).
+    \end{itemize}
+    \item \textit{Esempi}:
+    \begin{itemize}
+        \item il contenuto in frequenza di un segnale audio è maggiore nei suoni \textbf{acuti} rispetto a quelli \textbf{gravi} (es. il piatto di una batteria oscilla molto più velocemente di un violoncello);
+        \item il contenuto in frequenza di un'immagine è maggiore in presenza di \textbf{contorni ad alto contrasto}: una variazione repentina della luminosità genera frequenze più elevate di una sfumatura graduale.
+    \end{itemize}
+    \item Questa definizione è però solo \textbf{qualitativa}: serve un metodo per calcolare in modo quantitativo il contenuto frequenziale di un segnale.
+\end{itemize}
+
+\subsection{Serie di Fourier}
+
+\subsubsection{Definizione}
+\begin{itemize}
+    \item Poiché il concetto di frequenza è perfettamente noto per una sinusoide, sarebbe utile poter rappresentare un segnale qualsiasi in termini di sinusoidi. Il matematico francese \textbf{Jean-Baptiste Joseph Fourier} (1768--1830) definì un metodo che consente di fare esattamente questo.
+    \item Si parte da un caso particolare: i \textbf{segnali periodici} (le sinusoidi ne sono un caso particolare e semplice). Fourier dimostrò nel 1807 che \textbf{qualsiasi segnale periodico può essere decomposto in una sommatoria infinita di seni e coseni}.
+    \item Un segnale periodico di periodo $T_0$ può essere sviluppato mediante la \textbf{serie di Fourier}:
+    $$x(t) = a_0 + \sum_{k=1}^{\infty} a_k\cos\!\left(\frac{2\pi kt}{T_0}+\vartheta_k\right)$$
+    \begin{itemize}
+        \item le oscillazioni della serie hanno frequenza multipla della \textbf{frequenza fondamentale} $f_0=1/T_0$;
+        \item il termine $k$-esimo è detto \textbf{armonica} di ordine $k$;
+        \item il termine $a_0$ (a frequenza nulla) è detto \textbf{componente continua};
+        \item i coefficienti $a_k$ sono le \textbf{ampiezze}, i coefficienti $\vartheta_k$ gli \textbf{sfasamenti} dei vari termini sinusoidali — sono l'unica cosa da calcolare per definire completamente la serie, dato che le frequenze sono già note (multipli di $f_0$).
+    \end{itemize}
+    \item \textit{Esempio}: sommando le prime 4 armoniche (1\textsuperscript{a}, 3\textsuperscript{a}, 5\textsuperscript{a}, 7\textsuperscript{a}, con opportune ampiezze e fasi) si ottiene già una ricostruzione approssimata di un'onda quadra; aggiungendo armoniche la ricostruzione converge progressivamente al segnale originale.
+\end{itemize}
+
+\subsubsection{Condizioni di esistenza}
+\begin{itemize}
+    \item La serie può essere applicata solo se il segnale è \textbf{continuo e sommabile sul periodo}: $x(t)$ deve essere integrabile in $(0,T_0)$ con integrale finito.
+    \item La funzione può anche contenere discontinuità, purché nei punti di discontinuità possieda derivate da sinistra e da destra.
+    \item Queste condizioni sono tipicamente soddisfatte dai segnali reali con cui si ha a che fare in pratica, quindi si danno per verificate.
+\end{itemize}
+
+\subsubsection{Due considerazioni importanti}
+\begin{itemize}
+    \item Un segnale periodico qualsiasi (anche un'onda quadra) può essere ottenuto sommando \textbf{infinite sinusoidi}, con opportune ampiezze e sfasamenti.
+    \item Tali sinusoidi non hanno frequenze qualsiasi, ma solo i \textbf{multipli della frequenza fondamentale}.
+    \item[] \textit{N.B.} il primo punto non era affatto scontato: matematici dell'epoca come Legendre, Poisson e Lagrange rifiutarono per anni la teoria di Fourier, ritenendo impossibile ricostruire un segnale discontinuo a partire dalla somma di segnali continui.
+\end{itemize}
+
+\subsubsection{Forma esponenziale e calcolo dei coefficienti}
+\begin{itemize}
+    \item Il calcolo dei coefficienti è più agevole rappresentandoli nel \textbf{dominio complesso} (diventano numeri complessi di cui $a_k$ e $\vartheta_k$ sono modulo e fase). Per la formula di Eulero:
+    $$\cos(2\pi kf_0t+\vartheta_k) = \frac{e^{j(2\pi kf_0t+\vartheta_k)}+e^{-j(2\pi kf_0t+\vartheta_k)}}{2}$$
+    \item Sostituendo nella serie:
+    \begin{align*}
+        x(t) &= a_0 + \sum_{k=1}^{\infty} a_k\cos(2\pi kf_0t+\vartheta_k) \\
+        &= a_0 + \sum_{k=1}^{\infty} a_k\,\frac{e^{j(2\pi kf_0t+\vartheta_k)}+e^{-j(2\pi kf_0t+\vartheta_k)}}{2} \\
+        &= a_0 + \sum_{k=1}^{\infty} \frac{a_k}{2}e^{j\vartheta_k}\,e^{j2\pi kf_0t} + \sum_{k=1}^{\infty} \frac{a_k}{2}e^{-j\vartheta_k}\,e^{-j2\pi kf_0t} \\
+        &= a_0 + \sum_{k=1}^{\infty} \frac{a_k}{2}e^{j\vartheta_k}\,e^{j2\pi kf_0t} + \sum_{k=-\infty}^{-1} \frac{a_{-k}}{2}e^{-j\vartheta_{-k}}\,e^{j2\pi kf_0t}
+    \end{align*}
+    \item Riscrivendo in forma compatta si ottiene la \textbf{serie di Fourier in forma esponenziale}:
+    $$x(t) = \sum_{n=-\infty}^{+\infty} X_n\,e^{j2\pi nf_0t}$$
+    dove
+    $$X_n = \begin{cases} \dfrac{a_n}{2}e^{j\vartheta_n} & n>0 \\[4pt] \dfrac{a_{-n}}{2}e^{-j\vartheta_{-n}} & n<0 \\[4pt] a_0 & n=0\end{cases}$$
+    I coefficienti $X_n$ sono i \textbf{coefficienti complessi} della serie di Fourier; si noti che $X_{-n}=\bar{X}_n$ (complesso coniugato).
+    \item Si dimostra che il coefficiente $n$-esimo è dato dall'espressione integrale (\textbf{coefficienti della serie}):
+    $$X_n = \frac{1}{T_0}\int_{-T_0/2}^{T_0/2} x(t)\,e^{-j2\pi nf_0t}\,dt$$
+    \begin{itemize}
+        \item equivale alla \textbf{cross-correlazione} tra $x(t)$ e la sinusoide complessa (fasore) $e^{-j2\pi nf_0t}$, calcolata nell'origine (N.B. sono segnali di potenza);
+        \item nel caso particolare $n=0$ si ottiene la definizione del \textbf{valor medio} di $x(t)$.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Interpretazione intuitiva}
+\begin{itemize}
+    \item $X_n$ dice \textbf{quanto} l'armonica $n$-esima (sinusoide a frequenza $nf_0$) è presente in $x(t)$: si calcola tramite la cross-correlazione tra $x(t)$ e l'armonica stessa. Se $x(t)$ non contiene quella frequenza, il coefficiente è nullo; altrimenti il coefficiente complesso fornisce modulo e fase dell'armonica corrispondente. Il calcolo dei coefficienti è quindi un'operazione di \textbf{analisi in frequenza}.
+    \item La serie stessa si può vedere come la somma pesata di infinite componenti armoniche (ampiezze/sfasamenti dati dai coefficienti); le frequenze non armoniche sono assenti dal segnale. Conoscere i coefficienti basta a ricostruire perfettamente il segnale (è una rappresentazione alternativa dello stesso). Il calcolo della serie è quindi un'operazione di \textbf{sintesi nel tempo}.
+    \item[] \textbf{Frequenze negative}: il calcolo nel dominio complesso fa comparire frequenze negative, che fisicamente non hanno senso. È un'anomalia solo del modello matematico: le componenti a frequenza negativa non esistono nel segnale, esistono solo (e sono necessarie) nella rappresentazione \textbf{bilatera} dello spettro di Fourier.
+\end{itemize}
+
+\subsubsection{Spettro del segnale periodico}
+\begin{itemize}
+    \item La rappresentazione dei coefficienti nel dominio delle frequenze (armoniche) si chiama \textbf{spettro}. In realtà si hanno 2 spettri: \textbf{spettro d'ampiezza} e \textbf{spettro di fase} (modulo e angolo dei coefficienti complessi $X_n$).
+    \item Lo spettro si visualizza come un grafico \textbf{a righe} (una riga per armonica) e dà un'idea immediata del contenuto in frequenza. Il numero di righe è teoricamente infinito, ma le ampiezze tendono normalmente a decrescere, diventando trascurabili da una certa armonica in poi.
+\end{itemize}
+
+\subsection{Proprietà della serie di Fourier}
+\begin{itemize}
+    \item \textbf{Simmetria Hermitiana}: i coefficienti $X_n$ godono di
+    $$X_n = \bar X_n \;\Longleftrightarrow\; \begin{cases} X_n = X_{-n} \\ \arg(X_n) = -\arg(X_{-n})\end{cases}$$
+    Ci si può quindi limitare a calcolare e rappresentare la parte positiva dello spettro: quella negativa si ricava per simmetria.
+    \item \textbf{Linearità}: dati $x(t)$ e $y(t)$ periodici (stesso periodo),
+    $$z(t) = \alpha x(t) + \beta y(t) \;\Longrightarrow\; Z_k = \alpha X_k + \beta Y_k$$
+    \item \textbf{Simmetrie del segnale}:
+    \begin{itemize}
+        \item se $x(t)$ è periodico \textbf{pari}, i coefficienti $X_n$ sono \textbf{reali} (serie di soli coseni):
+        $$X_k = \frac{2}{T_0}\int_0^{T_0/2} x(t)\cos(2\pi kf_0t)\,dt$$
+        \item se $x(t)$ è periodico \textbf{dispari}, i coefficienti $X_n$ sono \textbf{immaginari puri} (serie di soli seni), e in particolare $X_0=0$ (il valor medio di un segnale dispari è nullo):
+        $$X_k = -\frac{2j}{T_0}\int_0^{T_0/2} x(t)\sin(2\pi kf_0t)\,dt$$
+        \item[] \textit{N.B.} date le simmetrie, in entrambi i casi l'integrale si può calcolare su mezzo periodo.
+    \end{itemize}
+    \item \textbf{Segnali alternati}: un segnale periodico di periodo $T$ è \textbf{alternato} se è antisimmetrico sul periodo,
+    $$x(t) = -x\!\left(t+\frac{T}{2}\right)$$
+    Non è detto che sia dispari, ma è chiaramente a \textbf{valor medio nullo}. Si dimostra che la serie di Fourier di un segnale alternato ha \textbf{solo coefficienti di indice dispari} (i coefficienti pari sono nulli).
+\end{itemize}
+
+\subsection{Esempi di calcolo dello spettro}
+
+\subsubsection{Onda quadra}
+\begin{itemize}
+    \item Segnale deterministico che vale alternativamente $+V_0$ e $-V_0$ con periodo $T_0$. È \textbf{dispari} (coefficienti immaginari puri) ed è \textbf{alternato} (solo termini dispari).
+    \item Calcolo:
+    \begin{align*}
+        X_k &= -\frac{2j}{T_0}\int_0^{T_0/2} V_0\sin(2\pi kf_0t)\,dt = j\,\frac{2V_0}{2\pi kf_0T_0}\cos(2\pi kf_0t)\Big|_0^{T_0/2} \\
+        &= \frac{jV_0}{\pi k}\big(\cos(\pi k)-1\big) = \frac{jV_0}{\pi k}\big((-1)^k-1\big) = \begin{cases} 0 & k \text{ pari} \\[4pt] -\dfrac{2jV_0}{\pi k} & k \text{ dispari}\end{cases}
+    \end{align*}
+    \item \textbf{Spettro d'ampiezza}: $|X_k| = \dfrac{2V_0}{\pi k}$ per $k$ dispari (nullo per $k$ pari), con inviluppo decrescente come $1/k$.
+    \item \textbf{Spettro di fase}: $\arg(X_k) = -\dfrac{\pi}{2}\,\text{sgn}(k)$.
+    \item Sommando incrementalmente le armoniche, la serie converge progressivamente all'onda quadra.
+\end{itemize}
+
+\textbf{Osservazioni}: un'onda quadra a frequenza $f_0$ contiene armoniche a frequenza ben più alta di $f_0$ (teoricamente illimitate), perché presenta transizioni molto ripide (a gradino) — qui non è l'intensità delle oscillazioni a essere maggiore, ma il fatto che le variazioni sono più brusche. L'inviluppo delle righe non dipende da $f_0$, ma i valori vengono comunque "distribuiti" sui multipli di $f_0$: uno spettro a frequenza base maggiore risulta quindi più esteso (qui aumenta proprio l'intensità delle oscillazioni).
+
+\subsubsection{Onda quadra con ritorno a zero}
+\begin{itemize}
+    \item Onda quadra che vale alternativamente $V_0$ e $0$, in cui la durata dell'impulso è $\tau<T_0$. Il rapporto $\tau/T_0$ si chiama \textbf{duty cycle}.
+    \item È a \textbf{simmetria pari} (coefficienti reali):
+    \begin{align*}
+        X_k &= \frac{2}{T_0}\int_0^{\tau/2} V_0\cos(2\pi kf_0t)\,dt = \frac{2V_0}{T_0}\cdot\frac{\sin(2\pi kf_0t)}{2\pi kf_0}\Big|_0^{\tau/2} \\
+        &= \frac{V_0\tau}{T_0}\cdot\frac{\sin(\pi kf_0\tau)}{\pi kf_0\tau} = \frac{V_0\tau}{T_0}\,\text{sinc}(kf_0\tau)
+    \end{align*}
+    (si moltiplica sopra e sotto per $\tau$ in modo da ottenere un segnale sinc).
+    \item \textit{Esempio}: con $\tau=T_0/3$ (duty cycle $0.33$), l'ampiezza delle armoniche segue l'andamento di una sinc campionata a frequenza $f_0$, che si annulla ogni 3 armoniche:
+    $$\sin\!\left(\frac{k\pi f_0T_0}{3}\right)=0 \;\Rightarrow\; \frac{k\pi}{3}=n\pi \;\Rightarrow\; k=3n$$
+    \item \textbf{Osservazioni}: qui l'inviluppo dipende dal duty cycle $\tau/T_0$. A parità di $T_0$, un duty cycle minore dà uno spettro più ampio (il rettangolo è più "stretto", quindi variazioni più intense) — comanda la durata del rettangolo; se però il duty cycle è $>50\%$, comanda la durata della semionda nulla (che diventa la più breve, e quindi la variazione più intensa). $T_0$ continua comunque a determinare la distanza tra le righe, cioè le frequenze in gioco.
+\end{itemize}
+
+\subsubsection{Onda triangolare}
+\begin{itemize}
+    \item Segnale periodico la cui forma d'onda è un triangolo isoscele di durata $T_0$ (coincidente col periodo). È a \textbf{simmetria pari} (coefficienti reali, serie di soli coseni) ed è \textbf{alternato a meno di una costante additiva} (solo coefficienti dispari + componente continua).
+    \item Con $x(t) = V_0\!\left(1-\dfrac{2t}{T_0}\right)$ su $[0,T_0/2]$:
+    \begin{align*}
+        X_k &= \frac{2}{T_0}\int_0^{T_0/2} V_0\!\left(1-\frac{2t}{T_0}\right)\cos(2\pi kf_0t)\,dt \\
+        &= \frac{2V_0}{T_0}\int_0^{T_0/2}\cos(2\pi kf_0t)\,dt - \frac{4V_0}{T_0^2}\int_0^{T_0/2} t\cos(2\pi kf_0t)\,dt
+    \end{align*}
+    Il primo integrale è sempre nullo (a numeratore compare un termine $\sin(2k\pi)$); il secondo si risolve per parti:
+    \begin{align*}
+        &= -\frac{4V_0}{T_0^2}\left[\frac{t}{2\pi kf_0}\sin(2\pi kf_0t)\Big|_0^{T_0/2} - \frac{1}{2\pi kf_0}\int_0^{T_0/2}\sin(2\pi kf_0t)\,dt\right]
+    \end{align*}
+    Il primo termine è di nuovo nullo; il secondo, usando $\sin^2x = \dfrac{1-\cos(2x)}{2}$:
+    \begin{align*}
+        &= \frac{4V_0}{T_0^2(2\pi kf_0)^2}\big[1-\cos(\pi k)\big] = \frac{2V_0}{(\pi k)^2}\sin^2\!\left(\frac{\pi k}{2}\right) = \frac{V_0}{2}\cdot\frac{\sin^2(\pi k/2)}{(\pi k/2)^2} = \frac{V_0}{2}\,\text{sinc}^2\!\left(\frac{k}{2}\right)
+    \end{align*}
+    \item \textbf{Osservazioni}: le armoniche pari sono nulle (segnale alternato) e dopo la terza armonica l'ampiezza è già trascurabile. Sommando incrementalmente le armoniche la serie converge al segnale, ma più rapidamente che per l'onda quadra (bastano poche armoniche). A parità di $T_0$, l'inviluppo scende molto più rapidamente che per l'onda quadra (come una $\text{sinc}^2$ anziché una sinc), perché l'onda triangolare ha variazioni più lente, senza discontinuità a gradino, quindi contiene meno alte frequenze: transizioni meno ripide $\to$ frequenze minori.
+\end{itemize}
+
+\subsubsection{Considerazioni generali}
+\begin{itemize}
+    \item I segnali con variazioni più brusche (es. a gradino) hanno spettri più ampi, quindi un contenuto frequenziale maggiore — come previsto qualitativamente all'inizio.
+    \item Anche la frequenza base condiziona lo spettro: periodi minori implicano frequenze più alte.
+    \item Se il segnale presenta discontinuità, lo spettro contiene teoricamente infinite armoniche; in pratica l'inviluppo tende a zero da una certa frequenza in poi (dipendente dalle caratteristiche del segnale), rendendo trascurabili le armoniche successive.
+    \item Nel gergo delle telecomunicazioni, l'estensione dello spettro si chiama \textbf{banda}: i segnali a \textbf{banda larga} hanno un contenuto significativo alle alte frequenze, quelli a \textbf{banda stretta} contengono frequenze più limitate.
+    \item[] \textbf{Il concetto di "larga banda"}: i segnali digitali si trasmettono tramite sequenze di forme d'onda associate ai bit (es. rettangolo positivo per il bit `1', negativo per `0'). Per inviare $N$ bit al secondo si dispone di $1/N$ s per bit: all'aumentare di $N$ (bitrate) la durata del rettangolo diminuisce e la frequenza aumenta. Le reti a larga banda odierne trasferiscono vari Gbit/s, quindi il tempo per bit scende a frazioni di nanosecondo.
+    \item[] \textit{Esempio pratico}: applicando l'analisi in frequenza a un segnale musicale se ne comprende il contenuto armonico — i suoni musicali non sono singoli toni sinusoidali, ma combinazioni di armoniche.
+\end{itemize}
+
+\subsection{Il fenomeno di Gibbs}
+\begin{itemize}
+    \item Cosa succede troncando la serie a un termine finito? Le componenti armoniche formano progressivamente $x(t)$; se ci si ferma al termine $k$-esimo, la forma d'onda ricostruita risulta \textbf{deformata}.
+    \item Fenomeno osservato dal fisico statunitense W. Gibbs nel 1899 (da cui il nome): il segnale ricostruito oscilla intorno ai punti di discontinuità (\textbf{ripple}) e presenta sovraelongazioni di ampiezza (\textbf{overshoot}) — es. se il picco vero è 5 V, si osservano tensioni superiori a 5 V.
+    \item \textit{Esempio}: ricostruendo un'onda quadra con un numero crescente di armoniche si osservano ripple e overshoot; all'aumentare delle armoniche i picchi si riducono e si avvicinano al punto di transizione (ma non scompaiono mai del tutto).
+\end{itemize}
+
+\subsection{Potenza nel dominio della serie: teorema di Parseval}
+\begin{itemize}
+    \item I segnali periodici sono segnali di \textbf{potenza} (potenza media non nulla, energia infinita); la potenza era definita come integrale sul periodo del segnale al quadrato, normalizzato rispetto al tempo. Il \textbf{teorema di Parseval} permette di calcolarla anche nel dominio della serie di Fourier.
+    \item Partendo dalla definizione e sostituendo $x(t)$ con la sua rappresentazione di Fourier:
+    \begin{align*}
+        P_x &= \frac{1}{T}\int_0^{T} x^2(t)\,dt = \frac{1}{T}\int_0^{T}\left(\sum_{n=-\infty}^{+\infty} X_n\,e^{j2\pi nf_0t}\right)\left(\sum_{k=-\infty}^{+\infty} X_k\,e^{j2\pi kf_0t}\right) dt
+    \end{align*}
+    L'integrale si applica solo alle funzioni esponenziali, quindi si può portare dentro le sommatorie:
+    $$P_x = \sum_{n=-\infty}^{+\infty}\sum_{k=-\infty}^{+\infty} X_nX_k \int_0^{T} e^{j2\pi(n+k)f_0t}\,dt$$
+    \item Si osserva che
+    $$\int_0^{T} e^{j2\pi(n+k)f_0t}\,dt = \begin{cases} T & \text{se } n+k=0 \\ 0 & \text{altrimenti}\end{cases}$$
+    (se $n+k\ne0$ si integra sul periodo un segnale sinusoidale a frequenza multipla della fondamentale $\to 0$). Rimane quindi, con $k=-n$:
+    $$P_x = \frac{1}{T}\sum_{n=-\infty}^{+\infty}\sum_{k=-\infty}^{+\infty} X_nX_{-n}\,T = \sum_{n=-\infty}^{+\infty} |X_n|^2 \qquad \textbf{\textcolor{orange!80!black}{TEOREMA DI PARSEVAL}}$$
+    \item Il teorema di Parseval afferma che la \textbf{potenza media del segnale è pari alla somma delle potenze delle singole armoniche}.
+    \item[] \textit{N.B.} per la potenza conta solo il modulo dei coefficienti, e occorre includere nel calcolo anche le frequenze negative.
+\end{itemize}
+
+\section{Dalla serie alla trasformata di Fourier}
+
+\subsection{Dalla serie di Fourier alla trasformata di Fourier}
+\begin{itemize}
+    \item Il limite della serie di Fourier è che si applica \textbf{solo a segnali periodici}. Cosa succede se un segnale non è periodico? È sempre possibile analizzarne il contenuto in termini di componenti frequenziali? Fourier stesso diede la risposta, proponendo la \textbf{trasformata} che da lui prende il nome.
+    \item Si arriva al risultato partendo dalla serie definita nelle lezioni precedenti. \textit{N.B.} il risultato è ancora più sorprendente: si potrà definire un segnale a \textbf{durata finita} come combinazione lineare di segnali \textbf{periodici di durata infinita}.
+\end{itemize}
+
+\textbf{De-periodizzazione}
+\begin{itemize}
+    \item Si prende un'onda quadra con ritorno a zero di ampiezza unitaria, di cui si è già calcolata la serie di Fourier:
+    $$x(t)=\sum_{k=-\infty}^{+\infty}\Pi\!\left(\frac{t-kT_0}{\tau}\right), \qquad X_k=\frac{\tau}{T_0}\,\text{sinc}(kf_0\tau)$$
+    \item È possibile \textbf{de-periodizzare} il segnale? Facendo tendere $T_0\to\infty$ le prime repliche (positiva e negativa) si spostano a $\pm\infty$, lasciando solo il rettangolo base nell'origine: $x(t)\approx\Pi(t/\tau)$.
+    \item Generalizzando a un qualsiasi segnale periodico: sia $w(t)$ la funzione che rappresenta il segnale in un \textbf{singolo periodo}; allora
+    $$x(t)=\sum_{k=-\infty}^{+\infty}w(t-kT_0)=w(t)*\sum_{k=-\infty}^{+\infty}\delta(t-kT_0)$$
+    e al limite per $T_0\to\infty$ il segnale de-periodizzato coincide con $w(t)$: $\displaystyle\lim_{T_0\to\infty}x(t)=w(t)$.
+\end{itemize}
+
+\textbf{Cosa avviene alla serie}
+\begin{itemize}
+    \item All'allontanarsi delle repliche (al crescere di $T_0$) le \textbf{righe dello spettro diventano sempre più fitte}: le armoniche sono i multipli di $f_0=1/T_0$.
+    \item Al contempo l'\textbf{ampiezza dei coefficienti si riduce} per tutte le armoniche all'aumentare del periodo (c'è un fattore moltiplicativo $1/T_0$).
+    \item Intuitivamente lo spettro tende a diventare una \textbf{funzione continua}, ma l'ampiezza tende a zero. Per evitare il problema si definisce un \textbf{coefficiente di Fourier modificato} (si integra sul periodo, quindi $x(t)=w(t)$):
+    $$X(kf_0)\triangleq T_0X_k=\int_{-T_0/2}^{T_0/2}w(t)\,e^{-j2\pi kf_0t}\,dt$$
+    e la relativa \textbf{serie di Fourier modificata}:
+    $$x(t)=\sum_{k=-\infty}^{+\infty}X(kf_0)\,e^{j2\pi kf_0t}\,f_0$$
+    Tutto torna: $X(kf_0)f_0=T_0X_kf_0=X_k$, quindi si ha la serie di Fourier di $x(t)$.
+\end{itemize}
+
+\textbf{Passaggio al limite}
+\begin{itemize}
+    \item Per $T_0\to\infty$ (cioè $f_0\to0$):
+    $$\lim_{T_0\to\infty}x(t)=w(t)=\lim_{f_0\to0}\sum_{k=-\infty}^{+\infty}X(kf_0)\,e^{j2\pi kf_0t}\,f_0$$
+    La sommatoria tende a un \textbf{integrale}: $kf_0$ tende alla variabile continua $f$, mentre $f_0$ diventa un infinitesimo $df$. Si ottiene la rappresentazione di Fourier di un segnale aperiodico (\textbf{anti-trasformata di Fourier}):
+    $$w(t)=\int_{-\infty}^{+\infty}X(f)\,e^{j2\pi ft}\,df$$
+    \item Per capire cosa sia $X(f)$ si applica lo stesso limite alla definizione del coefficiente modificato:
+    \begin{align*}
+        X(f)&=\lim_{\substack{f_0\to0\\T_0\to\infty}}X(kf_0)=\lim_{\substack{f_0\to0\\T_0\to\infty}}\int_{-T_0/2}^{T_0/2}w(t)\,e^{-j2\pi kf_0t}\,dt\\
+        &=\int_{-\infty}^{+\infty}w(t)\,e^{-j2\pi ft}\,dt
+    \end{align*}
+    che è la \textbf{trasformata di Fourier}. Si sono così ottenute le relazioni diretta e inversa per segnali aperiodici.
+\end{itemize}
+
+\subsection{La trasformata di Fourier}
+
+\subsubsection{Definizione}
+\begin{itemize}
+    \item \textcolor{orange!80!black}{\textbf{Trasformata diretta}} (FT, rappresentazione in frequenza):
+    $$X(f)=\int_{-\infty}^{+\infty}x(t)\,e^{-j2\pi ft}\,dt$$
+    \item \textcolor{orange!80!black}{\textbf{Trasformata inversa}} (IFT, ricostruzione nel tempo):
+    $$x(t)=\int_{-\infty}^{+\infty}X(f)\,e^{j2\pi ft}\,df$$
+    \item \textit{N.B.} mentre la serie di Fourier è una funzione del \textbf{tempo}, la trasformata di Fourier è funzione della \textbf{frequenza} (la serie è analoga all'anti-trasformata).
+\end{itemize}
+
+\subsubsection{Interpretazione}
+\begin{itemize}
+    \item L'esponenziale complesso coincide con una somma di seni e coseni (Eulero).
+    \item La trasformata diretta è quindi un'operazione di \textbf{analisi in frequenza}: come nella serie si proietta il segnale sulle varie sinusoidi, che qui possono assumere \textbf{frequenze qualsiasi} e non solo le armoniche (che non esistono in un segnale aperiodico).
+    \item La trasformata inversa è invece un'operazione di \textbf{sintesi nel tempo}: come nella serie si sovrappongono i contributi sinusoidali per ricostruire il segnale, ma qui le sinusoidi hanno frequenze che variano in modo \textbf{continuo}.
+\end{itemize}
+
+\subsubsection{Spettro in frequenza}
+\begin{itemize}
+    \item $X(f)$ è lo \textbf{spettro} (complesso) del segnale $x(t)$; come nella serie è costituito da un \textbf{modulo} e una \textbf{fase}. A differenza della serie, $X(f)$ è una \textbf{funzione continua} in $f$.
+    \item $x(t)$ e $X(f)$ costituiscono una \textbf{coppia di Fourier}: $x(t)\longleftrightarrow X(f)$. Si passa da una rappresentazione all'altra con FT e IFT, ma l'\textbf{informazione contenuta è identica}.
+\end{itemize}
+
+\subsection{Trasformate notevoli}
+\begin{itemize}
+    \item Calcolare l'integrale di Fourier in forma chiusa può essere talvolta difficile o impossibile: in molti casi si ricorre al \textbf{calcolo numerico} (visto più avanti); esistono anche apparati hardware per estrarre lo spettro di un segnale (\textbf{analizzatori di spettro}).
+    \item Nei casi più semplici si può calcolare a mano. Può aiutare conoscere alcune trasformate \textbf{notevoli}, combinabili tra loro sfruttando le proprietà della trasformata.
+\end{itemize}
+
+\subsubsection{Rettangolo}
+\begin{itemize}
+    \item Il rettangolo è una funzione molto comune nell'analisi dei segnali e il suo integrale di Fourier è facile da calcolare:
+    $$x(t)=V_0\,\Pi\!\left(\frac tT\right)\ \longrightarrow\ X(f)=V_0T\,\text{sinc}(fT)$$
+    \item Calcolo (si usa la formula di Eulero):
+    \begin{align*}
+        X(f)&=\int_{-T/2}^{T/2}V_0\,e^{-j2\pi ft}\,dt=\frac{V_0}{j2\pi f}\left[e^{j\pi fT}-e^{-j\pi fT}\right]\\
+        &=V_0T\,\frac{e^{j\pi fT}-e^{-j\pi fT}}{2j\,\pi fT}=V_0T\,\frac{\sin(\pi fT)}{\pi fT}=V_0T\,\text{sinc}(fT)
+    \end{align*}
+    \item Lo spettro d'ampiezza al variare della durata $T$ del rettangolo: \textbf{all'aumentare di $T$ lo spettro si comprime} (durata maggiore nel tempo implica frequenze più basse).
+\end{itemize}
+
+\subsubsection{Costante}
+\begin{itemize}
+    \item Si ottiene dal rettangolo portando $T$ all'infinito:
+    $$\lim_{T\to+\infty}V_0\,\Pi\!\left(\frac tT\right)\equiv V_0\ \longrightarrow\ \lim_{T\to+\infty}V_0T\,\text{sinc}(fT)=V_0\,\delta(f)$$
+    Infatti $\int_{-\infty}^{+\infty}T\,\text{sinc}(fT)\,df=1$ per ogni $T$ (è un modo alternativo per definire l'impulso come limite).
+    \item La trasformata di una costante nel tempo è una \textbf{delta di Dirac con area pari al valore della costante}: il segnale costante non ha alcuna frequenza, quindi il suo spettro coincide con la sola componente continua. È un esempio evidente della \textbf{reciprocità} dei due domini.
+\end{itemize}
+
+\subsubsection{Esponenziale causale}
+\begin{itemize}
+    \item L'esponenziale causale è la risposta di un circuito RC, usato per realizzare molti filtri. Con $\alpha>0$:
+    \begin{align*}
+        \mathcal{F}\{e^{-\alpha t}\cdot1(t)\}&=\int_0^{+\infty}e^{-\alpha t}\,e^{-j2\pi ft}\,dt=\int_0^{+\infty}e^{-(\alpha+j2\pi f)t}\,dt\\
+        &=-\frac{e^{-(\alpha+j2\pi f)t}}{\alpha+j2\pi f}\Bigg|_0^{+\infty}=\frac{1}{\alpha+j2\pi f}
+    \end{align*}
+\end{itemize}
+
+\subsubsection{Sinusoidi}
+\begin{itemize}
+    \item Seno e coseno sono molto comuni nell'elaborazione dei segnali. Una sinusoide contiene una sola componente frequenziale: tutte le altre frequenze (inclusa la continua) non danno contributi.
+    $$x(t)=\cos(2\pi f_0t)\ \longrightarrow\ X(f)=\frac12\left[\delta(f+f_0)+\delta(f-f_0)\right]$$
+    $$x(t)=\sin(2\pi f_0t)\ \longrightarrow\ X(f)=\frac j2\left[\delta(f+f_0)-\delta(f-f_0)\right]$$
+    \item Come atteso, si hanno due impulsi, sulle frequenze positiva e negativa coincidenti con la frequenza della sinusoide.
+\end{itemize}
+
+\subsection{Proprietà della trasformata di Fourier}
+A partire da poche trasformate notevoli, applicando le proprietà della FT si può calcolare in modo semplice lo spettro di molte altre funzioni.
+
+\subsubsection{Simmetrie}
+\begin{itemize}
+    \item \textbf{Simmetria Hermitiana}: come la serie, anche la trasformata gode di simmetria Hermitiana \textbf{se e solo se} il segnale è \textbf{reale} (condizione normalmente verificata nella pratica):
+    $$x(t)\in\mathbb{R}\ \Longrightarrow\ X(f)=\bar{X}(-f)$$
+    ovvero:
+    \begin{align*}
+        &\text{Re}\{X(f)\}=\text{Re}\{X(-f)\}, &&\text{Im}\{X(f)\}=-\text{Im}\{X(-f)\}\\
+        &|X(f)|=|X(-f)|, &&\arg X(f)=-\arg X(-f)
+    \end{align*}
+    \item \textbf{Simmetrie del segnale nel tempo} (ereditate dalla serie): se il segnale è reale e \textbf{pari}, la sua FT è \textbf{puramente reale}; se è reale e \textbf{dispari}, la sua FT è \textbf{puramente immaginaria}. Formule ``semplificate'':
+    $$x(t)\in\mathbb{R}\ \text{pari}\ \Longrightarrow\ X(f)=2\int_0^{+\infty}x(t)\cos(2\pi ft)\,dt$$
+    $$x(t)\in\mathbb{R}\ \text{dispari}\ \Longrightarrow\ X(f)=-2j\int_0^{+\infty}x(t)\sin(2\pi ft)\,dt$$
+\end{itemize}
+
+\subsubsection{Linearità}
+\begin{itemize}
+    \item Anche la trasformata è un'operazione \textbf{lineare}:
+    $$\left.\begin{aligned}x(t)&\longleftrightarrow X(f)\\y(t)&\longleftrightarrow Y(f)\end{aligned}\right\}\ \Longrightarrow\ \alpha x(t)+\beta y(t)\longleftrightarrow\alpha X(f)+\beta Y(f)\qquad\forall\,\alpha,\beta$$
+    Si conosce subito la trasformata di segnali ottenuti come combinazioni lineari di segnali di trasformata nota.
+    \item \textit{Esempio} (coseno rialzato): $x(t)=V_0+V_1\cos(2\pi f_1t)$. Per la linearità $X(f)$ è la somma delle trasformate notevoli di costante e coseno:
+    $$\mathcal{F}\{V_0\}=V_0\,\delta(f),\qquad \mathcal{F}\{V_1\cos(2\pi f_1t)\}=\frac{V_1}{2}\left[\delta(f+f_1)+\delta(f-f_1)\right]$$
+    $$X(f)=V_0\,\delta(f)+\frac{V_1}{2}\left[\delta(f+f_1)+\delta(f-f_1)\right]$$
+    Lo spettro è costituito da \textbf{3 impulsi}, in $0$, $f_1$, $-f_1$.
+\end{itemize}
+
+\subsubsection{Fattore di scala}
+\begin{itemize}
+    \item Se $x(t)$ subisce un cambiamento di scala (viene dilatato, compresso o invertito), $x(\alpha t)$:
+    \begin{itemize}
+        \item $|\alpha|>1$: il segnale viene \textbf{compresso};
+        \item $|\alpha|<1$: il segnale viene \textbf{dilatato};
+        \item $\alpha<0$: il segnale viene \textbf{invertito}.
+    \end{itemize}
+    Nota la FT, si ricava subito quella del segnale scalato:
+    $$x(t)\longleftrightarrow X(f)\ \Longrightarrow\ x(\alpha t)\longleftrightarrow\frac{1}{|\alpha|}\,X\!\left(\frac f\alpha\right)$$
+    \item \textit{Interpretazione}: un segnale compresso o espanso corrisponde, ad esempio, alla velocizzazione o al rallentamento del playback di un audio. Ascoltando un audio velocizzato i suoni (es. la voce) diventano più acuti (le frequenze si alzano); rallentandolo diventano più gravi (frequenze minori). La proprietà dice esattamente questo: \textbf{se si velocizza un segnale (compressione) il suo spettro si allarga in egual misura}, e viceversa.
+    \item \textcolor{orange!80!black}{\textbf{Principio di indeterminazione}} del dominio tempo-frequenza (portando al limite questo concetto):
+    \begin{itemize}
+        \item un segnale a durata \textbf{limitata} ha estensione spettrale \textbf{infinita};
+        \item un segnale a durata \textbf{illimitata} può avere estensione spettrale \textbf{finita} (es. costante, sinc);
+        \item il prodotto tra la durata di un segnale e la sua estensione spettrale non è mai un numero finito.
+    \end{itemize}
+    Esiste quindi un \textbf{rapporto inverso} tra il comportamento nel tempo e quello in frequenza.
+\end{itemize}
+
+\subsubsection{Ritardo}
+\begin{itemize}
+    \item Ritardando (o anticipando) un segnale:
+    $$x(t)\longleftrightarrow X(f)\ \Longrightarrow\ x(t-T)\longleftrightarrow X(f)\,e^{-j2\pi fT}$$
+    \item Il \textbf{modulo} dello spettro \textbf{non cambia}: ritardando il segnale non se ne modificano le componenti frequenziali, le si trasla soltanto (essendo sinusoidi, le si sfasa). Il ritardo agisce quindi \textbf{solo sulla fase}, introducendo uno \textbf{sfasamento proporzionale alla frequenza} (fenomeno ripreso più avanti parlando di distorsione).
+\end{itemize}
+
+\subsubsection{Dualità}
+\begin{itemize}
+    \item Formalizza la reciprocità dei domini tempo/frequenza. Dato $x(t)$ con trasformata $X(f)$:
+    $$x(t)\longrightarrow X(f)\ \Longleftrightarrow\ X(t)\longrightarrow x(-f)$$
+    \textit{N.B.} $X(t)$ è un segnale nel tempo con la stessa forma dello spettro $X(f)$; $x(f)$ è uno spettro in frequenza con la stessa forma del segnale $x(t)$.
+    \item Conoscendo la trasformata di un segnale si ricava subito quella del segnale che ha l'andamento del suo spettro (si raddoppia la conoscenza). Il teorema rende anche più evidente la reciprocità dei domini, ad es. il principio di indeterminazione: finito nel tempo $\to$ infinito in frequenza, e viceversa.
+    \item \textbf{Esempi di applicazione della dualità}:
+    \begin{itemize}
+        \item \textbf{Impulso}: dalla trasformata notevole della costante, senza calcolo integrale:
+        $$1\longleftrightarrow\delta(f)\ \Longrightarrow\ \delta(t)\longleftrightarrow1$$
+        L'impulso nel tempo genera uno spettro costante. Significato importante: l'impulso è l'unico segnale che contiene \textbf{tutte le frequenze con uguale intensità}. Poiché la risposta impulsiva caratterizza univocamente un sistema LTI, ne è un'ulteriore giustificazione: è l'unico segnale in grado di stimolare un sistema uniformemente su tutto il range delle frequenze.
+        \item \textbf{Impulso traslato}: dalla proprietà del ritardo, $\delta(t-t_0)\longleftrightarrow1\cdot e^{-j2\pi ft_0}$. Per dualità:
+        $$e^{-j2\pi f_0t}\longrightarrow\delta(-f-f_0)=\delta(f+f_0),\qquad e^{j2\pi f_0t}\longrightarrow\delta(f-f_0)$$
+        Un fasore nel tempo genera un impulso alla frequenza corrispondente nello spettro. \textit{N.B.} è un segnale complesso: non vale la simmetria Hermitiana.
+        \item \textbf{Treno di impulsi}: funzione periodica $x(t)=\sum_{n=-\infty}^{+\infty}\delta(t-nT)$. Data la periodicità si sviluppa in serie di Fourier:
+        $$x(t)=\sum_{n=-\infty}^{+\infty}x_n\,e^{j\frac{2\pi nt}{T}},\qquad x_n=\frac1T\int_{-T/2}^{T/2}\delta(t)\,dt=\frac1T$$
+        Trasformando la serie (è una funzione del tempo e coincide con $x(t)$):
+        $$X(f)=\mathcal{F}\left\{\sum_{n=-\infty}^{+\infty}\frac1T\,e^{j\frac{2\pi nt}{T}}\right\}=\frac1T\sum_{n=-\infty}^{+\infty}\mathcal{F}\left\{e^{j\frac{2\pi nt}{T}}\right\}=\frac1T\sum_{n=-\infty}^{+\infty}\delta\!\left(f-\frac nT\right)$$
+        La trasformata di un treno di impulsi è a sua volta un \textbf{treno di impulsi}. Tanto più ravvicinati sono gli impulsi nel tempo, tanto più distanti saranno nel dominio della frequenza, e viceversa.
+        \item \textbf{Rettangolo e sinc}: dalla trasformata del rettangolo, per dualità:
+        $$x(t)=\Pi\!\left(\frac tT\right)\longleftrightarrow T\,\text{sinc}(fT)\ \Longrightarrow\ T\,\text{sinc}(tT)\longleftrightarrow\Pi\!\left(\frac{-f}{T}\right)=\Pi\!\left(\frac fT\right)$$
+        Applicando a $y(t)=\text{sinc}(Wt)$ la proprietà del fattore di scala (con $k=W/T$):
+        $$y(t)=\text{sinc}(Wt)\longleftrightarrow Y(f)=\frac1W\,\Pi\!\left(\frac fW\right)$$
+        Una sinc nel tempo che si annulla per la prima volta in $t=1/W$ ha uno \textbf{spettro rettangolare di banda finita pari a $W$}.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Derivata}
+\begin{itemize}
+    \item Data $X(f)$, la trasformata della derivata di $x(t)$ si ricava così:
+    \begin{align*}
+        y(t)=\frac{d}{dt}x(t)&=\frac{d}{dt}\int_{-\infty}^{+\infty}X(f)\,e^{j2\pi ft}\,df=\int_{-\infty}^{+\infty}X(f)\,\frac{d}{dt}e^{j2\pi ft}\,df\\
+        &=\int_{-\infty}^{+\infty}j2\pi f\cdot X(f)\,e^{j2\pi ft}\,df=\int_{-\infty}^{+\infty}Y(f)\,e^{j2\pi ft}\,df\\
+        &\Longrightarrow\ Y(f)=j2\pi f\cdot X(f)
+    \end{align*}
+    Nel dominio trasformato la \textbf{derivazione} diventa il \textbf{prodotto per un fattore $j2\pi f$}.
+    \item Importante per il \textbf{calcolo differenziale}: un'equazione differenziale nel dominio del tempo (di difficile soluzione) diventa nel dominio della frequenza un'\textbf{equazione polinomiale}:
+    $$a\,\frac{dx(t)}{dt}+b\,x(t)=c\,z(t)\ \longrightarrow\ a\,(j2\pi f)X(f)+b\,X(f)=c\,Z(f)\ \Longrightarrow\ X(f)=\frac{c\,Z(f)}{j2\pi af+b}$$
+    e $x(t)$ si ottiene antitrasformando. \textit{N.B.} il problema si sposta sul calcolo di trasformata e antitrasformata, anche se spesso è sufficiente studiare l'andamento in frequenza.
+\end{itemize}
+
+\subsubsection{Integrale}
+\begin{itemize}
+    \item Analogamente, la trasformata dell'integrale di un segnale:
+    \begin{align*}
+        y(t)&=\int_{-\infty}^{t}x(\xi)\,d\xi=\int_{-\infty}^{t}\int_{-\infty}^{+\infty}X(f)\,e^{j2\pi f\xi}\,df\,d\xi\\
+        &=\int_{-\infty}^{+\infty}X(f)\left[\int_{-\infty}^{t}e^{j2\pi f\xi}\,d\xi\right]df=\int_{-\infty}^{+\infty}X(f)\,\frac{1}{j2\pi f}\,e^{j2\pi ft}\,df\\
+        &=\int_{-\infty}^{+\infty}Y(f)\,e^{j2\pi ft}\,df\ \Longrightarrow\ Y(f)=\frac{X(f)}{j2\pi f}
+    \end{align*}
+    Nel dominio trasformato l'\textbf{integrazione} diventa la \textbf{divisione per $j2\pi f$}, \textbf{tuttavia}\dots
+    \item $Y(f)$ presenta una \textbf{singolarità nell'origine}:
+    \begin{itemize}
+        \item se $X(0)=0$ ($x(t)$ ha valor medio nullo) la singolarità sparisce e la formula precedente è corretta;
+        \item se invece $X(0)\neq0$, l'integrale di $x(t)$ produce una \textbf{componente continua} di cui tener conto, introducendo un impulso nell'origine.
+    \end{itemize}
+    $$x(t)\longleftrightarrow X(f)\ \Longrightarrow\ \int_{-\infty}^{t}x(\xi)\,d\xi\longleftrightarrow\frac{X(f)}{j2\pi f}+\frac{X(0)}{2}\,\delta(f)$$
+    La formula vale per tutti i casi (se $X(0)=0$ il termine impulsivo si annulla).
+\end{itemize}
+
+\subsubsection{Derivata e integrale: interpretazione ed esempi}
+\begin{itemize}
+    \item \textit{Interpretazione}: a parte il fattore immaginario (che causa uno shift di fase), la \textbf{derivata moltiplica} lo spettro per $f$, l'\textbf{integrale lo divide} per $f$. Ne discende che la \textbf{derivata esalta le alte frequenze}, mentre l'\textbf{integrale le attenua}: è logico, perché la derivazione accentua le variazioni del segnale, mentre l'integrazione le attenua.
+    \item \textbf{Gradino unitario} $u(t)$: è l'integrale di un impulso, $\delta(t)\longleftrightarrow1$. L'impulso ha area unitaria (non nulla), quindi $X(0)=1$:
+    $$u(t)=\int_{-\infty}^{t}\delta(\xi)\,d\xi\longleftrightarrow\frac{1}{j2\pi f}+\frac12\,\delta(f)$$
+    \item \textbf{Funzione segno}: ricordando che $\text{sgn}(t)=2u(t)-1$, per linearità:
+    $$\text{sgn}(t)\longleftrightarrow\frac{2}{j2\pi f}+\delta(f)-\delta(f)=\frac{2}{j2\pi f}$$
+    L'impulso sparisce: infatti la funzione segno ha valor medio nullo.
+\end{itemize}
+
+\subsubsection{Convoluzione}
+\begin{itemize}
+    \item L'uscita di un sistema LTI si calcola con la convoluzione con la risposta impulsiva. Nel dominio trasformato:
+    $$x(t)\longleftrightarrow X(f);\quad y(t)\longleftrightarrow Y(f)\ \Longrightarrow\ x(t)*y(t)\longleftrightarrow X(f)\cdot Y(f)$$
+    La \textbf{convoluzione diventa un semplice prodotto}: risultato fondamentale nell'elaborazione dei segnali, perché permette di evitare di svolgere la convoluzione quando è troppo complicata.
+    \item \textit{Dimostrazione}:
+    \begin{align*}
+        \mathcal{F}^{-1}\{X_1(f)X_2(f)\}&=\int_{-\infty}^{+\infty}X_1(f)X_2(f)\,e^{j2\pi ft}\,df\\
+        &=\int_{-\infty}^{+\infty}\left[\int_{-\infty}^{+\infty}x_1(\xi)\,e^{-j2\pi f\xi}\,d\xi\right]\left[\int_{-\infty}^{+\infty}x_2(\eta)\,e^{-j2\pi f\eta}\,d\eta\right]e^{j2\pi ft}\,df\\
+        &=\int_{-\infty}^{+\infty}x_1(\xi)\int_{-\infty}^{+\infty}x_2(\eta)\left[\int_{-\infty}^{+\infty}e^{j2\pi f(t-\xi-\eta)}\,df\right]d\eta\,d\xi\\
+        &=\int_{-\infty}^{+\infty}x_1(\xi)\left[\int_{-\infty}^{+\infty}x_2(\eta)\,\delta(t-\xi-\eta)\,d\eta\right]d\xi\\
+        &=\int_{-\infty}^{+\infty}x_1(\xi)\,x_2(t-\xi)\,d\xi=(x_1*x_2)(t)
+    \end{align*}
+    \item \textit{Esempio} (triangolo): un triangolo simmetrico è la convoluzione di due rettangoli di uguale ampiezza e durata; nel dominio della frequenza si ha il prodotto degli spettri (identici) dei due rettangoli:
+    $$x_1(t)=x_2(t)=\sqrt{\frac AT}\,\Pi\!\left(\frac tT\right)\ \to\ x(t)=x_1(t)*x_2(t)=A\,\Lambda\!\left(\frac{t}{2T}\right)$$
+    $$X(f)=X_1(f)\cdot X_2(f)=\left(\sqrt{\frac AT}\,T\,\text{sinc}(fT)\right)^2=AT\,\text{sinc}^2(fT)$$
+    \item \textit{Esempio} (due sinc): convoluzione di non semplice soluzione nel dominio del tempo. Date $x_1(t)=A_1\,\text{sinc}(W_1t)$ e $x_2(t)=A_2\,\text{sinc}(W_2t)$:
+    $$x(t)=A_1A_2\int_{-\infty}^{+\infty}\text{sinc}(W_1\alpha)\,\text{sinc}[W_2(t-\alpha)]\,d\alpha\qquad\text{(integrale molto complicato da risolvere)}$$
+    Nel dominio delle frequenze:
+    $$X_1(f)=\frac{A_1}{W_1}\Pi\!\left(\frac{f}{W_1}\right),\qquad X_2(f)=\frac{A_2}{W_2}\Pi\!\left(\frac{f}{W_2}\right)$$
+    $$X(f)=X_1(f)\cdot X_2(f)=\frac{A_1A_2}{W_1W_2}\,\Pi\!\left(\frac{f}{W_1}\right)\Pi\!\left(\frac{f}{W_2}\right)$$
+    Il prodotto dà un rettangolo di larghezza pari a $\min(W_1,W_2)$ e ampiezza pari al prodotto delle ampiezze. Ad es. con $W_1>W_2$:
+    $$X(f)=\frac{A_1A_2}{W_1W_2}\,\Pi\!\left(\frac{f}{W_2}\right)\ \Longrightarrow\ x(t)=\frac{A_1A_2}{W_1}\,\text{sinc}(tW_2)$$
+    Qui si riesce ad antitrasformare; in altri casi sarà difficile o impossibile, ma l'andamento in frequenza fornisce comunque informazioni molto utili.
+\end{itemize}
+
+\subsubsection{Prodotto}
+\begin{itemize}
+    \item Applicando la dualità al teorema della convoluzione si ottiene la proprietà del \textbf{prodotto}: il prodotto di due funzioni ha come trasformata la \textbf{convoluzione} delle rispettive trasformate:
+    $$x_1(t)\longleftrightarrow X_1(f);\quad x_2(t)\longleftrightarrow X_2(f)\ \Longrightarrow\ x_1(t)\cdot x_2(t)\longleftrightarrow X_1(f)*X_2(f)$$
+    Il risultato è una convoluzione tra spettri, che ha un'estensione in frequenza maggiore dei due spettri di partenza (\textbf{si allarga la banda}): la durata della convoluzione è la somma delle durate degli operandi.
+    \item \textit{Esempio} (coseno finestrato, detto anche \textbf{impulso in radiofrequenza}, usato in molte applicazioni, es. il radar): prodotto tra un rettangolo e una sinusoide,
+    $$x(t)=A\,\Pi\!\left(\frac tT\right)\cos(2\pi f_0t),\qquad f_0\gg1/T$$
+    Lo spettro è la convoluzione tra una sinc (rettangolo) e una coppia di impulsi (coseno). Ricordando la convoluzione con un impulso traslato (proprietà della convoluzione, vale anche in frequenza):
+    $$X(f)=A\,T\,\text{sinc}(fT)*\frac12\left[\delta(f+f_0)+\delta(f-f_0)\right]=\frac{AT}{2}\left[\text{sinc}\big((f+f_0)T\big)+\text{sinc}\big((f-f_0)T\big)\right]$$
+    Nel grafico dello spettro: $T=0.2$ ms, $f_0=500$ kHz.
+\end{itemize}
+
+\subsubsection{Modulazione}
+\begin{itemize}
+    \item Discende dalla proprietà del prodotto come caso particolare. Una sinusoide è detta \textbf{modulata in ampiezza} se un segnale (detto \textbf{modulante}) altera la sua ampiezza nel tempo: $x(t)=m(t)\cos(2\pi f_0t)$. Per la proprietà del prodotto:
+    $$X(f)=M(f)*\frac12\left[\delta(f-f_0)+\delta(f+f_0)\right]=\frac12\left[M(f-f_0)+M(f+f_0)\right]$$
+    Modulando una sinusoide di frequenza $f_0$ si ottengono \textbf{due repliche} dello spettro del segnale modulante, \textbf{traslate in $\pm f_0$} (nel grafico $M(f)$ ha banda tra $-W/2$ e $W/2$, le repliche sono centrate in $\pm f_0$).
+    \item Risultato molto importante nelle telecomunicazioni: in pratica tutti i segnali trasmessi via radio sono modulati in qualche modo. Altre modulazioni, più sofisticate, non si limitano a traslare lo spettro ma ne modificano anche la forma; non è oggetto di questo corso, ma verrà ripreso e approfondito in altri corsi.
+\end{itemize}
+
+\subsection{Trasformata di Fourier di segnali periodici}
+\begin{itemize}
+    \item Per i segnali periodici si calcola la serie di Fourier (i coefficienti forniscono uno spettro di frequenza). È possibile calcolarne anche la \textbf{trasformata di Fourier}? Si parte da una rappresentazione alternativa del generico segnale periodico:
+    $$x(t)=\sum_{n=-\infty}^{+\infty}w(t-nT)=w(t)*\sum_{n=-\infty}^{+\infty}\delta(t-nT)$$
+    \item Trasformando con le proprietà della FT (trasformata del treno di impulsi e della convoluzione):
+    $$X(f)=W(f)\cdot\frac1T\sum_{k=-\infty}^{+\infty}\delta\!\left(f-\frac kT\right)=\frac1T\sum_{k=-\infty}^{+\infty}W\!\left(\frac kT\right)\delta\!\left(f-\frac kT\right)$$
+    \item La FT di un segnale periodico è un \textbf{treno di impulsi} a frequenza $k/T$ (le armoniche), la cui ampiezza è \textbf{modulata} (inviluppo) dallo spettro di Fourier del segnale base $w(t)$.
+    \item La formula ha forti analogie con la serie, \textbf{ma}: è una rappresentazione \textbf{in frequenza} e non nel tempo; è una \textbf{funzione} (anche se generalizzata) e non una serie.
+\end{itemize}
+
+\subsection{Energia nel dominio della frequenza: teorema di Rayleigh}
+\begin{itemize}
+    \item Per la serie si è calcolata la potenza tramite il teorema di Parseval. I segnali aperiodici sono \textbf{segnali di energia}: interessa quindi calcolare l'\textbf{energia} nel dominio della frequenza.
+    \item Il \textcolor{orange!80!black}{\textbf{teorema di Rayleigh}} estende la formulazione di Parseval al caso aperiodico:
+    $$E_x=\int_{-\infty}^{+\infty}|x(t)|^2\,dt=\int_{-\infty}^{+\infty}|X(f)|^2\,df$$
+    \item $|X(f)|^2$ è detta \textbf{densità spettrale di energia}: rappresenta la distribuzione dell'energia del segnale in funzione della frequenza.
+    \item \textit{Apparente anomalia}: poiché si può calcolare la FT di un segnale periodico, sembrerebbe possibile calcolarne l'energia con Rayleigh; ma per un segnale periodico non ha senso calcolare l'energia (è infinita). L'anomalia si risolve osservando che \textbf{Rayleigh non è applicabile a un segnale impulsivo}: il quadrato di un impulso non è definito.
+\end{itemize}
+
+\subsection{Larghezza di banda di un segnale}
+\begin{itemize}
+    \item La \textbf{larghezza di banda} di un segnale è l'intervallo di frequenze per le quali lo spettro assume valori non nulli. In teoria può essere infinita (i segnali a durata finita hanno spettro illimitato in frequenza).
+    \item Anche in questi casi si può approssimare la larghezza di banda su \textbf{base energetica} usando Rayleigh: si fissa la banda $B$ come la frequenza entro la quale è incluso il 90\% o il 99\% dell'energia del segnale:
+    $$B:\ \int_{-B}^{B}|X(f)|^2\,df=0.99\,E_x$$
+    \item \textit{Esempio}: segnale rettangolare (banda infinita). Si traccia l'energia contenuta nella banda $W$ (integrale di Parseval con $W$ come parametro) al variare di $W$, si mette la soglia al 99\% ($0.99E_x$) e si calcola l'intersezione (grafico con $A=1$ V, $T=1$ ms).
+    \item Nel grafico si notano oscillazioni: i \textbf{plateau} tra le oscillazioni coincidono con gli zeri della sinc, cioè i \textbf{lobi} della funzione. Il primo plateau (lobo principale, $1/T=1$ kHz) corrisponde al \textbf{90\%} dell'energia, mentre il \textbf{99\%} coincide con il \textbf{decimo lobo}.
+    \item Quindi: approssimando la banda del rettangolo a $1/T$ si commette un errore di circa il \textbf{10\%} dell'energia; approssimandola come $10/T$ l'errore scende all'\textbf{1\%}.
+\end{itemize}
+
+\subsection{Riepilogo}
+
+\subsubsection{Proprietà della trasformata}
+\begin{center}
+\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{ll}
+\toprule
+\textbf{Proprietà} & \textbf{Relazione} \\
+\midrule
+Linearità & $\alpha x(t)+\beta y(t)\longleftrightarrow\alpha X(f)+\beta Y(f)$ \\
+Fattore di scala & $x(\alpha t)\longleftrightarrow\dfrac{1}{|\alpha|}\,X\!\left(\dfrac f\alpha\right)$ \\
+Ritardo & $x(t-T)\longleftrightarrow X(f)\,e^{-j2\pi fT}$ \\
+Dualità & $X(t)\longleftrightarrow x(-f)$ \\
+Derivata & $\dfrac{dx(t)}{dt}\longleftrightarrow j2\pi f\,X(f)$ \\
+Integrale & $\displaystyle\int_{-\infty}^{t}x(\xi)\,d\xi\longleftrightarrow\dfrac{X(f)}{j2\pi f}+\dfrac{X(0)}{2}\,\delta(f)$ \\
+Convoluzione & $x(t)*y(t)\longleftrightarrow X(f)\cdot Y(f)$ \\
+Prodotto & $x(t)\cdot y(t)\longleftrightarrow X(f)*Y(f)$ \\
+Modulazione & $m(t)\cos(2\pi f_0t)\longleftrightarrow\dfrac12\left[M(f-f_0)+M(f+f_0)\right]$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{Coppie di Fourier notevoli}
+\begin{center}
+\renewcommand{\arraystretch}{1.7}
+\begin{tabular}{ll}
+\toprule
+$x(t)$ & $X(f)$ \\
+\midrule
+$V_0\,\Pi\!\left(\dfrac tT\right)$ & $V_0T\,\text{sinc}(fT)$ \\
+$V_0$ (costante) & $V_0\,\delta(f)$ \\
+$\delta(t)$ & $1$ \\
+$\delta(t-t_0)$ & $e^{-j2\pi ft_0}$ \\
+$e^{j2\pi f_0t}$ & $\delta(f-f_0)$ \\
+$e^{-\alpha t}\cdot1(t)$, $\alpha>0$ & $\dfrac{1}{\alpha+j2\pi f}$ \\
+$\cos(2\pi f_0t)$ & $\dfrac12\left[\delta(f+f_0)+\delta(f-f_0)\right]$ \\
+$\sin(2\pi f_0t)$ & $\dfrac j2\left[\delta(f+f_0)-\delta(f-f_0)\right]$ \\
+$u(t)$ & $\dfrac{1}{j2\pi f}+\dfrac12\,\delta(f)$ \\
+$\text{sgn}(t)$ & $\dfrac{2}{j2\pi f}$ \\
+$A\,\Lambda\!\left(\dfrac{t}{2T}\right)$ & $AT\,\text{sinc}^2(fT)$ \\
+$\text{sinc}(Wt)$ & $\dfrac1W\,\Pi\!\left(\dfrac fW\right)$ \\
+$\displaystyle\sum_{n=-\infty}^{+\infty}\delta(t-nT)$ & $\dfrac1T\displaystyle\sum_{n=-\infty}^{+\infty}\delta\!\left(f-\dfrac nT\right)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+
+\section{Analisi dei sistemi in frequenza}
+
+\subsection{Perché l'analisi in frequenza}
+\begin{itemize}
+    \item I sistemi LTI si possono studiare tramite la loro \textbf{risposta all'impulso}: risultato importante, ma il calcolo della convoluzione può essere molto difficile.
+    \item La convoluzione, in frequenza, diventa una semplice \textbf{moltiplicazione}: operando nel dominio trasformato, la risposta di un sistema LTI si può quindi calcolare in modo molto più semplice.
+\end{itemize}
+
+\subsection{Risposta in frequenza}
+\begin{itemize}
+    \item Dato un sistema LTI con risposta impulsiva $h(t)$: $y(t)=x(t)*h(t) \Rightarrow Y(f)=X(f)\cdot H(f)$, da cui
+    $$H(f)=\frac{Y(f)}{X(f)}$$
+    $H(f)$, detta \textbf{risposta in frequenza} del sistema, è quindi al contempo: il rapporto tra gli spettri di ingresso e uscita, e la trasformata di Fourier della risposta impulsiva.
+    \item \textbf{Significato}: si calcola la risposta di $h(t)$ a un fasore $x(t)=e^{j2\pi f_0t}$:
+    \begin{align*}
+        y(t)=x(t)*h(t) &= \int_{-\infty}^{+\infty} h(\xi)\,e^{j2\pi f_0(t-\xi)}\,d\xi = e^{j2\pi f_0t}\int_{-\infty}^{+\infty} h(\xi)\,e^{-j2\pi f_0\xi}\,d\xi \\
+        &= x(t)\int_{-\infty}^{+\infty} h(\xi)\,e^{-j2\pi f_0\xi}\,d\xi \\
+        \Longrightarrow\ \frac{y(t)}{x(t)} &= \int_{-\infty}^{+\infty} h(\xi)\,e^{-j2\pi f_0\xi}\,d\xi = \mathcal{F}\{h(t)\}\Big|_{f=f_0} = H(f_0)
+    \end{align*}
+    In pratica: la relazione tra ingresso e uscita, quando in ingresso c'è una frequenza pura $f_0$, coincide esattamente con $H(f_0)$.
+    \item Dalla $H(f)$ si esplicitano 3 funzioni:
+    \begin{itemize}
+        \item \textbf{Risposta in ampiezza} $|H(f)|$: come viene modificata in ampiezza (amplificata o attenuata) ogni componente in frequenza del segnale;
+        \item \textbf{Risposta in fase} $\Phi(f)=\arg[H(f)]$: di quanto viene sfasata ogni componente in frequenza;
+        \item \textbf{Ritardo di gruppo} $\tau(f) = -\dfrac{1}{2\pi}\dfrac{d\Phi(f)}{df}$: di quanto viene ritardata nel tempo ogni componente in frequenza (informazione analoga alla fase: lo sfasamento di un'armonica è riconducibile a un ritardo).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Caratterizzazione di sistemi LTI in frequenza}
+\begin{itemize}
+    \item Un sistema LTI si può caratterizzare equivalentemente: nel tempo, tramite $h(t)$; in frequenza, tramite $H(f)$. Corrispondentemente, l'uscita si calcola in due modi: nel tempo con la convoluzione $x(t)*h(t)$, in frequenza col prodotto $X(f)\cdot H(f)$. Si passa da una rappresentazione all'altra con FT e IFT.
+    \item \textit{Esempio}: sistema LTI con $h(t)=e^{-\alpha t}\cdot u(t)$, ingresso $x(t)=A\,\text{sinc}(f_0t)$.
+    \begin{itemize}
+        \item Nel tempo: $y(t) = x(t)*h(t) = \displaystyle\int_{-\infty}^{+\infty} A\,\text{sinc}(f_0\tau)\cdot e^{-\alpha(t-\tau)}\cdot u(t-\tau)\,d\tau$ — integrale chiaramente complicato.
+        \item In frequenza: si trasformano $h(t)$ e $x(t)$,
+        $$H(f)=\mathcal{F}\{h(t)\}=\frac{1}{\alpha+j2\pi f}, \qquad X(f)=\mathcal{F}\{x(t)\}=\frac{A}{f_0}\Pi\!\left(\frac{f}{f_0}\right)$$
+        e si esegue il prodotto:
+        $$Y(f)=X(f)H(f)=\begin{cases}\dfrac{A}{f_0(\alpha+j2\pi f)} & f\in\left[-\dfrac{f_0}{2},\dfrac{f_0}{2}\right] \\ 0 & \text{altrove}\end{cases}$$
+        Per ottenere $y(t)$ occorrerebbe antitrasformare (complicato), ma il comportamento in frequenza dà già informazioni utili: $|H(f)|$ decresce con $f$, quindi il sistema \textbf{smorza le componenti più alte} del segnale $x(t)$ (che ha $|X(f)|$ costante nella sua banda).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Composizione di funzioni di trasferimento}
+\begin{itemize}
+    \item Come le risposte all'impulso si combinano lungo una catena di elaborazione, anche le risposte in frequenza dei sistemi si possono comporre; a seconda del collegamento si ottengono diversi tipi di risposta.
+\end{itemize}
+
+\subsubsection{Sequenza}
+\begin{itemize}
+    \item Due o più sistemi $H_i(f)$ in cascata (l'uscita del precedente è l'ingresso del successivo):
+    $$Y(f) = X(f)\cdot H_1(f)\cdot H_2(f) = X(f)\cdot[H_1(f)\cdot H_2(f)] \;\Longrightarrow\; H_{eq}(f) = \frac{Y(f)}{X(f)} = H_1(f)\cdot H_2(f)$$
+    È il \textbf{prodotto} delle risposte in frequenza.
+\end{itemize}
+
+\subsubsection{Parallelo}
+\begin{itemize}
+    \item Due o più sistemi in parallelo (stesso ingresso, uscite sommate algebricamente):
+    $$Y(f) = X(f)H_1(f) \mp X(f)H_2(f) = X(f)\cdot[H_1(f)\mp H_2(f)] \;\Longrightarrow\; H_{eq}(f) = H_1(f)\mp H_2(f)$$
+    È la \textbf{somma algebrica} delle risposte in frequenza.
+\end{itemize}
+
+\subsubsection{Retroazione negativa}
+\begin{itemize}
+    \item L'uscita viene riportata in ingresso (con segno meno) dopo essere passata in un secondo sistema $H_2(f)$, prima di entrare in $H_1(f)$:
+    \begin{align*}
+        Y(f) &= [X(f) - Y(f)\cdot H_2(f)]\cdot H_1(f) = X(f)H_1(f) - Y(f)H_1(f)H_2(f) \\
+        &\Longrightarrow Y(f)\big[1+H_1(f)H_2(f)\big] = X(f)H_1(f) \\
+        &\Longrightarrow H_{eq}(f) = \frac{Y(f)}{X(f)} = \frac{H_1(f)}{1+H_1(f)H_2(f)}
+    \end{align*}
+\end{itemize}
+
+\subsubsection{Esempio di composizione}
+\begin{itemize}
+    \item Sistema con due rami: il ramo superiore applica un ritardo puro $\Delta T_1$; il ramo inferiore applica un ritardo $\Delta T_2$ seguito da un guadagno $\alpha$; le due uscite si sommano con il ramo superiore sottratto:
+    $$h_1(t)=\delta(t-\Delta T_1)\to H_1(f)=e^{-j2\pi f\Delta T_1}, \quad h_2(t)=\delta(t-\Delta T_2)\to H_2(f)=e^{-j2\pi f\Delta T_2}, \quad h_3(t)=\alpha\delta(t)\to H_3(f)=\alpha$$
+    \begin{itemize}
+        \item Serie $H_2$--$H_3$ (ramo inferiore): $H_S(f)=H_2(f)\cdot H_3(f)=\alpha\,e^{-j2\pi f\Delta T_2}$
+        \item Parallelo $H_1$--$H_S$ (con $H_1$ sottratto): $H_{eq}(f)=H_S(f)-H_1(f)=\alpha\,e^{-j2\pi f\Delta T_2}-e^{-j2\pi f\Delta T_1}$
+    \end{itemize}
+\end{itemize}
+
+\subsection{Banda passante di un sistema LTI}
+\begin{itemize}
+    \item Come per i segnali, si definisce la \textbf{larghezza di banda di un sistema} (banda passante) come la massima frequenza che il sistema lascia passare. Anche $H(f)$ può estendersi all'infinito, quindi occorre una convenzione: si definisce la banda passante come la massima frequenza per cui il sistema fa passare una quantità \textbf{non trascurabile} di energia.
+    \item \textbf{Banda a 3 dB}: si definisce il guadagno del sistema in funzione della frequenza,
+    $$G(f) = |H(f)|^2$$
+    e la banda passante come la frequenza oltre la quale il guadagno scende di 3 dB rispetto al picco:
+    $$B = f_{max} : G_{dB}(f_{max}) \ge -3\,\text{dB}$$
+    \item \textbf{Perché 3 dB?} I decibel esprimono un valore in scala logaritmica:
+    $$G_{dB}=10\log_{10}G = -3\,\text{dB} \;\Longrightarrow\; G = 10^{-3/10} \approx \frac12$$
+    Quindi oltre il limite di $-3$ dB il sistema attenua di più della metà la potenza delle componenti frequenziali dell'ingresso. \textit{N.B.} è comunque una convenzione: si sarebbe potuta imporre, ad esempio, una soglia sul 90\% dell'energia o un'altra qualsiasi.
+\end{itemize}
+
+\subsection{Filtraggio di segnali}
+\begin{itemize}
+    \item Un \textbf{filtro} è, genericamente, qualsiasi sistema che elabora il segnale restituendone una versione modificata secondo qualche criterio: ripulirlo dai disturbi, restaurarlo dopo un danneggiamento, estrarre o evidenziare caratteristiche utili, correggere distorsioni, eliminare interferenze, ecc. Per ogni finalità esistono più filtri, con accuratezza diversa.
+    \item \textbf{Filtri LTI}: sistemi LTI che operano una trasformazione desiderata; si studiano tramite $h(t)$ e/o $H(f)$. Cosa un filtro LTI può o non può fare:
+    \begin{itemize}
+        \item essendo un prodotto di spettri, può amplificare, attenuare o azzerare le frequenze \textbf{già presenti} nel segnale originale;
+        \item non può invece \textbf{creare nuove frequenze} o contenuti non presenti nel segnale (anzi, i filtri normalmente distruggono informazione): i filtri non fanno miracoli, manipolano solo le informazioni esistenti.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Filtri ideali}
+\begin{itemize}
+    \item Un filtro LTI ideale può solo tagliare il segnale entro un dato intervallo di frequenze. In base alla banda passante si definiscono:
+    \begin{itemize}
+        \item \textbf{PASSA-TUTTO} (APF): fa passare tutte le frequenze inalterate;
+        \item \textbf{PASSA-BASSO} (LPF): fa passare inalterate solo le basse frequenze;
+        \item \textbf{PASSA-ALTO} (HPF): fa passare inalterate solo le alte frequenze;
+        \item \textbf{PASSA-BANDA} (BPF): fa passare inalterate solo le frequenze intermedie;
+        \item \textbf{ELIMINA-BANDA}: elimina una data gamma di frequenze.
+    \end{itemize}
+    \item Il filtro ideale si comporta in frequenza come una funzione rettangolare tra due frequenze $f_1, f_2$; nella banda passante non deve necessariamente lasciare il segnale identico a sé stesso: si accettano un guadagno costante $k$ e un ritardo costante $t_d$:
+    $$H(f) = \begin{cases} k\,e^{-j2\pi ft_d} & f_1<f<f_2 \\ 0 & \text{altrove}\end{cases}$$
+    $f_1$ è la \textbf{frequenza di taglio inferiore}, $f_2$ la \textbf{frequenza di taglio superiore}: regolandole si decide dove tagliare lo spettro e dove lasciarlo passare.
+\end{itemize}
+
+\subsubsection{Passa-tutto ideale (APF)}
+\begin{itemize}
+    \item $f_1=0$, $f_2=\infty$: passano tutte le frequenze.
+    \item \textit{Esempio}: $H(f)=1 \Rightarrow Y(f)=X(f)H(f)=X(f)$; equivalentemente $h(t)=\delta(t) \Rightarrow y(t)=x(t)*\delta(t)=x(t)$.
+\end{itemize}
+
+\subsubsection{Passa-basso ideale (LPF)}
+\begin{itemize}
+    \item $f_1=0$, $f_2>0$: passano le frequenze $|f|<f_2$.
+    \item \textit{Esempio}: $H(f)=\Pi\!\left(\dfrac{f}{2f_2}\right) \Rightarrow Y(f)=X(f)H(f)=\begin{cases}X(f) & |f|<f_2\\0&\text{altrove}\end{cases}$; equivalentemente $h(t)=2f_2\,\text{sinc}(2tf_2) \Rightarrow y(t)=2f_2\,x(t)*\text{sinc}(2tf_2)$.
+\end{itemize}
+
+\subsubsection{Passa-alto ideale (HPF)}
+\begin{itemize}
+    \item $f_1>0$, $f_2=\infty$: passano le frequenze $|f|>f_1$.
+    \item \textit{Esempio}: $H(f)=1-\Pi\!\left(\dfrac{f}{2f_1}\right) \Rightarrow Y(f)=X(f)H(f)=\begin{cases}X(f) & |f|>f_1\\0&\text{altrove}\end{cases}$; equivalentemente $h(t)=\delta(t)-2f_1\,\text{sinc}(2tf_1) \Rightarrow y(t)=x(t)-2f_1\,x(t)*\text{sinc}(2tf_1)$.
+    \item Si può realizzare a partire dal corrispondente passa-basso, sottraendo dal segnale originale la sua versione passa-basso (schema in parallelo, LPF sottratto): la frequenza di taglio superiore del LPF diventa la frequenza di taglio inferiore dell'HPF, $H_{HPF}(f)=1-H_{LPF}(f)$.
+\end{itemize}
+
+\subsubsection{Passa-banda ideale (BPF)}
+\begin{itemize}
+    \item Passano le frequenze $f_1<|f|<f_2$.
+    \item \textit{Esempio}: $H(f)=\Pi\!\left(\dfrac{f}{2f_2}\right)-\Pi\!\left(\dfrac{f}{2f_1}\right) \Rightarrow Y(f)=X(f)H(f)=\begin{cases}X(f) & f_1<|f|<f_2\\0&\text{altrove}\end{cases}$; equivalentemente $h(t)=2f_2\,\text{sinc}(2tf_2)-2f_1\,\text{sinc}(2tf_1) \Rightarrow y(t)=2x(t)*\big[f_2\,\text{sinc}(2tf_2)-f_1\,\text{sinc}(2tf_1)\big]$.
+    \item Si può realizzare combinando i filtri già visti: un LPF con taglio $f_2$ in cascata con un HPF con taglio $f_1$, oppure sottraendo un LPF con taglio $f_1$ da un LPF con taglio $f_2$ (schema in parallelo): $H_{BPF}(f)=H_{LPF2}(f)-H_{LPF1}(f)$.
+\end{itemize}
+
+\subsubsection{Risposta in fase del filtro ideale}
+\begin{itemize}
+    \item Nella banda passante il filtro ideale risponde come $k\,e^{-j2\pi ft_d}$: la fase varia quindi \textbf{linearmente} con pendenza proporzionale a $-t_d$.
+\end{itemize}
+
+\subsubsection{Considerazioni sui filtri ideali}
+\begin{itemize}
+    \item Il \textbf{passa-basso} funziona in pratica come un \textbf{integratore}: taglia le alte frequenze ed esalta le basse — il segnale filtrato risulta più "smooth".
+    \item Il \textbf{passa-alto} funziona come un \textbf{derivatore}: taglia le basse frequenze ed evidenzia le transizioni (alte frequenze) — si ottiene una versione più "sharp" del segnale.
+    \item Il \textbf{passa-banda} unisce le due funzioni: taglia sia le basse sia le alte frequenze, mantenendo le variazioni intermedie.
+    \item \textbf{Applicazioni}: i LPF si usano tipicamente per eliminare rumore ad alta frequenza o limitare il segnale in banda; gli HPF per evidenziare le transizioni (il contenuto informativo di un segnale è tipicamente concentrato nelle sue variazioni); i BPF, più difficili da interpretare, per combinare le due funzioni precedenti o, più comunemente, per isolare segnali in banda (es. occupazione dello spettro di un canale radio).
+\end{itemize}
+
+\subsection{Filtri e mondo reale}
+\begin{itemize}
+    \item I filtri ideali sono un modello di riferimento ma sono \textbf{fisicamente irrealizzabili}: la risposta all'impulso del LPF ideale ha $h(t)\ne0$ per $t<0$, cioè è un filtro \textbf{non causale} (risponde prima dell'applicazione dell'ingresso).
+    \item Vale per qualsiasi filtro con transizione \textbf{a gradino} in frequenza: occorre adottare filtri con transizioni più dolci. Una pendenza maggiore richiede circuiti più sofisticati, con costi maggiori e distorsioni di fase.
+    \item \textit{Esempio (LPF RC)}: la risposta impulsiva coincide con la funzione di scarica del condensatore (l'impulso lo carica istantaneamente):
+    $$h(t) = \frac{1}{RC}e^{-t/RC}\cdot u(t) \ \longrightarrow\ H(f) = \frac{1}{1+j2\pi fRC}$$
+    Il comportamento in frequenza è chiaramente passa-basso, con banda a 3 dB determinata da $RC$.
+    \item \textbf{Realizzabilità}: i filtri più semplici da realizzare sono i passa-basso, i passa-banda sono più complessi — in particolare è molto difficile realizzare un filtro selettivo (banda passante piccola) centrato su una frequenza molto alta. Si definisce empiricamente la \textbf{regola della banda frazionaria}, con $\Delta f = f_2-f_1$:
+    $$0.01 < \frac{\Delta f}{f_1} < 0.1 \qquad \text{ossia} \qquad 10 < Q = \frac{f_1}{\Delta f} < 100$$
+    dove $Q$ è detto \textbf{fattore di merito}.
+\end{itemize}
+
+\subsection{Esempio applicativo: analizzatore di spettro analogico}
+\begin{itemize}
+    \item Si vuole realizzare uno strumento che tracci l'andamento dello spettro di un segnale di ingresso. Si scompone il segnale in sotto-bande tramite una serie di filtri $H_0(f),H_1(f),\dots,H_n(f)$ (un LPF, una serie di BPF, e infine un HPF), ciascuno dei quali estrae una porzione dello spettro. Per separare idealmente le sotto-bande servirebbero filtri con la stessa larghezza di banda (piccola a piacere) e transizioni a gradino.
+    \item Se i filtri sono ideali, la ricostruzione è perfetta: basta sommare i segnali filtrati $x_i(t)$,
+    $$X(f) = X_0(f)+X_1(f)+\cdots+X_n(f) = X(f)H_0(f)+X(f)H_1(f)+\cdots+X(f)H_n(f)$$
+    \item Anche l'\textbf{energia} del segnale si ripartisce tra le sotto-bande (per Rayleigh):
+    $$E_x = \int_{-\infty}^{+\infty} x^2(t)\,dt = \int_{-\infty}^{+\infty} |X(f)|^2\,df = \sum_{i=0}^{n} \int_{-\infty}^{+\infty} X_i^2(f)\,df = E_0+E_1+\cdots+E_n$$
+    Si possono tracciare i valori delle energie $E_i$ su un istogramma: il grafico mostra l'andamento dell'energia del segnale in funzione della frequenza (\textbf{densità spettrale di energia}), ma non fornisce informazioni sulla fase.
+    \item La precisione dello strumento dipende dalla capacità di realizzare filtri il più possibile ideali e ravvicinati — di nuovo il problema della banda frazionaria.
+\end{itemize}
+
+
+
+\section{Distorsione ed equalizzazione}
+
+\subsection{Sistemi non distorcenti}
+\begin{itemize}
+    \item Per definire la distorsione, si definisce prima cosa deve fare un sistema per \textbf{non} distorcere.
+    \item Un sistema non distorcente, detto anche \textbf{canale ideale}, deve avere una risposta in frequenza della forma:
+    $$H_{ci}(f) = K\,e^{-j2\pi ft_0}$$
+    cioè modulo \textbf{costante} $K$ (piatto in $f$) e fase \textbf{lineare} in $f$ (pendenza legata a $t_0$).
+\end{itemize}
+
+\subsection{Sistemi distorcenti}
+\begin{itemize}
+    \item Un sistema non distorcente, al massimo, può:
+    \begin{itemize}
+        \item amplificare tutte le frequenze del segnale della stessa quantità $K$;
+        \item introdurre uno sfasamento \textbf{lineare} delle sue componenti in frequenza.
+    \end{itemize}
+    \item I sistemi \textbf{distorcenti}, invece, alterano i rapporti tra le componenti in frequenza del segnale, amplificandole o sfasandole in modo diverso (modulo e/o fase non hanno l'andamento visto sopra).
+\end{itemize}
+
+\subsubsection{Distorsione in ampiezza}
+\begin{itemize}
+    \item Concetto intuitivo: se il modulo della risposta in frequenza non è "piatto", si altera il rapporto tra le componenti sinusoidali del segnale.
+    \item In pratica alcune frequenze vengono accentuate e altre attenuate: il \textbf{segnale cambia forma} rispetto all'originale.
+\end{itemize}
+
+\subsubsection{Distorsione di fase}
+\begin{itemize}
+    \item Concetto meno intuitivo, ma anche in questo caso il segnale cambia forma (es. sfasando di $30^\circ$ le componenti di un segnale se ne altera l'andamento nel tempo).
+    \item \textbf{Perché la fase deve variare linearmente?} In realtà quello che occorre garantire è che il segnale venga \textbf{ritardato in modo uniforme}: tutte le frequenze devono subire lo stesso ritardo, detto \textbf{ritardo di gruppo}:
+    $$\tau_g(f) = -\frac{d\varphi(f)}{df}$$
+    Se la fase è lineare, la sua derivata è una costante: $\tau_g(f)=\tau_g$ (ogni frequenza viene ritardata della stessa quantità $\tau_g$).
+\end{itemize}
+
+\subsection{Non distorsione: è realistico?}
+\begin{itemize}
+    \item Nella pratica è \textbf{impossibile} trovare sistemi totalmente non distorcenti: qualsiasi sistema, almeno in qualche zona dello spettro, introduce attenuazioni e/o un comportamento non lineare in fase.
+    \item \textit{Esempio}: il ritardo di gruppo $t_g$ di un semplice doppino telefonico non è costante nella banda vocale (circa $300$--$3400$ Hz), ma varia (minimo attorno a $1800$ Hz, cresce avvicinandosi agli estremi della banda) — il filo introduce quindi una distorsione di fase.
+\end{itemize}
+
+\subsection{Misura delle distorsioni lineari}
+\begin{itemize}
+    \item Per misurare le distorsioni lineari si usano normalmente sistemi di \textbf{calibrazione}: si mette in ingresso al sistema un segnale a frequenza nota (es. una sinusoide $A\cos(2\pi f_0t)$) e si osserva come viene attenuata/ritardata in uscita; si ripete l'operazione facendo variare $f_0$, così da tracciare punto per punto l'andamento di $H(f)$.
+\end{itemize}
+
+\subsection{Equalizzazione}
+\begin{itemize}
+    \item Una volta misurata $H(f)$ nel range di frequenze di interesse, se è presente una distorsione la si può provare a correggere. I sistemi che producono la correzione si chiamano \textbf{equalizzatori} (equalizzano = appiattiscono la risposta in frequenza).
+    \item In pratica si realizza una cascata di sistemi: il primo (dato, distorcente) introduce la distorsione, il secondo è progettato per compensarla:
+    $$H_{TOT}(f) = H_S(f)\cdot H_{EQ}(f) \;\Longrightarrow\; H_{EQ}(f) = \frac{H_{TOT}(f)}{H_S(f)}$$
+    \item Imponendo che il totale sia quello di un canale ideale, $H_{TOT}(f)=Ke^{-j2\pi ft_0}$, si ottiene:
+    $$H_{EQ}(f) = \frac{K\,e^{-j2\pi ft_0}}{H_S(f)}$$
+\end{itemize}
+
+\subsubsection{Esempio: distorsione multi-path}
+\begin{itemize}
+    \item Esempio di sistema distorcente molto comune nella trasmissione radio: tra stazione trasmittente e ricevente si possono creare \textbf{cammini multipli}, che si sommano con ritardi e attenuazioni diverse (\textit{multi-path fading}).
+    \item Caso semplice a 2 cammini (in pratica una eco del segnale): il ramo diretto $x(t)$ si somma al ramo ritardato di $\Delta T$ e attenuato di $\alpha$:
+    $$y(t) = x(t) + \alpha\,x(t-\Delta T) \;\Longrightarrow\; h(t)=\delta(t)+\alpha\,\delta(t-\Delta T) \;\Longrightarrow\; H(f) = 1+\alpha\,e^{-j2\pi f\Delta T}$$
+    Il sistema è distorcente: non rispetta il modello del canale ideale visto sopra.
+    \item L'equalizzatore ideale dovrà avere funzione di trasferimento
+    $$H_{eq}(f) = \frac{k\,e^{-j2\pi f\Delta T'}}{1+\alpha\,e^{-j2\pi f\Delta T}}$$
+    ponendo $k=\alpha$ e $\Delta T'=\Delta T$:
+    $$H_{eq}(f) = \frac{\alpha\,e^{-j2\pi f\Delta T}}{1+\alpha\,e^{-j2\pi f\Delta T}}$$
+    \item Ricordando i sistemi composti, si riconosce in questa espressione un sistema a \textbf{retroazione negativa}, con
+    $$H_1(f)=\alpha\,e^{-j2\pi f\Delta T}, \qquad H_2(f)=1 \;\Longrightarrow\; H_{tot}(f)=\frac{H_1(f)}{1+H_1(f)H_2(f)}=H_{eq}(f)$$
+    \item Il filtro equalizzatore si realizza quindi come uno schema a retroazione: il segnale in ingresso $y(t)$ si somma (in retroazione negativa) alla propria versione ritardata di $\Delta T$ e attenuata di $\alpha$, producendo $z(t)$; posta l'idealità dei sistemi coinvolti, $z(t)$ è una versione non distorta di $x(t)$.
+\end{itemize}
+
+\subsubsection{Equalizzatore: applicazione pratica}
+\begin{itemize}
+    \item Nella pratica non si progetta uno specifico equalizzatore per ogni sistema, ma si ricorre ad apparati \textbf{general-purpose} tarabili in base alle esigenze.
+    \item \textit{Esempio}: negli equalizzatori audio le varie gamme di frequenza del segnale possono essere amplificate o attenuate tramite potenziometri, appiattendo la curva della risposta in ampiezza anche tenendo conto delle caratteristiche di sorgente, sistema e ambiente.
+\end{itemize}
+
+\subsubsection{Equalizzatori adattativi}
+\begin{itemize}
+    \item Poiché i sistemi possono essere \textbf{tempo-varianti}, gli equalizzatori possono dover adattarsi nel tempo.
+    \item Si utilizzano sistemi di analisi automatica e ripetitiva del segnale, per misurare la distorsione via via presente: ogni $T$ secondi si ripete l'analisi e si ricava l'andamento della $H(f)$ da equalizzare.
+    \item Si applicano poi \textbf{equalizzatori parametrici}, che possono modificare la propria risposta in funzione della correzione richiesta in quel momento.
+\end{itemize}
+
+\subsection{Distorsioni non lineari}
+\begin{itemize}
+    \item Quanto visto finora riguarda la distorsione nei sistemi \textbf{LTI}: misura e correzione sono state trattate in termini di risposta impulsiva e risposta in frequenza — cosa non lecita per sistemi \textbf{non lineari}.
+    \item Se il sistema non è lineare ci saranno comunque problemi di distorsione, ma \textbf{non si possono trattare in termini di risposta in frequenza} (la relazione ingresso-uscita non è più una retta).
+\end{itemize}
+
+\subsubsection{Modello polinomiale}
+\begin{itemize}
+    \item Per capire cosa succede occorre approssimare la relazione ingresso-uscita, ad esempio tramite funzioni polinomiali:
+    $$y(t) \approx a_1x(t)+a_2x^2(t)+a_3x^3(t)+\cdots$$
+    \item Applicando la trasformata di Fourier (N.B. è lecito anche se il sistema non è lineare, perché si trasforma il segnale $y(t)$, non il sistema):
+    $$Y(f) \approx a_1X(f) + a_2\,X(f)*X(f) + \cdots$$
+    Compaiono termini \textbf{convolutivi}: lo spettro del segnale viene convoluto con sé stesso. Di conseguenza lo spettro, oltre a deformarsi, si \textbf{allarga} (occupa più frequenze): questo è caratteristico dei sistemi non lineari e non può accadere nei sistemi lineari.
+\end{itemize}
+
+\subsubsection{Misura delle distorsioni non lineari}
+\begin{itemize}
+    \item Per capirne l'impatto si immette nel sistema un semplice segnale sinusoidale $x(t)=\cos(2\pi f_0t)$:
+    \begin{align*}
+        y(t) &\approx a_1\cos(2\pi f_0t) + a_2\cos^2(2\pi f_0t) + a_3\cos^3(2\pi f_0t) \\
+        &= a_1\cos(2\pi f_0t) + a_2\,\frac{1+\cos(4\pi f_0t)}{2} + a_3\,\frac{1+\cos(4\pi f_0t)}{2}\cos(2\pi f_0t)
+    \end{align*}
+    Si creano \textbf{armoniche} della frequenza fondamentale $f_0$. Raccogliendo i fattori moltiplicativi di ogni armonica:
+    $$y(t) \approx K + \alpha\cos(2\pi f_0t) + \beta\cos(2\pi\cdot 2f_0t) + \cdots$$
+    \item A parte la componente continua (facilmente eliminabile), i termini che danno più fastidio sono quelli alle frequenze multiple. Si misura il rapporto percentuale tra l'ampiezza della prima armonica indesiderata e quella della fondamentale, detto \textbf{distorsione di seconda armonica}:
+    $$\frac{\beta}{\alpha}\times 100$$
+    Se la non linearità è pesante può essere utile considerare anche la \textbf{distorsione di terza armonica}.
+    \item[] \textit{N.B.} un'analisi più precisa richiederebbe di valutare anche l'interazione tra più toni sinusoidali (\textbf{intermodulazione}): si generano armoniche "miste".
+\end{itemize}
+
+\subsubsection{Compensazione: companding}
+\begin{itemize}
+    \item Se la distorsione non lineare non è accettabile occorre equalizzare il sistema, ma l'equalizzatore non può basarsi su una $H(f)$, che per un sistema non lineare non esiste.
+    \item Si può usare una tecnica chiamata \textbf{companding}: si fa passare il segnale in un ulteriore sistema non lineare (\textbf{compressore}, es. a curva logaritmica) che limita la dinamica del segnale alla zona di comportamento lineare del sistema (riduce l'escursione da $A$ a $B<A$).
+    \item A questo punto il sistema si può considerare lineare nella zona d'uso, quindi si possono correggere le distorsioni con un normale equalizzatore lineare.
+    \item Infine occorre ripristinare la dinamica originale del segnale tramite un \textbf{espansore} (sistema non lineare con funzione inversa rispetto al compressore, es. a curva esponenziale, che riporta l'escursione da $B$ ad $A$).
+    \item Il processo complessivo è quindi: \textbf{Compressore} $\to$ \textbf{Sistema} (distorcente) $\to$ \textbf{Equalizzatore} $\to$ \textbf{Espansore}.
+\end{itemize}
+
+
+
+\section{Conversione analogico-digitale}
+
+\subsection{Perché convertire in digitale}
+\begin{itemize}
+    \item Al giorno d'oggi l'elaborazione dei segnali è per lo più svolta da algoritmi software eseguiti in un dominio numerico: gli elaboratori elettronici trattano bit, non segnali continui. Per questo il segnale "fisico" va convertito in formato numerico (sequenze di bit); laddove serva la forma analogica (es. per riprodurre il segnale) si opera la conversione inversa.
+    \item Altri motivi per preferire la forma digitale: efficienza e robustezza di trasmissione/archiviazione, possibilità di proteggere i dati, uso di hardware general purpose, ecc.
+    \item[] \textit{N.B. (robustezza)}: nella trasmissione digitale il segnale è associato a forme d'onda dei bit: i disturbi non alterano il segnale finché non sono abbastanza forti da causare un'errata ricostruzione dei bit — a quel punto la ricezione diventa impossibile. In pratica, mentre nei sistemi analogici il degrado è proporzionale al rumore, i sistemi digitali si comportano \textbf{a soglia}.
+\end{itemize}
+
+\subsection{La conversione analogico-digitale}
+\begin{itemize}
+    \item I segnali digitali sono discreti sia nel dominio sia in ampiezza; i segnali in natura sono invece tipicamente continui in entrambi. Per trattarli in digitale occorre:
+    \begin{itemize}
+        \item discretizzazione nel dominio $\to$ \textbf{campionamento};
+        \item discretizzazione in ampiezza $\to$ \textbf{quantizzazione};
+        \item \textbf{codifica}: rappresentazione (di solito binaria) dei campioni quantizzati.
+    \end{itemize}
+    \item L'insieme di queste operazioni si chiama conversione \textbf{A/D}; la trasformazione inversa (\textbf{D/A}) ricostruisce il segnale in forma analogica.
+\end{itemize}
+
+\subsection{Campionamento ideale}
+\begin{itemize}
+    \item \textbf{Campionare} un segnale significa estrarne i valori ad istanti equi-spaziati, multipli del \textbf{periodo di campionamento} $T_c$. Si ottiene una sequenza $x[n]$ il cui valore $n$-esimo (\textbf{campione}) è il valore di $x(t)$ nell'istante $nT_c$: $x[n]=x(nT_c)$.
+    \item Idealmente il campionatore è un "pulsante" che ogni $T_c$ secondi si chiude per un tempo infinitesimo. Matematicamente si modella con un impulso: moltiplicando $x(t)$ per un impulso in $nT_c$ si ottiene un impulso in $nT_c$ di area pari a $x(nT_c)$; ripetendo l'operazione con un \textbf{treno di impulsi}:
+    $$x_c(t) = x(t)\sum_{n=-\infty}^{+\infty}\delta(t-nT_c) = \sum_{n=-\infty}^{+\infty} x(nT_c)\,\delta(t-nT_c)$$
+    È una sequenza di impulsi equispaziati la cui area segue l'inviluppo del segnale originale.
+\end{itemize}
+
+\subsubsection{Spettro del segnale campionato}
+\begin{itemize}
+    \item Si vuole capire quanto bene $x_c(t)$ rappresenti $x(t)$. Prendendo la FT (con $x(t)$ a banda limitata $f_{max}$) e ricordando che il prodotto nel tempo diventa convoluzione in frequenza:
+    $$X_c(f) = X(f) * \frac{1}{T_c}\sum_{k=-\infty}^{+\infty}\delta(f-kf_c) = \frac{1}{T_c}\sum_{k=-\infty}^{+\infty} X(f-kf_c), \qquad f_c=\frac{1}{T_c}$$
+    (la convoluzione con un impulso genera una replica traslata sul punto di applicazione). Si ottiene uno spettro \textbf{periodico}, di periodo $f_c$: repliche di $X(f)$ distanziate di $f_c$, moltiplicate per $1/T_c$.
+\end{itemize}
+
+\subsubsection{Aliasing e teorema del campionamento}
+\begin{itemize}
+    \item Se le repliche sono sufficientemente distanziate, si può isolare la "replica in banda base" ($k=0$) con un \textbf{filtro passa-basso}, eliminando le altre: essendo la FT dello spettro filtrato identica a $X(f)$, in uscita si riottiene esattamente $x(t)$ — l'operazione di campionamento (a queste condizioni) \textbf{non produce alcuna perdita di informazione}.
+    \item Se invece $f_c$ è troppo bassa, le repliche si \textbf{sovrappongono}: applicando il LPF si ottiene uno spettro $X'(f)\ne X(f)$, quindi $x'(t)\ne x(t)$. Il fenomeno si chiama \textbf{aliasing}: mescola le repliche (alias) dello spettro, impedendo la corretta ricostruzione. Non è un effetto passa-basso: coinvolge tutto il range di frequenze e genera anche alte frequenze spurie (è come un'auto-interferenza del segnale con sé stesso). Va quindi evitato.
+    \item \textbf{Teorema del campionamento (condizione di Nyquist)}: per non avere aliasing le repliche devono essere distanziate di almeno il doppio della massima frequenza $f_{max}$ del segnale:
+    $$f_c \ge 2f_{max}$$
+    Al limite le repliche si toccano in un solo punto.
+    \item \textit{Caso limite}: campionando una sinusoide di periodo $T$ con $T_c=T/2$ (limite inferiore di Nyquist) e il primo campione nell'origine, si ottiene una sequenza di campioni tutti nulli: impossibile risalire al segnale originale.
+    \item \textbf{Sovracampionamento}: per questo motivo conviene scegliere $f_c$ un poco superiore al limite di Nyquist, introducendo una \textbf{banda di guardia} $\varepsilon$: $f_c=2f_{max}+\varepsilon$. È utile anche perché la ricostruzione richiede un LPF, e un LPF reale ha una regione di transizione: repliche troppo ravvicinate causerebbero comunque aliasing residuo.
+    \item \textbf{Segnali non limitati in banda}: un segnale a durata finita ha banda infinita. Si considera allora la banda "significativa" (es. quella del 90\% dell'energia): si pre-filtra $x(t)$ con un LPF a $f_{max}$, ottenendo $x'(t)$ a banda limitata, a cui si applica Nyquist con l'opportuna banda di guardia.
+    \item \textit{Esempio (segnale vocale)}: lo spettro si estende oltre i $3.5$ kHz, ma la maggior parte del contenuto informativo sta tra $300$ e $3500$ Hz circa; si usa un LPF con taglio $3.5$ kHz. Gli standard ITU-T raccomandano di campionare a $8000$ campioni/sec ($T_c=125\,\mu$s), con banda di guardia di $0.5$ kHz.
+\end{itemize}
+
+\subsubsection{Interpolazione dei campioni}
+\begin{itemize}
+    \item Il filtro di ricostruzione ideale è un LPF di guadagno $T_c$ e taglio $f_c$:
+    $$H_{LPF}(f) = T_c\,\Pi\!\left(\frac{f}{f_c}\right) \ \Longrightarrow\ h_{LPF}(t) = \text{sinc}\!\left(\frac{t}{T_c}\right) \quad\text{(funzione interpolante)}$$
+    \item Il segnale ricostruito è $x'(t)=x_c(t)*h_{LPF}(t)$; per la linearità della convoluzione:
+    $$x'(t) = \sum_{n=-\infty}^{+\infty} x(nT_c)\,\text{sinc}\!\left(\frac{t-nT_c}{T_c}\right)$$
+    Ogni funzione interpolante vale $x(nT_c)$ nel corrispondente istante di campionamento ed è nulla in tutti gli altri istanti di campionamento; tra due campioni successivi le sinc si sommano, interpolando il segnale in modo esatto.
+\end{itemize}
+
+\subsection{Campionamento reale: Sample\&Hold}
+\begin{itemize}
+    \item Quanto visto è valido in teoria ma non è fisicamente realizzabile: gli impulsi non sono realizzabili, e un LPF ideale sarebbe un filtro non causale.
+    \item Soluzione tipica: il \textbf{Sample\&Hold}, che prende il segnale nell'istante di campionamento e lo trattiene per un tempo pari a $T_c$ — si ottiene un'approssimazione a rettangoli (durata $T_c$, ampiezza pari al valore di $x(t)$ all'inizio del rettangolo).
+    \item Si modella come la \textbf{cascata} di un campionatore ideale e di un filtro di trattenimento $h_H(t)=\Pi\!\left(\dfrac{t-T_c/2}{T_c}\right)$ (rettangolo di durata $T_c$):
+    $$x_{s,h}(t) = x_c(t)*h_H(t) \ \Longrightarrow\ X_{s,h}(f) = X_c(f)\cdot H_H(f)$$
+    \item Essendo $h_H(t)$ un rettangolo, $H_H(f)$ è una \textbf{sinc}, con primo zero in $f=1/T_c$: lo spettro campionato viene quindi \textbf{deformato} dal filtro di trattenimento — una \textbf{distorsione lineare}.
+    \item \textbf{Ricostruzione}: si può ancora usare un LPF (rispettando Nyquist), ma occorre anche un \textbf{filtro di equalizzazione} per correggere la distorsione introdotta da $H_H(f)$:
+    $$H_{eq}(f) = \begin{cases} \dfrac{1}{H_H(f)} & |f|<f_{max} \\ 0 & \text{altrove}\end{cases}$$
+\end{itemize}
+
+\subsection{Quantizzazione}
+\begin{itemize}
+    \item Il segnale campionato è discreto nel tempo ma ha ancora valori continui in ampiezza: non è rappresentabile in forma numerica (i valori non sono un insieme numerabile). Occorre quindi \textbf{quantizzare}: discretizzare i campioni in ampiezza, associandoli a un numero limitato di livelli.
+    \item Si vuole mappare il segnale su un set di $M$ livelli predefiniti (tipicamente $M=2^B$, con $B$ numero di bit); l'assegnazione avviene per \textbf{minima distanza}. Dato il campione $x(nT_c)$:
+    $$x(nT_c) = x_q(nT_c) + \epsilon_q(nT_c)$$
+    con $x_q$ segnale quantizzato ed $\epsilon_q$ \textbf{errore di quantizzazione}. \textit{N.B.} a differenza del campionamento, l'errore di quantizzazione \textbf{non è evitabile}: la quantizzazione è sempre un'operazione \textbf{lossy}.
+\end{itemize}
+
+\subsubsection{Quantizzatore uniforme}
+\begin{itemize}
+    \item Caso più semplice: gli $M$ livelli sono \textbf{equispaziati}. L'errore massimo commesso è $\pm\Delta/2$; per un segnale normalizzato in $[-1,1]$:
+    $$\Delta = \frac{2}{M} \ \Longrightarrow\ \varepsilon_{q\,max} = \frac{\Delta}{2} = \frac1M$$
+    \item La relazione ingresso-uscita è una funzione \textbf{a scalini} (è un sistema \textbf{non lineare}).
+\end{itemize}
+
+\subsubsection{Rumore di quantizzazione}
+\begin{itemize}
+    \item La quantizzazione introduce un errore sistematico, il \textbf{rumore di quantizzazione}: massimo ($\pm\Delta/2$) nei punti di transizione tra livelli, nullo al centro dell'intervallo.
+    \item Supponendo il segnale distribuito uniformemente, anche l'errore è una variabile aleatoria distribuita uniformemente in $\pm\Delta/2$ (densità $f_{\varepsilon_q}(\varepsilon)=1/\Delta$). La potenza del rumore (valore quadratico medio = varianza, valor medio nullo):
+    $$E\{\varepsilon_q^2\} = \sigma_q^2 = \int_{-\Delta/2}^{\Delta/2} \varepsilon^2\,\frac1\Delta\,d\varepsilon = \frac{1}{\Delta}\cdot\frac{\varepsilon^3}{3}\bigg|_{-\Delta/2}^{\Delta/2} = \frac{\Delta^2}{12}$$
+    La potenza del rumore di quantizzazione cresce \textbf{quadraticamente} con $\Delta$, cioè al diminuire del numero di livelli.
+\end{itemize}
+
+\subsubsection{Rapporto segnale-rumore}
+\begin{itemize}
+    \item Più che la potenza assoluta del rumore, interessa il \textbf{rapporto segnale-rumore} (SNR), tra potenza del segnale $S_x$ e del rumore $S_n$, misurato in scala logaritmica (deciBel):
+    $$SNR = 10\log_{10}\frac{S_x}{S_n}\ [\text{dB}]$$
+    Misura la qualità di un segnale (più alto è, meglio è); è un numero puro; si calcola nell'ipotesi di rumore additivo.
+    \item \textit{Valori tipici}: trasmissione telefonica $\approx30$ dB; radio FM $\approx50$ dB; CD-Audio $\approx90$ dB (vinile $\approx60$ dB).
+\end{itemize}
+
+\subsubsection{SNR del quantizzatore uniforme}
+\begin{itemize}
+    \item Supponendo il segnale a valor medio nullo, distribuito uniformemente in $[-A/2,A/2]$:
+    $$E\{x^2\}=\sigma_x^2 = \int_{-A/2}^{A/2} x^2\,\frac1A\,dx = \frac{A^2}{12}$$
+    Quindi:
+    $$\frac{S}{N} = 10\log_{10}\frac{A^2/12}{\Delta^2/12} = 10\log_{10}\frac{A^2}{\Delta^2}\ \text{dB}$$
+    \item Sapendo che $\Delta=A/M$ e $M=2^B$:
+    $$SNR = 10\log_{10}\frac{A^2}{A^2/2^{2B}} = 10\log_{10}2^{2B} = 10\cdot\frac{2B}{\log_2 10}\approx 10\cdot\frac{2B}{3.32}\approx 6B\ \text{dB}$$
+    Il risultato non dipende da $A$. È tanto semplice quanto importante: \textbf{ogni bit aggiuntivo (raddoppio dei livelli) migliora l'SNR di 6 dB}. \textit{Esempio}: per i $90$ dB del CD-Audio occorrono $16$ bit ($64$k livelli).
+\end{itemize}
+
+\subsubsection{Quantizzatori non uniformi}
+\begin{itemize}
+    \item Il quantizzatore uniforme è ottimo solo se il segnale è distribuito uniformemente. Se la distribuzione è diversa, conviene generare più livelli dove il segnale ha maggiore probabilità di trovarsi, per approssimarlo meglio $\to$ \textbf{quantizzazione non uniforme}.
+\end{itemize}
+
+\subsubsection{Quantizzatore ottimo (Lloyd-Max)}
+\begin{itemize}
+    \item Teoria formulata da Lloyd e Max: ottimizzazione congiunta di soglie e livelli rappresentativi per minimizzare l'errore quadratico medio. L'espressione analitica non si risolve in forma chiusa, ma si può ottenere per via iterativa, note la distribuzione $f_x(x)$ e il numero di livelli $N$.
+    \item \textbf{Algoritmo di Lloyd-Max}:
+    \begin{enumerate}
+        \item si sceglie un set iniziale arbitrario di livelli $a_i$, $i=1,\dots,N$ (es. livelli uniformi);
+        \item si impostano le soglie $b_j$, $j=1,\dots,N-1$, ai valori centrali tra livelli successivi: $b_j=\frac12(a_{j+1}+a_j)$;
+        \item si ricalcolano i livelli $a_i$ come media della ddp nella finestra $(b_{i-1},b_i)$, con $b_0=-\infty$, $b_N=+\infty$;
+        \item si calcola l'errore quadratico medio e lo si confronta col passo precedente;
+        \item se la variazione è sotto una soglia data si termina, altrimenti si torna al punto 2.
+    \end{enumerate}
+    \item[] \textit{N.B.} l'algoritmo converge (a ogni passo l'MSE non può che diminuire), ma non è garantito che non si fermi in un minimo locale.
+\end{itemize}
+
+\subsection{Codificatore PCM}
+\begin{itemize}
+    \item Quantizzato il segnale, si hanno campioni discreti con un numero finito di livelli: si può rappresentare il segnale in forma simbolica (tipicamente binaria), associando a ogni campione un codice univoco di $B$ bit (uno dei $2^B$ possibili).
+    \item L'intero processo si chiama \textbf{PCM} (\textit{pulse code modulation}): catena LPF $\to$ campionatore $\to$ quantizzatore $\to$ codificatore $\to$ convertitore parallelo/seriale.
+\end{itemize}
+
+\subsubsection{Bitrate}
+\begin{itemize}
+    \item In uscita dalla PCM (codifica binaria) si ha una sequenza di bit con una data cadenza: il numero di bit al secondo si chiama \textbf{bitrate}. Dato un segnale campionato a $N$ campioni/sec, quantizzato su $M$ livelli:
+    $$r_b = N\cdot\log_2M = N\cdot B\ \ [\text{bit/sec}]$$
+    Legato alla banda del segnale (Nyquist) e alla qualità desiderata (SNR).
+    \item \textit{Esempio}: segnale di banda $10$ kHz, qualità $\ge30$ dB ($B\ge5$ bit): $r_b \ge 2\cdot10^4\cdot5 = 10^5$ bit/sec.
+\end{itemize}
+
+\subsection{Come ridurre il bitrate}
+\begin{itemize}
+    \item Il bitrate generato da una sorgente può essere significativo, specie per segnali a larga banda con requisiti qualitativi elevati. Tra i meccanismi di riduzione, quelli basati sulla \textbf{predicibilità} (segnale lentamente variabile): campioni successivi hanno valori simili, quindi si può codificare la \textbf{variazione} anziché il valore assoluto (es. \textbf{modulazione Delta}, \textbf{DPCM}).
+\end{itemize}
+
+\subsubsection{Modulazione Delta}
+\begin{itemize}
+    \item Si codificano le variazioni (positive o negative) tra un campione e l'altro, anziché i valori assoluti. Si definisce un passo fisso $\Delta$ da sommare o sottrarre al campione ricostruito precedente:
+    $$\hat x_i = \begin{cases}\hat x_{i-1}+\Delta & \text{se } x_i>\hat x_{i-1} \\ \hat x_{i-1}-\Delta & \text{altrimenti}\end{cases}$$
+    Essendo solo due le possibilità ($\pm\Delta$), basta \textbf{1 bit} per campione.
+    \item Qualità inferiore alla PCM, con due tipi di errore:
+    \begin{itemize}
+        \item \textbf{slope overload}: in presenza di variazioni brusche il segnale codificato non riesce a "inseguire" le variazioni (effetto a scalini, \textit{staircase effect});
+        \item \textbf{rumore di quantizzazione}: nelle zone piatte il segnale continua comunque a oscillare tra $\mp\Delta$.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{DPCM}
+\begin{itemize}
+    \item Meccanismo simile ma più sofisticato: si effettua una \textbf{predizione} del campione successivo (anche basata su più campioni precedenti) e si codifica l'\textbf{errore di predizione} tra il campione corrente e la predizione:
+    $$\hat x_i = a_1\tilde x_{i-1} + a_2\tilde x_{i-2} + \cdots + a_N\tilde x_{i-N}$$
+    \textit{N.B.} la stima $\hat x$ è calcolata sui campioni \textbf{ricostruiti} $\tilde x$ (i valori originali non sono necessariamente disponibili al decodificatore) — per questo il \textbf{codificatore contiene al suo interno un decodificatore} (leggermente più semplice del decodificatore vero e proprio).
+    \item Se la predizione è accurata, l'errore è piccolo: con tecniche di codifica entropica si può risparmiare bit. Il bitrate non è fisso: dipende da quanto il segnale è correlato (predicibile) e dal livello di errore tollerato.
+    \item La predizione può basarsi su un solo campione o su una piccola sequenza (aumentano buffer e ritardo). La DPCM applica un quantizzatore (tipicamente non uniforme) all'errore di predizione, che ha distribuzione quasi impulsiva; talvolta, per risparmiare bit, si trascurano gli errori sotto una soglia.
+    \item Le prestazioni dipendono dalle caratteristiche del segnale: maggiore correlazione $\to$ bitrate più basso. Si può evidenziare il vantaggio del predittore confrontando l'istogramma dei valori originali con quello degli errori di predizione (quest'ultimo tipicamente molto più concentrato attorno allo zero).
+\end{itemize}
+
+\section{Sistemi e filtri digitali}
+
+\subsection{Notazione e proprietà dei segnali discreti}
+
+\subsubsection{Notazione}
+\begin{itemize}
+    \item D'ora in poi si useranno \textbf{sequenze} $x[n]$ (parentesi quadre) al posto di funzioni $x(t)$. I valori $x[n]$ sono i campioni già campionati e quantizzati: coincidono con quello che finora si è chiamato $x_q(nT_c)$ (notazione semplificata), \textbf{non} con il codice binario che li rappresenta.
+    \item \textit{Esempio}: con $L=4$ livelli $v(l)=\{-1,0,1,2\}$, la codifica binaria (2 bit) assegna $[00]\to-1$, $[01]\to0$, $[10]\to1$, $[11]\to2$; ma $x[n]$ indica direttamente il livello (es. $-1$), non il codice.
+\end{itemize}
+
+\subsubsection{Estensione delle proprietà dei segnali}
+\begin{itemize}
+    \item \textbf{Simmetria}: pari $x(t)=x(-t)\;\forall t \to x[n]=x[-n]\;\forall n$; dispari $x(t)=-x(-t)\;\forall t \to x[n]=-x[-n]\;\forall n$.
+    \item \textbf{Guadagno}: positivo (amplificazione) $\alpha x(t):\alpha>1 \to \alpha x[n]:\alpha>1$; negativo (attenuazione) $\alpha x(t):\alpha<1 \to \alpha x[n]:\alpha<1$.
+    \item \textbf{Ritardo} (traslazione di $k$ campioni): $x(t-\Delta T) \to x[n-k]$.
+    \item \textbf{Fattore di scala}: nel discreto compressione ed espansione corrispondono a \textbf{ricampionamenti}:
+    \begin{itemize}
+        \item \textbf{compressione} (sottocampionamento): occorre \textbf{decimare} i campioni; può introdurre aliasing — per evitarlo si può applicare un filtraggio LPF, oppure interpolare i campioni (equivalente);
+        \item \textbf{espansione} (sovracampionamento): occorre introdurre nuovi campioni nella sequenza, per interpolazione o replica.
+    \end{itemize}
+    \item[] \textit{N.B.} l'uscita deve sempre essere una sequenza discreta equispaziata: se il fattore di scala non è intero occorre comunque interpolare.
+    \item \textbf{Integrazione e derivazione}:
+    $$y(t)=\int_{-\infty}^{t} x(\xi)\,d\xi \ \to\ y[n]=\sum_{k=-\infty}^{n} x[k] \qquad \text{(somma cumulativa)}$$
+    $$y(t)=\frac{d}{dt}x(t) \ \to\ y[n]=\frac{1}{T_c}\big(x[n]-x[n-1]\big) \qquad \text{(differenza finita)}$$
+    \item[] \textit{N.B.} data una sequenza discreta, $T_c$ potrebbe non essere noto: in tal caso si calcola solo la differenza tra campioni (si pone $T_c=1$).
+\end{itemize}
+
+\subsubsection{Statistiche dei segnali discreti}
+\begin{itemize}
+    \item \textbf{Valor medio}: $\displaystyle\bar x = \lim_{T\to\infty}\frac1T\int_{-T/2}^{T/2}x(t)\,dt \ \to\ \bar x = \lim_{K\to\infty}\frac1K\sum_{k=-K/2}^{K/2} x_k$
+    \item \textbf{Varianza}: $\displaystyle\sigma_x^2 = \lim_{T\to\infty}\frac1T\int_{-T/2}^{T/2}(x(t)-\bar x)^2\,dt \ \to\ \sigma_x^2 = \lim_{K\to\infty}\frac1K\sum_{k=-K/2}^{K/2} (x[n]-\bar x)^2$
+    \item \textbf{Energia} (segnali discreti di energia): $\displaystyle E_x = \int_{-\infty}^{+\infty}x^2(t)\,dt \ \to\ E_x=\sum_{k=-\infty}^{+\infty}x^2[k]$, $E_x\ne\infty$
+    \item \textbf{Potenza media} (segnali discreti di potenza): $\displaystyle P_x = \lim_{T\to\infty}\frac1T\int_{-T/2}^{T/2}x^2(t)\,dt \ \to\ P_x=\lim_{K\to\infty}\frac1K\sum_{k=-K/2}^{K/2}x^2[k]$, $P_x\ne0$
+    \item \textbf{Cross-correlazione}: segnali di energia $\displaystyle\mathcal{R}_{xy}[k]=\sum_{n=-\infty}^{+\infty}x[n]\,y[n+k]$; segnali di potenza $\displaystyle\mathcal{R}_{xy}[k]=\lim_{K\to\infty}\frac1K\sum_{n=-K/2}^{K/2}x[n]\,y[n+k]$
+    \item \textbf{Autocorrelazione}: segnali di energia $\displaystyle\mathcal{R}_x[k]=\sum_{n=-\infty}^{+\infty}x[n]\,x[n+k]$; segnali di potenza $\displaystyle\mathcal{R}_x[k]=\lim_{K\to\infty}\frac1K\sum_{n=-K/2}^{K/2}x[n]\,x[n+k]$
+\end{itemize}
+
+\subsubsection{Istogramma}
+\begin{itemize}
+    \item Dato un segnale discreto è possibile calcolarne la ddp dei livelli assunti; con un numero finito $N$ di campioni le probabilità si stimano come \textbf{frequenza relativa} dei valori disponibili.
+    \item Dato $x[n]$ che assume $L$ valori $v(l)$, $l=1,\dots,L$, l'istogramma è:
+    $$h[l] = \frac1N\sum_{n=1}^{N}\begin{cases}1 & \text{se } x[n]=v(l) \\ 0 & \text{altrimenti}\end{cases}, \qquad l=1,\dots,L$$
+    \item[] \textit{N.B.} è una pdf discreta: gode delle sue proprietà classiche, in particolare la somma delle righe vale $1$.
+    \item \textbf{Pseudocodice}:
+    \begin{verbatim}
+int x[N], v[L]
+float h[L] = zeros(L)
+load x, v
+for n in 1...N
+      h[v.FindIndex(x[n])] += 1.0
+for l in 1...L
+      h[l] /= N
+return h
+    \end{verbatim}
+    (\texttt{FindIndex} restituisce l'indice di \texttt{v[]} corrispondente al valore di \texttt{x[n]}).
+    \item \textit{Esempio}: sequenza di lunghezza $30$, $4$ livelli $v[l]=[-1,0,1,2]$. Contando le occorrenze si ottiene $h[1]=15/30$, $h[2]=6/30$, $h[3]=3/30$, $h[4]=6/30$ (istogramma a $4$ righe, una per livello).
+\end{itemize}
+
+\subsubsection{Statistiche dall'istogramma}
+\begin{itemize}
+    \item Calcolato l'istogramma, si possono ricavare direttamente altre grandezze statistiche usandolo come pdf:
+    $$\bar x = \sum_{l=1}^{L} v[l]\cdot h[l], \qquad \sigma_x^2 = \sum_{l=1}^{L} (v[l]-\bar x)^2\cdot h[l]$$
+    \item \textit{Esempio} (sequenza precedente): $h[l]=\frac{1}{30}[15,6,3,6]$, $v[l]=[-1,0,1,2]$:
+    $$\bar x = \frac{1}{30}(-1\cdot15+0\cdot6+1\cdot3+2\cdot6) = \frac{0}{30}=0$$
+    $$\sigma_x^2 = \frac1{30}\Big[(-1-0)^2\cdot15+(0-0)^2\cdot6+(1-0)^2\cdot3+(2-0)^2\cdot6\Big] = \frac{42}{30}=1.4$$
+    \item[] \textit{N.B.} tipicamente $L\ll N$, quindi occorrono molte meno operazioni rispetto al calcolo diretto nel tempo.
+\end{itemize}
+
+\subsection{Sistemi numerici}
+\begin{itemize}
+    \item Un \textbf{sistema numerico} riceve in ingresso un segnale digitale e restituisce in uscita un segnale digitale (caratteristiche di dominio/rappresentazione eventualmente diverse). Come per i sistemi analogici, esistono sistemi \textbf{LTI} e \textbf{non-LTI}.
+    \item A differenza dei sistemi analogici, i sistemi digitali sono tipicamente implementati tramite \textbf{algoritmi} (software).
+    \item Estendendo le condizioni viste per i sistemi analogici:
+    $$\textbf{Linearità: } \left.\begin{aligned}f(x_1[n])&=y_1[n]\\f(x_2[n])&=y_2[n]\end{aligned}\right\}\Rightarrow f(\alpha x_1[n]+\beta x_2[n])=\alpha y_1[n]+\beta y_2[n]$$
+    $$\textbf{Tempo-invarianza: } f(x[n])=y[n] \ \Rightarrow\ f(x[n-k])=y[n-k]$$
+\end{itemize}
+
+\subsubsection{Impulso di Kronecker}
+\begin{itemize}
+    \item Per i sistemi LTI il teorema di convoluzione resta valido nel discreto, ma occorre prima definire l'\textbf{impulso} nel discreto: l'estensione della delta di Dirac è l'\textbf{impulso di Kronecker}
+    $$\delta[n] = \begin{cases}1 & n=0 \\ 0 & \text{altrove}\end{cases}$$
+    \item Mantiene tutte le proprietà della delta di Dirac: la sua somma (l'equivalente discreto dell'integrale) vale $1$; è simmetrico, $\delta[n]=\delta[-n]$; un impulso in posizione $k$, $\delta[n-k]$, moltiplicato per $x[n]$ ne estrae il valore in $k$, $x[k]\delta[n-k]$.
+    \item[] \textit{N.B.} a differenza della delta di Dirac, l'impulso di Kronecker \textbf{non presenta problemi matematici}: è una funzione discreta perfettamente definita in ogni punto.
+\end{itemize}
+
+\subsubsection{Risposta all'impulso discreta}
+\begin{itemize}
+    \item Imponendo in ingresso a un sistema LTI discreto un impulso di Kronecker $\delta[n]$, si ottiene in uscita la \textbf{risposta impulsiva discreta} $h[n]$.
+    \item In generale l'effetto è un "allargamento" dell'impulso su una sequenza di campioni: per questo $h[n]$ è anche chiamata \textbf{Point Spread Function} (PSF).
+\end{itemize}
+
+\subsubsection{Convoluzione discreta}
+\begin{itemize}
+    \item Estendendo la formula nel continuo $y(t)=x(t)*h(t)=\int_{-\infty}^{+\infty}x(\tau)h(t-\tau)\,d\tau$, l'integrale diventa una sommatoria estesa al prodotto tra segnale e risposta impulsiva:
+    $$y[n]=x[n]*h[n]=\sum_{k=-\infty}^{+\infty} x[k]\,h[n-k]$$
+    La sequenza $h[n]$ si chiama anche \textbf{kernel} o \textbf{maschera di convoluzione}.
+\end{itemize}
+
+\subsubsection{Calcolo della convoluzione discreta}
+\begin{itemize}
+    \item Se $h[n]$ ha durata limitata, il calcolo diventa un semplice algoritmo numerico: si specularizza il kernel ottenendo $h[-k]$; lo si fa scorrere su tutto il dominio; per ogni posizione $n$ si moltiplica punto per punto $x[k]$ per $h[n-k]$ e si somma sui $k$ con sovrapposizione non nulla; il risultato è $y[n]$.
+    \item \textbf{Pseudocodice}:
+    \begin{verbatim}
+int x[N], y[N], h[K]
+load x, h
+for n in 1...N {
+       tmp = 0
+       for k in 1...K
+              tmp += x[n-K/2+k]*h[k]
+       y[n] = tmp
+       }
+return y
+    \end{verbatim}
+    \item[] \textit{N.B.} il calcolo richiede $K$ operazioni di somma/prodotto per campione: complessità \textbf{lineare} nella dimensione del kernel, $O(K)$.
+    \item \textit{Esempio}: kernel $h_{DW}[n]=[1,0,2]$ (ribaltato: $h_{DW}[-n]=[2,0,1]$), ingresso $x[n]=[1,2,3,1,0,2]$. Facendo scorrere il kernel ribaltato su $x[n]$ si ottiene:
+    $$y[n] = [\,0,\ 1,\ 2,\ 5,\ 5,\ 6,\ 4,\ 0,\ 4,\ 0\,]$$
+    (i due $0$ agli estremi corrispondono alle posizioni di non sovrapposizione).
+\end{itemize}
+
+\subsubsection{Un'altra interpretazione (e differenza dalla correlazione)}
+\begin{itemize}
+    \item \textit{Metafora}: un ospedale somministra una cura che prevede $4$ pastiglie il primo giorno, $3$ il secondo, $1$ il terzo. Nella settimana $X$ si presentano $2,3,1,5,3,4,1$ nuovi pazienti nei vari giorni. Quante pastiglie eroga l'ospedale ogni giorno?
+    \item Chiamando $x[n]=[2,3,1,5,3,4,1]$ i nuovi pazienti e $h[k]=[4,3,1]$ le dosi nei 3 giorni di cura: il giorno 1 servono $4\times2=8$ pastiglie; il giorno 2 servono $3\times2+4\times3=18$ pastiglie; e così via. \textbf{Il risultato è esattamente la convoluzione di $x[n]$ e $h[n]$.}
+    \item Il \textbf{ribaltamento} di $h[n]$ è ciò che permette di seguire correttamente il ciclo di cura di ogni paziente nel tempo: senza ribaltare, il primo giorno si somministrerebbe 1 pastiglia, poi 3, poi 4 — esattamente al contrario.
+    \item La \textbf{correlazione} è simile ma \textbf{senza inversione}: ha un significato fisico diverso — misura la somiglianza di pattern (tipicamente su dati omogenei); nella metafora, con la correlazione si potrebbero cercare pattern ricorrenti nei flussi di pazienti (es. l'influenza stagionale).
+\end{itemize}
+
+\subsection{Progetto del filtro}
+\begin{itemize}
+    \item Per definire il kernel $h[k]$ che realizzi un dato obiettivo (es. un LPF): si definisce il comportamento desiderato in frequenza, si torna nel tempo (IFT) e si campiona la risposta impulsiva $h(t)$ ottenuta per ricavare i coefficienti $h[k]$.
+    \item \textbf{Problema}: partendo da una risposta in frequenza \textbf{ideale}, si ottiene un numero infinito di campioni $K$: il filtro così definito è detto \textbf{IIR} (\textit{infinite impulse response}).
+    \item \textit{Esempio}: l'LPF ideale ha risposta in frequenza rettangolare di banda $W$, quindi risposta impulsiva a forma di sinc; il campionamento avviene a $f_c>2W$ (Nyquist) — ma i coefficienti non ideali si estendono all'infinito.
+\end{itemize}
+
+\subsubsection{IIR vs. FIR}
+\begin{itemize}
+    \item Un kernel di dimensione infinita richiede infinite somme/prodotti per campione: \textbf{irrealizzabile tramite convoluzione diretta}.
+    \item Per renderlo realizzabile occorre \textbf{tagliare} il kernel a lunghezza limitata (\textbf{finestratura}): il risultato è il filtro \textbf{FIR} (\textit{finite impulse response}).
+    \item[] \textit{N.B.} tagliare il kernel introduce un'\textbf{approssimazione} (la risposta in frequenza cambia rispetto all'ideale) e un fenomeno di \textbf{aliasing}: la risposta reale presenta una \textbf{regione di transizione} (anziché un taglio netto) e un \textbf{ripple} residuo.
+\end{itemize}
+
+\subsection{Filtri FIR comuni}
+
+\subsubsection{LPF a media mobile}
+\begin{itemize}
+    \item Kernel con coefficienti tutti uguali: $h[k]=\dfrac1K[\,1\ 1\ \cdots\ 1\,]$ ($K$ termini). La convoluzione sostituisce ogni campione con la \textbf{media} dei campioni in una finestra di dimensione $K$ centrata su di esso — da cui il nome \textbf{media mobile}.
+    \item Il fattore $1/K$ evita che il filtro alteri il valor medio del segnale: in generale, la somma dei coefficienti di un filtro passa-basso deve valere $1$.
+    \item \textit{Esempio}: $x[n]=[1,3,8,2,9,0,0,1,1,9,2]$, $h[k]=[1/3,1/3,1/3]$. Trascurando primo e ultimo campione (problemi di bordo):
+    $$y[n] = [1,\ 4,\ 4,\ 6,\ 4,\ 3,\ 0,\ 1,\ 4,\ 4,\ 2]$$
+    Il filtro media (e quindi taglia) le variazioni più intense che cadono nella finestra $K$. \textit{N.B.} il comportamento di un LPF è di tipo \textbf{integrativo} (media pesata).
+    \item \textbf{Intensità}: proporzionale a $K$ (i coefficienti non si possono modificare in questo filtro): finestre più ampie tagliano oscillazioni via via più ampie (frequenze più basse).
+\end{itemize}
+
+\subsubsection{LPF gaussiano}
+\begin{itemize}
+    \item Per un effetto passa-basso più moderato, a parità di $K$, si agisce sui coefficienti pesando maggiormente il campione centrale (e i vicini), con una distribuzione \textbf{gaussiana}:
+    $$h[k] = \frac{1}{\lambda}e^{-\frac{k^2}{2\sigma^2}}, \qquad k\in\left[-\frac K2,\frac K2\right], \qquad \lambda=\sum_k e^{-\frac{k^2}{2\sigma^2}} \text{ (normalizzazione)}$$
+    $K$ è proporzionale alla deviazione standard $\sigma$ (es. $K=4\sigma$).
+    \item Al limite per $\sigma\to0$: funzione impulsiva (filtro passa-tutto). Al limite per $\sigma\to\infty$: funzione piatta (media mobile).
+    \item \textit{Esempio}: per $\sigma=1$, $K=4\Rightarrow5$ campioni: $h[k]=\frac{1}{2.48}[0.14,\,0.6,\,1.0,\,0.6,\,0.14]$; approssimando a coefficienti interi, $h[k]=\frac{1}{17}[1,4,7,4,1]$.
+\end{itemize}
+
+\subsubsection{Filtri passa-alto}
+\begin{itemize}
+    \item Si ottengono per differenza dal corrispondente LPF: $h_{HPF}[k]=\delta[k]-h_{LPF}[k]$.
+    \item \textit{Esempio}: da $h_{LPF}[k]=\frac15[1,1,1,1,1]$ (media mobile a 5):
+    $$h_{HPF}[k]=[0,0,1,0,0]-\tfrac15[1,1,1,1,1]=\tfrac15[-1,-1,4,-1,-1]$$
+    Moltiplicando per $5$ (la somma dei coefficienti è nulla, quindi il riscalamento non altera nulla): $h_{HPF}[k]=[-1,-1,4,-1,-1]$.
+    \item \textbf{Osservazioni}: la somma dei coefficienti è $0$ (gli LPF avevano somma $1$): la componente continua viene cancellata, come atteso per un HPF (non occorre normalizzare). Il comportamento è di tipo \textbf{differenziale} (segni alterni): l'effetto è \textbf{derivativo}, evidenzia le variazioni e attenua (azzera, se costante) le zone senza variazioni.
+\end{itemize}
+
+\subsubsection{Filtro gradiente}
+\begin{itemize}
+    \item Caso particolarmente semplice di HPF: esegue una \textbf{derivata prima} discreta, $h_{HPF}[k]=[1,-1]$.
+    \item Evidenzia le transizioni a gradino, generando un impulso in corrispondenza del fronte e azzerando le zone piatte. \textit{N.B.1} il filtro va ribaltato e si considera centrato sul secondo campione. \textit{N.B.2} un gradino discendente genera un impulso negativo.
+\end{itemize}
+
+\subsubsection{Filtro Laplaciano}
+\begin{itemize}
+    \item Esegue una \textbf{derivata seconda} (andamento a "mexican hat"): convolvendo $[1,-1]$ con sé stesso, $h[k]=[0,1,-2,1,0]$.
+    \item Genera una \textbf{doppia variazione} (doppietto) in corrispondenza della transizione a gradino.
+\end{itemize}
+
+\subsection{Filtri iterativi}
+\begin{itemize}
+    \item In teoria iterare un filtro \textbf{ideale} non dovrebbe produrre alcun ulteriore risultato: un LPF ideale taglia le frequenze oltre $f_0$ alla prima applicazione; riapplicandolo, quelle frequenze sono già nulle.
+    \item In pratica, poiché il filtro FIR è un'\textbf{approssimazione} (kernel troncato), applicazioni ripetute producono un ulteriore taglio a ogni iterazione: per intensificare l'effetto di un filtro lo si può quindi \textbf{iterare}.
+    \item \textit{Esempio}: media mobile $K=3$ applicata iterativamente converge dopo poche iterazioni (le prime 3 passate producono variazioni, la quarta no).
+    \item \textbf{Spiegazione}: il filtro FIR agisce su un supporto limitato dalla dimensione della maschera (alla prima passata mette in relazione solo campioni a distanza $<K/2$, quindi non può agire su oscillazioni più estese di $K/2$). L'applicazione iterativa \textbf{estende implicitamente il supporto}; l'effetto decresce progressivamente con la distanza, per cui il filtro converge.
+\end{itemize}
+
+\subsection{Cenno ai filtri IIR: autoregressione}
+\begin{itemize}
+    \item Il problema del supporto limitato non sussisterebbe con filtri IIR (supporto infinito), ma non sono realizzabili tramite convoluzione diretta (complessità infinita).
+    \item Un modo alternativo (approssimato) è tramite \textbf{auto-regressione}: man mano che si generano i campioni filtrati, li si utilizza per filtrare i successivi (operazione \textbf{ricorsiva}, che mescola campioni già filtrati e non filtrati). \textbf{Attenzione}: non è più una convoluzione, anche se le somiglia.
+    \item \textit{Esempio}: media mobile 3 applicata in modalità auto-regressiva (ARMA) produce, in un solo passaggio, una sequenza molto simile a quella ottenuta a regime con il filtro FIR iterato: anche qui si estende virtualmente il supporto, ma in un'unica passata (l'effetto si propaga a tutti i campioni successivi).
+    \item \textbf{Risposta impulsiva}: pur non essendo lineare (non implementabile come convoluzione), si può comunque calcolare mandando in ingresso un impulso di Kronecker: con kernel ARMA $[0.33,0.33,0.33]$ si ottiene $h[n]\approx[0,\,0.33,\,0.44,\,0.23,\,0.05,\,0.02,\,0.01,\dots]$ — la sequenza tende a zero solo \textbf{asintoticamente} (conferma che è, di fatto, un filtro IIR).
+\end{itemize}
+
+\subsection{Cenno ai filtri non lineari}
+\begin{itemize}
+    \item Complessi da realizzare in analogico (richiederebbero componentistica non lineare); lavorando su segnali numerici, la possibilità di implementarli algoritmicamente apre molte possibilità. Si vedono 2 esempi: \textbf{rimappatura dei livelli} e \textbf{filtri di rango}.
+\end{itemize}
+
+\subsubsection{Rimappatura dei livelli}
+\begin{itemize}
+    \item Anche la quantizzazione è già un'operazione non lineare. A valle di essa si può agire di nuovo sui livelli tramite funzioni di \textbf{rimappatura}, per aumentare o ridurre la dinamica del segnale in certi intervalli (espandendo alcuni range, comprimendone altri).
+    \item \textit{Esempio}: una funzione di mappatura non lineare (ingresso/uscita normalizzati in $[0,1]$) che espande la dinamica nei livelli bassi e la comprime in quelli alti.
+    \item \textbf{Usi}: evidenziare alcune caratteristiche del segnale o parte del suo contenuto; cancellare alcune variazioni; estrarre (es. per sogliatura) alcune parti azzerandone altre; comprimere la dinamica (anche adattativamente) per adeguarla a un formato o dispositivo di rendering.
+\end{itemize}
+
+\subsubsection{Filtri di rango}
+\begin{itemize}
+    \item Molto popolari (in particolare il \textbf{mediano}): semplici e potenti. Concetto diverso dai FIR: si basano su operazioni di \textbf{ordinamento}. Si ordinano i valori nella finestra di filtraggio e si effettua una media pesata basata sul \textbf{rango} (posizione nell'ordinamento) anziché sulla posizione temporale dei campioni.
+    \item[] \textit{N.B.} essendo l'ordinamento un'operazione non lineare, per questi filtri \textbf{non è definita} la risposta impulsiva.
+    \item \textbf{Schema}: dal segnale $x[n]$ si estrae a scorrimento una finestra $[x[n-N/2],\dots,x[n+N/2]]$; si ordina in modo crescente ottenendo $[x_1,\dots,x_N]$; si pesano i valori ordinati con pesi $[a_1,\dots,a_N]$; si sommano i prodotti pesati $a_ix_i$ ottenendo $y[n]$.
+    \item \textit{Esempio (procedura)}: sequenza $[1,4,2,1,6,1,2,4,6,1]$, finestra $3$, pesi $[1,0,1]$ (somma di minimo e massimo della finestra, mediano escluso):
+    $$y[n] = [\,5,\ 5,\ 7,\ 7,\ 7,\ 5,\ 8,\ 7\,] \qquad \text{(senza bordi)}$$
+    \item \textbf{Pseudocodice}:
+    \begin{verbatim}
+int x[N], y[N], a[K]
+int temp, buff[K]
+load x, a
+for n in K/2...N-K/2 {
+    tmp = 0
+    buff = sort(x+n-K/2, K)
+    // ordina K elementi di x da n-K/2 a n+K/2 in buff
+    for k=1...K
+       tmp += buff[k]*a[k]
+    y[n] = tmp
+    }
+return y
+    \end{verbatim}
+\end{itemize}
+
+\subsubsection{Massimo, minimo e mediano}
+\begin{itemize}
+    \item Filtri di rango elementari, definiti dai pesi $a_i$ (su $N$ valori ordinati):
+    $$\textbf{Massimo: } a_i=\begin{cases}0 & i\ne N\\1 & i=N\end{cases} \qquad \textbf{Minimo: } a_i=\begin{cases}0 & i\ne1\\1 & i=1\end{cases} \qquad \textbf{Mediano: } a_i=\begin{cases}0 & i\ne\frac N2\\1 & i=\frac N2\end{cases}$$
+    \item \textbf{Massimo/minimo}: sostituiscono il valore centrale con il massimo/minimo della finestra — eliminano picchi indesiderati (\textit{outlier}) verso l'alto o il basso.
+    \item \textit{Esempio (minimo, $N=3$)}: $x[n]=[1,2,2,1,1,0,9,1,2,1,0,1] \to y[n]=[1,1,1,1,0,0,0,1,1,0,0,0]$. \textit{N.B.} l'intera sequenza si abbassa e non si introducono nuovi valori.
+    \item \textbf{Mediano}: seleziona il valore centrale (non gli estremi): elimina contemporaneamente outlier in alto e in basso, senza introdurre nuovi valori né scalare la sequenza.
+    \item \textit{Esempio}: $x[n]=[5,4,4,5,3,4,9,4,5,0,5,4,5]\to y[n]=[5,4,4,4,4,4,4,5,4,5,4,5,5]$ ($N=3$).
+    \item \textbf{Uso tipico}: regolarizzazione del segnale, eliminando variazioni impulsive senza introdurre effetto passa-basso. \textit{Esempio (confronto con media mobile)}: $x[n]=[4,4,4,4,9,4,4,4,4,0,4,4,4,4]$: $y_{MA}[n]=[4,4,4,6,6,6,4,4,3,3,3,4,4,4]$ (il picco viene abbassato e "spalmato" ma non rimosso), $y_{MED}[n]=[4,4,4,4,4,4,4,4,4,4,4,4,4,4]$ (il picco viene eliminato completamente).
+    \item \textbf{Proprietà}: un filtro mediano di larghezza $N$ lascia \textbf{inalterate} le sequenze monotone (anche non strettamente) di lunghezza maggiore di $\frac N2+1$.
+    \item \textbf{Complessità}: maggiore di un FIR (si aggiunge l'ordinamento). Con algoritmi semplici (es. bubblesort) l'ordinamento è $O(K^2)$ per campione; con algoritmi più sofisticati (es. quicksort) scende a $O(N\log N)$, conveniente solo per finestre grandi. Per i filtri più semplici (massimo, minimo, mediano) non serve riordinare l'intero vettore ad ogni posizione: basta sostituire, nell'array già ordinato, il valore entrante a quello uscente.
+\end{itemize}
+
+
+
+\section{Segnali e sistemi digitali in frequenza}
+
+\subsection{Trasformata discreta di Fourier (DFT)}
+\begin{itemize}
+    \item Sono già stati definiti due tipi di rappresentazione in frequenza: per segnali continui \textbf{periodici} (serie di Fourier) e per segnali continui \textbf{qualsiasi} (trasformata di Fourier). Occorre ora rappresentare in frequenza un segnale \textbf{discreto}: si introduce la \textbf{DFT} (trasformata di Fourier discreta).
+    \item La DFT è parente stretta della serie di Fourier: è l'analogo discreto della formula dei coefficienti della serie, mentre la \textbf{IDFT} è l'analogo discreto della serie stessa (ricostruzione nel tempo). L'analogia nasce dalla natura congiuntamente discreta e periodica sia dei segnali campionati sia della loro rappresentazione in frequenza.
+\end{itemize}
+
+\subsubsection{Definizione}
+\begin{itemize}
+    \item DFT e IDFT:
+    $$\text{DFT}\to X[k] = \sum_{n=0}^{N-1} x[n]\,e^{-j2\pi\frac{k}{N}n}, \quad k=0,\dots,N-1$$
+    $$\text{IDFT}\to x[n] = \frac1N\sum_{k=0}^{N-1} X[k]\,e^{j2\pi\frac{k}{N}n}, \quad n=0,\dots,N-1$$
+    \item Trasformando una sequenza di $N$ campioni nel tempo si ottiene una sequenza di $N$ coefficienti, associati ad altrettante \textbf{armoniche} della frequenza base, a loro volta rappresentate da sequenze di $N$ campioni nel tempo.
+\end{itemize}
+
+\subsubsection{Funzioni base}
+\begin{itemize}
+    \item Le armoniche campionate $e^{-j2\pi\frac{k}{N}n}$ sono sinusoidi complesse discretizzate nel tempo, dette \textbf{funzioni base}: sono in numero pari al numero di campioni trasformati.
+    \item La $k$-esima funzione base è una sinusoide a frequenza $k$ volte la \textbf{frequenza fondamentale} (la sinusoide che compie un ciclo intero nella durata del segnale); ogni funzione base è discretizzata, nel proprio periodo, in un numero di campioni pari alla lunghezza della sequenza temporale.
+    \item \textit{Esempio}: una sequenza di $8$ campioni richiede $8$ funzioni base, ciascuna rappresentata da $8$ campioni (parte reale = coseni campionati, parte immaginaria = seni campionati).
+\end{itemize}
+
+\subsubsection{Periodicità nel tempo}
+\begin{itemize}
+    \item Le funzioni base sono in realtà \textbf{periodiche}: se ne rappresenta un solo periodo, ma le sinusoidi discrete $e^{\mp j2\pi\frac{k}{N}n}$, al variare di $n$, generano sequenze infinite.
+    \item La rappresentazione discreta in frequenza corrisponde quindi a una \textbf{periodizzazione della sequenza originale nel tempo} — esattamente come la discretizzazione nel tempo corrispondeva a una periodizzazione dello spettro (visto con il campionamento).
+\end{itemize}
+
+\subsubsection{Osservazioni riassuntive}
+\begin{itemize}
+    \item Dato un numero finito $N$ di campioni di un segnale discreto, la sua rappresentazione in frequenza (FT) è una funzione \textbf{continua e periodica}.
+    \item La DFT è la discretizzazione di tale rappresentazione (che resta periodica), e genera a sua volta una periodizzazione nel tempo.
+    \item Si ottengono così due sequenze (nel tempo e in frequenza) entrambe \textbf{discrete e periodiche}, con lo stesso numero $N$ di campioni, associate ad altrettante funzioni base sinusoidali complesse, anch'esse discrete e periodiche di periodo $N$.
+\end{itemize}
+
+\subsubsection{Interpretazione}
+\begin{itemize}
+    \item La DFT produce i coefficienti complessi \textbf{cross-correlando} la sequenza del segnale (lunghezza $N$) con le sequenze delle $N$ funzioni base (anch'esse di lunghezza $N$).
+    \item La IDFT ricostruisce il segnale nel tempo \textbf{sommando} i contributi delle $N$ funzioni base discrete, pesate dai relativi coefficienti.
+    \item Essendo il numero di armoniche limitato, la trasformata si implementa al calcolatore senza perdita di informazione (a parte eventuali approssimazioni numeriche). \textit{N.B.} per una data lunghezza $N$ le $N$ funzioni base si possono pre-calcolare, dipendendo solo da $N$.
+\end{itemize}
+
+\subsection{Proprietà della DFT}
+\begin{itemize}
+    \item È una trasformata \textbf{ortogonale}: correlando due funzioni base $i\ne j$ il risultato è nullo (le funzioni base formano una base ortogonale).
+    \item Mantiene le proprietà note della FT (linearità, invertibilità, simmetria, traslazione, ecc.), incluso il \textbf{teorema di convoluzione} — la cui estensione al discreto, però, non è del tutto immediata (si vede a breve perché).
+\end{itemize}
+
+\subsubsection{Teorema di Rayleigh}
+\begin{itemize}
+    \item Estensione diretta al discreto: data $x[n]$, $n=1,\dots,N$ e la sua DFT $X[k]$, $k=1,\dots,N$, l'energia si calcola anche nel dominio della frequenza:
+    $$E_x = \sum_{n=1}^{N} x^2[n] = \frac1N\sum_{k=1}^{N} |X[k]|^2$$
+\end{itemize}
+
+\subsection{Teorema di convoluzione discreto}
+\begin{itemize}
+    \item Dati $x[n]$, $n=1\dots N_x$ e un filtro $h[n]$, $n=1\dots N_h$, la loro convoluzione è $w[n]=x[n]*h[n]$. Con $x[n]\leftrightarrow X[k]$, $k=1\dots N_x$ e $h[n]\leftrightarrow H[k]$, $k=1\dots N_h$, l'estensione "ingenua" del teorema sarebbe $Y[k]=X[k]H[k] \Rightarrow y[n]=\text{IDFT}(Y[k])$.
+    \item \textbf{Primo problema}: se le due sequenze non hanno la stessa lunghezza si può eseguire la convoluzione ma non il prodotto (termine a termine) delle trasformate.
+    \item Si risolve con lo \textbf{zero padding}: si aggiungono zeri alla sequenza più corta (tipicamente $h[n]$) fino a pareggiare le lunghezze — operazione lecita, non altera il contenuto della sequenza. Applicando comunque questo accorgimento, il risultato non torna: emerge un secondo problema.
+    \item La DFT rappresenta la frequenza di una sequenza \textbf{periodizzata} di periodo $N$: il prodotto in frequenza equivale quindi a convolvere non $x[n]$ e $h[n]$, ma la \textbf{periodizzazione} di $x[n]$ con $h[n]$ (a sua volta periodica). Anche prendendone solo i primi $N$ valori, il risultato differisce dalla consueta convoluzione, perché il kernel "rientra" ciclicamente sui valori della sequenza. Si parla quindi di convoluzione \textbf{circolare}, per distinguerla da quella \textbf{lineare}.
+\end{itemize}
+
+\subsubsection{Convoluzione circolare}
+\begin{itemize}
+    \item Date $x[n]$ e $y[n]$ di lunghezza $N$, la convoluzione circolare ($\circledast$) è:
+    $$w[n] = x[n]\circledast y[n] = \sum_{k=0}^{N-1} x[k]\,y[(n-k)_N]$$
+    dove $(\cdot)_N$ indica la periodizzazione (modulo $N$) dell'argomento.
+    \item Si può calcolare graficamente disponendo i valori di $x$ e $y$ su due cerchi concentrici (uno orario, uno antiorario) e facendoli ruotare uno rispetto all'altro di una posizione alla volta.
+\end{itemize}
+
+\subsubsection{Convoluzione circolare: esempio}
+\begin{itemize}
+    \item Date $x[n]=[2,1,0,1]$, $y[n]=[1,0,1,3]$, $w[n]=x[n]\circledast y[n]$:
+    \begin{align*}
+        w[0] &= x[0]y[0]+x[1]y[3]+x[2]y[2]+x[3]y[1] = 2\cdot1+1\cdot3+0\cdot1+1\cdot0=5 \\
+        w[1] &= x[0]y[1]+x[1]y[0]+x[2]y[3]+x[3]y[2] = 2\cdot0+1\cdot1+0\cdot3+1\cdot1=2 \\
+        w[2] &= x[0]y[2]+x[1]y[1]+x[2]y[0]+x[3]y[3] = 2\cdot1+1\cdot0+0\cdot1+1\cdot3=5 \\
+        w[3] &= x[0]y[3]+x[1]y[2]+x[2]y[1]+x[3]y[0] = 2\cdot3+1\cdot1+0\cdot0+1\cdot1=8 \\
+        w[4] &= w[0],\ \dots
+    \end{align*}
+    \item Al contrario della convoluzione lineare, il risultato è \textbf{periodico}: $w[n]=[\dots,5,2,5,8,5,2,5,8,5,2,\dots]$.
+    \item Anche prendendo un solo periodo $[5,2,5,8]$, il risultato differisce dalla convoluzione lineare:
+    $$x[n]*y[n] = [2,1,0,1]*[1,0,1,3] = [2,1,2,8,3,1,3]$$
+    \textit{N.B.1} la differenza nasce perché nella circolare il segnale "rientra" su sé stesso, incrociando sempre campioni validi anziché zeri. \textit{N.B.2} anche la durata è diversa: la circolare ha periodo $N$ campioni, la lineare genera $2N-1$ campioni.
+\end{itemize}
+
+\subsection{Risposta in frequenza di sistemi discreti}
+\begin{itemize}
+    \item Si riformula quindi il teorema di convoluzione nel discreto: date $x[n]$, $h[n]$ di lunghezza $N_x$, $N_h$, il prodotto delle rispettive DFT è la DFT della loro convoluzione \textbf{circolare}:
+    $$x[n]\circledast h[n] \longleftrightarrow X[k]\cdot H[k]$$
+    Il risultato non coincide con quanto atteso (la convoluzione lineare) e quindi non fornisce direttamente la risposta del filtro.
+    \item \textbf{Per far coincidere circolare e lineare} occorre evitare il "rientro" dei campioni lungo il periodo: serve un ulteriore zero padding su entrambe le sequenze, in modo che i campioni originali siano separati di almeno $N_x+N_h-1$ (la lunghezza della convoluzione lineare). Procedura:
+    \begin{enumerate}
+        \item si generano due sequenze di lunghezza $M>N_x+N_h-1$, date dalle sequenze originali seguite rispettivamente da $M-N_x$ e $M-N_h$ zeri;
+        \item si applica la DFT a entrambe, ottenendo due sequenze trasformate di lunghezza $M$;
+        \item si moltiplicano le due sequenze trasformate;
+        \item si applica la IDFT e si selezionano i primi $N_x+N_h-1$ campioni.
+    \end{enumerate}
+    \item \textit{Esempio}: $x[n]=[2,1,0,1,3]$ ($N_x=5$), $h[n]=[1,0,2]$ ($N_h=3$). Serve $M>5+3-1=7$; con $M=8$:
+    $$x_p[n]=[2,1,0,1,3,0,0,0], \qquad h_p[n]=[1,0,2,0,0,0,0,0]$$
+    Si calcolano le DFT (due vettori complessi di lunghezza $8$), si moltiplicano, si applica la IDFT: si ottiene una sequenza di lunghezza $8$ coincidente con la convoluzione lineare di $x$ e $h$, più un campione nullo finale.
+\end{itemize}
+
+\subsection{FFT}
+\begin{itemize}
+    \item Questo procedimento permette di calcolare l'uscita di un sistema LTI discreto con minor complessità — ma la DFT calcolata dalla definizione ha essa stessa complessità \textbf{quadratica} $O(N^2)$ (occorrono $N$ correlazioni tra vettori di lunghezza $N$); la IDFT ha la stessa complessità.
+    \item L'uso estensivo della DFT nell'elaborazione dei segnali è legato anche alla possibilità di un calcolo \textbf{veloce}: la trasformata veloce si chiama \textbf{FFT} (\textit{Fast Fourier Transform}) e riduce la complessità da $O(N^2)$ a $O(N\log N)$.
+\end{itemize}
+
+\subsection{Filtri numerici in frequenza}
+\begin{itemize}
+    \item Il metodo appena visto permette di ottenere filtri con risposta impulsiva \textbf{infinita} (IIR): essendo il filtro implementato in frequenza, non ci sono problemi legati alla lunghezza del kernel.
+    \item Si possono anche realizzare filtri \textbf{ideali}: si può dare qualsiasi forma al filtro in frequenza; la non causalità non è un problema, lavorando su sequenze a durata finita — si introduce semplicemente un ritardo di alcuni campioni.
+\end{itemize}
+
+\subsubsection{Effetti collaterali}
+\begin{itemize}
+    \item L'applicazione di risposte in frequenza \textbf{a gradino} introduce comunque fenomeni indesiderati legati alla corrispondente risposta impulsiva: il segnale filtrato presenta \textbf{ripple} e \textbf{overshoot}.
+    \item Il problema nasce perché le basse frequenze non sono più compensate dalle armoniche a frequenza maggiore (tagliate), producendo oscillazioni residue — coerente con quanto già visto per il fenomeno di Gibbs.
+    \item \textit{Esempio}: applicando LPF/HPF ideali (a diversi tagli) a un gradino di $32$ campioni si osservano ripple e overshoot attorno alla transizione.
+    \item Applicando lo stesso effetto a un'\textbf{immagine} (anche senza aver visto l'estensione 2D, l'effetto si può pensare replicato sulle due dimensioni): i ripple producono oscillazioni periodiche e innaturali della luminosità, dette \textbf{ringing} — visibili ad es. applicando un HPF ideale a un'immagine.
+\end{itemize}
+
+\end{document}
