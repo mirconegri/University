@@ -13,6 +13,9 @@
 \usepackage{booktabs}
 \usepackage{eurosym}
 \usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes.geometric}
 \usepackage{tocloft}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{hyperref}
@@ -2062,4 +2065,924 @@ return y
     \item Applicando lo stesso effetto a un'\textbf{immagine} (anche senza aver visto l'estensione 2D, l'effetto si può pensare replicato sulle due dimensioni): i ripple producono oscillazioni periodiche e innaturali della luminosità, dette \textbf{ringing} — visibili ad es. applicando un HPF ideale a un'immagine.
 \end{itemize}
 
+
+\section{Estensione in più dimensioni}
+
+\subsection{Segnali multi-dimensionali}
+\begin{itemize}
+    \item In natura molti segnali variano in domini \textbf{multi-dimensionali}: immagini 2D (2 dimensioni spaziali, $x,y$), segnali video (3 dimensioni spazio-temporali, $x,y,t$), segnali 3D come tomografie e point cloud (3 dimensioni spaziali, $x,y,z$), ecc.
+    \item Gran parte di quanto visto nel corso è estendibile, in modo più o meno immediato, al caso multi-dimensionale: si conclude il corso con un cenno all'estensione delle principali operazioni introdotte finora.
+\end{itemize}
+
+\subsection{Rappresentazione di segnali m-D}
+\begin{itemize}
+    \item Un segnale in $N$ dimensioni è rappresentato da una funzione di $N$ variabili:
+    $$x(v_1,v_2,\dots,v_N): \mathbb{R}^N \to \mathbb{R}^K$$
+    dove $K$ è la dimensionalità dei valori assunti ($K=1$ per segnali scalari, $K>1$ per segnali vettoriali).
+    \item \textit{Esempio}: un'immagine a colori è un segnale vettoriale 2D nel dominio spaziale, $I(x,y):\mathbb{R}^2\to\mathbb{R}^3$, dove i vettori di uscita rappresentano terne di componenti cromatiche (es. RGB).
+\end{itemize}
+
+\subsection{Sistemi multidimensionali}
+\begin{itemize}
+    \item Un sistema multidimensionale riceve in ingresso un segnale $N$-dimensionale e restituisce un segnale $M$-dimensionale: spesso $M=N$, ma non necessariamente (es. un filtro può ricevere una tomografia 3D e restituire un piano di scansione 2D: $3D\to2D$).
+    \item Anche la dimensionalità dei \textbf{valori} può cambiare (es. un filtro su un'immagine a colori può restituire un'immagine in bianco e nero: vettoriale $\to$ scalare). In generale:
+    $$y(\bar v) = f(x(\bar u)); \qquad x(\bar u):\mathbb{R}^N\to\mathbb{R}^K, \quad y(\bar v):\mathbb{R}^M\to\mathbb{R}^L$$
+    \item[] \textit{N.B.} nel seguito, per semplicità, si considera $M=N$ e $K=L=1$.
+\end{itemize}
+
+\subsection{Sistemi multi-dimensionali LDI}
+\begin{itemize}
+    \item Anche nell'1D i sistemi più semplici da studiare erano quelli lineari e tempo-invarianti. Nel caso m-D il concetto si ripropone quasi identico, ma si parla di \textbf{dominio-invarianza} anziché "tempo-invarianza" (la variabile spesso non è il tempo, ma lo spazio o una combinazione spazio-tempo): si parla quindi di sistemi \textbf{LDI} (lineari e dominio-invarianti). Le proprietà da verificare sono le consuete:
+    $$\left.\begin{aligned}f(i(\bar v)) &= \hat\imath(\bar v) \\ f(j(\bar v)) &= \hat\jmath(\bar v)\end{aligned}\right\} \Rightarrow f(\alpha i(\bar v)+\beta j(\bar v)) = \alpha\hat\imath(\bar v)+\beta\hat\jmath(\bar v)\ \ \forall\alpha,\beta$$
+    $$f(i(\bar v))=\hat\imath(\bar v) \ \Rightarrow\ f(i(\bar v-\bar v_0))=\hat\imath(\bar v-\bar v_0)\ \ \forall\bar v_0$$
+\end{itemize}
+
+\subsection{Risposta di sistemi LDI}
+\begin{itemize}
+    \item Dato un sistema m-D LDI, la risposta è data dalla \textbf{convoluzione} dell'ingresso con la risposta impulsiva del sistema — qui però la convoluzione è in più dimensioni:
+    $$y(v_1,\dots,v_N) = x(v_1,\dots,v_N)*h(v_1,\dots,v_N) = \int_{-\infty}^{+\infty}\!\!\cdots\!\int_{-\infty}^{+\infty} x(\lambda_1,\dots,\lambda_N)\,h(v_1-\lambda_1,\dots,v_N-\lambda_N)\,d\lambda_1\cdots d\lambda_N$$
+    \item Il concetto resta lo stesso: per ogni asse si ribalta la risposta impulsiva, la si fa scorrere su tutti i punti $\bar\lambda$ dello spazio $N$-dimensionale, si moltiplica e si integra in $N$ dimensioni.
+\end{itemize}
+
+\subsubsection{Caso $N=2$}
+\begin{itemize}
+    \item Difficile visualizzare il funzionamento su molte dimensioni: si considera $N=2$ (tipico dei segnali 2D come le immagini). Per applicare un filtro 2D a un'immagine occorre: definire una risposta impulsiva 2D che svolga la funzione voluta (es. un LPF), ed eseguire la convoluzione 2D tra immagine e risposta del filtro (es. un'immagine di test con un filtro gaussiano 2D).
+    \item \textbf{Convoluzione 2D}: si può svolgere facendo scorrere in modo continuo $h(x,y)$ sull'immagine in modalità \textit{raster} (da sinistra a destra e dall'alto in basso); per ogni posizione si moltiplica e si integra — l'effetto è una \textbf{media pesata locale} del segnale 2D (LPF).
+\end{itemize}
+
+\subsection{Trasformata di Fourier multidimensionale}
+\begin{itemize}
+    \item Per capire meglio il comportamento dei filtri si lavora, come di consueto, nel dominio della frequenza: si estende la trasformata di Fourier al caso multidimensionale. Dato $x(v_1,\dots,v_N)$:
+    $$X(f_1,\dots,f_N) = \int_{-\infty}^{+\infty}\!\!\cdots\!\int_{-\infty}^{+\infty} x(v_1,\dots,v_N)\,e^{-j2\pi(f_1v_1+\cdots+f_Nv_N)}\,dv_1\cdots dv_N$$
+    e l'anti-trasformata:
+    $$x(v_1,\dots,v_N) = \int_{-\infty}^{+\infty}\!\!\cdots\!\int_{-\infty}^{+\infty} X(f_1,\dots,f_N)\,e^{j2\pi(f_1v_1+\cdots+f_Nv_N)}\,df_1\cdots df_N$$
+    \item Questa operazione equivale a trasformare il segnale \textbf{sequenzialmente su ogni dimensione}: la trasformata $N$-D è la sequenza di $N$ trasformate 1D applicate nelle varie dimensioni (nei passaggi intermedi si hanno rappresentazioni miste tra dominio originale e frequenza).
+    \item Le frequenze $f_1,\dots,f_N$ sono \textbf{frequenze direzionali} nelle $N$ dimensioni, e sono \textbf{ortogonali} tra loro.
+    \item Ne consegue che la trasformata $N$-D mantiene (estendendole) tutte le proprietà della trasformata 1D: ad es. il ritardo può essere applicato in ogni direzione, causando lo sfasamento della corrispondente frequenza direzionale; valgono anche la simmetria Hermitiana, le proprietà legate alla simmetria del segnale, ecc.
+\end{itemize}
+
+\subsubsection{Esempio di trasformata 2D}
+\begin{itemize}
+    \item Trasformando un'immagine si ottiene uno spettro 2D nelle frequenze direzionali $f_x,f_y$. La frequenza $0$ (continua) viene convenzionalmente posta al \textbf{centro}; le frequenze diagonali nascono dalla combinazione di frequenze orizzontali e verticali $f_x,f_y$.
+\end{itemize}
+
+\subsection{Sistemi LDI e teorema di convoluzione}
+\begin{itemize}
+    \item Anche il teorema di convoluzione ha la sua estensione diretta nel dominio multidimensionale: se il sistema è LDI, si calcola la FT m-D della risposta impulsiva (ottenendo la risposta in frequenza m-D), e si ottiene lo spettro di uscita moltiplicando gli spettri m-D di segnale e filtro:
+    $$y(v_1,\dots,v_N)=x(v_1,\dots,v_N)*h(v_1,\dots,v_N) \ \Longleftrightarrow\ Y(f_1,\dots,f_N)=X(f_1,\dots,f_N)\cdot H(f_1,\dots,f_N)$$
+    Si può quindi eseguire il filtraggio in frequenza anche nel caso m-D.
+\end{itemize}
+
+\subsubsection{Filtraggio in frequenza: esempio}
+\begin{itemize}
+    \item Un LPF ideale taglia nettamente le frequenze oltre un certo valore: nel 2D diventa una sorta di \textbf{"cilindro"} (simmetria radiale in $f_x,f_y$). Si producono, come di consueto, i soliti \textbf{ripple} (frequenze non compensate).
+\end{itemize}
+
+\subsection{Conversione A/D di segnali m-D}
+\begin{itemize}
+    \item Anche la conversione A/D si estende rapidamente al caso multidimensionale:
+    \begin{itemize}
+        \item \textbf{Campionamento}: occorre campionare in più dimensioni, tenendo conto delle varie frequenze spaziali;
+        \item \textbf{Quantizzazione}: una volta ottenuti i campioni m-D, è esattamente identica al caso 1D (si discretizza il valore di un singolo campione, non cambia nulla lavorando in più dimensioni);
+        \item \textbf{Codifica}: i campioni vengono associati a codici binari come nel caso 1D (PCM multidimensionale).
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Campionamento multidimensionale}
+\begin{itemize}
+    \item Segue le stesse regole del caso 1D: occorre evitare l'\textbf{aliasing}, che può verificarsi in ogni dimensione; la frequenza massima può essere diversa nelle varie dimensioni, quindi il limite minimo è la frequenza di Nyquist per \textbf{ciascuna} dimensione.
+    \item Si ottiene una matrice di campioni multidimensionale $x[n_1,\dots,n_N]$. La distanza tra campioni può essere diversa nelle varie dimensioni, generando una \textbf{griglia rettangolare}; spesso, per semplicità di gestione, si preferisce lavorare su \textbf{griglie quadrate}, scegliendo la frequenza massima tra le varie dimensioni (alcune dimensioni risultano quindi sovra-campionate).
+\end{itemize}
+
+\subsection{Risposta di sistemi digitali m-D}
+\begin{itemize}
+    \item Anche i sistemi discreti possono essere multi-dimensionali: come nell'1D, si può definire la risposta in frequenza m-D continua, anti-trasformarla e campionarla in ogni direzione, ottenendo filtri IIR m-D convertibili in FIR tramite finestratura.
+    \item La maschera di convoluzione $h_{DW}[n_1,\dots,n_K]$ deve avere la stessa dimensionalità del segnale; il numero di campioni nelle varie direzioni può però essere \textbf{diverso} (es. una maschera 2D $3\times5$).
+\end{itemize}
+
+\subsubsection{Convoluzione numerica m-D}
+\begin{itemize}
+    \item Richiede una convoluzione numerica multi-dimensionale: l'analogo discreto della convoluzione analogica (gli integrali diventano sommatorie). Per ogni direzione si ribalta il kernel, lo si fa scorrere su tutto il dominio, si moltiplica per ogni punto di sovrapposizione e si somma:
+    $$y[n_1,\dots,n_N] = x[n_1,\dots,n_N]*h_{DW}[n_1,\dots,n_N] = \sum_{k_1=-K_1/2}^{K_1/2}\cdots\sum_{k_N=-K_N/2}^{K_N/2} x[k_1,\dots,k_N]\,h_{DW}[n_1-k_1,\dots,n_N-k_N]$$
+\end{itemize}
+
+\subsubsection{Convoluzione numerica: esempio (2D)}
+\begin{itemize}
+    \item Date
+    $$x[n,m]=\begin{pmatrix}1&2&1&0\\0&1&1&1\\1&0&2&0\end{pmatrix}, \qquad h_{DW}[n,m]=\begin{pmatrix}0&1&0\\1&1&2\\0&2&0\end{pmatrix} \to h_{DW}[-n,-m]=\begin{pmatrix}0&2&0\\2&1&1\\0&1&0\end{pmatrix}$$
+    la convoluzione $y[n,m]=x[n,m]*h_{DW}[n,m]$ (facendo scorrere il kernel ribaltato sull'immagine, con zero-padding ai bordi) risulta:
+    $$y[n,m] = \begin{pmatrix}0&1&2&1&0&0\\1&3&6&6&3&0\\0&4&6&8&3&2\\1&1&6&4&6&0\\0&2&0&4&0&0\end{pmatrix}$$
+\end{itemize}
+
+\subsubsection{Convoluzione m-D: pseudocodice}
+\begin{verbatim}
+int in[N1]...[NN], out[N1]...[NN], krn[K1]...[KN]    // segnali in/out e kernel
+load(in), load(krn)                                  // carica segnale ingresso e kernel
+for n1 in 1...N1                                      // scandisce il segnale di ingresso
+  ...                                                  // (N loop for innestati)
+  for nN in 1...NN {
+       tmp = 0                                         // inizializza accumulatore
+       for k1 in -K1/2...K1/2                          // scandisce il kernel
+        ...                                              // (N loop for innestati)
+        for kN in -KN/2...KN/2 {
+           tmp += in[n1+k1]...[nN+kN] * krn[k1+K1/2]...[kN+KN/2]   // somme pesate
+              }...}
+           out[n1]...[nN] = tmp                        // scrive risultato in uscita
+  }}
+\end{verbatim}
+
+\subsubsection{Convoluzione m-D: complessità}
+\begin{itemize}
+    \item Per ogni campione del segnale occorre scandire l'intero kernel, con un prodotto e una somma per ogni valore: complessivamente $K_1\times K_2\times\cdots\times K_N$ operazioni per campione.
+    \item La complessità è quindi proporzionale alla potenza $N$-esima della larghezza del filtro, $O(K^N)$: un filtro 2D ha complessità \textbf{quadratica}. I filtri multidimensionali sono quindi operatori piuttosto onerosi dal punto di vista computazionale.
+\end{itemize}
+
+\subsection{Segnali m-D discreti in frequenza}
+\begin{itemize}
+    \item Infine, la rappresentazione in frequenza per segnali discreti si estende anch'essa al caso m-D: come per la FT, si estende la DFT al caso multidimensionale. L'estensione è abbastanza immediata: al posto delle funzioni base 1D si hanno funzioni base $N$-D, ciascuna combinazione di frequenze armoniche nelle varie direzioni dello spazio $N$-dimensionale — matrici $N$-dimensionali a valori complessi.
+\end{itemize}
+
+\subsubsection{Funzioni base multidimensionali}
+\begin{itemize}
+    \item Ricordando che le funzioni base della DFT 1D erano del tipo $e^{j2\pi\frac{k}{N}n}$, nel caso $N$-D si ha:
+    $$e^{j2\pi\frac{k_1}{N_1}n_1};\ \cdots;\ e^{j2\pi\frac{k_N}{N_N}n_N} \ \Longrightarrow\ e^{j2\pi\left(\frac{k_1n_1}{N_1}+\cdots+\frac{k_Nn_N}{N_N}\right)}$$
+    \item Non è facile immaginare funzioni di questo tipo in uno spazio di dimensione arbitraria; nel caso 2D si ottengono sinusoidi a frequenza crescente in orizzontale, verticale e obliquo (una griglia di funzioni base, indicizzate dagli indici $k_1,k_2$ in orizzontale e verticale).
+\end{itemize}
+
+\subsubsection{DFT m-D}
+\begin{itemize}
+    \item DFT in $N$ dimensioni:
+    $$X[k_1,\dots,k_N] = \sum_{n_1=0}^{N_1-1}\cdots\sum_{n_N=0}^{N_N-1} x[n_1,\dots,n_N]\cdot e^{-j2\pi\left(\frac{k_1n_1}{N_1}+\cdots+\frac{k_Nn_N}{N_N}\right)}$$
+    e la relativa IDFT:
+    $$x[n_1,\dots,n_N] = \frac{1}{N_1\cdots N_N}\sum_{k_1=0}^{N_1-1}\cdots\sum_{k_N=0}^{N_N-1} X[k_1,\dots,k_N]\cdot e^{j2\pi\left(\frac{k_1n_1}{N_1}+\cdots+\frac{k_Nn_N}{N_N}\right)}$$
+    \item dove: $X[0,\dots,0]$ è il coefficiente in continua (proporzionale al valor medio); $X[0,\dots,0,i,0,\dots,0]$ è una frequenza "pura" nella direzione $i$-esima.
+\end{itemize}
+
+\subsubsection{Teorema di convoluzione discreto m-D}
+\begin{itemize}
+    \item La DFT m-D gode delle stesse proprietà della DFT 1D; in particolare vale di nuovo il teorema di convoluzione, con le stesse cautele viste nel caso 1D: il prodotto degli spettri dà lo spettro del segnale ottenuto dalla convoluzione \textbf{circolare} m-D.
+    \item Per ottenere la convoluzione \textbf{lineare} occorre uno zero padding in \textbf{ogni} direzione:
+    $$N_i' = N_i+K_i-1 \ \Rightarrow\ N_i^{pad} = N_i'-N_i = K_i-1 \quad\text{(zeri da aggiungere al segnale, direzione $i$)}$$
+    $$K_i' = N_i' = N_i+K_i-1 \ \Rightarrow\ K_i^{pad} = K_i'-K_i = N_i-1 \quad\text{(zeri da aggiungere al filtro, direzione $i$)}$$
+    \item[] \textit{N.B.} spesso non viene fatto, perché la dimensione del filtro è tipicamente $\ll$ della dimensione del segnale: si ha quindi di nuovo solo un trascurabile effetto di bordo.
+\end{itemize}
+
+
+\section{Esercizi: segnali continui — caratteristiche e parametri}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Dato il segnale continuo nel tempo $x(t) = \Pi\!\left(\dfrac{t-2}{4}\right)e^{-2t}$:
+\begin{itemize}
+    \item Determinarne la rappresentazione grafica
+    \item Verificare se $x(t)$ è un segnale di energia o di potenza e calcolare la corrispondente grandezza
+    \item Determinare l'espressione analitica e grafica dei seguenti segnali derivati da $x(t)$: $y(t)=-x(-t)$, $z(t)=x(t+4)$
+\end{itemize}
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+$x(t)$ è il prodotto di una funzione rettangolare di ampiezza unitaria e durata $4$ secondi, traslata in avanti di $2$ secondi (quindi tra $0$ e $4$), con un esponenziale negativo: il rettangolo estrae una finestra dell'esponenziale. Riscrivendo a tratti:
+$$x(t) = \begin{cases} e^{-2t} & 0\le t\le4 \\ 0 & \text{altrove}\end{cases}$$
+
+\begin{center}
+\begin{tikzpicture}[>=stealth]
+\draw[->] (-1.5,0) -- (6,0) node[right] {$t$};
+\draw[->] (0,-0.3) -- (0,1.6) node[above] {$x(t)$};
+\draw[thick] (0,1.2) to[out=-15,in=160] (4,0.25);
+\draw[dashed] (0,0.25) -- (4,0.25);
+\node[left] at (0,1.2) {$1$};
+\node[left] at (0,0.25) {$e^{-8}$};
+\node[below left] at (0,0) {$0$};
+\node[below] at (4,0) {$4$};
+\end{tikzpicture}
+\end{center}
+
+$x(t)$ è una funzione continua a durata limitata: l'integrale del suo quadrato è finito, quindi è un \textbf{segnale di energia} (potenza media nulla). Calcolando l'energia:
+$$E_x = \int_{-\infty}^{+\infty} x^2(t)\,dt = \int_0^4 e^{-4t}\,dt = -\frac14e^{-4t}\bigg|_0^4 = -\frac14(e^{-16}-1)\approx0.25\ [J]$$
+
+I segnali derivati avranno le forme:
+$$y(t)=-x(-t)=-\Pi\!\left(\frac{-t-2}{4}\right)e^{2t} \qquad z(t)=x(t+4)=\Pi\!\left(\frac{t+2}{4}\right)e^{-2(t+4)}$$
+
+\begin{center}
+\begin{tikzpicture}[>=stealth]
+\draw[->] (-6,0) -- (1.5,0) node[right] {$t$};
+\draw[->] (0,-1.6) -- (0,0.3) node[above] {$x(t)$};
+\draw[thick] (-4,-0.25) to[out=20,in=200] (0,-1.2);
+\draw[dashed] (-4,-0.25) -- (0,-0.25);
+\node[left] at (0,-1.2) {$1$};
+\node[left] at (0,-0.25) {$e^{-8}$};
+\node[below] at (-4,0) {$-4$};
+\node at (-2.7,0.55) {$y(t)$: ribaltato rispetto a entrambi gli assi};
+\end{tikzpicture}
+
+\begin{tikzpicture}[>=stealth]
+\draw[->] (-6,0) -- (1.5,0) node[right] {$t$};
+\draw[->] (0,-0.3) -- (0,1.6) node[above] {$x(t)$};
+\draw[thick] (-4,1.2) to[out=-15,in=160] (0,0.25);
+\draw[dashed] (0,0.25) -- (-4,0.25);
+\node[left] at (0,1.2) {$1$};
+\node[left] at (0,0.25) {$e^{-8}$};
+\node[below] at (-4,0) {$-4$};
+\node at (-2.7,1.9) {$z(t)$: traslato indietro di 4 secondi};
+\end{tikzpicture}
+\end{center}
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+Si consideri il segnale $s(t) = \text{sgn}\!\left(A\cdot\cos\dfrac{2\pi t}{T_0}\right)$:
+\begin{itemize}
+    \item Rappresentare graficamente il segnale ponendo $A=0.5$ V e $T_0=4$ sec
+    \item Determinare se $s(t)$ è un segnale di energia o di potenza
+    \item Calcolare l'energia del segnale in un periodo e la potenza media
+\end{itemize}
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+La funzione segno è non lineare: $\text{sgn}(x)=1$ se $x\ge0$, $-1$ se $x<0$. Quindi $s(t)$ assume $\pm1$ in corrispondenza delle semionde del coseno, indipendentemente da $A$ (positivo). Calcolando gli intervalli positivi:
+$$s(t)=1 \iff \cos\frac{2\pi t}{T_0}\ge0 \iff -\frac\pi2+2k\pi\le\frac{2\pi t}{T_0}\le\frac\pi2+2k\pi$$
+Con $T_0=4$: $\ -\dfrac{\pi}{2}+2k\pi\le\dfrac{\pi}{2}t\le\dfrac\pi2+2k\pi\ \Rightarrow\ 4k-1\le t\le4k+1,\ k\in\mathbb{Z}$. Altrove vale $-1$: si ottiene un'\textbf{onda quadra}.
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,x=0.8cm]
+\draw[->] (-6.5,0) -- (6.5,0) node[right] {$t$};
+\draw[->] (0,-1.5) -- (0,1.5) node[above] {$s(t)$};
+\foreach \a/\b in {-7/-5,-3/-1,1/3,5/7} {\draw[thick] (\a,-1) -- (\a,1) -- (\b,1) -- (\b,-1) -- cycle;}
+\draw[thick] (-5,-1) -- (-3,-1);
+\draw[thick] (-1,-1) -- (1,-1);
+\draw[thick] (3,-1) -- (5,-1);
+\foreach \x in {-5,-3,-1,1,3,5} \node[below] at (\x,0) {$\x$};
+\node[left] at (0,1) {$1$};
+\node[left] at (0,-1) {$-1$};
+\end{tikzpicture}
+\end{center}
+
+Essendo periodico, $s(t)$ è un \textbf{segnale di potenza} (energia infinita):
+$$P_s = \lim_{T\to\infty}\frac1T\int_{-T/2}^{T/2}s^2(t)\,dt = \frac{1}{T_0}\int_{-T_0/2}^{T_0/2}s^2(t)\,dt = \frac14\int_{-2}^{2}1\,dt = 1\ [W]$$
+$$E_{sp} = \int_{-T_0/2}^{T_0/2}s^2(t)\,dt = \int_{-2}^{2}1\,dt = 4\ [J]$$
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 3}]
+Dato il segnale $x(t)=2\Lambda\!\left(\dfrac{t}{4}\right)$:
+\begin{itemize}
+    \item si fornisca la rappresentazione grafica
+    \item se ne calcoli energia e potenza media
+    \item si rappresenti graficamente il segnale $v(t)=x(2t)$
+\end{itemize}
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+Triangolo simmetrico (pari) di durata totale $4$ secondi e ampiezza di picco $2$:
+
+\begin{center}
+\begin{tikzpicture}[>=stealth]
+\draw[->] (-4,0) -- (4,0) node[right] {$t$};
+\draw[->] (0,-0.3) -- (0,2.5) node[above] {$x(t)$};
+\draw[thick] (-2,0) -- (0,2) -- (2,0);
+\draw[thick] (-4,0) -- (-2,0); \draw[thick] (2,0) -- (4,0);
+\node[left] at (0,2) {$2$};
+\node[below] at (-2,0) {$-2$};
+\node[below] at (2,0) {$2$};
+\end{tikzpicture}
+\end{center}
+
+$x(t)$ è chiaramente un segnale di energia:
+$$E_x = \int_{-\infty}^{+\infty}x^2(t)\,dt = 2\int_0^2(2-t)^2\,dt = 2\int_0^2(4+t^2-4t)\,dt = 2\left(4t\Big|_0^2+\frac{t^3}{3}\Big|_0^2-\frac{4t^2}{2}\Big|_0^2\right) = 2\left(8+\frac83-8\right)=\frac{16}{3}\approx5.3\ [J]$$
+La potenza media è nulla (segnale a energia finita).
+
+$v(t)=x(2t)$ è una compressione temporale di fattore $2$: il triangolo si "schiaccia" nell'intervallo $[-1,1]$, mantenendo simmetria e ampiezza di picco: $v(t)=2\Lambda(t/2)$.
+
+\begin{center}
+\begin{tikzpicture}[>=stealth]
+\draw[->] (-4,0) -- (4,0) node[right] {$t$};
+\draw[->] (0,-0.3) -- (0,2.5) node[above] {$v(t)$};
+\draw[thick] (-1,0) -- (0,2) -- (1,0);
+\draw[thick] (-4,0) -- (-1,0); \draw[thick] (1,0) -- (4,0);
+\node[left] at (0,2) {$2$};
+\node[below] at (-1,0) {$-1$};
+\node[below] at (1,0) {$1$};
+\end{tikzpicture}
+\end{center}
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 4}]
+Studiare le proprietà di simmetria del segnale $x(t) = t\cdot u(t)$.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+\textit{Pari}: $x(-t)=x(t) \iff -t\cdot u(-t)=t\cdot u(t) \iff -u(-t)=u(t)$ — \textbf{falso} (implicherebbe simmetria dispari del gradino).
+
+\textit{Dispari}: $-x(-t)=x(t) \iff t\cdot u(-t)=t\cdot u(t) \iff u(-t)=u(t)$ — \textbf{falso} (implicherebbe simmetria pari del gradino).
+
+$x(t)$ \textbf{non presenta alcuna simmetria} (d'altra parte è nullo su tutto il semiasse negativo).
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 5}]
+Dato il segnale $x(t)=2\Pi\!\left(\dfrac tT\right)\Lambda\!\left(\dfrac{t}{2T}\right)$, si chiede di rappresentarlo graficamente, calcolarne energia totale e potenza media, verificando se sia un segnale di energia o di potenza. Si chiede inoltre di proporre una rappresentazione alternativa del segnale, basata sulla somma e non sul prodotto di segnali.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+$x(t)$ è il prodotto di un rettangolo pari di ampiezza $2$ e durata $T$ (tra $-T/2$ e $T/2$) e di un triangolo pari di ampiezza $1$ e durata $2T$ (tra $-T$ e $T$). Il prodotto col rettangolo finestra il triangolo in $[-T/2,T/2]$, con guadagno $2$:
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.85]
+\draw[->] (-3,0) -- (3,0) node[right] {$t$};
+\draw[->] (0,-0.3) -- (0,2.5) node[above] {$2\Pi(t/T)$};
+\draw[thick] (-1,0) -- (-1,2) -- (1,2) -- (1,0);
+\draw[thick] (-3,0) -- (-1,0); \draw[thick] (1,0) -- (3,0);
+\node[left] at (0,2) {$2$};
+\node[below] at (-1,0) {$-T/2$}; \node[below] at (1,0) {$T/2$};
+\end{tikzpicture}\quad
+\begin{tikzpicture}[>=stealth,scale=0.85]
+\draw[->] (-3,0) -- (3,0) node[right] {$t$};
+\draw[->] (0,-0.3) -- (0,1.6) node[above] {$\Lambda(t/2T)$};
+\draw[thick] (-2,0) -- (0,1) -- (2,0);
+\node[left] at (0,1) {$1$};
+\node[below] at (-2,0) {$-T$}; \node[below] at (2,0) {$T$};
+\end{tikzpicture}\quad
+\begin{tikzpicture}[>=stealth,scale=0.85]
+\draw[->] (-3,0) -- (3,0) node[right] {$t$};
+\draw[->] (0,-0.3) -- (0,2.5) node[above] {$x(t)$};
+\draw[thick] (-1,1) -- (0,2) -- (1,1);
+\draw[thick] (-3,0) -- (-1,0) -- (-1,1); \draw[thick] (1,1) -- (1,0) -- (3,0);
+\node[left] at (0,2) {$2$}; \node[left] at (0,1) {$1$};
+\node[below] at (-1,0) {$-T/2$}; \node[below] at (1,0) {$T/2$};
+\end{tikzpicture}
+\end{center}
+
+Energia:
+\begin{align*}
+E_x &= \int_{-\infty}^{+\infty}x^2(t)\,dt = 2\int_0^{T/2}4\left(1-\frac tT\right)^2dt = 8\int_0^{T/2}\left(1+\frac{t^2}{T^2}-\frac{2t}{T}\right)dt \\
+&= 8\left(t\Big|_0^{T/2}+\frac{t^3}{3T^2}\Big|_0^{T/2}-\frac{2t^2}{2T}\Big|_0^{T/2}\right) = 8\left(\frac T2+\frac{T}{3\cdot8}-\frac T4\right)=\frac{7T}{3}\ [J]
+\end{align*}
+Essendo $x(t)$ deterministico e a durata limitata, la potenza media è nulla: è un \textbf{segnale di energia}.
+
+\textbf{Rappresentazione alternativa (somma)}: $x(t)$ è la sovrapposizione di un rettangolo pari di durata $T$ e ampiezza $1$ e di un triangolo pari della stessa durata e ampiezza:
+$$x(t) = x_1(t)+x_2(t) = \Pi\!\left(\frac tT\right)+\Lambda\!\left(\frac tT\right)$$
+\textbf{Attenzione}: l'energia non è la somma delle energie di $x_1,x_2$, perché compare un doppio prodotto:
+$$E_x = \int_{-\infty}^{+\infty}[x_1(t)+x_2(t)]^2dt = E_{x1}+E_{x2}+2\int_{-\infty}^{+\infty}x_1(t)x_2(t)\,dt$$
+$$E_{x1}=2\int_0^{T/2}1\,dt=T, \qquad E_{x2}=2\int_0^{T/2}\left(1-\frac{2t}{T}\right)^2dt = \frac T3$$
+$$\int_{-\infty}^{+\infty}x_1(t)x_2(t)\,dt = 2\int_0^{T/2}x_2(t)\,dt = 2\int_0^{T/2}\left(1-\frac{2t}{T}\right)dt = \frac T2$$
+$$E_x = E_{x1}+E_{x2}+2E_{x1x2} = T+\frac T3+T = \frac{7T}{3}$$
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 6}]
+Sia dato il segnale $x(t)=A\,\Pi\!\left(\dfrac{t-3kT_0}{T_0}\right)$, $k\in\mathbb{Z}$. Si chiede di calcolarne valor medio e varianza. Come cambiano valor medio e varianza se al segnale $x(t)$ sommiamo un valore costante $B$: $y(t)=x(t)+B$?
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+$x(t)$ è periodico di periodo $3T_0$ (un impulso rettangolare di durata $T_0$ ogni $3T_0$), quindi la media al limite coincide con la media in un periodo:
+$$m_x = \frac{1}{3T_0}\int_{-3T_0/2}^{3T_0/2}x(t)\,dt = \frac{1}{3T_0}\int_{-T_0/2}^{T_0/2}A\,dt = \frac{1}{3T_0}AT_0=\frac A3$$
+Per la varianza, conviene usare $\sigma_x^2=m_{x^2}-m_x^2$:
+$$\sigma_x^2 = \frac{1}{3T_0}\int_{-3T_0/2}^{3T_0/2}x^2(t)\,dt-\left(\frac A3\right)^2 = \frac{1}{3T_0}\int_{-T_0/2}^{T_0/2}A^2\,dt-\frac{A^2}{9} = \frac{A^2T_0}{3T_0}-\frac{A^2}9=\frac{2A^2}{9}$$
+
+Sommando una costante $B$:
+$$m_y = m_x+B=\frac A3+B$$
+$$\sigma_y^2 = m_{x^2}+B^2+2Bm_x-\left(B+\frac A3\right)^2 = \frac{A^2}3+B^2+\frac{2AB}3-B^2-\frac{A^2}9-\frac{2AB}3=\frac{2A^2}9=\sigma_x^2$$
+Il valor medio si incrementa della costante additiva, la varianza non cambia (una costante non altera le variazioni del segnale).
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 7}]
+Siano dati i segnali $x(t)=\Lambda\!\left(\dfrac tT\right)$ e $y(t)=\Pi\!\left(\dfrac{t-2T}{T}\right)$, calcolarne la cross-correlazione e determinare l'istante temporale in cui è massima. Che significato ha questo istante?
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+$$R_{xy}(\tau) = \int_{-\infty}^{+\infty}x(t)y(t+\tau)\,dt = \int_{-\infty}^{+\infty}\Lambda\!\left(\frac tT\right)\Pi\!\left(\frac{t+\tau-2T}{T}\right)dt$$
+$x(t)$ è un triangolo tra $-T/2$ e $T/2$; $y(t+\tau)$ è un rettangolo di durata $T$ centrato in $2T-\tau$. L'intersezione è non nulla solo su un intervallo limitato di $\tau$: conviene risolvere per via grafica. Situazione per $\tau=0$:
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.8]
+\draw[->] (-2,0) -- (6,0) node[right] {$t$};
+\draw[->] (0,-0.3) -- (0,1.6) node[above] {$x(t)$};
+\draw[thick] (-1,0) -- (0,1) -- (1,0);
+\node[left] at (0,1) {$1$};
+\node[below] at (-1,0) {$-T/2$}; \node[below] at (1,0) {$T/2$};
+\end{tikzpicture}
+
+\begin{tikzpicture}[>=stealth,scale=0.8]
+\draw[->] (-2,0) -- (6,0) node[right] {$t$};
+\draw[->] (0,-0.3) -- (0,1.6) node[above] {$y(t)$};
+\draw[thick] (3,0) -- (3,1) -- (4,1) -- (4,0);
+\node[left] at (0,1) {$1$};
+\node[below] at (3,0) {$3T/2$}; \node[below] at (4,0) {$5T/2$};
+\node[below] at (3.5,-0.5) {$2T$};
+\end{tikzpicture}
+\end{center}
+
+Facendo scorrere il rettangolo all'indietro (valori crescenti di $\tau$), la prima intersezione è in $\tau=T$, la massima sovrapposizione in $\tau=2T$, l'ultima intersezione in $\tau=3T$. Il rettangolo funge da finestra di integrazione del triangolo, generando una parabola crescente fino a $2T$ e decrescente fino a $3T$, calcolabile a tratti su $T\div\frac{3T}2,\ \frac{3T}2\div2T,\ 2T\div\frac{5T}2,\ \frac{5T}2\div3T$.
+
+Per $T<\tau<\frac{3T}2$: il rettangolo finestra la rampa decrescente, da $\tau=T$ (integrale su un punto, nullo) a $\tau=3T/2$ (piena sovrapposizione, area del semi-triangolo $=T/4$). Raccogliendo il ritardo $T$:
+$$R_{xy}(\tau-T) = \int_{T/2-\tau}^{T/2}\frac{T/2-t}{T}\,dt,\ 0<\tau<\frac T2 \ \Longrightarrow\ \frac{\tau^2}{T}$$
+Parabola con concavità verso l'alto, $0$ in $\tau=0$ e $T/4$ in $\tau=T/2$ (traslata avanti di $T$).
+
+Per $\frac{3T}2<\tau<2T$: resta costante l'area di destra ($T/4$), si aggiunge quella di sinistra. Raccogliendo il ritardo $3T/2$:
+$$R_{xy}\!\left(\tau-\frac{3T}2\right) = -\frac{\tau^2}{T}+\tau,\ 0<\tau<\frac T2 \quad\Longrightarrow\quad R_{xy}\!\left(\tau-\frac{3T}2\right)=-\frac{\tau^2}T+\tau+\frac T4$$
+Parabola con concavità verso il basso, $T/4$ in $\tau=0$ e $T/2$ in $\tau=T/2$ (traslata avanti di $3T/2$) — correttamente, il valore in $3T/2$ coincide con l'area dell'intero triangolo.
+
+Per simmetria dei segnali, gli ultimi due tratti ($2T<\tau<\frac{5T}2$ e $\frac{5T}2<\tau<3T$) sono speculari ai due già calcolati.
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.85]
+\draw[->] (-1,0) -- (9,0) node[right] {$\tau$};
+\draw[->] (0,-0.3) -- (0,2) node[above] {$R_{xy}(\tau)$};
+\draw[thick] (0,0) -- (2,0);
+\draw[thick] (2,0) to[out=20,in=200] (3,0.75) to[out=20,in=160] (4,1.5) to[out=-20,in=200] (5,1.5) to[out=-20,in=160] (6,0.75) to[out=-20,in=160] (7,0);
+\draw[thick] (7,0) -- (8,0);
+\draw[dashed] (0,0.75) -- (8,0.75); \node[left] at (0,0.75) {$T/4$};
+\draw[dashed] (0,1.5) -- (8,1.5); \node[left] at (0,1.5) {$T/2$};
+\foreach \x/\lab in {2/T,3/{3T/2},4/2T,5/{5T/2},7/3T} \node[below] at (\x,0) {$\lab$};
+\end{tikzpicture}
+\end{center}
+
+Il picco è in $\tau=2T$: coincide con la traslazione di massima sovrapposizione tra triangolo e rettangolo, cioè il posizionamento reciproco in cui i due segnali si assomigliano di più (è questo il significato della cross-correlazione).
+
+\textbf{Soluzione alternativa (semplificata)}: si trasla il rettangolo in posizione simmetrica (anticipo di $2T$, da ri-traslare avanti alla fine) e si risolve $R_{xy}(-\tau)=\int_{-\infty}^{+\infty}\Lambda(t/T)\Pi((t-\tau)/T)\,dt$, $-T<\tau<T$, nei 4 intervalli:
+$$-T<\tau<-\frac T2 \to R_{xy}(-\tau)=\int_{-T/2}^{\tau+T/2}\left(\frac{2t}T+1\right)dt = \frac{\tau^2}T+2\tau+T$$
+$$-\frac T2<\tau<0 \to R_{xy}(-\tau)=\frac T4+\int_0^{\tau+T/2}\left(-\frac{2t}T+1\right)dt = -\frac{\tau^2}T+\frac T4$$
+gli altri due intervalli sono simmetrici. Ricordando che $R_{xy}(-\tau)=R_{xy}(\tau)$ (simmetria pari) e traslando avanti di $2T$, si ottiene $R_{xy}(\tau-2T)$, identico al risultato precedente.
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 7bis (versione semplificata del 7)}]
+Siano dati i segnali $x(t)=\Lambda\!\left(\dfrac tT\right)$ e $y(t)=\Pi\!\left(\dfrac{t-2T}{T}\right)$, calcolarne la cross-correlazione negli istanti $t=0$, $t=3T/2$ e $t=2T$ e confrontarne i valori. Che indicazioni se ne possono trarre?
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+$$R_{xy}(0)=\int_{-\infty}^{+\infty}\Lambda\!\left(\frac tT\right)\Pi\!\left(\frac{t-2T}{T}\right)dt,\quad R_{xy}\!\left(\frac{3T}2\right)=\int_{-\infty}^{+\infty}\Lambda\!\left(\frac tT\right)\Pi\!\left(\frac{t-T/2}{T}\right)dt,\quad R_{xy}(2T)=\int_{-\infty}^{+\infty}\Lambda\!\left(\frac tT\right)\Pi\!\left(\frac tT\right)dt$$
+
+Nel primo caso i due segnali non si incontrano in alcun punto: $R_{xy}(0)=0$.
+
+Nel secondo, il rettangolo "ritaglia" la metà positiva del triangolo, lasciandone invariata l'ampiezza:
+$$R_{xy}(3T/2) = \int_0^{T/2}\Lambda\!\left(\frac tT\right)dt = \frac T4$$
+
+Nel terzo, i due segnali sono allineati sull'origine e il rettangolo (stessa durata del triangolo) non lo altera: si integra tutto il triangolo,
+$$R_{xy}(2T) = \int_{-T/2}^{T/2}\Lambda\!\left(\frac tT\right)dt = \frac T2$$
+
+La cross-correlazione indica che $x(t)$ non ha alcuna somiglianza con $y(t)$ nei punti di applicazione originali; uno shift di $3T/2$ comincia a mostrare somiglianza, che diventa massima per uno shift di $2T$ (dove le due onde, pur diverse in forma, sono completamente allineate).
+
+
+\section{Esercizi: sistemi LTI}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Determinare se il sistema descritto dal seguente schema a blocchi è LTI:
+\end{tcolorbox}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.1cm]
+\node (xin) {$x(t)$};
+\node[draw, minimum width=1.3cm, minimum height=0.8cm, above right=0.5cm and 1.2cm of xin] (dt) {$\Delta T$};
+\draw (xin.east) -- ++(0.5,0) coordinate (split);
+\draw[->] (split) |- (dt.west);
+\node[draw, shape=isosceles triangle, isosceles triangle apex angle=60, shape border rotate=0, minimum width=0.8cm, below right=0.5cm and 1.2cm of xin] (gamma) {$\gamma$};
+\draw[->] (split) |- (gamma.west);
+\node[draw, circle, minimum size=0.6cm, right=1.6cm of xin] (sum) {};
+\draw[->] (dt.east) -- ++(0.5,0) |- node[pos=0.25,above]{$+$} (sum.north);
+\draw[->] (gamma.east) -- ++(0.5,0) |- node[pos=0.25,below]{$-$} (sum.south);
+\node[draw, minimum width=1.4cm, minimum height=0.8cm, right=1.1cm of sum] (der) {$\dfrac{d}{dt}(\cdot)$};
+\draw[->] (sum) -- (der);
+\draw[->] (der.east) -- ++(0.8,0) node[right] {$y(t)$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Soluzione:}
+
+Se il sistema è descritto con uno schema a blocchi, basta verificare se lo schema definisce una combinazione lineare di blocchi LTI: in tal caso sarà LTI tutto il sistema. Nel caso specifico, il sistema è una combinazione (parallelo, serie) di blocchi di \textbf{ritardo}, \textbf{guadagno} e \textbf{derivazione}, tutti lineari e tempo-invarianti: il sistema è quindi complessivamente LTI.
+
+In alternativa (più lungo), occorrerebbe calcolare $y(t)$ in funzione di $x(t)$ e verificare le due condizioni:
+$$y(t) = x'(t-\Delta T)-\gamma x'(t)$$
+\textit{Linearità}: dati $x_1(t),x_2(t)$ qualsiasi, $y_1(t)=x_1'(t-\Delta T)-\gamma x_1'(t)$, $y_2(t)=x_2'(t-\Delta T)-\gamma x_2'(t)$. Con $x_3(t)=\alpha x_1(t)+\beta x_2(t)$:
+$$y_3(t) = \alpha x_1'(t-\Delta T)+\beta x_2'(t-\Delta T)-\gamma[\alpha x_1'(t)+\beta x_2'(t)] = \alpha y_1(t)+\beta y_2(t) \ \Rightarrow\ \textbf{lineare}$$
+\textit{Tempo-invarianza}: dato $x(t-T)$, $T$ qualsiasi:
+$$y(t) = x'(t-T-\Delta T)-\gamma x'(t-T) = y(t-T) \ \Rightarrow\ \textbf{tempo-invariante}$$
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+Determinare se il sistema che produce la seguente elaborazione del segnale $x(t)$ è LTI:
+$$y(t) = 2x(t)\cos(t)$$
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+\textit{Linearità}: dati $x_1(t)\to y_1(t)=2x_1(t)\cos(t)$ e $x_2(t)\to y_2(t)=2x_2(t)\cos(t)$:
+$$\alpha x_1(t)+\beta x_2(t) \to 2[\alpha x_1(t)+\beta x_2(t)]\cos(t) = \alpha\,2x_1(t)\cos(t)+\beta\,2x_2(t)\cos(t) = \alpha y_1(t)+\beta y_2(t) \ \Rightarrow\ \textbf{lineare}$$
+
+\textit{Tempo-invarianza}: calcolo la risposta al segnale traslato e verifico se coincide con la risposta traslata:
+$$x(t-t_0) \to 2x(t-t_0)\cos(t) \ne y(t-t_0) = 2x(t-t_0)\cos(t-t_0) \ \Rightarrow\ \textbf{NON è tempo-invariante!}$$
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 3}]
+Determinare se il sistema che produce la seguente elaborazione del segnale $x(t)$ è LTI:
+$$y(t) = x(t)\,e^{x(t)}$$
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+Situazione analoga all'esercizio 2: si verificano le due condizioni.
+
+\textit{Linearità}: dati $x_1(t)\to y_1(t)=x_1(t)e^{x_1(t)}$ e $x_2(t)\to y_2(t)=x_2(t)e^{x_2(t)}$:
+\begin{align*}
+\alpha x_1(t)+\beta x_2(t) &\to [\alpha x_1(t)+\beta x_2(t)]e^{\alpha x_1(t)+\beta x_2(t)} = [\alpha x_1(t)+\beta x_2(t)]\,e^{\alpha x_1(t)}e^{\beta x_2(t)} \\
+&= \alpha x_1(t)e^{\alpha x_1(t)}e^{\beta x_2(t)}+\beta x_2(t)e^{\alpha x_1(t)}e^{\beta x_2(t)} \ne \alpha x_1(t)e^{x_1(t)}+\beta x_2(t)e^{x_2(t)} \ \Rightarrow\ \textbf{NON è lineare!}
+\end{align*}
+
+\textit{Tempo-invarianza}: $x(t)\to y(t) \ \Rightarrow\ x(t-t_0)\to x(t-t_0)e^{x(t-t_0)}=y(t-t_0) \ \Rightarrow\ \textbf{tempo-invariante}$
+
+\textit{N.B.} la non linearità poteva già essere dedotta dal fatto che una delle funzioni applicate (l'esponenziale) è essa stessa non lineare.
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 4}]
+Determinare se il sistema descritto dal seguente schema a blocchi è LTI:
+\end{tcolorbox}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.1cm]
+\node (xin) {$x(t)$};
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, right=0.8cm of xin] (ln) {$\ln(\cdot)$};
+\draw[->] (xin) -- (ln);
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, above right=0.5cm and 1.4cm of ln] (dt1) {$\Delta T_1$};
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, below right=0.5cm and 1.4cm of ln] (dt2) {$\Delta T_2$};
+\draw (ln.east) -- ++(0.4,0) coordinate (split);
+\draw[->] (split) |- (dt1.west);
+\draw[->] (split) |- (dt2.west);
+\node[draw, circle, minimum size=0.6cm, right=1.7cm of ln] (sum) {};
+\draw[->] (dt1.east) -- ++(0.4,0) |- node[pos=0.25,above]{$+$} (sum.north);
+\draw[->] (dt2.east) -- ++(0.4,0) |- node[pos=0.25,below]{$+$} (sum.south);
+\node[draw, minimum width=1.2cm, minimum height=0.8cm, right=1.1cm of sum] (exp) {$exp(\cdot)$};
+\draw[->] (sum) -- (exp);
+\draw[->] (exp.east) -- ++(0.8,0) node[right] {$y(t)$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Soluzione:}
+
+Se il sistema contiene blocchi non lineari o tempo-varianti probabilmente non è LTI; tuttavia, visto che le non-linearità potrebbero compensarsi, conviene verificare. Calcoliamo direttamente $y(t)$ in funzione di $x(t)$:
+$$y(t) = e^{\ln(x(t-\Delta T_1))+\ln(x(t-\Delta T_2))} = e^{\ln(x(t-\Delta T_1))}\,e^{\ln(x(t-\Delta T_2))} = x(t-\Delta T_1)\,x(t-\Delta T_2)$$
+Si conferma la \textbf{non linearità}: compare un prodotto di segnali.
+
+\textit{Viceversa}, con lo schema più semplice $x(t)\to\ln(\cdot)\to\Delta T\to exp(\cdot)\to y(t)$:
+$$y(t) = e^{\ln(x(t-\Delta T))} = x(t-\Delta T)$$
+Equivale a un semplice blocco di ritardo: in questo caso \textbf{è LTI}.
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 5}]
+Dato il sistema seguente, determinarne l'uscita in funzione dell'ingresso:
+\end{tcolorbox}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.1cm]
+\node (xin) {$x(t)$};
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, right=0.8cm of xin] (dt1) {$\Delta T_1$};
+\draw[->] (xin) -- (dt1);
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, above right=0.5cm and 1.4cm of dt1] (dt2) {$\Delta T_2$};
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, below right=0.5cm and 1.4cm of dt1] (dt3) {$\Delta T_3$};
+\draw (dt1.east) -- ++(0.4,0) coordinate (split);
+\draw[->] (split) |- (dt2.west);
+\draw[->] (split) |- (dt3.west);
+\node[draw, shape=isosceles triangle, isosceles triangle apex angle=60, right=0.7cm of dt2] (alpha) {$\alpha$};
+\draw[->] (dt2) -- (alpha);
+\node[draw, circle, minimum size=0.6cm, right=1.2cm of alpha] (sum) {};
+\draw[->] (alpha.east) -- ++(0.3,0) |- node[pos=0.25,above]{$-$} (sum.north);
+\draw[->] (dt3.east) -- ++(1.2,0) |- node[pos=0.25,below]{$+$} (sum.south);
+\node[draw, minimum width=1.4cm, minimum height=0.8cm, right=1.1cm of sum] (der) {$\dfrac{d}{dt}(\cdot)$};
+\draw[->] (sum) -- (der);
+\draw[->] (der.east) -- ++(0.8,0) node[right] {$y(t)$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Soluzione:}
+
+Conviene partire dall'interno, sostituendo progressivamente gruppi di blocchi con la loro risposta equivalente: \textbf{blocco 1} ($\Delta T_1$), \textbf{blocco 2} (il parallelo $\Delta T_2$-$\alpha$ e $\Delta T_3$), \textbf{blocco 3} (derivatore).
+
+Chiamando $v(t)$ l'ingresso al blocco 2: il ramo superiore introduce un ritardo e un'amplificazione, producendo $\alpha v(t-\Delta T_2)$; il ramo inferiore è solo un ritardo $\Delta T_3$, producendo $v(t-\Delta T_3)$. Il parallelo combina le due uscite con i segni indicati:
+$$w(t) = v(t-\Delta T_3)-\alpha v(t-\Delta T_2)$$
+Il blocco 1 ritarda $x(t)$ di $\Delta T_1$, producendo $v(t)=x(t-\Delta T_1)$, in ingresso al blocco 2 (i ritardi si sommano):
+$$w(t) = x(t-[\Delta T_1+\Delta T_3])-\alpha x(t-[\Delta T_1+\Delta T_2])$$
+$w(t)$ entra nel blocco 3 (derivatore), che produce l'uscita complessiva:
+$$y(t) = \frac{d}{dt}w(t) = x'\big(t-[\Delta T_1+\Delta T_3]\big)-\alpha x'\big(t-[\Delta T_1+\Delta T_2]\big)$$
+
+\section{Esercizi: convoluzione, risposta all'impulso e risposta di sistemi LTI}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Calcolare la convoluzione tra i segnali $x(t)$ e $y(t)$ sotto definiti:
+$$x(t) = e^{-\beta|t|},\ \beta>0 \qquad\qquad y(t) = \Pi\!\left(\frac{t-T/2}{T}\right)$$
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+$$z(t) = x(t)*y(t) = \int_{-\infty}^{+\infty} x(\tau)y(t-\tau)\,d\tau$$
+Equivale a ribaltare $y(t)$ nel tempo e farlo scorrere da $-\infty$ a $+\infty$, moltiplicandolo per $x(t)$ e integrando. Graficamente:
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.85]
+\draw[->] (-4,0) -- (4,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,1.6) node[above] {$x(\tau)$};
+\draw[thick,domain=0:3,samples=30] plot ({\x},{exp(-1.2*\x)});
+\draw[thick,domain=-3:0,samples=30] plot ({\x},{exp(1.2*\x)});
+\node[left] at (0,1) {$1$}; \node[below left] at (0,0) {$0$};
+\end{tikzpicture}
+
+\begin{tikzpicture}[>=stealth,scale=0.85]
+\draw[->] (-4,0) -- (4,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,1.6) node[above] {$y(\tau)$};
+\draw[thick] (0,0) -- (0,1) -- (2,1) -- (2,0);
+\node[left] at (0,1) {$1$}; \node[below] at (0,0) {$0$}; \node[below] at (2,0) {$T$};
+\end{tikzpicture}
+
+\begin{tikzpicture}[>=stealth,scale=0.85]
+\draw[->] (-4,0) -- (4,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,1.6) node[above] {$y(-\tau)$};
+\draw[thick] (-2,0) -- (-2,1) -- (0,1) -- (0,0);
+\node[left] at (0,1) {$1$}; \node[below] at (0,0) {$0$}; \node[below] at (-2,0) {$-T$};
+\end{tikzpicture}
+\end{center}
+
+I due segnali hanno intersezione non nulla su tutto il dominio: il rettangolo definisce, istante per istante, gli estremi di integrazione dell'esponenziale. Data la discontinuità in $0$, si spezza in 3 intervalli: \textsc{caso 1} $t\le0$ (solo ramo sinistro), \textsc{caso 2} $0<t\le T$ (entrambi i rami), \textsc{caso 3} $t>T$ (solo ramo destro).
+
+$$\textsc{Caso 1}:\ z(t)=\int_{t-T}^{t}e^{\beta\tau}\,d\tau = \frac1\beta e^{\beta\tau}\Big|_{t-T}^{t} = \frac1\beta e^{\beta t}-\frac1\beta e^{\beta(t-T)} = \frac1\beta e^{\beta t}\big(1-e^{\beta T}\big)$$
+$$\textsc{Caso 3}:\ z(t)=\int_{t-T}^{t}e^{-\beta\tau}\,d\tau = -\frac1\beta e^{-\beta\tau}\Big|_{t-T}^{t} = -\frac1\beta e^{-\beta t}+\frac1\beta e^{-\beta(t-T)} = \frac1\beta e^{-\beta t}\big(e^{\beta T}-1\big)$$
+$$\textsc{Caso 2}:\ z(t)=\int_{t-T}^{0}e^{\beta\tau}d\tau+\int_0^{t}e^{-\beta\tau}d\tau = \frac1\beta\big(1-e^{\beta(t-T)}\big)-\frac1\beta\big(e^{-\beta t}-1\big) = \frac1\beta\big(2-e^{-\beta t}-e^{\beta(t-T)}\big)$$
+
+Rappresentazione qualitativa:
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.95]
+\draw[->] (-1.5,0) -- (7,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,2.3) node[above] {$z(t)$};
+\draw[thick] (0,1) to[out=15,in=180] (2,1.8) to[out=0,in=165] (4,1);
+\draw[dashed] (0,1) -- (-1.3,1); \node[left] at (-1.3,1) {$\frac1\beta(1-e^{-\beta T})$};
+\draw[dashed] (2,1.8) -- (-1.3,1.8); \node[left] at (-1.3,1.8) {$\frac2\beta(1-e^{-\beta T/2})$};
+\draw[dashed] (2,0) -- (2,1.8);
+\node[below] at (0,0) {$0$}; \node[below] at (2,0) {$T/2$}; \node[below] at (4,0) {$T$};
+\end{tikzpicture}
+\end{center}
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+Calcolare la convoluzione tra i segnali $x(t)$ e $y(t)$ sotto definiti:
+$$x(t) = A\,\Pi\!\left(\frac{t-5}{2}\right) \qquad\qquad y(t) = B\,\Lambda\!\left(\frac{t-2}{4}\right)$$
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+$x(t)$ e $y(t)$ sono un rettangolo e un triangolo di diversa durata ($2$ e $4$ sec) e ampiezza ($A$,$B$), entrambi ritardati ($5$ e $2$ sec). Isolando i ritardi come convoluzioni con impulsi traslati:
+$$x(t)=\Pi\!\left(\frac t2\right)*A\delta(t-5), \qquad y(t)=\Lambda\!\left(\frac t4\right)*B\delta(t-2)$$
+Per linearità: $z(t)=\Pi(t/2)*\Lambda(t/4)*AB\,\delta(t-7)$ — si convolvono le forme base, poi si applicano guadagno $AB$ e ritardo $7$ sec. Si risolve $w(t)=\Pi(t/2)*\Lambda(t/4)$:
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.75]
+\draw[->] (-4,0) -- (4,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,1.6) node[above] {$y(t)$};
+\draw[thick] (-2,0) -- (0,1) -- (2,0);
+\node[left] at (0,1) {$1$}; \node[below] at (-2,0) {$-2$}; \node[below] at (2,0) {$2$};
+\end{tikzpicture}
+\begin{tikzpicture}[>=stealth,scale=0.75]
+\draw[->] (-4,0) -- (4,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,1.6) node[above] {$x(t)$};
+\draw[thick] (-1,0) -- (-1,1) -- (1,1) -- (1,0);
+\node[left] at (0,1) {$1$}; \node[below] at (-1,0) {$-1$}; \node[below] at (1,0) {$1$};
+\end{tikzpicture}
+\end{center}
+
+Essendo entrambi pari, il ribaltamento (con $x(t)$ come segnale a scorrimento) lascia tutto inalterato. Il primo contatto è in $t=-3$, l'ultimo in $t=3$; punti chiave intermedi in $t=\pm1$. Si individuano così 3 tratti:
+
+$$-3<t\le-1:\ w(t)=\int_{-2}^{t+1}\frac{(\tau+2)}{2}\,d\tau = \frac14(t^2+6t+9)$$
+$$-1<t\le1:\ w(t)=\int_{t-1}^{0}\frac{(\tau+2)}{2}d\tau+\int_0^{t+1}\frac{(2-\tau)}2 d\tau = \frac12(3-t^2)$$
+$$1<t\le3:\ w(t)=\int_{t-1}^{2}\frac{(\tau+2)}{2}\,d\tau = \frac14(t^2-6t+9)$$
+
+Tre rami di parabola, a cui va applicata la convoluzione con $AB\,\delta(t-7)$ (traslazione di 7 sec, guadagno $AB$):
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.95]
+\draw[->] (-1,0) -- (11,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,2.3) node[above] {$z(t)$};
+\draw[thick] (4,0) to[out=15,in=180] (6,1.8) to[out=0,in=165] (8,0);
+\draw[dashed] (4,1) -- (-0.7,1); \node[left] at (-0.7,1) {$AB$};
+\draw[dashed] (6,1.8) -- (-0.7,1.8); \node[left] at (-0.7,1.8) {$\frac32AB$};
+\draw[dashed] (6,0) -- (6,1.8); \draw[dashed] (4,0) -- (4,1); \draw[dashed] (8,0) -- (8,1);
+\foreach \x in {4,6,7,8} \node[below] at (\x,0) {$\x$};
+\end{tikzpicture}
+\end{center}
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 3}]
+Calcolare la convoluzione tra i segnali $x(t)$ e $y(t)$ sotto definiti:
+$$x(t) = A\,\Pi\!\left(\frac{t-5}{2}\right) \qquad\qquad y(t) = \cos2\pi t$$
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+$x(t)$ è un rettangolo di durata $2$ sec traslato di $5$: $x(t)=\Pi(t/2)*A\delta(t-5)$. Per la proprietà commutativa, conviene risolvere prima $\cos2\pi t*\Pi(t/2)$ (la seconda convoluzione è solo guadagno/ritardo):
+$$\cos2\pi t*\Pi\!\left(\frac t2\right) = \int_{-\infty}^{+\infty}\cos2\pi\tau\cdot\Pi\!\left(\frac{t-\tau}{2}\right)d\tau = \int_{t-1}^{t+1}\cos2\pi\tau\,d\tau = \frac{1}{2\pi}\sin2\pi\tau\Big|_{t-1}^{t+1}$$
+$$=\frac1{2\pi}\big[\sin2\pi(t+1)-\sin2\pi(t-1)\big] = \frac1{2\pi}\big[\sin(2\pi t+2\pi)-\sin(2\pi t-2\pi)\big] = \frac1{2\pi}[\sin2\pi t-\sin2\pi t]=0$$
+Il rettangolo, di durata $2$, finestra sempre \textbf{esattamente due cicli interi} del coseno: $z(t)$ è \textbf{nullo ovunque} (il fattore di traslazione/guadagno resta ininfluente).
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 4}]
+Calcolare la convoluzione $z(t)$ tra i segnali $x(t)$ e $y(t)$, sotto definiti:
+$$x(t) = \frac tT\,\Pi\!\left(\frac{t-T/2}{T}\right) \qquad\qquad y(t) = 2\,\Pi\!\left(\frac{t-T}{2T}\right)$$
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+Entrambe le funzioni hanno discontinuità a gradino: conviene procedere per via grafica. $x(t)$ è una rampa di pendenza $1/T$ finestrata in $[0,T]$; $y(t)$ un rettangolo di ampiezza $2$ e durata $2T$.
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.8]
+\draw[->] (-1,0) -- (6,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,1.6) node[above] {$x(t)$};
+\draw[thick] (0,0) -- (2,1); \node[left] at (0,1) {$1$};
+\node[below] at (2,0) {$T$}; \node[below] at (4,0) {$2T$};
+\end{tikzpicture}
+\begin{tikzpicture}[>=stealth,scale=0.8]
+\draw[->] (-1,0) -- (6,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,2.6) node[above] {$y(t)$};
+\draw[thick] (0,0) -- (0,2) -- (4,2) -- (4,0);
+\node[left] at (0,2) {$2$}; \node[below] at (2,0) {$T$}; \node[below] at (4,0) {$2T$};
+\end{tikzpicture}
+\end{center}
+
+Usando $x(t)$ come segnale a scorrimento: ribaltato e traslato, il primo punto di contatto è $t=0$ (nullo per $t\le0$), l'ultimo $t=3T$ (nullo per $t\ge3T$). Tre sotto-intervalli: $[0,T]$, $(T,2T]$, $(2T,3T]$.
+
+$$0\le t\le T:\ z(t)=\int_0^t\frac\tau T\,d\tau = \frac{1}{2T}t^2 \quad\text{(parabola concava verso l'alto, da $0$ a $T/2$)}$$
+$$T<t\le2T:\ z(t)=\frac T2 \quad\text{(costante: il rettangolo scorre interamente sovrapposto al triangolo)}$$
+$$2T<t\le3T:\ z(t)=\int_{t-2T}^{T}\frac\tau T\,d\tau = \frac1{2T}\big[T^2-(t-2T)^2\big] \quad\text{(parabola concava verso il basso, da $T/2$ a $0$)}$$
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.95]
+\draw[->] (-0.5,0) -- (8,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,2) node[above] {$z(t)$};
+\draw[thick] (0,0) to[out=40,in=180] (2,1.5) -- (4,1.5) to[out=0,in=140] (6,0);
+\draw[dashed] (0,1.5) -- (2,1.5); \node[left] at (0,1.5) {$T/2$};
+\draw[dashed] (2,0) -- (2,1.5); \draw[dashed] (4,0) -- (4,1.5); \draw[dashed] (6,0) -- (6,1.5);
+\foreach \x/\lab in {2/T,4/{2T},6/{3T}} \node[below] at (\x,0) {$\lab$};
+\end{tikzpicture}
+\end{center}
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 5}]
+Calcolare la risposta impulsiva del sistema descritto dal seguente schema a blocchi, dove $\Delta T_2>\Delta T_1$:
+\end{tcolorbox}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.1cm]
+\node (xin) {$x(t)$};
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, right=0.8cm of xin] (int) {$\displaystyle\int(\cdot)$};
+\draw[->] (xin) -- (int);
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, above right=0.5cm and 1.4cm of int] (dt1) {$\Delta T_1$};
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, below right=0.5cm and 1.4cm of int] (dt2) {$\Delta T_2$};
+\draw (int.east) -- ++(0.4,0) coordinate (split);
+\draw[->] (split) |- (dt1.west); \draw[->] (split) |- (dt2.west);
+\node[draw, circle, minimum size=0.6cm, right=1.7cm of int] (sum) {};
+\draw[->] (dt1.east) -- ++(0.4,0) |- node[pos=0.25,above]{$+$} (sum.north);
+\draw[->] (dt2.east) -- ++(0.4,0) |- node[pos=0.25,below]{$-$} (sum.south);
+\node[draw, shape=isosceles triangle, isosceles triangle apex angle=60, right=1.1cm of sum] (alpha) {$\alpha$};
+\draw[->] (sum) -- (alpha);
+\draw[->] (alpha.east) -- ++(0.8,0) node[right] {$y(t)$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Soluzione:}
+
+Dato uno schema a blocchi, basta calcolare $y(t)$ in funzione di $x(t)$ (come negli esercizi precedenti) e poi sostituire $x(t)=\delta(t)$. \textit{N.B.} occorre prima verificare che il sistema sia LTI (altrimenti non ha senso parlare di risposta impulsiva) — qui è chiaramente LTI (combinazione lineare di blocchi LTI).
+
+Seguendo la serie (integratore, due ritardi in parallelo, guadagno):
+$$y(t) = \alpha\left[\int x(t-\Delta T_1)-\int x(t-\Delta T_2)\right]$$
+Sostituendo $x(t)=\delta(t)$:
+$$h(t) = \alpha\left[\int\delta(t-\Delta T_1)-\int\delta(t-\Delta T_2)\right] = \alpha\big[u(t-\Delta T_1)-u(t-\Delta T_2)\big] = \alpha\,\Pi\!\left(\frac{t-\frac{\Delta T_1+\Delta T_2}{2}}{\Delta T_2-\Delta T_1}\right)$$
+Tutte le forme (con gli integrali, con i gradini, e quella finale col rettangolo) sono corrette, ma quest'ultima rappresenta più efficacemente la funzione del filtro: un rettangolo traslato.
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 6}]
+Determinare la risposta impulsiva $h(t)$ del sistema che produce la seguente elaborazione del segnale $x(t)$ e proporre uno schema a blocchi che implementi $h(t)$:
+$$y(t) = A\,x(t-T_0)+B\,\frac{d}{dt}x(t)$$
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+Fatta salva la verifica di LTI (qui ovvia: somma di due risposte LTI), basta sostituire $x(t)=\delta(t)$:
+$$h(t) = A\,\delta(t-T_0)+B\,\delta'(t)$$
+dove $\delta'(t)$ è un doppietto centrato nell'origine, di area $B$.
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=1.1cm]
+\node (xin) {$x(t)$};
+\draw (xin.east) -- ++(0.4,0) coordinate (split);
+\node[draw, minimum width=1.1cm, minimum height=0.8cm, above right=0.5cm and 1.2cm of xin] (t0) {$T_0$};
+\node[draw, shape=isosceles triangle, isosceles triangle apex angle=60, right=0.9cm of t0] (A) {$A$};
+\node[draw, minimum width=1.3cm, minimum height=0.8cm, below right=0.5cm and 1.2cm of xin] (der) {$\dfrac{d}{dt}(\cdot)$};
+\node[draw, shape=isosceles triangle, isosceles triangle apex angle=60, right=0.9cm of der] (B) {$B$};
+\draw[->] (split) |- (t0.west); \draw[->] (split) |- (der.west);
+\draw[->] (t0) -- (A); \draw[->] (der) -- (B);
+\node[draw, circle, minimum size=0.6cm, right=2.4cm of xin] (sum) {};
+\draw[->] (A.east) -- ++(0.3,0) |- node[pos=0.25,above]{$+$} (sum.north);
+\draw[->] (B.east) -- ++(0.3,0) |- node[pos=0.25,below]{$+$} (sum.south);
+\draw[->] (sum.east) -- ++(0.8,0) node[right] {$y(t)$};
+\end{tikzpicture}
+\end{center}
+(l'ordine dei blocchi in cascata è indifferente)
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 7}]
+Un sistema LTI ha risposta impulsiva $h(t)=\delta(t)+2\delta(t-T)$. In ingresso al sistema viene posto un segnale non causale $x(t)=\Lambda(t/2T)$. Calcolare il segnale $y(t)$ in uscita dal sistema.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+Il sistema è un parallelo (somma di risposte): per linearità della convoluzione, $y(t)=x(t)*h_1(t)+x(t)*h_2(t)$ con $h_1(t)=\delta(t)$, $h_2(t)=2\delta(t-T)$.
+
+$h_1$ è un impulso nell'origine (sistema passa-tutto): $y_1(t)=x(t)*\delta(t)=\Lambda(t/2T)$. $h_2$ è un impulso traslato di area $2$: amplifica e ritarda, $y_2(t)=x(t)*2\delta(t-T)=2\Lambda\!\left(\dfrac{t-T}{2T}\right)$. Quindi:
+$$y(t) = \Lambda\!\left(\frac{t}{2T}\right)+2\Lambda\!\left(\frac{t-T}{2T}\right)$$
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.85]
+\draw[->] (-3,0) -- (9,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,2.6) node[above] {$y(t)$};
+\draw[thick,blue!60!black] (-2,0) -- (0,1) -- (2,0);
+\draw[thick,blue!60!black] (0,0) -- (2,2) -- (4,0);
+\draw[very thick,red] (-2,0) -- (0,1) -- (2,2) -- (4,0);
+\node[left] at (0,2) {$2$}; \node[left] at (0,1) {$1$};
+\foreach \x/\lab in {-2/{-T},2/T,4/{2T},6/{3T}} \node[below] at (\x,0) {$\lab$};
+\end{tikzpicture}
+\end{center}
+(in blu $y_1(t)$ e $y_2(t)$, in rosso la somma $y(t)$)
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 8}]
+Dato il sistema LTI caratterizzato dalla risposta impulsiva $h(t)=2\delta(t-2)+u(t-2)$, verificare che il sistema sia causale e calcolare la risposta a un gradino unitario.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+In un sistema causale $h(t)$ deve essere nulla per $t<0$. Qui $h(t)$ è somma di due termini, entrambi nulli per $t<2>0$ (un impulso e un gradino in $t=2$): il sistema è \textbf{causale}.
+
+Risposta al gradino:
+$$y(t) = u(t)*h(t) = u(t)*\big[2\delta(t-2)+u(t-2)\big] = y_1(t)+y_2(t)$$
+$$y_1(t) = u(t)*2\delta(t-2) = 2u(t-2)$$
+$$y_2(t) = u(t)*u(t-2) = \int_{-\infty}^{+\infty}u(\tau)u(t-2-\tau)\,d\tau$$
+Fino a $t=2$ le due funzioni non si incontrano; per $t>2$ la rampa integra progressivamente il gradino:
+$$y_2(t) = \int_0^{t-2}1\,d\tau = t-2,\quad t>2 \qquad\Longrightarrow\qquad y_2(t)=(t-2)u(t-2)$$
+Sommando:
+$$y(t) = 2u(t-2)+(t-2)u(t-2) = t\cdot u(t-2)$$
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.9]
+\draw[->] (-1,0) -- (6,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,3) node[above] {$y(t)$};
+\draw[thick] (0,0) -- (2,0) -- (2,2) -- (4.5,4.5);
+\node[left] at (0,2) {$2$}; \node[below] at (0,0) {$0$}; \node[below] at (2,0) {$2$};
+\end{tikzpicture}
+\end{center}
+
+\bigskip
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 9}]
+Un sistema LTI causale ha risposta all'impulso $h(t)=e^{-t}u(t)$. Si vuole calcolare la risposta del sistema quando in ingresso sia posto un segnale rettangolare $x(t)=2\,\Pi\!\left(\dfrac{t-3}{2}\right)$.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+$x(t)$ è un rettangolo di durata $2$ e ampiezza $2$, traslato di $3$ (tra $t=2$ e $t=4$); $h(t)$ è un esponenziale negativo causale (tipico filtro passa-basso, es. RC). Conviene semplificare: traslare $x(t)$ nell'origine e normalizzare il guadagno a $1$ (se ne terrà conto alla fine):
+$$x(t) = \Pi\!\left(\frac t2\right)*2\delta(t-3) \ \to\ x_1(t)=\Pi\!\left(\frac t2\right)$$
+$$y_1(t) = h(t)*x_1(t) = \int_{-\infty}^{+\infty} e^{-\tau}\,\Pi\!\left(\frac{t-\tau}{2}\right)u(\tau)\,d\tau$$
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.85]
+\draw[->] (-3,0) -- (6,0) node[right] {$\tau$}; \draw[->] (0,-0.2) -- (0,1.8) node[above] {};
+\draw[dashed,red,thick] (-4,0) -- (-1,0) -- (-1,1.5) -- (1,1.5) -- (1,0);
+\node[red] at (-1,1.9) {$x_1(t)$};
+\draw[thick,domain=0:4,samples=30] plot ({\x},{1.3*exp(-0.8*\x)});
+\node at (2.5,1) {$h(t)$};
+\node[below] at (0,0) {$0$}; \node[below] at (2,0) {$2$}; \node[below] at (4,0) {$4$};
+\end{tikzpicture}
+\end{center}
+
+La moltiplicazione per il rettangolo definisce solo gli estremi di integrazione dell'esponenziale: si individuano 3 casi. $t<-1$: i segnali non si incontrano, risultato nullo. $-1\le t<1$:
+$$y_1(t) = \int_0^{t+1}e^{-\tau}\,d\tau = 1-e^{-(t+1)}$$
+$t\ge1$:
+$$y_1(t) = \int_{t-1}^{t+1}e^{-\tau}\,d\tau = e^{-(t-1)}-e^{-(t+1)} = e^{-t}(e^1-e^{-1})$$
+
+Reintroducendo ritardo ($3$) e guadagno ($2$): $y(t)=2y_1(t-3)$:
+$$y(t) = \begin{cases} 0 & t<2 \\ 2\big[1-e^{-t+2}\big] & 2\le t<4 \\ 2e^{-t}(e^4-e^2) & t\ge4 \end{cases}$$
+
+\begin{center}
+\begin{tikzpicture}[>=stealth,scale=0.9]
+\draw[->] (-1,0) -- (9,0) node[right] {$t$}; \draw[->] (0,-0.2) -- (0,2) node[above] {$y(t)$};
+\draw[thick] (0,0) -- (2,0) to[out=30,in=180] (4,1.6) to[out=0,in=140] (8,0.1);
+\draw[dashed] (0,1.55) -- (4,1.55); \node[left] at (0,1.55) {$2(1-e^{-2})$};
+\node[below] at (0,0) {$0$}; \node[below] at (2,0) {$2$}; \node[below] at (4,0) {$4$};
+\end{tikzpicture}
+\end{center}
+
+Il segnale in uscita ha forma "quasi triangolare": conferma l'effetto integrativo (passa-basso) del filtro esponenziale negativo.
 \end{document}
