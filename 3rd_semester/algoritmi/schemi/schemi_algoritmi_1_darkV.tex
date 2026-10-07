@@ -4403,6 +4403,275 @@ Tutte le operazioni sono confinate ai nodi posizionati lungo un cammino semplice
 Dato che il costo di ogni operazione dipende da $h$, e che $h$ può degenerare fino a $O(n)$: come si fa a \textbf{garantire} $h=O(\log n)$, indipendentemente dalla sequenza di inserimenti e cancellazioni? Risposta nella Sezione~\ref{sec:abr-bilanciati}, con gli alberi binari di ricerca \textbf{bilanciati}.
 \end{tcolorbox}
 
+\subsection{Alberi Binari di Ricerca Bilanciati}
+\label{sec:abr-bilanciati}
 
+\subsubsection{Altezza degli Alberi Binari di Ricerca}
+
+\textbf{Quanto vale $h$?} Dipende dalla sequenza di inserimenti e cancellazioni.
+\begin{itemize}
+    \item \textbf{Caso pessimo}: $h=\Theta(n)$ (lista degenere).
+    \item \textbf{Caso medio}: per un ABR costruito per inserimenti \textbf{casuali}, è possibile dimostrare che l'altezza attesa è $\Theta(\log n)$.
+    \item \textbf{Caso generale}: analizzare l'andamento dell'altezza per sequenze arbitrarie di inserimenti e cancellazioni è un problema aperto, difficile.
+\end{itemize}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Nella Realtà}]
+Non si analizza il caso medio sperando che vada bene: si utilizzano tecniche che \textbf{bilanciano} l'albero, \textbf{garantendo} $h=O(\log n)$ in ogni caso.
+\end{tcolorbox}
+
+\subsubsection{Alberi Binari di Ricerca Bilanciati}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione: Fattore di Bilanciamento}]
+\label{def:fattore-bilanciamento}
+Il \textbf{fattore di bilanciamento} $\beta(v)$ di un nodo $v$ è la differenza fra le altezze dei due sottoalberi di $v$.
+\end{tcolorbox}
+
+\textbf{Tre famiglie di tecniche di bilanciamento:}
+\begin{itemize}
+    \item \textbf{Alberi AVL} (Adelson-Velskii e Landis): $\beta(v)\in\{-1,0,1\}$ per ogni nodo $v$; il bilanciamento è ripristinato tramite \textbf{rotazioni}.
+    \item \textbf{B-alberi}: $\beta(v)=0$ per ogni nodo $v$ (bilanciamento perfetto); pensati per strutture in \textbf{memoria secondaria}.
+    \item \textbf{Alberi 2-3 (e varianti)}: $\beta(v)=0$; il bilanciamento è ripristinato tramite operazioni di \textit{merge} e \textit{split} dei nodi.
+\end{itemize}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{In Questo Corso}]
+Si studiano gli \textbf{alberi Red-Black}, una rappresentazione alternativa (ma equivalente) degli alberi 2-3, che si presta meglio all'implementazione su un albero binario.
+\end{tcolorbox}
+
+\subsubsection{Definizioni}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione: Albero Red-Black}]
+\label{def:albero-redblack}
+Un \textbf{albero Red-Black} (Guibas e Sedgewick, 1978) è un albero binario di ricerca in cui ogni nodo è colorato di \textcolor{red!70!black}{\textbf{rosso}} o \textbf{nero}, soggetto ai seguenti vincoli:
+\begin{enumerate}
+    \item la \textbf{radice} è nera;
+    \item tutte le foglie (\texttt{Nil}) sono considerate \textbf{nere};
+    \item entrambi i figli di un nodo \textcolor{red!70!black}{\textbf{rosso}} sono \textbf{neri} (un nodo \textbf{nero} può invece avere figli di qualunque colore);
+    \item ogni cammino semplice da un nodo $u$ a una delle foglie contenute nel suo sottoalbero ha lo \textbf{stesso numero di nodi neri}.
+\end{enumerate}
+\end{tcolorbox}
+
+\subsubsection{Esempi}
+
+\textit{Albero di riferimento per questa sezione, colori verificati a più livelli di ingrandimento}: radice $30$ (nero); $15$ (nero) e $70$ (nero); $10$ (nero) e $20$ (nero) sotto $15$; $60$ (rosso) e $85$ (nero) sotto $70$; $5$ (rosso) unico figlio di $10$; $50$ (nero) e $65$ (nero) sotto $60$; $80$ (rosso) e $90$ (rosso) sotto $85$; $40$ (rosso) e $55$ (rosso) sotto $50$; tutte le foglie \texttt{Nil} (nere).
+
+\begin{verbatim}
+                              30(nero)
+                    /                        \
+              15(nero)                    70(nero)
+             /        \                  /         \
+        10(nero)    20(nero)        60(rosso)    85(nero)
+        /    \       /    \         /      \      /     \
+   5(rosso) Nil    Nil   Nil   50(nero) 65(nero) 80(rosso) 90(rosso)
+    /   \                      /    \    /   \     /  \      /  \
+  Nil  Nil                 40(r) 55(r) Nil Nil   Nil Nil   Nil Nil
+                            /\     /\
+                          Nil Nil Nil Nil
+\end{verbatim}
+
+\textbf{Verifica dei quattro vincoli su questo esempio:}
+\begin{enumerate}
+    \item la radice ($30$) è nera. \checkmark
+    \item tutte le foglie \texttt{Nil} sono nere (per convenzione). \checkmark
+    \item ogni nodo rosso ($5,60,80,90,40,55$) ha entrambi i figli neri -- si noti che $60$ (rosso) ha figlio $50$ che è \textbf{nero} pur avendo a sua volta figli \textbf{rossi} ($40,55$): un nodo nero può avere figli di qualunque colore. \checkmark
+    \item ogni cammino radice--foglia attraversa esattamente $4$ nodi neri (contando anche la foglia \texttt{Nil} d'arrivo): ad es.\ $30,15,10,\texttt{Nil}$ oppure $30,70,60,50,\texttt{Nil}$ ($60$ non conta, essendo rosso) oppure $30,70,85,\texttt{Nil}$. \checkmark
+\end{enumerate}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Reality Check}]
+Implementazioni reali basate su alberi Red-Black: \texttt{java.util.TreeMap} e \texttt{java.util.TreeSet} (Java); \texttt{std::map} e \texttt{std::set} (C++ STL); l'albero \texttt{rbtree} del kernel Linux (usato per scheduling dei processi, gestione della memoria virtuale, e altro).
+\end{tcolorbox}
+
+
+
+\subsubsection{Memorizzazione}
+
+\begin{verbatim}
+TREE
+TREE parent
+TREE left
+TREE right
+int color
+item key
+item value
+\end{verbatim}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Nodi \texttt{Nil}}]
+Nodo sentinella il cui scopo è avere accesso al colore di entrambi i figli, evitando di dover gestire casi particolari quando uno dei due è \texttt{nil}. Al posto di un puntatore \texttt{nil}, si usa un puntatore a un nodo \texttt{Nil} di colore \textbf{nero}. Ne esiste \textbf{uno solo}, condiviso da tutto l'albero, per risparmiare memoria.
+\end{tcolorbox}
+
+\subsubsection{Altezza Nera}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Definizione: Altezza Nera}]
+\label{def:altezza-nera}
+L'\textbf{altezza nera} $bh(v)$ di un nodo $v$ è il numero di nodi neri lungo ogni cammino da $v$ (\textbf{escluso}) a ogni foglia (\textbf{inclusa}) del suo sottoalbero. L'\textbf{altezza nera di un albero Red-Black} è pari all'altezza nera della sua radice.
+\end{tcolorbox}
+
+Entrambe le definizioni sono ben poste perché tutti i cammini hanno lo stesso numero di nodi neri (Vincolo 4, Definizione~\ref{def:albero-redblack}).
+
+\subsubsection{Esempi: Colorazioni Diverse}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Più Colorazioni Sono Possibili}]
+La \textbf{stessa forma} d'albero ammette colorazioni diverse, tutte valide. Due versioni verificate a piena risoluzione, entrambe con $bh(r)=3$:
+\begin{itemize}
+    \item \textbf{Versione 1} (= l'esempio della Sezione~\ref{sec:abr-bilanciati}, Definizioni): $30,15,70,10,20,65,85$ neri; $60,5,80,90,40,55$ rossi; $50$ \textbf{nero}.
+    \item \textbf{Versione 2}: stessa forma, ma $70,50$ diventano \textbf{rossi} mentre $60,80,90,40,55$ diventano \textbf{neri} ($15,10,20,85,5$ restano invariati).
+\end{itemize}
+\end{tcolorbox}
+
+\begin{verbatim}
+Versione 1                              Versione 2
+                30(nero)                                 30(nero)
+          /               \                        /               \
+     15(nero)           70(nero)               15(nero)           70(rosso)
+     /      \           /      \                /      \           /      \
+ 10(nero) 20(nero) 60(rosso) 85(nero)       10(nero) 20(nero) 60(nero)  85(nero)
+  /   \              /    \     /  \         /   \              /    \     /  \
+5(r) Nil        50(nero)65(n) 80(r) 90(r)  5(r) Nil         50(r) 65(n) 80(n) 90(n)
+                 /   \                                       /   \
+              40(r) 55(r)                                 40(n) 55(n)
+\end{verbatim}
+\textit{(abbreviazioni: nero=n, rosso=r; figli \texttt{Nil} di $5,20,40,55,65,80,90$ omessi per compattezza.)}
+
+In entrambe le versioni, ogni cammino radice--foglia attraversa esattamente $3$ nodi neri \emph{esclusa la radice}: ad es.\ in Versione 2, $30\to70\to60\to50\to40\to\texttt{Nil}$ ha, esclusa la radice, i nodi neri $60,40,\texttt{Nil}$.
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Cambiare Colorazione Può Cambiare l'Altezza Nera}]
+Su una forma d'albero più semplice (senza i nipoti di $10$), due colorazioni ugualmente \textbf{valide} (tutti e quattro i vincoli rispettati in entrambe) producono \textbf{altezze nere diverse}: verificato a piena risoluzione.
+\begin{itemize}
+    \item $bh(r)=3$: $30,10,20,50,65,85$ neri; $15$ (qui) nero; $70,60,80,90$ rossi\footnotemark.
+    \item $bh(r)=2$: $30,10,20,60,85$ neri; $15,70,50,65,80,90$ rossi.
+\end{itemize}
+\end{tcolorbox}
+\footnotetext{In questa versione semplificata (senza i nipoti $40,55$), la colorazione di partenza ha $60$ rosso anziché nero: una terza distribuzione di colori diversa, ancora valida, ancora con $bh=3$ -- ulteriore conferma che la stessa forma ammette molte colorazioni corrette.}
+
+\begin{verbatim}
+bh(r) = 3                               bh(r) = 2
+                30(nero)                                 30(nero)
+          /               \                        /               \
+     15(nero)           70(rosso)              15(rosso)          70(rosso)
+     /      \           /      \                /      \           /      \
+ 10(nero) 20(nero) 60(rosso) 85(nero)       10(nero) 20(nero) 60(nero)  85(nero)
+                     /    \     /  \                            /    \     /  \
+                 50(nero)65(n) 80(r) 90(r)                  50(r) 65(r) 80(r) 90(r)
+\end{verbatim}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Perché Succede}]
+Nella colorazione $bh=2$, lungo il cammino $30\to15\to10\to\texttt{Nil}$ (esclusa la radice) i nodi neri sono $10,\texttt{Nil}$: il nodo $15$, diventato rosso, non contribuisce più al conteggio. ``Scaricare'' di rosso un nodo nero riduce di $1$ l'altezza nera di ogni cammino che lo attraversa -- a patto di farlo in modo uniforme su \emph{tutti} i cammini, per non violare il Vincolo 4.
+\end{tcolorbox}
+
+
+
+
+
+
+
+\subsubsection{Esempio: Questo Albero Può Essere un Albero Red-Black?}
+
+Si consideri la forma d'albero $30(15(10,20),\,70(60(50(40,55),\_),85))$, inizialmente \textbf{non colorata}:
+
+\begin{verbatim}
+                                    30
+                       /                          \
+                    15                              70
+                 /      \                     /            \
+              10          20               60                85
+             /  \        /  \            /    \              /  \
+           Nil  Nil   Nil  Nil         50      Nil          Nil  Nil
+                                       /  \
+                                     40    55
+                                    /  \  /  \
+                                  Nil Nil Nil Nil
+\end{verbatim}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Passo 1: un Vincolo sulla Possibile Altezza Nera}]
+Guardando il lato sinistro, $2\le bh(r)\le 3$; guardando il lato destro, $bh(r)\ge 3$. Quindi, se questo albero ammette una colorazione valida, deve necessariamente avere $bh(r)=3$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Tentativo 1: $60$ e $70$ Entrambi Neri}]
+\textbf{Impossibile!} Perché dovremmo violare il Vincolo 3: con $70,60$ entrambi neri, per raggiungere $bh=3$ sul cammino $70\to60\to50\to40\to\texttt{Nil}$ resterebbe un solo ``slot nero'' per $50,40,\texttt{Nil}$ insieme -- che forzerebbe $50$ \emph{e} $40$ entrambi rossi, ma un nodo rosso ($50$) non può avere un figlio rosso ($40$).
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Tentativo 2: $60$ Rosso}]
+\textbf{Impossibile per il Vincolo 4!} Esistono cammini con $2$ nodi neri (es.\ $70\to60\to\texttt{Nil}$, dove $60$ essendo rosso non conta: $70,\texttt{Nil}$) e cammini con $3$ nodi neri (es.\ $70\to60\to50\to40\to\texttt{Nil}$): valori diversi sullo stesso sottoalbero.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Tentativo 3: $70$ Rosso}]
+\textbf{Impossibile per il Vincolo 4!} Stesso problema: esistono cammini con $2$ nodi neri (es.\ $70\to85\to\texttt{Nil}$, dove $70$ rosso non conta: $85,\texttt{Nil}$) contro cammini più lunghi che ne richiederebbero $3$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Tentativo 4 (Ultima Possibilità): Radice Rossa}]
+Si prova a colorare di rosso \emph{quasi} tutto l'albero ($30,15,70,10,20,60,85,40,55$ rossi, solo $50$ nero), nel disperato tentativo di minimizzare i nodi neri in modo uniforme. \textbf{Impossibile}: non rispetta il Vincolo 1 (la radice $30$ è rossa, non nera) \textbf{e} non rispetta comunque il Vincolo 4.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Conclusione}]
+\textbf{Questo albero NON può essere un albero Red-Black!} Non tutte le forme di albero binario ammettono una colorazione valida: la struttura stessa dell'albero può essere incompatibile con i quattro vincoli, indipendentemente da come si distribuiscono i colori.
+\end{tcolorbox}
+
+
+
+
+
+
+
+
+\subsubsection{Rotazioni}
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Quando un'Operazione Viola i Vincoli}]
+È possibile che le condizioni di bilanciamento (i quattro vincoli della Definizione~\ref{def:albero-redblack}) risultino violate dopo un inserimento o una cancellazione. Si può agire in due modi:
+\begin{itemize}
+    \item modificando i \textbf{colori} nella zona della violazione;
+    \item operando dei \textbf{ribilanciamenti} dell'albero tramite \textbf{rotazioni} (destra o sinistra).
+\end{itemize}
+\end{tcolorbox}
+
+\paragraph{Rotazione a Destra.}
+
+\textit{Nota grafica -- verificata}: \textbf{Prima}: $x$ è radice del sottoalbero (altezza $h+2$), con figlio sinistro $y$ (altezza $h+1$, a sua volta con sottoalberi $T_1$ e $T_2$) e figlio destro il sottoalbero $T_3$ (altezza $h$). \textbf{Dopo}: $y$ è la nuova radice (altezza $h+1$), con figlio sinistro $T_1$ e figlio destro $x$; $x$ ha ora come figli $T_2$ (sinistro) e $T_3$ (destro).
+
+\begin{verbatim}
+         Prima                              Dopo
+          x                                   y
+        /   \                              /     \
+       y     T3                           T1       x
+      / \                                          / \
+    T1   T2                                      T2   T3
+\end{verbatim}
+
+\paragraph{Rotazione a Sinistra.}
+
+\textit{Nota grafica -- verificata, stato ``Prima''/``Dopo''}: $p$ è il padre di $x$; $x$ ha figlio sinistro $A$ e figlio destro $y$; $y$ ha figlio sinistro $B$ e figlio destro $C$ $\to$ dopo la rotazione, $p$ ha come figlio $y$; $y$ ha figlio sinistro $x$ e figlio destro $C$ (invariato); $x$ ha figlio sinistro $A$ (invariato) e figlio destro $B$ (il sottoalbero ``di mezzo'', che passa da $y$ a $x$).
+
+\begin{verbatim}
+     Prima                        Dopo
+        p                            p
+        |                            |
+        x                            y
+       / \                          / \
+      A   y                        x   C
+         / \                      / \
+        B   C                    A   B
+\end{verbatim}
+
+\begin{verbatim}
+TREE rotateLeft(TREE x)
+TREE y = x.right
+TREE p = x.parent
+(1) x.right = y.left                 % Il sottoalbero B diventa figlio destro di x
+(1) if y.left != nil then y.left.parent = x
+(2) y.left = x                       % x diventa figlio sinistro di y
+(2) x.parent = y
+(3) y.parent = p                     % y diventa figlio di p
+(3) if p != nil then
+        if p.left == x then p.left = y else p.right = y
+return y
+\end{verbatim}
+
+\textbf{Operazioni}: (1) far diventare $B$ figlio destro di $x$; (2) far diventare $x$ il figlio sinistro di $y$; (3) far diventare $y$ figlio di $p$, il vecchio padre di $x$.
+
+\begin{tcolorbox}[colback=lightergray!5, colframe=tocsubsec, title=\textbf{Perché Funziona}]
+Le chiavi nel sottoalbero $B$ sono maggiori della chiave in $x$ e vengono correttamente spostate nel sottoalbero destro di $x$: la proprietà di albero binario di ricerca (Proprietà~\ref{prop:proprieta-abr}) resta rispettata dopo la rotazione.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Costo e Simmetria}]
+Il costo di una rotazione è ovviamente $O(1)$: coinvolge un numero costante di riassegnazioni di puntatori. La rotazione destra \texttt{rotateRight()} si ottiene semplicemente scambiando fra loro ogni occorrenza delle variabili \texttt{left} e \texttt{right} nel codice di \texttt{rotateLeft()} -- le due operazioni sono l'una lo speculare dell'altra, esattamente come si è visto per \texttt{successorNode}/\texttt{predecessorNode} (Sezione~\ref{sec:abr}).
+\end{tcolorbox}
 
 \end{document}
