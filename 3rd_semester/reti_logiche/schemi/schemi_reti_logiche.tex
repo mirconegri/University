@@ -1,0 +1,2350 @@
+\documentclass[12pt, a4paper]{article}
+\newcounter{esercizio}[section]
+
+%\def\islight{true} 
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{eurosym}
+\usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{datetime}
+\usepackage{pmboxdraw}
+\usepackage{array}
+\usepackage{float}
+\usepackage{tcolorbox}
+
+\newcommand{\myfootertext}{}
+\newcommand{\myicon}{}
+
+\ifx\islight\undefined
+    \definecolor{lightergray}{gray}{0.85}
+    \definecolor{tocsec}{gray}{0.85}
+    \definecolor{tocsubsec}{gray}{0.75}
+    \renewcommand{\myicon}{logo_unitn_scuro.png}
+    \renewcommand{\myfootertext}{Appunti redatti per gli studenti del DISI. \\ Eventuali errori possono essere segnalati su GitHub.}
+    \pagecolor{black}
+    \color{white}
+\else
+    \definecolor{lightergray}{gray}{0.35}
+    \definecolor{tocsec}{gray}{0.35}
+    \definecolor{tocsubsec}{gray}{0.45}
+    \renewcommand{\myicon}{logo_unitn_chiaro.png}
+    \renewcommand{\myfootertext}{Versione Light Mode. Disponibile anche la \href{https://github.com/mirconegri/University/blob/main/3rd_semester/reti_logiche/schemi/schemi_reti_logiche_darkV}{versione Dark Mode}.}    \pagecolor{white}
+    \color{black}
+\fi
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=lightergray,
+    urlcolor=cyan,
+    pdftitle={Appunti di Reti Logiche},
+    pdfauthor={Mirco Negri}
+}
+
+\renewcommand{\cftsecfont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{tocsec}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecpagefont}{\color{tocsubsec}}
+\renewcommand{\cftsubsecleader}{\color{tocsubsec}\cftdotfill{\cftdotsep}}
+
+\geometry{margin=2.5cm}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    
+    \includegraphics[width=0.25\textwidth]{\myicon}
+    \vspace{1cm}
+    
+    {\scshape\LARGE Università degli Studi di Trento \par}
+    \vspace{0.4cm}
+    {\large Dipartimento di Ingegneria e Scienza dell'Informazione \par}
+    
+    \vspace{2cm}
+    
+    \begingroup
+    \hypersetup{hidelinks}
+    \href{https://github.com/mirconegri/University}{%
+        \begin{tabular}{@{}c@{}}
+            {\color{cyan}\rule{\textwidth}{1pt}} \\[0.5cm]
+            {\Huge\bfseries Appunti di Reti Logiche} \\ [0.5cm]
+            {\Large\itshape Lezioni, e Simulazioni d'esame}\\ [0.4cm]
+            {\color{cyan}\rule{\textwidth}{1pt}}
+        \end{tabular}%
+    }\par
+    \endgroup
+    
+    \vspace{2.5cm}
+    
+    {\Large A cura di: \par}
+    \vspace{0.3cm}
+    {\Large \textbf{\href{https://github.com/mirconegri}{Mirco Negri}} \par}
+    
+    \vfill
+    
+    {\small \textit{\myfootertext} \par}
+    \vspace{0.8cm}
+    
+    {\large \monthname\ \the\year \par}
+\end{titlepage}
+
+\newpage
+\begingroup
+\hypersetup{hidelinks}
+\tableofcontents
+\endgroup
+\newpage
+
+\section{Introduzione al corso di Reti Logiche}
+
+\subsection{Informazioni sul corso}
+
+\begin{itemize}
+    \item \textbf{Corso:} \emph{Fondamenti di Elettronica Digitale -- Reti Logiche}, A.A.\ 2026/2027.
+    \item \textbf{Collocazione:} secondo anno, laurea triennale in \textbf{Ingegneria Informatica, delle Comunicazioni ed Elettronica} e in \textbf{Informatica}; \textbf{48 ore, 6 crediti}.
+    \item \textbf{Docenti:}
+    \begin{itemize}
+        \item Prof.\ \textbf{Roberto Passerone} -- tel.\ 0461 28-3971, \texttt{roberto.passerone@unitn.it}; ufficio al secondo piano, lato valle, Povo 2; ricevimento su appuntamento.
+        \item Ing.\ \textbf{Gianpietro Maddinelli} -- \texttt{gmaddinelli@fbk.eu}.
+    \end{itemize}
+    \item \textbf{Orario:} martedì 8:30--10:30 (aula A101); giovedì 13:30--15:30 (aula B109).
+\end{itemize}
+
+\subsubsection{Valutazione}
+\begin{itemize}
+    \item \textbf{Esame scritto} (\textcolor{red!80!black}{\textbf{obbligatorio}}): domande di teoria e \textbf{progetto di una macchina a stati}; valutato tra 0 e 30.
+    \item \textbf{Esame orale} (facoltativo): solo se allo scritto si è ottenuto \textbf{almeno 15}; aumenta o diminuisce il voto dello scritto nell'intervallo $[-3,+3]$.
+    \item \textbf{Provette}: non previste.
+\end{itemize}
+
+\subsubsection{Materiale e testi}
+\begin{itemize}
+    \item \textbf{Slide e dispense}: disponibili sul sito del corso su ESSE3.
+    \item \textbf{Circuiti combinatori e sequenziali}
+    \begin{itemize}
+        \item Mano--Kime, \emph{Reti logiche}, quinta edizione, Pearson, Addison Wesley.
+        \item Mano--Kime, \emph{Logic and Computer Design Fundamentals}, Pearson, Prentice Hall.
+    \end{itemize}
+    \item \textbf{VHDL, FPGA}
+    \begin{itemize}
+        \item Volnei Pedroni, \emph{Circuit Design with VHDL}, third edition, The MIT Press.
+        \item Mark Zwolinski, \emph{VHDL -- Progetto di sistemi digitali}, Pearson, Prentice Hall.
+        \item Clive Maxfield, \emph{The Design Warrior's Guide to FPGAs}, Elsevier.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Pre-requisiti}
+\begin{itemize}
+    \item \textbf{Logica matematica}: operatori logici, dimostrazioni, ecc.
+    \item Un \textbf{linguaggio di programmazione classico} (tipo C, C++, Java).
+    \item Familiarità con i \textbf{sistemi di sviluppo} (compilatori, sistemi integrati IDE, ecc.).
+\end{itemize}
+
+\subsection{Struttura del corso}
+
+Il corso procede in tre fasi:
+
+\begin{enumerate}
+    \item \textcolor{blue!70!black}{\textbf{Circuiti combinatori}} -- \emph{mettere assieme porte logiche per fare cose utili}
+    \begin{itemize}
+        \item multiplexer, decodifiche, encoder, aritmetica, semplificazione logica.
+    \end{itemize}
+    \item \textcolor{red!80!black}{\textbf{Circuiti sequenziali}} -- \emph{sequenzializzare le operazioni, gestire la memoria}
+    \begin{itemize}
+        \item macchine a stati, sintesi, metodo RTL.
+    \end{itemize}
+    \item \textcolor{orange!90!black}{\textbf{Laboratorio}} -- \emph{descrivere il sistema, simulare, implementare}
+    \begin{itemize}
+        \item linguaggi ad alto livello, \textbf{VHDL}, simulazione, sintesi e implementazione, dispositivi \textbf{FPGA}.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Perché digitale?}
+
+\subsubsection{Segnale analogico}
+\begin{itemize}
+    \item \textcolor{blue!70!black}{\textbf{Segnale continuo}}: segnale \emph{proporzionale} alla grandezza che si vuole rappresentare.
+    \begin{itemize}
+        \item semplice ed intuitivo;
+        \item un solo segnale porta \textbf{tutta} l'informazione.
+    \end{itemize}
+    \item \textcolor{red!80!black}{\textbf{Influenzato da rumore}}: il rumore \textbf{si somma} al segnale e quindi \textbf{altera la rappresentazione}; va mantenuto entro limiti accettabili.
+\end{itemize}
+
+\subsubsection{Segnale digitale}
+\begin{itemize}
+    \item \textcolor{blue!70!black}{\textbf{Segnale discreto}}: può assumere \textbf{solo due livelli}.
+    \begin{itemize}
+        \item si definisce una \textbf{soglia} a metà tra i due livelli;
+        \item interpretazione: sopra la soglia $\Rightarrow$ \textbf{alto}, sotto la soglia $\Rightarrow$ \textbf{basso};
+        \item \textbf{precisione limitata}!
+    \end{itemize}
+    \item \textcolor{green!50!black}{\textbf{Non influenzato da rumore}}, \emph{se} il rumore non provoca il sorpasso della soglia.
+    \begin{itemize}
+        \item la \textbf{distanza dalla soglia} determina il \textbf{margine di rumore} sopportabile.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Più segnali per una grandezza continua}
+\begin{itemize}
+    \item \textbf{Un solo segnale è insufficiente}: permette di discriminare solo due livelli (0 e 1) $\Rightarrow$ \textbf{quantizzazione troppo cruda}.
+    \item Si usano allora \textcolor{red!80!black}{\textbf{più segnali}} per grandezza:
+    \begin{itemize}
+        \item due segnali permettono di discriminare 4 livelli: 00, 01, 10, 11;
+        \item in generale \textbf{$n$ segnali discriminano $2^n$ livelli};
+        \item la grandezza è rappresentata come \textbf{numero binario}.
+    \end{itemize}
+    \item \textbf{Precisione controllata} scegliendo il numero di segnali: in generale \textbf{non dipende dalle tolleranze dei componenti}.
+\end{itemize}
+
+\begin{tcolorbox}[colback=blue!5!white, colframe=blue!60!black, title=\textbf{Relazione tra livelli e segnali}]
+Se con $n$ segnali posso rappresentare $v = 2^n$ livelli, allora per rappresentare $v$ livelli ho bisogno di
+$$n = \log_2(v) \quad \text{segnali.}$$
+\end{tcolorbox}
+
+Il numero di segnali \textbf{non cresce così in fretta}: dal grafico delle slide, ad esempio, 65536 livelli richiedono solo 16 segnali.
+
+\subsubsection{Vantaggi e svantaggi dei segnali digitali}
+\begin{itemize}
+    \item \textcolor{green!50!black}{\textbf{Vantaggi}}
+    \begin{itemize}
+        \item il rumore, se contenuto, \textbf{non produce variazioni} sul segnale interpretato come cifra binaria;
+        \item il \textbf{numero di cifre} stabilisce la \textbf{precisione} (controllabile);
+        \item le \textbf{tolleranze}, se contenute, non influiscono sul funzionamento;
+        \item facilità di \textbf{memorizzazione} ed \textbf{integrazione}.
+    \end{itemize}
+    \item \textcolor{red!80!black}{\textbf{Svantaggi}}
+    \begin{itemize}
+        \item necessari \textbf{più segnali} per rappresentare grandezze continue;
+        \item apparentemente i circuiti sono \textbf{più grossi};
+        \item i \textbf{trasduttori} operano solitamente con segnali continui $\Rightarrow$ servono trasformazioni dei segnali analogici in digitali, e viceversa (\textbf{ADC} e \textbf{DAC}).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Tecnologie di implementazione}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{|l|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}\textbf{Tecnologia}} & \colorbox{gray!25}{\color{black}\textbf{Prestazioni}} & \colorbox{gray!25}{\color{black}\textbf{Costi}} \\ \hline
+\textbf{Full custom} & massime & alti \\ \hline
+\textbf{Standard Cell / ASIC} & alte & alti \\ \hline
+\textbf{Programmable Logic / FPGA} & medio/alte & più contenuti \\ \hline
+\textbf{Embedded software} & basse & bassi \\ \hline
+\end{tabular}
+\end{center}
+
+\subsection{Applicazioni}
+
+\begin{itemize}
+    \item \textbf{Microprocessori e microcontrollori}: il \emph{work-horse} del digitale.
+    \item \textbf{GPU}: parallelismo, high throughput.
+    \item \textbf{AI}: per esempio guida autonoma, analisi dei dati.
+    \item \textbf{Server farm}: database, analisi finanziaria, genomica.
+    \item \textbf{Signal processing}: medical imaging, filtraggio, SDR, MIMO.
+    \item \textbf{Security}: crittografia, currency mining.
+\end{itemize}
+
+\subsection{Obiettivi del corso}
+
+\begin{enumerate}
+    \item \textbf{Comprendere} il funzionamento dei circuiti e delle reti logiche combinatorie e sequenziali.
+    \item Saper \textbf{gestire la complessità} del progetto tramite \textbf{decomposizione}.
+    \item \textbf{Realizzare} sistemi digitali in \textbf{VHDL} e verificarne il funzionamento tramite \textbf{simulazione} ed \textbf{implementazione su schede FPGA}.
+\end{enumerate}
+
+
+
+\section{Funzioni booleane, algebra di Boole e semplificazione logica}
+\subsection{Funzioni booleane}
+
+\subsubsection{Notazione}
+\begin{itemize}
+    \item \textbf{Dominio}: l'insieme contiene solo due elementi, $B = \{0, 1\}$.
+    \item \textbf{Variabili}: si indicano con le lettere $x, y, z$ oppure $a, b, c, \dots$
+    \item \textbf{Funzione scalare} di $n$ variabili: $f(x_1, \dots, x_n) : B^n \to B$
+    \begin{itemize}
+        \item ogni variabile prende valore 0/1 e il risultato vale solo 0/1.
+    \end{itemize}
+    \item \textbf{Funzione vettoriale}: $F(x_1, \dots, x_n) : B^n \to B^m$
+    \begin{itemize}
+        \item si tratta come \textbf{$m$ funzioni indipendenti} di $n$ variabili ciascuna.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Operatori fondamentali}
+Rappresentano i \textbf{connettivi logici} fondamentali.
+\begin{itemize}
+    \item \textbf{AND}$(x, y) : B^2 \to B$, indicato come $x \cdot y$ oppure $xy$
+    \begin{itemize}
+        \item vale 1 se e solo se \textbf{entrambe} le variabili valgono 1;
+        \item chiamata anche \emph{congiunzione}, \emph{intersezione}, \emph{greatest lower bound}.
+    \end{itemize}
+    \item \textbf{OR}$(x, y) : B^2 \to B$, indicato come $x + y$
+    \begin{itemize}
+        \item vale 1 se e solo se \textbf{almeno una} delle due variabili vale 1;
+        \item chiamata anche \emph{disgiunzione}, \emph{unione}, \emph{least upper bound}.
+    \end{itemize}
+    \item \textbf{NOT}$(x) : B \to B$, indicato come $\overline{x}$, $x'$, $\sim x$
+    \begin{itemize}
+        \item vale 1 se $x$ vale 0, e vale 0 se $x$ vale 1;
+        \item chiamata anche \emph{complementazione} o \emph{negazione}.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Tabella della verità}
+\begin{itemize}
+    \item Una funzione è definita \textbf{enumerando i valori} che assume in corrispondenza a ciascuna combinazione di ingressi.
+    \item Invece di un ``grafico'' si rappresenta la funzione tramite una tabella, detta \textcolor{red!80!black}{\textbf{tabella della verità}}.
+\end{itemize}
+
+\textbf{Altri operatori a 2 variabili}
+\begin{itemize}
+    \item \textbf{NAND}: $(x \cdot y)'$ \qquad \textbf{NOR}: $(x + y)'$
+    \item \textbf{EXOR} (XOR): $x \oplus y = xy' + x'y$ \qquad \textbf{EXNOR}: $(x \oplus y)' = x'y' + xy$
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|cc||cccccc|}
+\hline
+\colorbox{gray!25}{\color{black}$x$} & \colorbox{gray!25}{\color{black}$y$} & \colorbox{gray!25}{\color{black}\textbf{AND}} & \colorbox{gray!25}{\color{black}\textbf{OR}} & \colorbox{gray!25}{\color{black}\textbf{NAND}} & \colorbox{gray!25}{\color{black}\textbf{NOR}} & \colorbox{gray!25}{\color{black}\textbf{XOR}} & \colorbox{gray!25}{\color{black}\textbf{XNOR}} \\ \hline
+0 & 0 & \textbf{0} & \textbf{0} & \textbf{1} & \textbf{1} & \textbf{0} & \textbf{1} \\ \hline
+0 & 1 & \textbf{0} & \textbf{1} & \textbf{1} & \textbf{0} & \textbf{1} & \textbf{0} \\ \hline
+1 & 0 & \textbf{0} & \textbf{1} & \textbf{1} & \textbf{0} & \textbf{1} & \textbf{0} \\ \hline
+1 & 1 & \textbf{1} & \textbf{1} & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{1} \\ \hline
+\end{tabular}
+\qquad
+\begin{tabular}[t]{|c||c|}
+\hline
+\colorbox{gray!25}{\color{black}$x$} & \colorbox{gray!25}{\color{black}\textbf{NOT}} \\ \hline
+0 & \textbf{1} \\ \hline
+1 & \textbf{0} \\ \hline
+\end{tabular}
+\end{center}
+
+\textbf{Altri esempi}
+\begin{itemize}
+    \item \textbf{Confronto}: $f(x, y)$ vale 1 solo se $x = y$ (stessa tabella dello XNOR).
+    \item \textbf{Confronto multiplo}: $f(a, b, c)$ vale 1 solo se $a = b$ e $b \neq c$.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|cc||c|}
+\hline
+\colorbox{gray!25}{\color{black}$x$} & \colorbox{gray!25}{\color{black}$y$} & \colorbox{gray!25}{\color{black}\textbf{Conf}} \\ \hline
+0 & 0 & \textbf{1} \\ \hline
+0 & 1 & \textbf{0} \\ \hline
+1 & 0 & \textbf{0} \\ \hline
+1 & 1 & \textbf{1} \\ \hline
+\end{tabular}
+\qquad
+\begin{tabular}[t]{|ccc||c|}
+\hline
+\colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$b$} & \colorbox{gray!25}{\color{black}$c$} & \colorbox{gray!25}{\color{black}$f(a,b,c)$} \\ \hline
+0 & 0 & 0 & \textbf{0} \\ \hline
+0 & 0 & 1 & \textbf{1} \\ \hline
+0 & 1 & 0 & \textbf{0} \\ \hline
+0 & 1 & 1 & \textbf{0} \\ \hline
+1 & 0 & 0 & \textbf{0} \\ \hline
+1 & 0 & 1 & \textbf{0} \\ \hline
+1 & 1 & 0 & \textbf{1} \\ \hline
+1 & 1 & 1 & \textbf{0} \\ \hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Dominio e dimensione delle tabelle}
+\begin{itemize}
+    \item Il numero delle possibili combinazioni dei valori delle variabili è \textbf{finito}: con $n$ variabili e 2 soli valori sono possibili solo $2^n$ combinazioni.
+    \item Esempi:
+    \begin{align*}
+    B^2 &= \{(0,0), (0,1), (1,0), (1,1)\} \\
+    B^3 &= \{(0,0,0), (0,0,1), (0,1,0), (0,1,1), (1,0,0), (1,0,1), (1,1,0), (1,1,1)\}
+    \end{align*}
+    \item Una tabella con $n$ ingressi ha $2^n$ righe, cioè (un bit di uscita per riga) $2^{n-3}$ byte:
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c||c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$n$} & \colorbox{gray!25}{\color{black}$2^{n-3}$} & \colorbox{gray!25}{\color{black}\textbf{dimensione}} \\ \hline
+4 & $2^{1}$ & 2 byte \\ \hline
+8 & $2^{5}$ & 32 byte \\ \hline
+16 & $2^{13}$ & 8 kbyte \\ \hline
+32 & $2^{29}$ & 512 Mbyte \\ \hline
+36 & $2^{33}$ & 8 Gbyte \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item Le tabelle sono quindi \textcolor{red!80!black}{\textbf{difficilmente manipolabili}}; funzioni di decine di variabili sono normali (un sommatore a 16 bit ha $32 + 1$ ingressi).
+    \item Occorre trovare una \textbf{rappresentazione molto più compatta} delle funzioni.
+\end{itemize}
+
+\subsubsection{Espressioni}
+\begin{itemize}
+    \item Una funzione può essere rappresentata come \textbf{espressione} che fa uso degli operatori già definiti (AND, OR, NOT).
+    \item Per convenzione l'\textbf{AND ha precedenza sulla OR}.
+    \item Esempio: $f(a, b, c) = ab + b'c$
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|ccc||c|}
+\hline
+\colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$b$} & \colorbox{gray!25}{\color{black}$c$} & \colorbox{gray!25}{\color{black}$f(a,b,c)$} \\ \hline
+0 & 0 & 0 & \textbf{0} \\ \hline
+0 & 0 & 1 & \textbf{1} \\ \hline
+0 & 1 & 0 & \textbf{0} \\ \hline
+0 & 1 & 1 & \textbf{0} \\ \hline
+1 & 0 & 0 & \textbf{0} \\ \hline
+1 & 0 & 1 & \textbf{1} \\ \hline
+1 & 1 & 0 & \textbf{1} \\ \hline
+1 & 1 & 1 & \textbf{1} \\ \hline
+\end{tabular}
+\end{center}
+
+\paragraph{Dall'espressione al circuito.} L'espressione si realizza \textbf{combinando i circuiti delle porte logiche}, partendo dall'\textbf{operatore più esterno} (l'ultimo). Esempio: $f(a,b,c) = a'\,(b(a+c)' + b'(a+c'))$
+\begin{enumerate}
+    \item operatore più esterno: $f = a' \cdot (\dots)$ $\Rightarrow$ \textbf{porta AND};
+    \item operatore successivo: $f = a' \cdot (\dots + \dots)$ $\Rightarrow$ \textbf{porta OR};
+    \item successivo ancora: $f = a' \cdot (b \cdot (\dots)' + b' \cdot (\dots))$ $\Rightarrow$ \textbf{due porte AND} e complementazioni;
+    \item infine: $f = a'\,(b(a+c)' + b'(a+c'))$ $\Rightarrow$ \textbf{due porte OR}.
+\end{enumerate}
+
+\paragraph{Dal circuito all'espressione.} Si procede a ritroso \textbf{partendo dall'uscita}. Esempio (circuito un po' diverso dal precedente):
+\begin{align*}
+f(a,b,c) &= a' \cdot (\dots) \\
+f(a,b,c) &= a' \cdot (\dots + \dots) \\
+f(a,b,c) &= a' \cdot (b \cdot (\dots) + (\dots) \cdot b') \\
+f(a,b,c) &= a'\,(b(a+c') + (a+c')b')
+\end{align*}
+
+\paragraph{Più espressioni per la stessa funzione.}
+\begin{itemize}
+    \item Diverse espressioni possono rappresentare la \textbf{medesima funzione}: $f(a,b,c) = ab + b'c = a'b'c + ab'c + abc' + abc$ (verificare che abbiano la stessa tabella).
+    \item La \textbf{dimensione} dell'espressione è meno influenzata dal numero di variabili: dipende da \textbf{cosa la funzione calcola}, ed è difficile da determinare a priori.
+\end{itemize}
+
+\subsubsection{Uso delle funzioni logiche: esempi di progetto}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: tende da sole}]
+Abbassare le tende \textbf{se c'è il sole o se si preme un comando}, a meno che non ci sia \textbf{troppo vento}.\\
+Variabili: \texttt{sole} (0 non c'è, 1 c'è), \texttt{comando} (0 non attivo, 1 attivo), \texttt{vento} (0 non c'è vento, 1 c'è troppo vento), \texttt{tende} (0 alzate, 1 abbassate).
+\end{tcolorbox}
+
+\textbf{Soluzione:} le tende si abbassano (\texttt{tende} $= 1$) se e solo se \textbf{non c'è vento}, e c'è il sole oppure (inclusivo) è stato dato il comando.
+\[
+\texttt{tende} = \texttt{vento}' \cdot (\texttt{sole} + \texttt{comando})
+\]
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|ccc||c|}
+\hline
+\colorbox{gray!25}{\color{black}\textbf{sole}} & \colorbox{gray!25}{\color{black}\textbf{comando}} & \colorbox{gray!25}{\color{black}\textbf{vento}} & \colorbox{gray!25}{\color{black}\textbf{tende}} \\ \hline
+0 & 0 & 0 & \textbf{0} \\ \hline
+0 & 0 & 1 & \textbf{0} \\ \hline
+0 & 1 & 0 & \textbf{1} \\ \hline
+0 & 1 & 1 & \textbf{0} \\ \hline
+1 & 0 & 0 & \textbf{1} \\ \hline
+1 & 0 & 1 & \textbf{0} \\ \hline
+1 & 1 & 0 & \textbf{1} \\ \hline
+1 & 1 & 1 & \textbf{0} \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: spia della cintura di sicurezza}]
+Realizzare un dispositivo per automobili che accenda una spia qualora l'automobile sia accesa e la cintura di sicurezza non sia allacciata.\\
+Derivare la funzione logica che rappresenta la specifica e, da questa, disegnare il circuito corrispondente.
+\end{tcolorbox}
+
+\textbf{Soluzione:} variabili \texttt{spia} (uscita: 0 spenta, 1 accesa), \texttt{quadro} (ingresso: 0 spento, 1 acceso), \texttt{cintura} (ingresso: 0 slacciata, 1 allacciata).
+\[
+\texttt{spia} = \texttt{quadro} \cdot \texttt{cintura}'
+\]
+Circuito: una porta AND con ingressi \texttt{quadro} e \texttt{cintura} negata (tramite un invertitore).
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|cc||c|}
+\hline
+\colorbox{gray!25}{\color{black}\textbf{quadro}} & \colorbox{gray!25}{\color{black}\textbf{cintura}} & \colorbox{gray!25}{\color{black}\textbf{spia}} \\ \hline
+0 & 0 & \textbf{0} \\ \hline
+0 & 1 & \textbf{0} \\ \hline
+1 & 0 & \textbf{1} \\ \hline
+1 & 1 & \textbf{0} \\ \hline
+\end{tabular}
+\end{center}
+
+\paragraph{Take away.}
+\begin{itemize}
+    \item Ogni sistema segue una \textbf{logica di funzionamento}, esprimibile tramite \textbf{funzioni booleane}.
+    \item Le funzioni si rappresentano con \textbf{espressioni}, dalle quali è facile ricavare un circuito.
+    \item \textbf{Obiettivo}: manipolare funzioni complesse e gestire il funzionamento di una rete nel tempo.
+\end{itemize}
+
+\subsection{Algebra di Boole}
+
+\subsubsection{Manipolazioni algebriche}
+\begin{itemize}
+    \item Le espressioni si manipolano grazie alle \textbf{proprietà} delle operazioni fondamentali.
+    \item Ogni proprietà esprime una \textbf{equivalenza}: due espressioni sono equivalenti se rappresentano la \textbf{medesima funzione}.
+    \item Le proprietà servono a \textbf{derivare una nuova espressione equivalente} a quella data.
+    \item \textbf{Come si dimostra} una proprietà, ad esempio l'idempotenza ($x + x = x$, $x \cdot x = x$)?
+    \begin{itemize}
+        \item basta provare \textbf{tutte le combinazioni di ingresso} (induzione completa);
+        \item cioè si \textbf{confronta la tabella della verità} dell'espressione a sinistra con quella dell'espressione a destra: se sono uguali, le espressioni sono equivalenti.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Assiomi}
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{|l|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}\textbf{Proprietà}} & \colorbox{gray!25}{\color{black}\textbf{Forma 1}} & \colorbox{gray!25}{\color{black}\textbf{Forma 2 (duale)}} \\ \hline
+Identità & $x + 0 = x$ & $y \cdot 1 = y$ \\ \hline
+Commutativa & $x + y = y + x$ & $x \cdot y = y \cdot x$ \\ \hline
+Distributiva & $x \cdot (y + z) = (x \cdot y) + (x \cdot z)$ & $x + (y \cdot z) = (x + y) \cdot (x + z)$ \\ \hline
+Complementazione & $x + x' = 1$ & $x \cdot x' = 0$ \\ \hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Teoremi}
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{|l|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}\textbf{Proprietà}} & \colorbox{gray!25}{\color{black}\textbf{Forma 1}} & \colorbox{gray!25}{\color{black}\textbf{Forma 2 (duale)}} \\ \hline
+Associativa & $x + (y + z) = (x + y) + z$ & $x(yz) = (xy)z$ \\ \hline
+Elemento nullo & $x + 1 = 1$ & $x \cdot 0 = 0$ \\ \hline
+Semplificazione & $x + x'y = x + y$ & $x(x' + y) = xy$ \\ \hline
+Involuzione & \multicolumn{2}{c|}{$(x')' = x$} \\ \hline
+Idempotenza & $x + x = x$ & $x \cdot x = x$ \\ \hline
+Adiacenza & $xy + xy' = x$ & $(x + y)(x + y') = x$ \\ \hline
+Assorbimento & $x + xy = x$ & $x(x + y) = x$ \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item La \textbf{proprietà associativa} permette di definire in modo univoco AND e OR di più di 2 variabili (analogamente: \textbf{porte logiche a più ingressi}).
+    \item \textbf{Esempio di dimostrazione} (assorbimento): $x + xy = x \cdot 1 + xy = x(1 + y) = x \cdot 1 = x$.
+\end{itemize}
+
+\begin{tcolorbox}[colback=blue!5!white, colframe=blue!60!black, title=\textbf{Legge di De Morgan}]
+\begin{align*}
+(x + y)' &= x' \cdot y' & (x' + y')' &= x \cdot y \\
+(x \cdot y)' &= x' + y' & (x' \cdot y')' &= x + y
+\end{align*}
+Trasforma una \textbf{OR in una AND, e viceversa} (NOR e NAND).
+\end{tcolorbox}
+
+\subsection{Forme canoniche}
+
+\subsubsection{Dalla tabella della verità a un'espressione}
+Le proprietà permettono di ridurre la dimensione delle espressioni (e quindi dei circuiti). Ma come si trova una \textbf{prima espressione} se si ha solo una tabella della verità?
+
+\begin{itemize}
+    \item \textbf{Semplifico il problema}: si \textbf{spezza} la tabella in due, fissando $a = 0$ e $a = 1$.
+    \item Si ottengono due funzioni di meno variabili: $f(0,b,c) = b' + c'$ e $f(1,b,c) = c$.
+    \item \textbf{Aggiungo la condizione}: ogni pezzo vale solo se $a$ ha il valore corrispondente, quindi $a'(b'+c')$ e $ac$.
+    \item Ricombinandole: $f(a,b,c) = ac + a'(b'+c')$.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|ccc||c|}
+\hline
+\colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$b$} & \colorbox{gray!25}{\color{black}$c$} & \colorbox{gray!25}{\color{black}$f(a,b,c)$} \\ \hline
+0 & 0 & 0 & \textbf{1} \\ \hline
+0 & 0 & 1 & \textbf{1} \\ \hline
+0 & 1 & 0 & \textbf{1} \\ \hline
+0 & 1 & 1 & \textbf{0} \\ \hline
+1 & 0 & 0 & \textbf{0} \\ \hline
+1 & 0 & 1 & \textbf{1} \\ \hline
+1 & 1 & 0 & \textbf{0} \\ \hline
+1 & 1 & 1 & \textbf{1} \\ \hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Teorema di espansione di Shannon}
+
+\begin{tcolorbox}[colback=blue!5!white, colframe=blue!60!black, title=\textbf{Teorema di espansione di Shannon}]
+Sia $f$ una funzione di $n$ variabili. Allora
+$$f(x_1, \dots, x_n) = x_1 \cdot f(1, x_2, \dots, x_n) + x_1' \cdot f(0, x_2, \dots, x_n)$$
+\end{tcolorbox}
+
+\begin{itemize}
+    \item La variabile $x_1$ \textbf{seleziona} una delle due forme della funzione: quella in cui si sostituisce 1 quando $x_1 = 1$, quella in cui si sostituisce 0 quando $x_1 = 0$.
+    \item \textbf{Riduzione delle variabili}: $f(1, x_2, \dots, x_n)$ e $f(0, x_2, \dots, x_n)$ non dipendono più da $x_1$.
+\end{itemize}
+
+\textbf{Esempio.} Sia $f(a,b,c) = a'(b'+c') + c(a+b')$. Allora
+\begin{align*}
+f(a,b,c) &= a \cdot f(1,b,c) + a' \cdot f(0,b,c) \\
+ &= a \cdot [1'(b'+c') + c(1+b')] + a' \cdot [0'(b'+c') + c(0+b')] \\
+ &= a \cdot [c] + a' \cdot [(b'+c') + cb'] = ac + a'(b' + c' + cb')
+\end{align*}
+con $f(1,b,c) = c$ e $f(0,b,c) = b' + c' + cb'$.
+
+\paragraph{Applicazione ricorsiva.} Le funzioni $f(1,x_2,\dots,x_n)$ e $f(0,x_2,\dots,x_n)$ si possono espandere a loro volta su $x_2$:
+\begin{align*}
+f(x_1,\dots,x_n) = {} & x_1x_2 \cdot f(1,1,x_3,\dots,x_n) + x_1x_2' \cdot f(1,0,x_3,\dots,x_n) \\
+ & + x_1'x_2 \cdot f(0,1,x_3,\dots,x_n) + x_1'x_2' \cdot f(0,0,x_3,\dots,x_n)
+\end{align*}
+\textbf{Struttura}: un prodotto di variabili moltiplica la funzione valutata sulle variabili che assumono valore \textbf{1 se in forma affermata} e \textbf{0 se in forma negata}.
+
+\subsubsection{Espansione completa (prima forma canonica)}
+\begin{itemize}
+    \item Espandendo su \textbf{tutte} le variabili, $f$ valutata in un punto è un \textbf{valore preciso} (0 o 1), ottenibile dalla tabella della verità.
+    \item Il termine prodotto è presente \textbf{se e solo se} la funzione in quel punto vale 1.
+    \item Si scrive quindi direttamente dalla tabella, \textbf{guardando solo le righe in cui $f$ vale 1}:
+    \begin{itemize}
+        \item per ogni 1 si guarda il valore delle variabili in quella riga;
+        \item se alla variabile è assegnato 1, compare in forma \textbf{affermata} nel prodotto;
+        \item se è assegnato 0, compare in forma \textbf{negata}.
+    \end{itemize}
+\end{itemize}
+
+\textbf{Esempio.} $f(a,b,c) = a'(b'+c') + c(a+b')$ (tabella precedente). Si eliminano i termini con $f = 0$ ($a'bc$, $ab'c'$, $abc'$):
+$$f(a,b,c) = a'b'c' + a'b'c + a'bc' + ab'c + abc$$
+\emph{Per casa: disegnare il circuito corrispondente.}
+
+\paragraph{Forme canoniche e conseguenze.}
+\begin{itemize}
+    \item L'espansione completa è un'espressione \textbf{univoca} (i termini derivano dalla tabella): due funzioni uguali hanno la \textbf{stessa espansione completa}, detta \textbf{forma canonica}.
+    \item In forma canonica due espressioni sono uguali \textbf{se e solo se} le funzioni sono uguali (non vale per le espressioni normali, che possono essere diverse a parità di funzione).
+    \item \textbf{Qualunque funzione booleana} può essere espressa tramite gli operatori di base (basta scriverla in forma canonica): risultato non ovvio, non vale per esempio in analisi.
+    \item Bastano in realtà \textbf{due soli operatori} (De Morgan): $x + y = (x' \cdot y')'$ (OR con sole AND e NOT) e $x \cdot y = (x' + y')'$ (AND con sole OR e NOT). Uno degli operatori di base è \textbf{superfluo}.
+\end{itemize}
+
+\subsubsection{Seconda forma canonica}
+
+Il teorema di Shannon vale anche in \textbf{forma duale}:
+$$f(x_1, \dots, x_n) = (x_1 + f(0, x_2, \dots, x_n)) \cdot (x_1' + f(1, x_2, \dots, x_n))$$
+Espandendo su tutte le variabili si ottiene un prodotto di termini del tipo $(x_1 + x_2 + \dots + x_n + f(0,0,\dots,0))$, \dots, $(x_1' + x_2' + \dots + x_n' + f(1,1,\dots,1))$.
+\begin{itemize}
+    \item \textbf{Dualità}: in ogni termine una variabile compare \textbf{affermata se valutata in 0}, \textbf{negata se valutata in 1}.
+    \item Il termine viene \textbf{eliminato se la funzione vale 1}: partendo dalla tabella si scelgono le righe in cui la funzione \textbf{vale 0}.
+\end{itemize}
+
+\textbf{Esempio.} $f(a,b,c) = a'(b'+c') + c(a+b')$: le righe con $f = 0$ sono $011$, $100$, $110$, quindi
+$$f(a,b,c) = (a + b' + c') \cdot (a' + b + c) \cdot (a' + b' + c)$$
+\emph{Per casa: disegnare il circuito corrispondente.}
+
+\subsubsection{SOP e POS}
+\begin{itemize}
+    \item \textbf{Prima forma canonica} = \textbf{somma di prodotti} (\emph{Sum Of Products}, \textbf{SOP}): una grossa somma in cui ogni termine è un prodotto di variabili affermate o negate.
+    \begin{itemize}
+        \item $f(a,b,c) = a'b'c' + a'b'c + a'bc' + ab'c + abc$
+    \end{itemize}
+    \item \textbf{Seconda forma canonica} = \textbf{prodotto di somme} (\emph{Product Of Sums}, \textbf{POS}): un grosso prodotto in cui ogni termine è una somma di variabili affermate o negate.
+    \begin{itemize}
+        \item $f(a,b,c) = (a + b' + c') \cdot (a' + b + c) \cdot (a' + b' + c)$
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Terminologia}
+\begin{itemize}
+    \item \textbf{Letterale}: una variabile in forma affermata o negata (es.\ $x$, $x'$, $y'$, $b$, $a'$).
+    \begin{itemize}
+        \item $f(a,b,c) = a'b'c' + a'b'c + a'bc' + ab'c + abc$ ha 3 variabili e \textbf{15 letterali};
+        \item $f(a,b,c) = a'b' + a'c' + ac$ ha 3 variabili e \textbf{6 letterali}.
+    \end{itemize}
+    \item La \textbf{complessità} di un'espressione si misura dal \textbf{numero di letterali}: ogni letterale diventa l'ingresso di una porta logica, quindi il numero di letterali è correlato con il \textbf{numero di transistori} del circuito.
+    \item \textbf{Prodotto fondamentale} (\textbf{minterm}): prodotto in cui \textbf{ogni variabile compare una volta} come letterale, es.\ $a'b'c'$, $a'b'c$, $a'bc'$, $ab'c$, $abc$.
+    \item \textbf{Somma fondamentale} (\textbf{maxterm}): somma in cui ogni variabile compare una volta come letterale, es.\ $(a + b' + c)$, $(a' + b + c')$, $(a' + b' + c)$, $(a + b + c)$.
+    \item Le forme canoniche usano minterm e maxterm: i \textbf{minterm} di una funzione corrispondono agli \textbf{1} della tabella della verità, i \textbf{maxterm} agli \textbf{0}.
+\end{itemize}
+
+\subsection{Sintesi a due livelli}
+
+\begin{itemize}
+    \item \textbf{Livello}: massimo numero di porte logiche attraversate dall'ingresso all'uscita.
+    \begin{itemize}
+        \item $f = ab + b'c$ ha \textbf{2 livelli}; $f = a'\,(b(a+c') + (a+c')b')$ ha \textbf{4 livelli}.
+    \end{itemize}
+    \item A mano ci si limita a realizzazioni a \textbf{due livelli}:
+    \begin{itemize}
+        \item teoricamente semplici da ottenere;
+        \item in prima analisi sono anche il circuito \textbf{più veloce};
+        \item talvolta però sono di grosse dimensioni (es.\ addizionatore);
+        \item sono alla base dei metodi per realizzazioni multi-livello.
+    \end{itemize}
+    \item Un'espressione a due livelli è
+    \begin{itemize}
+        \item una \textbf{somma di prodotti}: primo livello tutto di AND, seguito da una OR;
+        \item oppure un \textbf{prodotto di somme}: primo livello tutto di OR, seguito da una AND (per la proprietà associativa).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Implicanti}
+
+\begin{tcolorbox}[colback=blue!5!white, colframe=blue!60!black, title=\textbf{Implicante}]
+Siano $f$ e $g$ funzioni di $n$ variabili. $g$ è un \textbf{implicante} di $f$ se e solo se, per qualunque assegnamento $(x_1, \dots, x_n)$ alle variabili,
+$$\text{se } g(x_1, \dots, x_n) = 1 \text{ allora } f(x_1, \dots, x_n) = 1.$$
+\end{tcolorbox}
+
+\begin{itemize}
+    \item Se $g$ vale 1 in qualche punto, allora anche $f$ vale 1; se $g$ vale 0, $f$ può essere \textbf{indifferentemente 0 o 1}.
+    \item \textbf{Esempio}: sia $f(x,y,z) = xy + z$.
+    \begin{itemize}
+        \item $g = xy$, $g = z$, $g = y'z$ \textcolor{green!50!black}{\textbf{sono implicanti}} di $f$;
+        \item $g = x$ \textcolor{red!80!black}{\textbf{non è un implicante}} (per $x=1, y=0, z=0$ vale $g = 1$ ma $f = 0$).
+    \end{itemize}
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|ccc||c||ccc|c|}
+\hline
+\colorbox{gray!25}{\color{black}$x$} & \colorbox{gray!25}{\color{black}$y$} & \colorbox{gray!25}{\color{black}$z$} & \colorbox{gray!25}{\color{black}$f(x,y,z)$} & \colorbox{gray!25}{\color{black}$xy$} & \colorbox{gray!25}{\color{black}$z$} & \colorbox{gray!25}{\color{black}$y'z$} & \colorbox{gray!25}{\color{black}$x$} \\ \hline
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ \hline
+0 & 0 & 1 & 1 & 0 & 1 & 1 & 0 \\ \hline
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ \hline
+0 & 1 & 1 & 1 & 0 & 1 & 0 & 0 \\ \hline
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ \hline
+1 & 0 & 1 & 1 & 0 & 1 & 1 & 1 \\ \hline
+1 & 1 & 0 & 1 & 1 & 0 & 0 & 1 \\ \hline
+1 & 1 & 1 & 1 & 1 & 1 & 0 & 1 \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item Ogni implicante \textbf{copre} una parte della funzione: si può ``fare a pezzi'' $f(x,y,z) = xy + z = y'z + z + xy$.
+\end{itemize}
+
+\paragraph{Implicanti come mattoni.}
+\begin{itemize}
+    \item Un implicante rappresenta un ``pezzo'' di funzione: può coprire parte (non necessariamente tutti) degli 1 di una funzione.
+    \item Vari implicanti rappresentano differenti pezzi, che possono anche \textbf{sovrapporsi}.
+    \item La funzione è data dall'\textbf{OR di appropriati implicanti}.
+\end{itemize}
+
+\paragraph{Come trovare gli implicanti.}
+\begin{itemize}
+    \item Si parte dai \textbf{minterm}: sono implicanti, ma ognuno copre un solo 1 della funzione.
+    \item Si cerca di \textbf{espanderli} con le proprietà dell'algebra booleana, mettendo assieme minterm per formare \textbf{termini più grossi} (con meno letterali).
+    \item Ci si limita a implicanti in forma di \textbf{prodotto di letterali}: $ab'$ va bene, $ab' + a'b$ \textcolor{red!80!black}{non va bene}.
+\end{itemize}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: multiplexer 2 a 1}]
+Progettare un circuito che permetta di scegliere uno tra due segnali $a$ e $b$ tramite un comando $s$: quando $s = 0$ si deve scegliere $a$, quando $s = 1$ si deve scegliere $b$.
+\end{tcolorbox}
+
+\textbf{Soluzione:} si scrive la tabella della verità e la \textbf{prima forma canonica}:
+$$m = s'ab' + s'ab + sa'b + sab$$
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|ccc||c|}
+\hline
+\colorbox{gray!25}{\color{black}$s$} & \colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$b$} & \colorbox{gray!25}{\color{black}$m(a,b,s)$} \\ \hline
+0 & 0 & 0 & \textbf{0} \\ \hline
+0 & 0 & 1 & \textbf{0} \\ \hline
+0 & 1 & 0 & \textbf{1} \\ \hline
+0 & 1 & 1 & \textbf{1} \\ \hline
+1 & 0 & 0 & \textbf{0} \\ \hline
+1 & 0 & 1 & \textbf{1} \\ \hline
+1 & 1 & 0 & \textbf{0} \\ \hline
+1 & 1 & 1 & \textbf{1} \\ \hline
+\end{tabular}
+\end{center}
+
+Applicando l'\textbf{adiacenza logica} $xy + xy' = x$ (con $x$ gruppo di letterali e $y$ una variabile; sulla tabella corrisponde a \textbf{righe in cui $m = 1$ che differiscono per una sola variabile}):
+$$m = s'ab' + s'ab + sa'b + sab \quad\Rightarrow\quad m = s'a + sb$$
+\textbf{Ridotto da 12 a 4 letterali.} Circuito: due AND ($s'a$ e $sb$, con $s$ negato da un invertitore) in ingresso a una OR; equivale al simbolo del multiplexer con ingresso $b$ in posizione 1, $a$ in posizione 0 e selezione $s$.
+
+\subsection{Mappe di Karnaugh}
+
+\subsubsection{Interpretazione geometrica}
+\begin{itemize}
+    \item Nella mappa si chiama \textbf{term} un gruppo di 1 di $f$ che non sia un minterm: con un solo colpo si prendono diversi 1.
+    \item È come scrivere la forma canonica, ma si \textbf{tralasciano le variabili il cui valore cambia}: $s'ab' + s'ab$ diventa $s'a$. Si possono scrivere \textbf{direttamente}!
+    \item Sono facili da individuare quando le righe sono una vicina all'altra, meno quando sono lontane.
+    \item \textbf{Trucco}: disporre le righe in modo che \textbf{cambi una sola variabile alla volta}, così termini logicamente adiacenti sono vicini anche fisicamente sulla tabella.
+    \item Invece del codice binario normale si usa il \textbf{codice Gray}: tra una riga e la successiva cambia solamente una variabile.
+    \item \textcolor{red!80!black}{\textbf{Non funziona sempre}}: si ha una sola dimensione, un termine risulta ancora spezzato $\Rightarrow$ occorre sfruttare \textbf{dimensioni aggiuntive}.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|ccc||c|}
+\hline
+\colorbox{gray!25}{\color{black}$s$} & \colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$b$} & \colorbox{gray!25}{\color{black}$f(a,b,s)$} \\ \hline
+0 & 0 & 0 & \textbf{0} \\ \hline
+0 & 0 & 1 & \textbf{0} \\ \hline
+0 & 1 & 1 & \textbf{1} \\ \hline
+0 & 1 & 0 & \textbf{1} \\ \hline
+1 & 1 & 0 & \textbf{0} \\ \hline
+1 & 1 & 1 & \textbf{1} \\ \hline
+1 & 0 & 1 & \textbf{1} \\ \hline
+1 & 0 & 0 & \textbf{0} \\ \hline
+\end{tabular}
+\end{center}
+
+\subsubsection{La mappa di Karnaugh}
+\begin{itemize}
+    \item Le variabili sono distribuite su \textbf{righe e colonne}, entrambe numerate in \textbf{codice Gray} (00, 01, 11, 10).
+    \item \textbf{La prima colonna è vicina all'ultima!}
+    \item Nell'esempio del multiplexer (colonne $sa$, riga $b$): $s'a$, $ab$ e $sb$.
+    \item Il raggruppamento dei tre 1 della riga $b = 1$ \textbf{non è esprimibile con un solo prodotto}: è la \textbf{somma} dei due implicanti $ab + sb$.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$b\backslash sa$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & \colorbox{red!25}{\color{black}1} & 0 & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 0 & \colorbox{orange!55}{\color{black}1} & \colorbox{orange!55}{\color{black}1} & \colorbox{green!30}{\color{black}1} \\ \hline
+\end{tabular}
+\end{center}
+\begin{center}
+\textcolor{red!80!black}{\textbf{rosso}}: $s'a$ \qquad \textcolor{blue!70!black}{\textbf{blu}}: $ab$ \qquad \textcolor{green!50!black}{\textbf{verde}}: $sb$ \qquad \textcolor{orange!90!black}{\textbf{arancio}}: casella coperta da più implicanti
+\end{center}
+
+\paragraph{Take away.}
+\begin{itemize}
+    \item Ci si limita a espressioni \textbf{a due livelli}; gli implicanti sono \textbf{termini prodotto}, trovabili per \textbf{adiacenza logica}.
+    \item Si trasforma l'adiacenza logica in \textbf{adiacenza geometrica}: occorre mettere vicine nello spazio le righe della tabella che sono logicamente vicine.
+    \item Si \textbf{raggruppano gli 1} che stanno vicini, cercando i \textbf{raggruppamenti più grossi} (hanno meno letterali).
+\end{itemize}
+
+\subsubsection{Adiacenze a tre variabili}
+Mappa $a \backslash bc$ (colonne $bc$ in ordine 00, 01, 11, 10), \textbf{la prima colonna è vicina all'ultima}.
+\begin{itemize}
+    \item \textbf{Due uni} (termini a \textbf{2 letterali}), 12 gruppi possibili:
+    \begin{itemize}
+        \item riga $a = 0$: $a'b'$ (colonne 00, 01), $a'c$ (01, 11), $a'b$ (11, 10), $a'c'$ (10, 00: prima e ultima colonna);
+        \item riga $a = 1$: $ab'$, $ac$, $ab$, $ac'$ (stesse colonne);
+        \item in verticale (stessa colonna, due righe): $b'c'$ (00), $b'c$ (01), $bc$ (11), $bc'$ (10).
+    \end{itemize}
+    \item \textbf{Quattro uni} (termini a \textbf{1 letterale}): $b'$ (colonne 00, 01), $c$ (01, 11), $b$ (11, 10), $c'$ (10, 00), $a'$ (riga $a = 0$), $a$ (riga $a = 1$).
+    \item \textbf{Tutti o nessuno}: tutti 1 $\Rightarrow$ $f = 1$; tutti 0 $\Rightarrow$ $f = 0$.
+\end{itemize}
+
+\subsection{Scelta degli implicanti}
+
+\subsubsection{Implicanti primi, ridondanti, essenziali}
+\begin{itemize}
+    \item \textcolor{red!80!black}{\textbf{Primi}}: un implicante è \textbf{primo} quando \textbf{non è contenuto in un altro implicante}.
+    \begin{itemize}
+        \item gli implicanti contenuti in altri si possono \textbf{buttare via};
+        \item nel multiplexer i minterm \emph{non} sono primi ($sa'b \to sb$).
+    \end{itemize}
+    \item \textcolor{red!80!black}{\textbf{Ridondanti}}: alcuni implicanti primi non servono.
+    \begin{itemize}
+        \item per il multiplexer ci sono \textbf{3 implicanti primi}: $s'a$, $sb$, $ab$;
+        \item uno dei tre non serve ($ab$) perché gli altri da soli già coprono la funzione.
+    \end{itemize}
+    \item \textcolor{green!50!black}{\textbf{Essenziali}}: coprono un 1 \textbf{non coperto da nessun altro implicante primo}; devono comparire in \textbf{qualunque copertura minima}.
+    \begin{itemize}
+        \item $s'a$ ed $sb$ sono essenziali.
+    \end{itemize}
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$s\backslash ab$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 0 & \colorbox{green!30}{\color{black}1} & \colorbox{green!30}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 0 & \colorbox{yellow!55}{\color{black}1} & \colorbox{yellow!55}{\color{black}1} & 0 \\ \hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Procedimento}
+\textbf{Obiettivo}: trovare il \textbf{più piccolo insieme di implicanti primi} che ricoprano tutta la funzione (primi, perché altrimenti ci sarebbero implicanti con meno letterali; insieme più piccolo, per ridurre il numero di termini).
+\begin{enumerate}
+    \item Scrivere la tabella della verità in forma di \textbf{mappa di Karnaugh} (numerazione in codice Gray).
+    \item Partendo dai minterm, \textbf{espandersi in tutte le direzioni} per trovare le adiacenze; quando non ci si può più espandere si è arrivati all'\textbf{implicante primo}.
+    \item Scrivere l'espressione degli implicanti guardando le \textbf{variabili che sono costanti} (basta guardare le cifre scritte sulle righe e colonne della mappa).
+    \item Scegliere un insieme di implicanti \textbf{non ridondante}:
+    \begin{itemize}
+        \item prendere tutti gli implicanti primi \textbf{essenziali};
+        \item coprire i rimanenti 1 scegliendo un insieme piccolo (cosa \textbf{non banale}).
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Esempio: \texorpdfstring{$f = b + ac$}{f = b + ac}}
+\begin{itemize}
+    \item Implicanti primi: $b$ e $ac$, \textbf{entrambi essenziali}: $f = b + ac$.
+    \item \textbf{Nota bene}: un 1 è coperto più volte (corrisponde al minterm $abc$). Non è un problema: due porte AND saranno attive. Meglio che non usare $ab'c$.
+    \item La porta AND a 1 ingresso si può togliere e collegare $b$ direttamente alla porta OR.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$a\backslash bc$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 0 & \colorbox{blue!25}{\color{black}1} & \colorbox{blue!25}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 0 & \colorbox{green!30}{\color{black}1} & \colorbox{orange!55}{\color{black}1} & \colorbox{blue!25}{\color{black}1} \\ \hline
+\end{tabular}
+\end{center}
+
+\subsection{Esempi con funzioni a 3 variabili}
+
+\subsubsection{Scacchiera (odd function)}
+\begin{itemize}
+    \item I minterm \textbf{non sono espandibili}: sono tutti implicanti primi; la mappa a scacchiera \textbf{non è minimizzabile}: $f = ab'c' + a'b'c + abc + a'bc'$.
+    \item Si tratta di una \textbf{rete di EXOR}:
+\end{itemize}
+\begin{align*}
+f &= b'(ac' + a'c) + b(ac + a'c') \\
+ &= b'(ac' + a'c) + b(ac' + a'c)' = b'(a \oplus c) + b(a \oplus c)' \\
+ &= b \oplus (a \oplus c) = a \oplus b \oplus c
+\end{align*}
+Dimostrazione dell'identità usata, $(ac + a'c') = (ac' + a'c)'$ (De Morgan):
+\begin{align*}
+(ac + a'c') &= (ac + a'c')'' = ((ac)'\,(a'c')')' = ((a' + c')(a + c))' \\
+ &= (a'a + a'c + c'a + cc')' = (a'c + c'a)' = (ac' + a'c)'
+\end{align*}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$a\backslash bc$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 1 & 0 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 1 & 0 & 1 & 0 \\ \hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Conta uni}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: conta uni}]
+Realizzare un circuito con 3 ingressi ($a, b, c$) e un'uscita che indichi \textbf{quanti ingressi sono a 1}.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item Occorre innanzi tutto \textbf{codificare l'uscita}, per esempio in binario: da 0 a 3 ingressi a 1, cioè 4 combinazioni (0, 1, 2, 3), sono sufficienti \textbf{due cifre binarie}.
+    \item La funzione ha \textbf{2 uscite} ($s_1, s_0$): si trattano come due funzioni indipendenti, ma i loro valori sono tra loro collegati (una colonna per ogni uscita nella tabella; per la semplificazione si trattano \textbf{separatamente}).
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|ccc||cc|}
+\hline
+\colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$b$} & \colorbox{gray!25}{\color{black}$c$} & \colorbox{gray!25}{\color{black}$s_1$} & \colorbox{gray!25}{\color{black}$s_0$} \\ \hline
+0 & 0 & 0 & \textbf{0} & \textbf{0} \\ \hline
+0 & 0 & 1 & \textbf{0} & \textbf{1} \\ \hline
+0 & 1 & 0 & \textbf{0} & \textbf{1} \\ \hline
+0 & 1 & 1 & \textbf{1} & \textbf{0} \\ \hline
+1 & 0 & 0 & \textbf{0} & \textbf{1} \\ \hline
+1 & 0 & 1 & \textbf{1} & \textbf{0} \\ \hline
+1 & 1 & 0 & \textbf{1} & \textbf{0} \\ \hline
+1 & 1 & 1 & \textbf{1} & \textbf{1} \\ \hline
+\end{tabular}
+\end{center}
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{@{}c@{}}
+$s_1$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$a\backslash bc$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 0 & 1 & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 0 & 1 & 1 & 1 \\ \hline
+\end{tabular}
+\end{tabular}
+\qquad
+\begin{tabular}[t]{@{}c@{}}
+$s_0$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$a\backslash bc$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 1 & 0 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 1 & 0 & 1 & 0 \\ \hline
+\end{tabular}
+\end{tabular}
+\end{center}
+
+\[ s_1 = ac + bc + ab \qquad\qquad s_0 = a \oplus b \oplus c \]
+
+\subsubsection{Priority encoder}
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: priority encoder a 3 ingressi}]
+Come prima, ma si vuole l'\textbf{indice dell'ingresso a 1 con valore più alto}. Indici: $a \to 1$, $b \to 2$, $c \to 3$. Se $c = 1$ l'uscita vale 3; se $c = 0$ e $b = 1$ vale 2; se $c = 0$, $b = 0$ e $a = 1$ vale 1; se sono tutti a 0 vale 0.
+\end{tcolorbox}
+
+\textbf{Soluzione:} utile per esempio per codificare le \textbf{priorità degli interrupt} (serve l'indice dell'interrupt attivo a priorità più alta).
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|ccc||cc|}
+\hline
+\colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$b$} & \colorbox{gray!25}{\color{black}$c$} & \colorbox{gray!25}{\color{black}$s_1$} & \colorbox{gray!25}{\color{black}$s_0$} \\ \hline
+0 & 0 & 0 & \textbf{0} & \textbf{0} \\ \hline
+0 & 0 & 1 & \textbf{1} & \textbf{1} \\ \hline
+0 & 1 & 0 & \textbf{1} & \textbf{0} \\ \hline
+0 & 1 & 1 & \textbf{1} & \textbf{1} \\ \hline
+1 & 0 & 0 & \textbf{0} & \textbf{1} \\ \hline
+1 & 0 & 1 & \textbf{1} & \textbf{1} \\ \hline
+1 & 1 & 0 & \textbf{1} & \textbf{0} \\ \hline
+1 & 1 & 1 & \textbf{1} & \textbf{1} \\ \hline
+\end{tabular}
+\end{center}
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{@{}c@{}}
+$s_1 = b + c$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$a\backslash bc$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 1 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 0 & 1 & 1 & 1 \\ \hline
+\end{tabular}
+\end{tabular}
+\qquad
+\begin{tabular}[t]{@{}c@{}}
+$s_0 = ab' + c$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$a\backslash bc$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 1 & 1 & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 1 & 1 & 1 & 0 \\ \hline
+\end{tabular}
+\end{tabular}
+\end{center}
+
+\[ s_1 = b + c \qquad\qquad s_0 = ab' + c \]
+
+\paragraph{Lieve modifica a $s_0$.} Scambiando le \textbf{ultime due righe} della tabella ($110 \to 11$, $111 \to 10$):
+\begin{itemize}
+    \item $s_1 = b + c$ (invariata);
+    \item per $s_0$ la scelta è più complessa: gli implicanti $a'c$ e $ac'$ sono \textbf{essenziali}, quindi ci vogliono per forza;
+    \item il restante 1 si può coprire in \textbf{due modi}: $s_0 = a'c + ac' + ab'$ oppure $s_0 = a'c + ac' + b'c$ (quest'ultima è quella usata nel circuito della slide).
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|ccc||cc|}
+\hline
+\colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$b$} & \colorbox{gray!25}{\color{black}$c$} & \colorbox{gray!25}{\color{black}$s_1$} & \colorbox{gray!25}{\color{black}$s_0$} \\ \hline
+0 & 0 & 0 & \textbf{0} & \textbf{0} \\ \hline
+0 & 0 & 1 & \textbf{1} & \textbf{1} \\ \hline
+0 & 1 & 0 & \textbf{1} & \textbf{0} \\ \hline
+0 & 1 & 1 & \textbf{1} & \textbf{1} \\ \hline
+1 & 0 & 0 & \textbf{0} & \textbf{1} \\ \hline
+1 & 0 & 1 & \textbf{1} & \textbf{1} \\ \hline
+1 & 1 & 0 & \textbf{1} & \textbf{1} \\ \hline
+1 & 1 & 1 & \textbf{1} & \textbf{0} \\ \hline
+\end{tabular}
+\end{center}
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{@{}c@{}}
+$s_1 = b + c$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$a\backslash bc$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 1 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 0 & 1 & 1 & 1 \\ \hline
+\end{tabular}
+\end{tabular}
+\qquad
+\begin{tabular}[t]{@{}c@{}}
+$s_0$ (nuova)\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$a\backslash bc$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 1 & 1 & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 1 & 1 & 0 & 1 \\ \hline
+\end{tabular}
+\end{tabular}
+\end{center}
+
+\paragraph{Take away.}
+\begin{itemize}
+    \item Semplificare una funzione di 3 variabili è un procedimento piuttosto semplice: attenzione solo alla \textbf{scelta degli implicanti}; con un po' di pratica si fa molto in fretta.
+    \item Con \textbf{più uscite} le si trattano separatamente, ma la \textbf{funzione vettoriale} deve essere progettata nel suo complesso (si potrebbe fare la \textbf{minimizzazione congiunta}).
+    \item È facile costruire \textbf{blocchetti di uso generico}: multiplexer, conta uni, priority encoder.
+\end{itemize}
+
+\subsection{Mappe a 4 e più variabili}
+
+\begin{itemize}
+    \item Le mappe di Karnaugh si possono scrivere anche a \textbf{4 e più ingressi}: diventano più grosse e trovare le adiacenze è più complesso, soprattutto \textbf{sopra le 5 variabili}.
+    \item Il procedimento rimane lo stesso: trovare gli \textbf{implicanti primi}, tenere gli \textbf{essenziali}, scegliere tra gli altri in modo da coprire la funzione.
+    \item A 4 variabili si aggiunge una variabile alle righe (sempre in codice Gray) e la mappa diventa \textbf{quadrata}: righe $ab$, colonne $cd$.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{|c|c|l|}
+\hline
+\colorbox{gray!25}{\color{black}\textbf{Uni nel gruppo}} & \colorbox{gray!25}{\color{black}\textbf{Letterali}} & \colorbox{gray!25}{\color{black}\textbf{Esempi}} \\ \hline
+1 (minterm) & 4 & $ab'cd'$, $a'bcd$, $abc'd'$, $abcd$ \\ \hline
+2 & 3 & $ab'd'$, $a'cd$, $bc'd'$, $abc$ \\ \hline
+4 & 2 & $b'd'$, $a'c$, $c'd'$, $ab$ \\ \hline
+8 & 1 & $b'$, $c$, $d'$, $a$ \\ \hline
+\end{tabular}
+\end{center}
+
+Un gruppo di $2^k$ uni elimina $k$ variabili. Altri gruppi di 4 uni mostrati nelle slide: $b'c'$, $bd$, $bc'$, $ac$, $a'b'$, $c'd$; gruppi di 8 uni: $a'$, $b'$, $d$, $d'$.
+
+\subsubsection{Esempio 1}
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$xy\backslash zw$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{blue!25}{\color{black}1} & 0 & 1 & \colorbox{blue!25}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & 0 & \colorbox{green!30}{\color{black}1} & \colorbox{green!30}{\color{black}1} & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & 0 & \colorbox{green!30}{\color{black}1} & \colorbox{green!30}{\color{black}1} & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & \colorbox{blue!25}{\color{black}1} & 1 & 1 & \colorbox{blue!25}{\color{black}1} \\ \hline
+\end{tabular}
+\end{center}
+\begin{center}
+\textcolor{blue!70!black}{\textbf{blu}}: $y'w'$ \qquad \textcolor{green!50!black}{\textbf{verde}}: $yw$ (i due implicanti essenziali)
+\end{center}
+\begin{itemize}
+    \item \textbf{Implicanti primi}: 6, tutti da quattro uni: $zw$, $xw$, $yw$, $y'w'$, $xy'$, $y'z$. Molti implicanti da 2 uni, ma \textbf{nessuno di essi è primo}; non ci sono implicanti da 8 uni.
+    \item \textbf{Essenziali}: $y'w'$ e $yw$.
+    \item Ne servono poi \textbf{almeno altri due}: uno tra $xy'$ e $xw$, uno tra $zw$ e $y'z$.
+    \item Per esempio: $f = y'w' + yw + xw + zw$, ovvero $f = (y \oplus w)' + w(x + z)$.
+\end{itemize}
+
+\paragraph{Da NON fare.} Mettere implicanti \textcolor{red!80!black}{\textbf{non primi}}, ad esempio $f = y'w' + yw + xy'w + x'y'zw$: è una \textbf{soluzione più costosa}!
+\begin{itemize}
+    \item $xy'w$ è contenuto in $xw$ o in $xy'$; $x'y'zw$ è contenuto in $zw$ o in $y'z$.
+    \item \textbf{Usare quello con meno letterali!} Non importa se si coprono degli 1 più volte.
+\end{itemize}
+
+\subsubsection{Esempio 2}
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$xy\backslash zw$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 1 & 0 & \colorbox{blue!25}{\color{black}1} & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{green!30}{\color{black}1} & \colorbox{green!30}{\color{black}1} & \colorbox{orange!55}{\color{black}1} & \colorbox{green!30}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & 0 & 1 & 0 & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & 1 & 1 & 0 & 0 \\ \hline
+\end{tabular}
+\end{center}
+\begin{center}
+\textcolor{blue!70!black}{\textbf{blu}}: $x'zw$ \qquad \textcolor{green!50!black}{\textbf{verde}}: $x'y$ \qquad \textcolor{orange!90!black}{\textbf{arancio}}: coperta da entrambi
+\end{center}
+\begin{itemize}
+    \item \textbf{Implicanti primi}: 6 da due uni ($xz'w$, $yz'w$, $x'zw$, $y'z'w'$, $xy'z'$, $x'z'w'$) e uno da 4 uni ($x'y$).
+    \item \textbf{Essenziali}: $x'zw$ e $x'y$.
+    \item Come coprire i restanti 1? Si possono usare \textbf{3} implicanti oppure solo \textbf{2}: $f = x'zw + x'y + xz'w + y'z'w'$.
+    \item Ci sono due insiemi non ridondanti e uno è più piccolo dell'altro: un metodo è cercare di \textbf{minimizzare le sovrapposizioni}.
+\end{itemize}
+
+\subsection{Uso delle porte logiche e insiemi completi}
+
+\subsubsection{Porte con ingressi costanti}
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}\textbf{Porta}} & \colorbox{gray!25}{\color{black}\textbf{Secondo ingresso}} & \colorbox{gray!25}{\color{black}\textbf{Uscita}} \\ \hline
+AND & 0 / 1 & $0$ / $a$ \\ \hline
+OR & 0 / 1 & $a$ / $1$ \\ \hline
+NAND & $a$ / 0 / 1 & $a'$ / $1$ / $a'$ \\ \hline
+NOR & $a$ / 0 / 1 & $a'$ / $a'$ / $0$ \\ \hline
+XOR & 1 / 0 & $a'$ / $a$ \\ \hline
+XNOR & 1 / 0 & $a$ / $a'$ \\ \hline
+\end{tabular}
+\end{center}
+\begin{itemize}
+    \item Nella tabella ``$a$'' come secondo ingresso significa che \textbf{i due ingressi sono collegati assieme}.
+    \item Una NAND seguita da un NOT dà un \textbf{AND} ($ab$); una NOR seguita da un NOT dà un \textbf{OR} ($a + b$).
+    \item Con le porte si possono quindi ottenere buffer, invertitori e costanti.
+\end{itemize}
+
+\subsubsection{Insiemi di operatori completi}
+\begin{itemize}
+    \item L'algebra di Boole è definita dai tre operatori base \textbf{AND, OR e NOT}: con essi, per il teorema di Shannon, si rappresentano \textbf{tutte} le funzioni booleane.
+    \item Altri insiemi di operatori possono essere usati per definire l'algebra: \textbf{\{AND, NOT\}}, \textbf{\{OR, NOT\}}, \textbf{\{NAND\}}, \textbf{\{NOR\}}, \textbf{\{XOR, AND\}}, \textbf{\{XOR, OR\}}.
+    \item Si dicono \textbf{insiemi di operatori completi}: sono sufficienti per realizzare \textbf{tutte le funzioni logiche}.
+\end{itemize}
+
+
+%% ======================================================================
+%% LEZIONE 03 - Circuiti combinatori fondamentali
+%% ======================================================================
+
+\section{Circuiti combinatori fondamentali}
+
+\subsection{Metodo gerarchico}
+\begin{itemize}
+    \item Il metodo visto finora (scrivere la mappa e semplificarla) è \textbf{generico}, ma gestibile solo fino a un \textbf{numero limitato di variabili}.
+    \item Con tante variabili la semplificazione diventa complessa:
+    \begin{itemize}
+        \item perché ci sono \textbf{troppe caselle};
+        \item soprattutto perché è \textbf{difficile perfino immaginare il valore} che deve avere la funzione: è complesso anche solo \textbf{scrivere} le mappe (e non solo perché sono di grandi dimensioni).
+    \end{itemize}
+    \item Conviene costruire il circuito a partire da \textcolor{blue!70!black}{\textbf{blocchi base}}: li si può progettare con cura, se ne conosce bene il funzionamento e si sa già che funzionano.
+    \item In pratica si \textbf{aumenta il livello di astrazione}: il metodo è detto \textbf{gerarchico} perché, una volta realizzato un blocco, \textbf{non lo si apre più}.
+\end{itemize}
+
+\subsection{Multiplexer}
+
+\subsubsection{Multiplexer 4 a 1}
+\begin{itemize}
+    \item Funzione con \textbf{4 ingressi di dato + 2 ingressi di controllo}: ingressi $a, b, c, d$, più $s_0$ e $s_1$ per la scelta $\Rightarrow$ \textbf{6 ingressi in totale}, difficile da gestire come tabella o come mappa.
+    \item Si può fare un \textbf{circuito gerarchico}:
+    \begin{enumerate}
+        \item prima si sceglie tra $a$ e $b$, e tra $c$ e $d$, usando $s_0$ (due multiplexer 2 a 1);
+        \item poi si sceglie tra i due che sono rimasti con $s_1$ (un terzo multiplexer 2 a 1).
+    \end{enumerate}
+    \item Il circuito ottenuto \textbf{non è più a 2 livelli}; si potrebbe fare una soluzione a due livelli, forse \textbf{più veloce}.
+\end{itemize}
+
+\begin{tcolorbox}[colback=blue!5!white, colframe=blue!60!black, title=\textbf{Funzione del multiplexer 4 a 1}]
+$$m(a,b,c,d,s_0,s_1) = s_0 s_1 b + s_0 s_1' d + s_0' s_1 a + s_0' s_1' c$$
+\end{tcolorbox}
+
+% NOTA PER TE: nella slide 3 (circuito gerarchico e formula) s1 = 1 seleziona la coppia (a,b) e s0 sceglie dentro la coppia; nella slide 4 (simbolo) l'etichetta e' "s0 s1" con a = 00, b = 01, c = 10, d = 11. Le due numerazioni non coincidono: verifica a lezione prima di impararle a memoria.
+
+\subsubsection{Simbolo grafico e usi}
+\begin{itemize}
+    \item Nel simbolo si aggiungono gli \textbf{ingressi di dato} e quelli di \textbf{selezione}; i numerini identificano l'\textbf{ingresso attivo} in corrispondenza di una combinazione degli ingressi di selezione.
+    \item I multiplexer sono utili in molteplici applicazioni:
+    \begin{itemize}
+        \item per \textbf{condividere risorse};
+        \item per \textbf{fare delle scelte};
+        \item per realizzare \textbf{dispositivi programmabili};
+        \item per \textbf{selezionare celle di memoria}.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Decodifiche (decoder)}
+
+\begin{itemize}
+    \item È utile poter \textbf{passare da una codifica a un'altra}: per esempio dal codice binario al codice Gray, oppure da fixed point a floating point.
+    \item \textcolor{blue!70!black}{\textbf{Decodificare}} significa passare da $n$ a $m$ cifre, con $n \le m \le 2^n$, in modo che a ogni codice di ingresso corrisponda \textbf{un'uscita unica} (funzione \textbf{iniettiva}).
+    \item In pratica si \textbf{scompatta} la rappresentazione: con $m$ cifre potrei rappresentare $2^m$ codici, ma ne uso solo $2^n$.
+\end{itemize}
+
+\subsubsection{Decodifica 1 a 2}
+\begin{itemize}
+    \item Un ingresso e due uscite: la prima uscita vale 1 se l'ingresso vale 0, la seconda vale 1 se l'ingresso vale 1.
+    \item Le uscite \textbf{non sono mai a 1 o a 0 contemporaneamente}: in teoria 2 uscite potrebbero codificare 4 elementi, ma alcune combinazioni non vengono utilizzate.
+    \item Tabella della verità (solo due righe e due uscite; \textcolor{red!80!black}{\textbf{non è una mappa di Karnaugh!}}):
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c||cc|}
+\hline
+\colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$x$} & \colorbox{gray!25}{\color{black}$y$} \\ \hline
+0 & \textbf{1} & \textbf{0} \\ \hline
+1 & \textbf{0} & \textbf{1} \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item Per ispezione: $y = a$ e $x = a'$.
+    \item \textbf{Circuito}: un invertitore per $x$, un collegamento diretto per $y$.
+\end{itemize}
+
+\subsubsection{Decodifica 2 a 4}
+\begin{itemize}
+    \item Due ingressi e quattro uscite: la prima uscita vale 1 se l'ingresso vale 0, la seconda se vale 1, la terza se vale 2, la quarta se vale 3.
+    \item \textbf{Ogni uscita ha un solo minterm}: inutile farsi le mappe di Karnaugh, \textbf{non c'è nulla da semplificare}.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|cc||cccc|}
+\hline
+\colorbox{gray!25}{\color{black}$a$} & \colorbox{gray!25}{\color{black}$b$} & \colorbox{gray!25}{\color{black}$w$} & \colorbox{gray!25}{\color{black}$x$} & \colorbox{gray!25}{\color{black}$y$} & \colorbox{gray!25}{\color{black}$z$} \\ \hline
+0 & 0 & \textbf{1} & \textbf{0} & \textbf{0} & \textbf{0} \\ \hline
+0 & 1 & \textbf{0} & \textbf{1} & \textbf{0} & \textbf{0} \\ \hline
+1 & 0 & \textbf{0} & \textbf{0} & \textbf{1} & \textbf{0} \\ \hline
+1 & 1 & \textbf{0} & \textbf{0} & \textbf{0} & \textbf{1} \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item Dalla tabella: $w = a'b'$, \quad $x = a'b$, \quad $y = ab'$, \quad $z = ab$.
+    \item \textbf{Circuito}: costruito con \textbf{due decodifiche 1 a 2} (una per $a$ e una per $b$) che alimentano 4 porte AND.
+\end{itemize}
+
+\subsubsection{A cosa servono le decodifiche}
+\begin{itemize}
+    \item Molto utili per \textbf{indirizzare le memorie}: il processore mette sul bus un indirizzo a $n$ bit.
+    \begin{itemize}
+        \item \textbf{metà} dei bit indirizza le \textbf{righe} con una \textbf{decodifica};
+        \item l'\textbf{altra metà} sceglie la \textbf{colonna} con un \textbf{multiplexer}.
+    \end{itemize}
+    \item Esempio: $n = 8$, $n/2 = 4$ $\Rightarrow$ decodifica 4 a 16 e multiplexer 16 a 1, per \textbf{256 celle di memoria} in una matrice $16 \times 16$.
+    \item Hanno molti altri usi.
+\end{itemize}
+
+\subsection{Demultiplexer}
+\begin{itemize}
+    \item Fa il \textbf{lavoro contrario} del multiplexer: prende in ingresso una variabile binaria e la presenta su \textbf{una uscita a scelta tra $2^n$ possibili}.
+    \item Le uscite non selezionate vengono tenute al valore \textbf{0}.
+    \item Il demultiplexer ha $n + 1$ ingressi ($n$ per la selezione, più un ingresso di dato) e $2^n$ uscite.
+    \item \textbf{Esempio: demux 1 a 4}: 2 ingressi di selezione ($s_1 s_0$), 4 uscite ($a, b, c, d$ per $s_1 s_0 = 00, 01, 10, 11$); facilmente realizzabile a due livelli con quattro mappe.
+\end{itemize}
+
+\subsubsection{Realizzazione con decodifica}
+\begin{itemize}
+    \item Il demultiplexer si può realizzare \textbf{utilizzando una decodifica}:
+    \begin{itemize}
+        \item delle porte AND \textbf{abilitano} l'ingresso $x$ a passare a ognuna uscita;
+        \item la \textbf{decodifica} sceglie \textbf{quale porta AND abilitare};
+        \item semplicissimo fare demux a tante uscite usando decodifiche più grosse.
+    \end{itemize}
+    \item In formule (ricavate dalla struttura): $a = x \cdot s_1's_0'$, \quad $b = x \cdot s_1's_0$, \quad $c = x \cdot s_1s_0'$, \quad $d = x \cdot s_1s_0$.
+\end{itemize}
+
+\subsection{Encoder o codifica}
+\begin{itemize}
+    \item È il \textbf{processo contrario della decodifica}: per esempio si può passare da \textbf{8 fili a 3}.
+    \item È molto \textbf{più semplice da realizzare}.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|cccccccc||ccc|}
+\hline
+\colorbox{gray!25}{\color{black}$D_7$} & \colorbox{gray!25}{\color{black}$D_6$} & \colorbox{gray!25}{\color{black}$D_5$} & \colorbox{gray!25}{\color{black}$D_4$} & \colorbox{gray!25}{\color{black}$D_3$} & \colorbox{gray!25}{\color{black}$D_2$} & \colorbox{gray!25}{\color{black}$D_1$} & \colorbox{gray!25}{\color{black}$D_0$} & \colorbox{gray!25}{\color{black}$A_2$} & \colorbox{gray!25}{\color{black}$A_1$} & \colorbox{gray!25}{\color{black}$A_0$} \\ \hline
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & \textbf{0} & \textbf{0} & \textbf{0} \\ \hline
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & \textbf{0} & \textbf{0} & \textbf{1} \\ \hline
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & \textbf{0} & \textbf{1} & \textbf{0} \\ \hline
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & \textbf{0} & \textbf{1} & \textbf{1} \\ \hline
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & \textbf{1} & \textbf{0} & \textbf{0} \\ \hline
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & \textbf{1} & \textbf{0} & \textbf{1} \\ \hline
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & \textbf{1} & \textbf{1} & \textbf{0} \\ \hline
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \textbf{1} & \textbf{1} & \textbf{1} \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Ogni uscita vale 1 per una determinata combinazione di ingressi}: ad esempio $A_2$ vale 1 per $D_4$, $D_5$, $D_6$ e $D_7$.
+\end{itemize}
+\begin{align*}
+A_2 &= D_4 + D_5 + D_6 + D_7 \\
+A_1 &= D_2 + D_3 + D_6 + D_7 \\
+A_0 &= D_1 + D_3 + D_5 + D_7
+\end{align*}
+
+\subsubsection{Priority encoder}
+\begin{itemize}
+    \item Già visto in precedenza: da 3 ingressi a 2 uscite (nessuna, 1, 2, 3: 4 combinazioni).
+    \item Con \textbf{4 ingressi} occorrono \textbf{3 uscite}: bisogna codificare anche il caso in cui \textbf{nessun ingresso sia attivo} (nessuna, 1, 2, 3, 4: 5 combinazioni).
+    \item Si può codificare l'uscita in modo alternativo:
+    \begin{itemize}
+        \item un'uscita $V$ (\emph{valid}) dice se \textbf{almeno un ingresso è attivo};
+        \item le altre 2 uscite ($A_1$, $A_0$) codificano l'\textbf{indice dell'ingresso attivo con priorità più alta};
+        \item si può cominciare a contare da 0 invece che da 1.
+    \end{itemize}
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|cccc||ccc|}
+\hline
+\colorbox{gray!25}{\color{black}$D_3$} & \colorbox{gray!25}{\color{black}$D_2$} & \colorbox{gray!25}{\color{black}$D_1$} & \colorbox{gray!25}{\color{black}$D_0$} & \colorbox{gray!25}{\color{black}$A_1$} & \colorbox{gray!25}{\color{black}$A_0$} & \colorbox{gray!25}{\color{black}$V$} \\ \hline
+0 & 0 & 0 & 0 & \textbf{0} & \textbf{0} & \textbf{0} \\ \hline
+0 & 0 & 0 & 1 & \textbf{0} & \textbf{0} & \textbf{1} \\ \hline
+0 & 0 & 1 & x & \textbf{0} & \textbf{1} & \textbf{1} \\ \hline
+0 & 1 & x & x & \textbf{1} & \textbf{0} & \textbf{1} \\ \hline
+1 & x & x & x & \textbf{1} & \textbf{1} & \textbf{1} \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item Gli ingressi a \textbf{x} indicano che il valore della variabile \textbf{non è importante} (come una \emph{wildcard}): una x indica 2 righe contemporaneamente, due x indicano 4 righe. È solo un modo per scrivere la tabella più velocemente, altrimenti non cambia nulla.
+    \item Per $V$ basta mettere in \textbf{OR tutti gli ingressi}: $V = D_3 + D_2 + D_1 + D_0$. Per le altre uscite si costruiscono le mappe di Karnaugh:
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{@{}c@{}}
+$A_1 = D_2 + D_3$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$D_3D_2\backslash D_1D_0$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 0 & 0 & 0 & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{green!30}{\color{black}1} & \colorbox{green!30}{\color{black}1} & \colorbox{green!30}{\color{black}1} & \colorbox{green!30}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{orange!55}{\color{black}1} & \colorbox{orange!55}{\color{black}1} & \colorbox{orange!55}{\color{black}1} & \colorbox{orange!55}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & \colorbox{yellow!55}{\color{black}1} & \colorbox{yellow!55}{\color{black}1} & \colorbox{yellow!55}{\color{black}1} & \colorbox{yellow!55}{\color{black}1} \\ \hline
+\end{tabular}
+\end{tabular}
+\qquad
+\begin{tabular}[t]{@{}c@{}}
+$A_0 = D_3 + D_1D_2'$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$D_3D_2\backslash D_1D_0$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 0 & 0 & \colorbox{red!25}{\color{black}1} & \colorbox{red!25}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & 0 & 0 & 0 & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{blue!25}{\color{black}1} & \colorbox{blue!25}{\color{black}1} & \colorbox{blue!25}{\color{black}1} & \colorbox{blue!25}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & \colorbox{blue!25}{\color{black}1} & \colorbox{blue!25}{\color{black}1} & \colorbox{orange!55}{\color{black}1} & \colorbox{orange!55}{\color{black}1} \\ \hline
+\end{tabular}
+\end{tabular}
+\end{center}
+\begin{center}
+$A_1$: \textcolor{green!50!black}{\textbf{verde}} $D_2$, \textcolor{yellow!50!black}{\textbf{giallo}} $D_3$ \qquad $A_0$: \textcolor{blue!70!black}{\textbf{blu}} $D_3$, \textcolor{red!80!black}{\textbf{rosso}} $D_1D_2'$ \qquad \textcolor{orange!90!black}{\textbf{arancio}}: sovrapposizione
+\end{center}
+
+\subsection{Decodifica per display a 7 segmenti}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: decodifica per display a 7 segmenti}]
+Realizzare una decodifica in grado di pilotare un \textbf{display a 7 segmenti}. Si ha in ingresso un numero binario a 4 cifre ($x, y, z, w$); si devono calcolare \textbf{7 uscite}, ognuna in corrispondenza di un segmento. Il dato binario va rappresentato in \textbf{esadecimale} (cifre da 0 a F).
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item Ogni segmento è identificato da una lettera: $a$ (alto), $b$ (alto a destra), $c$ (basso a destra), $d$ (basso), $e$ (basso a sinistra), $f$ (alto a sinistra), $g$ (centrale).
+    \item Ogni segmento è \textbf{acceso} (uscita 1) oppure \textbf{spento} (uscita 0) a seconda della combinazione degli ingressi $xyzw = 0000, 0001, \dots, 1111$.
+    \item Si semplifica \textbf{ciascun segmento separatamente}, isolandone la mappa.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{@{}c@{}}
+segmento $a$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$xy\backslash zw$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 1 & 0 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & 0 & 1 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & 1 & 0 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & 1 & 1 & 0 & 1 \\ \hline
+\end{tabular}
+\end{tabular}
+\qquad
+\begin{tabular}[t]{@{}c@{}}
+segmento $g$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$xy\backslash zw$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 0 & 0 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & 1 & 1 & 0 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & 0 & 1 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & 1 & 1 & 1 & 1 \\ \hline
+\end{tabular}
+\end{tabular}
+\end{center}
+
+\paragraph{Segmento $a$.}
+\begin{itemize}
+    \item \textbf{Implicanti primi}: $zw'$, $x'z$, $yz$, $y'w'$, $x'yw$, $xy'z'$, $xw'$.
+    \item L'\textbf{unico implicante primo non essenziale} è $zw'$; quelli essenziali coprono la funzione.
+    \item $a = x'z + yz + y'w' + xw' + x'yw + xy'z'$ \quad $\Rightarrow$ \textbf{14 letterali}.
+\end{itemize}
+
+\paragraph{Segmento $g$.}
+\begin{itemize}
+    \item \textbf{Implicanti primi}: $zw'$, $xz$, $xw$, $yz'w$, $xy'$, $x'yz'$, $y'z$, $x'yw'$.
+    \item \textbf{Essenziali}: $y'z$ e $xy'$; degli altri si possono prendere per esempio i seguenti.
+    \item $g = y'z + xy' + zw' + xw + x'yz'$ \quad $\Rightarrow$ \textbf{11 letterali}.
+\end{itemize}
+
+\subsubsection{Minimizzazione congiunta}
+\begin{itemize}
+    \item Il termine $xy'z'$ è un \textbf{implicante primo essenziale} per il segmento $a$.
+    \item Lo stesso termine è implicante per il segmento $g$, ma \textbf{non è primo}, essendo contenuto in $xy'$, che è implicante primo essenziale per $g$.
+    \item Il termine è \textbf{già disponibile nella rete logica}: può essere vantaggioso usarlo anche per $g$ (gli altri 1 di $xy'$ sono coperti nell'espressione di $g$ da altri implicanti).
+\end{itemize}
+\[ g = y'z + \textcolor{red!80!black}{xy'z'} + zw' + xw + x'yz' \]
+\begin{itemize}
+    \item Sebbene vi siano \textbf{12 letterali}, un termine non contribuisce perché già presente nella rete logica: in totale \textbf{soli 9 letterali}.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{@{}c@{}}
+segmento $a$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$xy\backslash zw$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 1 & 0 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & 0 & 1 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & 1 & 0 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & \colorbox{yellow!55}{\color{black}1} & \colorbox{yellow!55}{\color{black}1} & 0 & 1 \\ \hline
+\end{tabular}
+\end{tabular}
+\qquad
+\begin{tabular}[t]{@{}c@{}}
+segmento $g$\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$xy\backslash zw$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 0 & 0 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & 1 & 1 & 0 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & 0 & 1 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & \colorbox{orange!55}{\color{black}1} & \colorbox{orange!55}{\color{black}1} & \colorbox{red!25}{\color{black}1} & \colorbox{red!25}{\color{black}1} \\ \hline
+\end{tabular}
+\end{tabular}
+\end{center}
+\begin{center}
+\textcolor{yellow!50!black}{\textbf{giallo}}: $xy'z'$ \qquad \textcolor{red!80!black}{\textbf{rosso}}: $xy'$ \qquad \textcolor{orange!90!black}{\textbf{arancio}}: $xy'z'$ contenuto in $xy'$
+\end{center}
+
+\subsection{Take away: blocchi base}
+\begin{itemize}
+    \item Abbiamo realizzato un gran numero di \textbf{elementi base}: \textbf{multiplexer}, \textbf{encoder}, \textbf{decoder}, \textbf{transcoder}.
+    \item Mettendoli assieme si possono fare \textbf{circuiti più complessi}: non necessariamente a due livelli, ma facili da capire.
+    \item \textbf{Minimizzazione congiunta}: può fornire risultati migliori, ma è molto più complicato farla a mano $\Rightarrow$ meglio usare \textbf{programmi per calcolatore specializzati}.
+\end{itemize}
+
+\subsection{Indifferenze o don't care}
+
+\subsubsection{Le indifferenze}
+\begin{itemize}
+    \item In certe occasioni il valore dell'uscita in corrispondenza di alcune combinazioni di ingressi è \textbf{irrilevante}:
+    \begin{itemize}
+        \item per esempio, nella codifica 8 a 3, quando vi sono \textbf{due o più ingressi a 1} contemporaneamente;
+        \item ogni volta che gli ingressi codificano un numero di combinazioni \textbf{inferiore a $2^n$}.
+    \end{itemize}
+    \item Le mappe di Karnaugh però devono includere un valore per \textbf{tutte} le combinazioni di ingressi: che valore dare?
+    \begin{itemize}
+        \item se l'ingresso non si presenta mai, si può dare il valore 0 o 1 \textbf{indifferentemente};
+        \item si assegna il valore che consente di ottenere un'\textbf{espressione più semplice}.
+    \end{itemize}
+    \item Le combinazioni di ingresso per cui non si indica un valore preciso dell'uscita si chiamano \textcolor{blue!70!black}{\textbf{indifferenze}} o \textcolor{blue!70!black}{\textbf{don't care}} (nelle mappe: $-$).
+\end{itemize}
+
+\subsubsection{Dimensione degli implicanti}
+\begin{itemize}
+    \item Implicanti che coprono \textbf{molti 1} (cioè più grossi) sono quelli con \textbf{meno letterali}: per realizzare un'espressione minima si prendono gli \textbf{implicanti primi}, che sono i più grossi per definizione.
+    \item Si usano allora le indifferenze per \textbf{ingrandire gli implicanti}: si immagina che le indifferenze siano a 1, così alcuni implicanti si espandono a coprire gli 1 indifferenti.
+\end{itemize}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: display a 7 segmenti solo con cifre decimali}]
+Realizzare la decodifica per display a 7 segmenti che mostri \textbf{solo le cifre numeriche decimali}. Gli ingressi da $1010$ (0xA) a $1111$ (0xF) producono delle \textbf{indifferenze}, perché non interessa il valore delle uscite.
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{@{}c@{}}
+segmento $a$ (con indifferenze)\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$xy\backslash zw$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 1 & 0 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & 0 & 1 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & -- & -- & -- & -- \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & 1 & 1 & -- & -- \\ \hline
+\end{tabular}
+\end{tabular}
+\qquad
+\begin{tabular}[t]{@{}c@{}}
+segmento $g$ (con indifferenze)\\[3pt]
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$xy\backslash zw$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 0 & 0 & 1 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & 1 & 1 & 0 & 1 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & -- & -- & -- & -- \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & 1 & 1 & -- & -- \\ \hline
+\end{tabular}
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Segmento $a$}: implicanti primi $z$, $y'w'$, $yw$, $x$ $\Rightarrow$ $a = z + y'w' + yw + x$ \quad (\textbf{6 letterali}, contro i 14 senza indifferenze).
+    \item \textbf{Segmento $g$}: implicanti primi $zw'$, $x$, $yz'$, $y'z$, $yw'$ $\Rightarrow$ $g = zw' + x + yz' + y'z$ \quad (\textbf{7 letterali}, contro gli 11 senza indifferenze).
+\end{itemize}
+
+\subsubsection{Come si usano le indifferenze}
+
+\begin{center}
+\colorbox{red!15}{\parbox{0.9\linewidth}{\centering \textbf{Inutile} aggiungere implicanti nella copertura per coprire \textbf{solamente indifferenze}.}}\\[2mm]
+\colorbox{green!15}{\parbox{0.9\linewidth}{\centering Si considerano le indifferenze come \textbf{1} quando si \textbf{cercano} gli implicanti.}}\\[2mm]
+\colorbox{yellow!30}{\parbox{0.9\linewidth}{\centering Ma si considerano come \textbf{0} quando occorre \textbf{scegliere} quali implicanti utilizzare!!}}
+\end{center}
+
+\textbf{Esempio.}
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$xy\backslash zw$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 0 & 0 & 0 & 0 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{blue!25}{\color{black}1} & \colorbox{blue!25}{\color{black}1} & \colorbox{blue!25}{\color{black}1} & \colorbox{blue!25}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{orange!55}{\color{black}1} & \colorbox{orange!55}{\color{black}1} & \colorbox{orange!55}{\color{black}--} & \colorbox{orange!55}{\color{black}--} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & \colorbox{green!30}{\color{black}--} & \colorbox{green!30}{\color{black}--} & \colorbox{green!30}{\color{black}--} & \colorbox{green!30}{\color{black}--} \\ \hline
+\end{tabular}
+\end{center}
+\begin{itemize}
+    \item Due implicanti primi: $y$ e $x$. Prendendoli entrambi: $f = y + x$.
+    \item Ma $x$ copre solo indifferenze (gli 1 di $xy$ sono già coperti da $y$): basta $\mathbf{f = y}$.
+\end{itemize}
+
+\subsubsection{Take away: indifferenze}
+\begin{itemize}
+    \item Le indifferenze sono combinazioni di ingresso per le quali \textbf{non interessa il valore dell'uscita} (per esempio perché la combinazione non si presenta mai): l'uscita può essere considerata alternativamente 0 oppure 1, a seconda della convenienza.
+    \item \textbf{Si sfruttano} per semplificare l'espressione:
+    \begin{itemize}
+        \item assumendo che l'indifferenza valga \textbf{1}, si possono \textbf{espandere gli implicanti}, che hanno quindi meno letterali;
+        \item durante la \textbf{scelta} degli implicanti si assume che valga \textbf{0}, così da non aggiungere implicanti inutili;
+        \item in particolare, \textbf{un implicante non sarà mai essenziale a causa di una indifferenza}.
+    \end{itemize}
+    \item \textbf{Come ottenere le indifferenze?}
+    \begin{itemize}
+        \item il caso più semplice è quando si sa che \textbf{certi ingressi non si presentano};
+        \item il caso generale è molto più complesso e richiede l'\textbf{analisi di una rete} per identificare quando un'uscita è effettivamente indifferente.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Mappe a 5 e più variabili}
+
+\subsubsection{Mappe a 5 variabili}
+\begin{itemize}
+    \item A 5 variabili ($x, y, z, w, v$) si ottengono \textbf{32 caselle}: anche usando il codice Gray è \textbf{impossibile mantenere le vicinanze geometriche sul piano}.
+    \item Si usano \textbf{due tabelle da 4 variabili}, entrambe funzioni di $x, y, z, w$: la prima per $v = 0$, la seconda per $v = 1$ (\textbf{espansione di Shannon} sulla variabile $v$).
+    \item Le vicinanze su $v$ vanno considerate \textbf{tra una tabella e l'altra}: caselle che occupano la \textbf{stessa posizione} su entrambe le tabelle sono vicine e possono formare un termine; lo stesso vale per gli implicanti.
+    \item Geometricamente: si immaginano le tabelle \textbf{poste una sopra all'altra}.
+\end{itemize}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: numeri primi (o quasi)}]
+Ingresso: numero binario a \textbf{5 bit}. Uscita a 1 se il numero è \textbf{primo o divisibile per 3}, a 0 altrimenti.
+\end{tcolorbox}
+
+% NOTA PER TE: nella mappa delle slide l'uscita vale 1 per l'ingresso 1 (trattato come primo) e vale 0 per l'ingresso 0 (non considerato multiplo di 3), quindi la regola scritta "primo o divisibile per 3" non coincide alla lettera con la mappa. Ho riportato la mappa e l'espressione delle slide.
+
+\textbf{Soluzione:} mappa a 4 righe $\times$ 8 colonne ($a_4a_3 \backslash a_2a_1a_0$): in ogni casella è riportato il \textbf{numero decimale} corrispondente e le caselle in cui l'uscita vale \textbf{1} sono colorate.
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$a_4a_3\backslash a_2a_1a_0$} & \colorbox{gray!25}{\color{black}\textbf{000}} & \colorbox{gray!25}{\color{black}\textbf{001}} & \colorbox{gray!25}{\color{black}\textbf{011}} & \colorbox{gray!25}{\color{black}\textbf{010}} & \colorbox{gray!25}{\color{black}\textbf{100}} & \colorbox{gray!25}{\color{black}\textbf{101}} & \colorbox{gray!25}{\color{black}\textbf{111}} & \colorbox{gray!25}{\color{black}\textbf{110}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{00}} & 0 & \colorbox{green!30}{\color{black}1} & \colorbox{green!30}{\color{black}3} & \colorbox{green!30}{\color{black}2} & 4 & \colorbox{green!30}{\color{black}5} & \colorbox{green!30}{\color{black}7} & \colorbox{green!30}{\color{black}6} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{01}} & 8 & \colorbox{green!30}{\color{black}9} & \colorbox{green!30}{\color{black}11} & 10 & \colorbox{green!30}{\color{black}12} & \colorbox{green!30}{\color{black}13} & \colorbox{green!30}{\color{black}15} & 14 \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{green!30}{\color{black}24} & 25 & \colorbox{green!30}{\color{black}27} & 26 & 28 & \colorbox{green!30}{\color{black}29} & \colorbox{green!30}{\color{black}31} & \colorbox{green!30}{\color{black}30} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{10}} & 16 & \colorbox{green!30}{\color{black}17} & \colorbox{green!30}{\color{black}19} & \colorbox{green!30}{\color{black}18} & 20 & \colorbox{green!30}{\color{black}21} & \colorbox{green!30}{\color{black}23} & 22 \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Adiacenze} tra colonne (da non confondere con la semplice vicinanza grafica):
+    \begin{itemize}
+        \item \textcolor{red!80!black}{\textbf{non sono vicine}} le colonne $010$ e $100$ (al centro), né le colonne $000$ e $110$ (agli estremi);
+        \item \textcolor{green!50!black}{\textbf{sono vicine}} le colonne $000$ e $010$, le colonne $100$ e $110$ e, ovviamente, le colonne $000$ e $100$ (stessa posizione nelle due metà).
+    \end{itemize}
+    \item \textbf{Espressione minima}: ci si deve tenere \textbf{tutti gli implicanti}:
+\end{itemize}
+\begin{align*}
+p = {} & a_4'a_0 + a_3'a_0 + a_2a_0 + a_1a_0 + a_4'a_3'a_1 + a_3'a_2'a_1 \\
+ & + a_4a_3a_2a_1 + a_4'a_3a_2a_1' + a_4a_3a_2'a_1'a_0'
+\end{align*}
+
+\paragraph{Osservazioni.}
+\begin{itemize}
+    \item Trovare l'espressione minima è un po' \textbf{tedioso} ed è facile sbagliare con tutti gli implicanti.
+    \item Metodo alternativo: un'altra numerazione delle colonne, usando \textbf{direttamente il codice Gray}. Attenzione però: \textbf{le vicinanze cambiano} (per esempio le due colonne di mezzo sarebbero vicine) e non si può più pensare alle due mappe come sovrapposte.
+\end{itemize}
+
+\subsubsection{Mappe a 6 e più variabili}
+\begin{itemize}
+    \item Si possono usare \textbf{4 mappe a 4 variabili}, ma in ogni caso non sono molto convenienti.
+    \item Per più di 6 variabili \textbf{attenzione a come si ordinano le mappe}: conviene usare di nuovo il \textbf{codice Gray in modo gerarchico} anche per le variabili che indicizzano le mappe (esempio nelle slide: mappa $abc/def$, con la prima variabile di righe e colonne che divide la mappa in due metà e, dentro ciascuna, ordine Gray).
+    \item Sono solo \textbf{più complesse geometricamente} e mettono a dura prova il colpo d'occhio; altrimenti non c'è nulla di nuovo.
+    \item Alternativa: \textcolor{blue!70!black}{\textbf{spezzarle con Shannon}}!
+\end{itemize}
+
+\subsection{Altri modi di sintetizzare: NAND--NAND e NOR--NOR}
+
+\subsubsection{Realizzazione NAND--NAND}
+\begin{itemize}
+    \item È conveniente usare \textbf{sempre lo stesso tipo di porta logica}: rende la realizzazione più omogenea in termini di \textbf{caratteristiche elettriche}.
+    \item Le \textbf{porte invertenti} usano \textbf{meno transistori} di quelle non invertenti.
+    \item Si ottiene la sintesi NAND--NAND partendo da quella AND--OR e applicando la \textbf{legge di De Morgan}:
+\end{itemize}
+\begin{align*}
+f &= z + y'w' + yw + xz' \\
+f &= (z + y'w' + yw + xz')'' \\
+f &= ((z)'\,(y'w')'\,(yw)'\,(xz')')'
+\end{align*}
+\begin{itemize}
+    \item Gli \textbf{implicanti sono gli stessi} della sintesi AND--OR e si individuano allo stesso modo.
+    \item \textbf{Procedimento pratico}:
+    \begin{enumerate}
+        \item ad ogni \textbf{AND} si sostituisce una \textbf{NAND};
+        \item ad ogni \textbf{OR} si sostituisce una \textbf{NAND};
+        \item se un ingresso va \textbf{direttamente alla OR}, viene \textbf{negato}.
+    \end{enumerate}
+\end{itemize}
+
+\subsubsection{Realizzazione NOR--NOR}
+\begin{itemize}
+    \item Come prima, ma si parte dal \textbf{prodotto di somme}: gli implicanti si ottengono dagli \textbf{zeri} della funzione.
+    \item Si applicano le leggi di De Morgan e di nuovo si sostituisce tutto con porte \textbf{NOR}, con l'avvertenza di \textbf{negare gli ingressi che vanno direttamente alla porta di uscita}.
+    \item Esempio dalle figure delle slide: $(a + b)\,c = \big((a + b)' + c'\big)'$ (NOR sui primi due ingressi; il terzo, negato, va alla NOR di uscita).
+\end{itemize}
+
+\subsubsection{Take away: alternative realizzative}
+\begin{itemize}
+    \item Vi sono \textbf{varie alternative realizzative}:
+    \begin{itemize}
+        \item si possono differenziare per \textbf{tecnologia};
+        \item a seconda della funzione possono produrre implementazioni \textbf{migliori o peggiori};
+        \item talvolta è utile rappresentare tutto con \textbf{sole porte NAND}, per semplificare l'analisi da parte di strumenti automatici.
+    \end{itemize}
+    \item \textbf{Procedimento standard}: in tutti i casi non cambia; è possibile passare da una rappresentazione a un'altra applicando semplici \textbf{proprietà dell'algebra booleana}.
+    \item \textbf{Complessità}: sono possibili mappe con un gran numero di variabili, \textbf{difficili da manipolare a mano}.
+\end{itemize}
+
+
+%% ======================================================================
+%% LEZIONE 04 - Tempistiche, diagrammi temporali e alee
+%% ======================================================================
+
+\section{Tempistiche e diagrammi temporali}
+
+% NOTA PER TE: i diagrammi sono ridisegnati da me con l'ambiente picture (nessun pacchetto in piu') a partire dalle figure delle slide. Sono ricavati da me, e non scritti nelle slide: la tabella degli eventi t1-t6, l'implicante di collegamento ab (visibile solo nella mappa/figura della slide 14) e la soluzione dell'esercizio "Provate a costruire il diagramma temporale".
+
+\subsection{Perché le tempistiche contano}
+
+\begin{itemize}
+    \item Una funzione può essere \textbf{giusta} e il circuito \textbf{non funzionare}: i circuiti hanno \textbf{ingressi che variano nel tempo} (qualcuno preme un pulsante, cambia la lettura di un sensore, i dati sono in forma seriale, ecc.).
+    \item Anche le \textbf{uscite} cambiano nel tempo: passato il \textbf{transitorio} si stabilizzano sul valore dettato dalla funzione logica.
+    \item Come influisce la rete sulle tempistiche delle uscite?
+    \begin{itemize}
+        \item \textbf{ogni porta logica introduce un ritardo};
+        \item la \textbf{somma dei ritardi} lungo il cammino del segnale definisce il ritardo finale dell'uscita.
+    \end{itemize}
+    \item Interessa poter \textbf{rappresentare il comportamento del circuito durante la fase di transitorio}.
+\end{itemize}
+
+\subsection{Diagramma temporale}
+
+\begin{itemize}
+    \item Rappresentazione dell'\textbf{evoluzione nel tempo dei valori dei nodi} della rete (come i diagrammi temporali in elettronica analogica).
+    \item Normalmente non interessano i dettagli della fase di salita e discesa delle singole porte: si usano \textbf{solo due livelli}.
+    \item Due versioni:
+    \begin{enumerate}
+        \item \textcolor{blue!70!black}{\textbf{senza ritardi}} delle porte: le variazioni degli ingressi si propagano \emph{immediatamente} ai nodi interni e all'uscita $\Rightarrow$ utile per \textbf{verificare e debuggare la funzione logica};
+        \item \textcolor{red!80!black}{\textbf{con i ritardi}} delle porte: le variazioni degli ingressi impiegano del tempo per propagarsi ai nodi interni e all'uscita $\Rightarrow$ utile per \textbf{valutare le prestazioni}, trovare i \textbf{percorsi critici} e analizzare eventuali \textbf{anomalie}.
+    \end{enumerate}
+\end{itemize}
+
+\subsubsection{Diagramma dell'invertitore}
+
+\begin{itemize}
+    \item Due nodi: ingresso $x$ e uscita $y$.
+    \item \textbf{Senza ritardo} attraverso la porta: per ogni istante di tempo l'uscita ha valore \textbf{opposto} a quello dell'ingresso.
+    \item \textbf{Con ritardo $\Delta t$} attraverso la porta: l'uscita raggiunge il valore finale solo \textbf{dopo il ritardo della porta}.
+\end{itemize}
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\textbf{Invertitore senza ritardo}\\[2mm]
+\setlength{\unitlength}{1mm}
+\begin{picture}(96.0,31.0)(0,-11)
+\put(24.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(40.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(56.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(72.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(6.00,13.50){\makebox(0,0)[r]{$x$}}
+\put(8.00,11.00){\color{gray}\linethickness{0.1mm}\line(1,0){80.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,11.00){\line(1,0){16.00}}
+\put(24.00,11.00){\line(0,1){5.00}}
+\put(24.00,16.00){\line(1,0){16.00}}
+\put(40.00,11.00){\line(0,1){5.00}}
+\put(40.00,11.00){\line(1,0){16.00}}
+\put(56.00,11.00){\line(0,1){5.00}}
+\put(56.00,16.00){\line(1,0){16.00}}
+\put(72.00,11.00){\line(0,1){5.00}}
+\put(72.00,11.00){\line(1,0){16.00}}
+}
+\put(6.00,4.50){\makebox(0,0)[r]{$y$}}
+\put(8.00,2.00){\color{gray}\linethickness{0.1mm}\line(1,0){80.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,7.00){\line(1,0){16.00}}
+\put(24.00,2.00){\line(0,1){5.00}}
+\put(24.00,2.00){\line(1,0){16.00}}
+\put(40.00,2.00){\line(0,1){5.00}}
+\put(40.00,7.00){\line(1,0){16.00}}
+\put(56.00,2.00){\line(0,1){5.00}}
+\put(56.00,2.00){\line(1,0){16.00}}
+\put(72.00,2.00){\line(0,1){5.00}}
+\put(72.00,7.00){\line(1,0){16.00}}
+}
+\put(8.00,-1){\vector(1,0){85.00}}
+\put(94.00,-1){\makebox(0,0)[l]{\scriptsize $t$}}
+\end{picture}
+\end{minipage}
+\end{center}
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\textbf{Invertitore con ritardo $\Delta t$}\\[2mm]
+\setlength{\unitlength}{1mm}
+\begin{picture}(96.0,31.0)(0,-11)
+\put(24.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(30.40,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(40.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(46.40,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(56.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(62.40,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(72.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(78.40,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){9}{\line(0,1){1}}}
+\put(6.00,13.50){\makebox(0,0)[r]{$x$}}
+\put(8.00,11.00){\color{gray}\linethickness{0.1mm}\line(1,0){80.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,11.00){\line(1,0){16.00}}
+\put(24.00,11.00){\line(0,1){5.00}}
+\put(24.00,16.00){\line(1,0){16.00}}
+\put(40.00,11.00){\line(0,1){5.00}}
+\put(40.00,11.00){\line(1,0){16.00}}
+\put(56.00,11.00){\line(0,1){5.00}}
+\put(56.00,16.00){\line(1,0){16.00}}
+\put(72.00,11.00){\line(0,1){5.00}}
+\put(72.00,11.00){\line(1,0){16.00}}
+}
+\put(6.00,4.50){\makebox(0,0)[r]{$y$}}
+\put(8.00,2.00){\color{gray}\linethickness{0.1mm}\line(1,0){80.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,7.00){\line(1,0){22.40}}
+\put(30.40,2.00){\line(0,1){5.00}}
+\put(30.40,2.00){\line(1,0){16.00}}
+\put(46.40,2.00){\line(0,1){5.00}}
+\put(46.40,7.00){\line(1,0){16.00}}
+\put(62.40,2.00){\line(0,1){5.00}}
+\put(62.40,2.00){\line(1,0){16.00}}
+\put(78.40,2.00){\line(0,1){5.00}}
+\put(78.40,7.00){\line(1,0){9.60}}
+}
+\put(8.00,-1){\vector(1,0){85.00}}
+\put(94.00,-1){\makebox(0,0)[l]{\scriptsize $t$}}
+\put(24.00,-8){\vector(1,0){6.40}}
+\put(30.40,-8){\vector(-1,0){6.40}}
+\put(27.20,-8.8){\makebox(0,0)[t]{\scriptsize $\Delta t$}}
+\end{picture}
+\end{minipage}
+\end{center}
+
+\subsubsection{Rete logica: il multiplexer}
+
+Circuito della slide (multiplexer 2 a 1): $c = b \cdot s$ (AND), $e = s'$ (NOT), $d = a \cdot e$ (AND), $f = c + d$ (OR), cioè $f = bs + s'a$.
+
+\textbf{Passi} per costruire il diagramma:
+\begin{enumerate}
+    \item identificare i \textbf{nodi interni} ($c$, $d$, $e$);
+    \item definire gli \textbf{stimoli di ingresso} ($a$, $b$, $s$);
+    \item determinare i \textbf{valori dei restanti nodi}.
+\end{enumerate}
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\textbf{Multiplexer senza ritardi}\\[2mm]
+\setlength{\unitlength}{1mm}
+\begin{picture}(121.0,76.0)(0,-11)
+\put(23.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(23.00,-3){\makebox(0,0)[t]{\scriptsize $t_1$}}
+\put(38.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(38.00,-3){\makebox(0,0)[t]{\scriptsize $t_2$}}
+\put(53.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(53.00,-3){\makebox(0,0)[t]{\scriptsize $t_3$}}
+\put(68.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(68.00,-3){\makebox(0,0)[t]{\scriptsize $t_4$}}
+\put(83.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(83.00,-3){\makebox(0,0)[t]{\scriptsize $t_5$}}
+\put(98.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(98.00,-3){\makebox(0,0)[t]{\scriptsize $t_6$}}
+\put(6.00,58.50){\makebox(0,0)[r]{$a$}}
+\put(8.00,56.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,56.00){\line(1,0){45.00}}
+\put(53.00,56.00){\line(0,1){5.00}}
+\put(53.00,61.00){\line(1,0){30.00}}
+\put(83.00,56.00){\line(0,1){5.00}}
+\put(83.00,56.00){\line(1,0){30.00}}
+}
+\put(6.00,49.50){\makebox(0,0)[r]{$b$}}
+\put(8.00,47.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,47.00){\line(1,0){15.00}}
+\put(23.00,47.00){\line(0,1){5.00}}
+\put(23.00,52.00){\line(1,0){15.00}}
+\put(38.00,47.00){\line(0,1){5.00}}
+\put(38.00,47.00){\line(1,0){60.00}}
+\put(98.00,47.00){\line(0,1){5.00}}
+\put(98.00,52.00){\line(1,0){15.00}}
+}
+\put(6.00,40.50){\makebox(0,0)[r]{$s$}}
+\put(8.00,38.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,38.00){\line(1,0){60.00}}
+\put(68.00,38.00){\line(0,1){5.00}}
+\put(68.00,43.00){\line(1,0){45.00}}
+}
+\put(6.00,31.50){\makebox(0,0)[r]{$e$}}
+\put(8.00,29.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,34.00){\line(1,0){60.00}}
+\put(68.00,29.00){\line(0,1){5.00}}
+\put(68.00,29.00){\line(1,0){45.00}}
+}
+\put(6.00,22.50){\makebox(0,0)[r]{$c$}}
+\put(8.00,20.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,20.00){\line(1,0){90.00}}
+\put(98.00,20.00){\line(0,1){5.00}}
+\put(98.00,25.00){\line(1,0){15.00}}
+}
+\put(6.00,13.50){\makebox(0,0)[r]{$d$}}
+\put(8.00,11.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,11.00){\line(1,0){45.00}}
+\put(53.00,11.00){\line(0,1){5.00}}
+\put(53.00,16.00){\line(1,0){15.00}}
+\put(68.00,11.00){\line(0,1){5.00}}
+\put(68.00,11.00){\line(1,0){45.00}}
+}
+\put(6.00,4.50){\makebox(0,0)[r]{$f$}}
+\put(8.00,2.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,2.00){\line(1,0){45.00}}
+\put(53.00,2.00){\line(0,1){5.00}}
+\put(53.00,7.00){\line(1,0){15.00}}
+\put(68.00,2.00){\line(0,1){5.00}}
+\put(68.00,2.00){\line(1,0){30.00}}
+\put(98.00,2.00){\line(0,1){5.00}}
+\put(98.00,7.00){\line(1,0){15.00}}
+}
+\put(8.00,-1){\vector(1,0){110.00}}
+\put(119.00,-1){\makebox(0,0)[l]{\scriptsize $t$}}
+\end{picture}
+\end{minipage}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|c|l|l|}
+\hline
+\colorbox{gray!25}{\color{black}\textbf{Istante}} & \colorbox{gray!25}{\color{black}\textbf{Evento sugli ingressi}} & \colorbox{gray!25}{\color{black}\textbf{Effetto sulla rete}} \\ \hline
+$t_1$ & $b$ sale & $s = 0$: $c$ resta a 0, $f$ resta a 0 \\ \hline
+$t_2$ & $b$ scende & nessun effetto \\ \hline
+$t_3$ & $a$ sale & $e = 1 \Rightarrow d = 1 \Rightarrow f = 1$ \\ \hline
+$t_4$ & $s$ sale & $e = 0 \Rightarrow d = 0$; $c = 0$ perché $b = 0$ $\Rightarrow f = 0$ \\ \hline
+$t_5$ & $a$ scende & nessun effetto ($d$ è già a 0) \\ \hline
+$t_6$ & $b$ sale & $s = 1 \Rightarrow c = 1 \Rightarrow f = 1$ \\ \hline
+\end{tabular}
+\end{center}
+
+\subsubsection{Come completare un diagramma}
+
+\begin{enumerate}
+    \item Se non succede niente, i \textbf{valori dei nodi non cambiano}; per convenzione gli ingressi sono \textbf{costanti per $t < 0$}; interessano solo i punti in cui \emph{qualche} segnale cambia di valore.
+    \item Si valuta il valore di \textbf{tutti i nodi a $t = 0$} applicando la funzione logica a partire dagli ingressi (si assume che a $t = 0$ tutto sia \textbf{a regime}).
+    \item Ci si sposta al \textbf{minimo tempo $t^*$} per il quale uno \emph{qualunque} dei segnali (non solo gli ingressi) commuta di valore: si dice che il segnale ha un \textbf{evento} a $t^*$.
+    \item Si calcolano i \textbf{nuovi valori} nella rete e si fanno commutare i segnali dei nodi che cambiano valore, \textbf{aggiungendo nuovi eventi} al diagramma (tenendo eventualmente conto dei ritardi).
+    \item Ci si sposta al prossimo evento e si \textbf{ripete} la procedura fino ad aver esaurito tutti gli eventi.
+\end{enumerate}
+
+\subsubsection{Rete logica: il multiplexer con ritardi}
+
+\begin{itemize}
+    \item Si suppone, per semplicità, che le porte abbiano \textbf{tutte lo stesso ritardo} $\Delta t$.
+    \item Si \textbf{trasla verso destra} il segnale all'uscita di ogni porta e si \textbf{accumulano i ritardi} della rete.
+\end{itemize}
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\textbf{Multiplexer con ritardi}\\[2mm]
+\setlength{\unitlength}{1mm}
+\begin{picture}(121.0,76.0)(0,-11)
+\put(22.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(22.00,-3){\makebox(0,0)[t]{\scriptsize $t_1$}}
+\put(36.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(36.00,-3){\makebox(0,0)[t]{\scriptsize $t_2$}}
+\put(50.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(50.00,-3){\makebox(0,0)[t]{\scriptsize $t_3$}}
+\put(64.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(64.00,-3){\makebox(0,0)[t]{\scriptsize $t_4$}}
+\put(78.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(78.00,-3){\makebox(0,0)[t]{\scriptsize $t_5$}}
+\put(92.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(92.00,-3){\makebox(0,0)[t]{\scriptsize $t_6$}}
+\put(6.00,58.50){\makebox(0,0)[r]{$a$}}
+\put(8.00,56.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,56.00){\line(1,0){42.00}}
+\put(50.00,56.00){\line(0,1){5.00}}
+\put(50.00,61.00){\line(1,0){28.00}}
+\put(78.00,56.00){\line(0,1){5.00}}
+\put(78.00,56.00){\line(1,0){35.00}}
+}
+\put(6.00,49.50){\makebox(0,0)[r]{$b$}}
+\put(8.00,47.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,47.00){\line(1,0){14.00}}
+\put(22.00,47.00){\line(0,1){5.00}}
+\put(22.00,52.00){\line(1,0){14.00}}
+\put(36.00,47.00){\line(0,1){5.00}}
+\put(36.00,47.00){\line(1,0){56.00}}
+\put(92.00,47.00){\line(0,1){5.00}}
+\put(92.00,52.00){\line(1,0){21.00}}
+}
+\put(6.00,40.50){\makebox(0,0)[r]{$s$}}
+\put(8.00,38.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,38.00){\line(1,0){56.00}}
+\put(64.00,38.00){\line(0,1){5.00}}
+\put(64.00,43.00){\line(1,0){49.00}}
+}
+\put(6.00,31.50){\makebox(0,0)[r]{$e$}}
+\put(8.00,29.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,34.00){\line(1,0){60.20}}
+\put(68.20,29.00){\line(0,1){5.00}}
+\put(68.20,29.00){\line(1,0){44.80}}
+}
+\put(6.00,22.50){\makebox(0,0)[r]{$c$}}
+\put(8.00,20.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,20.00){\line(1,0){88.20}}
+\put(96.20,20.00){\line(0,1){5.00}}
+\put(96.20,25.00){\line(1,0){16.80}}
+}
+\put(6.00,13.50){\makebox(0,0)[r]{$d$}}
+\put(8.00,11.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,11.00){\line(1,0){46.20}}
+\put(54.20,11.00){\line(0,1){5.00}}
+\put(54.20,16.00){\line(1,0){18.20}}
+\put(72.40,11.00){\line(0,1){5.00}}
+\put(72.40,11.00){\line(1,0){40.60}}
+}
+\put(6.00,4.50){\makebox(0,0)[r]{$f$}}
+\put(8.00,2.00){\color{gray}\linethickness{0.1mm}\line(1,0){105.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,2.00){\line(1,0){50.40}}
+\put(58.40,2.00){\line(0,1){5.00}}
+\put(58.40,7.00){\line(1,0){18.20}}
+\put(76.60,2.00){\line(0,1){5.00}}
+\put(76.60,2.00){\line(1,0){23.80}}
+\put(100.40,2.00){\line(0,1){5.00}}
+\put(100.40,7.00){\line(1,0){12.60}}
+}
+\put(8.00,-1){\vector(1,0){110.00}}
+\put(119.00,-1){\makebox(0,0)[l]{\scriptsize $t$}}
+\put(50.00,-8){\vector(1,0){4.20}}
+\put(54.20,-8){\vector(-1,0){4.20}}
+\put(52.10,-8.8){\makebox(0,0)[t]{\scriptsize $\Delta t$}}
+\end{picture}
+\end{minipage}
+\end{center}
+
+\subsubsection{Osservazioni}
+
+\begin{itemize}
+    \item Il \textbf{ritardo tra gli ingressi e l'uscita non è sempre lo stesso}: dipende da \emph{quale} ingresso cambia.
+    \begin{itemize}
+        \item la variazione su $a$ impiega \textbf{$2\Delta t$} per arrivare all'uscita ($a \to d \to f$);
+        \item la transizione su $s$ impiega \textbf{$3\Delta t$} ($s \to e \to d \to f$).
+    \end{itemize}
+    \item Per trovare il \textbf{massimo} e il \textbf{minimo} occorrerebbe provare tutte le possibili transizioni, ma esistono metodi più semplici che analizzano la \textbf{topologia} della rete.
+    \item \textbf{Modelli di ritardo}: quello usato è molto semplice e lo si può complicare a piacere:
+    \begin{itemize}
+        \item porte con \textbf{ritardi diversi} a seconda di quale ingresso cambia;
+        \item aggiustamento dei ritardi secondo il \textbf{carico} (fan-out);
+        \item tenuta in conto dei \textbf{tempi di salita e discesa};
+        \item \textbf{modello inerziale}, che elimina brevi transizioni degli ingressi.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Alee (glitch)}
+
+\begin{itemize}
+    \item Sono \textbf{brevi cambiamenti di valore} che si esauriscono con il transitorio.
+    \item Sono dovute a \textbf{particolari combinazioni di ritardi} nelle reti logiche.
+    \item Influiscono \textbf{solo sul transitorio}, ma possono dare molto fastidio nei circuiti \textbf{sensibili ai fronti} dei segnali (\textbf{circuiti sequenziali asincroni}).
+\end{itemize}
+
+\subsubsection{Alee nel multiplexer}
+
+Caso considerato: $a = b = 1$ costanti, $s$ passa da 1 a 0.
+
+\begin{itemize}
+    \item \textcolor{blue!70!black}{\textbf{In assenza di ritardi}}: un implicante si disattiva ($c$), l'altro si attiva ($d$) e l'uscita rimane al valore \textbf{1 costante}.
+    \item \textcolor{red!80!black}{\textbf{Con ritardi}}: l'implicante $c$ si \textbf{disattiva prima} che l'implicante $d$ possa mantenere l'uscita a livello alto $\Rightarrow$ l'uscita si porta \textbf{per un periodo a livello basso} (alea).
+\end{itemize}
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\textbf{Alea nel multiplexer: senza ritardi}\\[2mm]
+\setlength{\unitlength}{1mm}
+\begin{picture}(111.0,76.0)(0,-11)
+\put(46.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(6.00,58.50){\makebox(0,0)[r]{$a$}}
+\put(8.00,56.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,61.00){\line(1,0){95.00}}
+}
+\put(6.00,49.50){\makebox(0,0)[r]{$b$}}
+\put(8.00,47.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,52.00){\line(1,0){95.00}}
+}
+\put(6.00,40.50){\makebox(0,0)[r]{$s$}}
+\put(8.00,38.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,43.00){\line(1,0){38.00}}
+\put(46.00,38.00){\line(0,1){5.00}}
+\put(46.00,38.00){\line(1,0){57.00}}
+}
+\put(6.00,31.50){\makebox(0,0)[r]{$e$}}
+\put(8.00,29.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,29.00){\line(1,0){38.00}}
+\put(46.00,29.00){\line(0,1){5.00}}
+\put(46.00,34.00){\line(1,0){57.00}}
+}
+\put(6.00,22.50){\makebox(0,0)[r]{$c$}}
+\put(8.00,20.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,25.00){\line(1,0){38.00}}
+\put(46.00,20.00){\line(0,1){5.00}}
+\put(46.00,20.00){\line(1,0){57.00}}
+}
+\put(6.00,13.50){\makebox(0,0)[r]{$d$}}
+\put(8.00,11.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,11.00){\line(1,0){38.00}}
+\put(46.00,11.00){\line(0,1){5.00}}
+\put(46.00,16.00){\line(1,0){57.00}}
+}
+\put(6.00,4.50){\makebox(0,0)[r]{$f$}}
+\put(8.00,2.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,7.00){\line(1,0){95.00}}
+}
+\put(8.00,-1){\vector(1,0){100.00}}
+\put(109.00,-1){\makebox(0,0)[l]{\scriptsize $t$}}
+\end{picture}
+\end{minipage}
+\end{center}
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\textbf{Alea nel multiplexer: con ritardi}\\[2mm]
+\setlength{\unitlength}{1mm}
+\begin{picture}(111.0,76.0)(0,-11)
+\put(46.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(57.40,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(68.80,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(80.20,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){32}{\line(0,1){1}}}
+\put(6.00,58.50){\makebox(0,0)[r]{$a$}}
+\put(8.00,56.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,61.00){\line(1,0){95.00}}
+}
+\put(6.00,49.50){\makebox(0,0)[r]{$b$}}
+\put(8.00,47.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,52.00){\line(1,0){95.00}}
+}
+\put(6.00,40.50){\makebox(0,0)[r]{$s$}}
+\put(8.00,38.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,43.00){\line(1,0){38.00}}
+\put(46.00,38.00){\line(0,1){5.00}}
+\put(46.00,38.00){\line(1,0){57.00}}
+}
+\put(6.00,31.50){\makebox(0,0)[r]{$e$}}
+\put(8.00,29.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,29.00){\line(1,0){49.40}}
+\put(57.40,29.00){\line(0,1){5.00}}
+\put(57.40,34.00){\line(1,0){45.60}}
+}
+\put(6.00,22.50){\makebox(0,0)[r]{$c$}}
+\put(8.00,20.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,25.00){\line(1,0){49.40}}
+\put(57.40,20.00){\line(0,1){5.00}}
+\put(57.40,20.00){\line(1,0){45.60}}
+}
+\put(6.00,13.50){\makebox(0,0)[r]{$d$}}
+\put(8.00,11.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,11.00){\line(1,0){60.80}}
+\put(68.80,11.00){\line(0,1){5.00}}
+\put(68.80,16.00){\line(1,0){34.20}}
+}
+\put(6.00,4.50){\makebox(0,0)[r]{$f$}}
+\put(8.00,2.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,7.00){\line(1,0){60.80}}
+\put(68.80,2.00){\line(0,1){5.00}}
+\put(68.80,2.00){\line(1,0){11.40}}
+\put(80.20,2.00){\line(0,1){5.00}}
+\put(80.20,7.00){\line(1,0){22.80}}
+}
+\put(8.00,-1){\vector(1,0){100.00}}
+\put(109.00,-1){\makebox(0,0)[l]{\scriptsize $t$}}
+\put(46.00,-8){\vector(1,0){11.40}}
+\put(57.40,-8){\vector(-1,0){11.40}}
+\put(51.70,-8.8){\makebox(0,0)[t]{\scriptsize $\Delta t$}}
+\end{picture}
+\end{minipage}
+\end{center}
+
+\subsubsection{Alee sulla mappa di Karnaugh}
+
+\begin{itemize}
+    \item Si verifica una alea \textbf{solo se} gli ingressi cambiano in modo da \textbf{passare da un implicante all'altro}.
+    \item Inoltre i ritardi devono essere tali da \textbf{disattivare il primo prima di attivare il secondo}.
+    \item Nella mappa di Karnaugh si \textbf{salta da una casella a un'altra senza stare in uno stesso implicante}.
+    \item Se invece \textbf{non si cambia implicante} non si può verificare una alea.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$s\backslash ab$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 0 & \colorbox{green!30}{\color{black}1} & \colorbox{green!30}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 0 & \colorbox{yellow!55}{\color{black}1} & \colorbox{yellow!55}{\color{black}1} & 0 \\ \hline
+\end{tabular}
+\end{center}
+\begin{center}
+\textcolor{green!50!black}{\textbf{verde}}: implicante $s'a$ \qquad \textcolor{yellow!50!black}{\textbf{giallo}}: implicante $sb$ \qquad salto da $(s,a,b) = (1,1,1)$ a $(0,1,1)$, cioè da $sb$ a $s'a$
+\end{center}
+
+\subsubsection{Come prevenire le alee}
+
+\begin{itemize}
+    \item È sufficiente aggiungere \textbf{implicanti di collegamento} (nell'esempio, l'implicante che copre le due caselle $ab = 11$).
+    \item La realizzazione \textbf{non è più minima}.
+    \item \textbf{Indispensabile} per i circuiti \textbf{asincroni}.
+    \item Utile nei circuiti \textbf{sincroni} solo per ridurre eventualmente i \textbf{consumi}.
+\end{itemize}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}[t]{|c|c|c|c|c|}
+\hline
+\colorbox{gray!25}{\color{black}$s\backslash ab$} & \colorbox{gray!25}{\color{black}\textbf{00}} & \colorbox{gray!25}{\color{black}\textbf{01}} & \colorbox{gray!25}{\color{black}\textbf{11}} & \colorbox{gray!25}{\color{black}\textbf{10}} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{0}} & 0 & 0 & \colorbox{orange!55}{\color{black}1} & \colorbox{green!30}{\color{black}1} \\ \hline
+\colorbox{gray!25}{\color{black}\textbf{1}} & 0 & \colorbox{yellow!55}{\color{black}1} & \colorbox{orange!55}{\color{black}1} & 0 \\ \hline
+\end{tabular}
+\end{center}
+\begin{center}
+\textcolor{orange!90!black}{\textbf{arancio}}: caselle $ab = 11$, coperte \emph{anche} dall'implicante di collegamento $ab$
+\end{center}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: diagramma temporale del multiplexer senza alea}]
+Costruire il diagramma temporale del multiplexer a cui è stato aggiunto l'implicante di collegamento, nel caso $a = b = 1$ e $s$ che passa da 1 a 0 (con ritardi uguali per tutte le porte).
+\end{tcolorbox}
+
+\textbf{Soluzione:}
+\begin{itemize}
+    \item L'implicante di collegamento è $g = ab$ e la funzione diventa $f = bs + s'a + ab$.
+    \item Con $a = b = 1$ il nodo $g$ vale \textbf{1 per tutto il tempo}: quando $c$ si disattiva e $d$ non si è ancora attivato, è $g$ a \textbf{mantenere $f$ a livello alto}.
+    \item Di conseguenza $f$ resta a 1 e l'\textbf{alea scompare}.
+\end{itemize}
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\textbf{Multiplexer con implicante di collegamento: nessuna alea}\\[2mm]
+\setlength{\unitlength}{1mm}
+\begin{picture}(111.0,85.0)(0,-11)
+\put(46.00,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){36}{\line(0,1){1}}}
+\put(57.40,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){36}{\line(0,1){1}}}
+\put(68.80,-1){\color{gray}\linethickness{0.12mm}\multiput(0,0)(0,2){36}{\line(0,1){1}}}
+\put(6.00,67.50){\makebox(0,0)[r]{$a$}}
+\put(8.00,65.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,70.00){\line(1,0){95.00}}
+}
+\put(6.00,58.50){\makebox(0,0)[r]{$b$}}
+\put(8.00,56.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,61.00){\line(1,0){95.00}}
+}
+\put(6.00,49.50){\makebox(0,0)[r]{$s$}}
+\put(8.00,47.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,52.00){\line(1,0){38.00}}
+\put(46.00,47.00){\line(0,1){5.00}}
+\put(46.00,47.00){\line(1,0){57.00}}
+}
+\put(6.00,40.50){\makebox(0,0)[r]{$e$}}
+\put(8.00,38.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,38.00){\line(1,0){49.40}}
+\put(57.40,38.00){\line(0,1){5.00}}
+\put(57.40,43.00){\line(1,0){45.60}}
+}
+\put(6.00,31.50){\makebox(0,0)[r]{$c$}}
+\put(8.00,29.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,34.00){\line(1,0){49.40}}
+\put(57.40,29.00){\line(0,1){5.00}}
+\put(57.40,29.00){\line(1,0){45.60}}
+}
+\put(6.00,22.50){\makebox(0,0)[r]{$d$}}
+\put(8.00,20.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,20.00){\line(1,0){60.80}}
+\put(68.80,20.00){\line(0,1){5.00}}
+\put(68.80,25.00){\line(1,0){34.20}}
+}
+\put(6.00,13.50){\makebox(0,0)[r]{$g$}}
+\put(8.00,11.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,16.00){\line(1,0){95.00}}
+}
+\put(6.00,4.50){\makebox(0,0)[r]{$f$}}
+\put(8.00,2.00){\color{gray}\linethickness{0.1mm}\line(1,0){95.00}}
+{\color{blue}\linethickness{0.45mm}
+\put(8.00,7.00){\line(1,0){95.00}}
+}
+\put(8.00,-1){\vector(1,0){100.00}}
+\put(109.00,-1){\makebox(0,0)[l]{\scriptsize $t$}}
+\put(46.00,-8){\vector(1,0){11.40}}
+\put(57.40,-8){\vector(-1,0){11.40}}
+\put(51.70,-8.8){\makebox(0,0)[t]{\scriptsize $\Delta t$}}
+\end{picture}
+\end{minipage}
+\end{center}
+
+\subsection{Take away}
+
+\begin{itemize}
+    \item \textbf{Le tempistiche influenzano il funzionamento del circuito}
+    \begin{itemize}
+        \item i ritardi introducono \textbf{asimmetrie} nella rete logica;
+        \item diversi modelli, con differente accuratezza, aiutano a stimare le tempistiche;
+        \item utile conoscere i \textbf{ritardi minimi e massimi} attraverso una rete logica.
+    \end{itemize}
+    \item \textbf{Le asimmetrie danno luogo a fenomeni di alee}
+    \begin{itemize}
+        \item le alee, o \textbf{glitch}, possono \textbf{aumentare i consumi di potenza};
+        \item sono particolarmente insidiose in certi tipi di circuiti \textbf{sensibili ai fronti} dei segnali;
+        \item si possono eliminare introducendo elementi che \textbf{neutralizzano le transizioni spurie}.
+    \end{itemize}
+\end{itemize}
+
+
+\end{document}
