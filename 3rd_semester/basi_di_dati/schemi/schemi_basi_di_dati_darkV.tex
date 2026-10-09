@@ -1,7 +1,7 @@
 \documentclass[12pt, a4paper]{article}
 \newcounter{esercizio}[section]
 
-\def\islight{true} 
+%\def\islight{true} 
 
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
@@ -743,6 +743,922 @@ A differenza del join (naturale o theta), l'\textbf{outer join} conserva anche l
 
 Un'espressione di algebra relazionale può essere rappresentata come un \textbf{albero di query}: le foglie sono le relazioni di base, i nodi interni sono gli operatori, e la valutazione procede dal basso verso l'alto. Espressioni algebricamente equivalenti (stesso risultato per ogni istanza valida) possono corrispondere ad alberi diversi con costi di esecuzione molto differenti: è la base per l'\textbf{ottimizzazione delle query}, approfondita quando si tratterà l'analisi dei costi.
 % Nota per me: le slide mostrano un esempio concreto di albero di query e un confronto tra due alberi equivalenti con costo diverso, che non ho verificato visivamente — vedi le slide originali per l'esempio specifico.
+
+
+\section{SQL}
+
+\subsection{Cos'è SQL}
+
+\textcolor{tocsec}{\textbf{SQL}} (\textit{Structured Query Language}) è un linguaggio specializzato per la gestione di basi di dati relazionali: standardizzato e ampiamente utilizzato, permette la creazione, modifica e interrogazione dei dati. Si divide in:
+\begin{itemize}
+    \item \textbf{DDL} (\textit{Data Definition Language}): definisce la struttura della base di dati (creazione tabelle, modifiche allo schema, definizione di vincoli);
+    \item \textbf{DML} (\textit{Data Manipulation Language}): manipola i dati (inserimento, aggiornamento, cancellazione, interrogazione).
+\end{itemize}
+
+\subsection{Istanza di Riferimento}
+
+Negli esempi che seguono si usa questa istanza (tratta dal libro di testo):
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\multicolumn{4}{c}{\textbf{Sailors} (istanza S3)} \\
+\midrule
+sid & sname & rating & age \\
+\midrule
+22 & Dustin & 7 & 45.0 \\
+29 & Brutus & 1 & 33.0 \\
+31 & Lubber & 8 & 55.5 \\
+32 & Andy & 8 & 25.5 \\
+58 & Rusty & 10 & 35.0 \\
+64 & Horatio & 7 & 35.0 \\
+71 & Zorba & 10 & 16.0 \\
+74 & Horatio & 9 & 35.0 \\
+85 & Art & 3 & 25.5 \\
+95 & Bob & 3 & 63.5 \\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{@{}ccc@{}}
+\toprule
+\multicolumn{3}{c}{\textbf{Boats} (istanza B1)} \\
+\midrule
+bid & bname & color \\
+\midrule
+101 & Interlake & blue \\
+102 & Interlake & red \\
+103 & Clipper & green \\
+104 & Marine & red \\
+\bottomrule
+\end{tabular}
+\caption{Istanze di riferimento per gli esempi SQL (\texttt{Reserves}, istanza R2, omessa qui: 10 tuple, 4 per sid 22, 3 per sid 31, 2 per sid 64, 1 per sid 74, verificabili dal risultato della query in Sez. \ref{sec:leftjoin-esempio})}
+\end{table}
+
+\subsection{Struttura Base di una Query}
+
+\begin{verbatim}
+SELECT   [DISTINCT] target-list
+FROM     relation-list
+WHERE    qualification
+\end{verbatim}
+
+\begin{itemize}
+    \item \textbf{relation-list}: lista di nomi di relazioni (talvolta con \textit{variabili di range}) — da 1 a $n$;
+    \item \textbf{target-list}: lista di attributi che appartengono alle relazioni nella relation-list;
+    \item \textbf{qualification}: predicati di confronto, eventualmente combinati con AND, OR o NOT;
+    \item \textbf{DISTINCT}: chiave opzionale per eliminare i duplicati dal risultato (il \textbf{default è che NON vengono eliminati}).
+\end{itemize}
+
+\subsubsection{Semantica Valutativa (concettuale)}
+
+\begin{enumerate}
+    \item si calcola il prodotto cartesiano delle tabelle nella relation-list;
+    \item si scartano le tuple che non soddisfano la qualification;
+    \item si eliminano le colonne degli attributi che non appartengono alla target-list;
+    \item se presente DISTINCT, si eliminano i duplicati.
+\end{enumerate}
+\textbf{Nota}: questa è una strategia concettuale, non quella realmente usata dal DBMS — è molto inefficiente; il modulo di \textit{query optimization} costruisce piani di esecuzione più efficienti ma semanticamente equivalenti.
+
+\paragraph{Esempio.}
+\begin{verbatim}
+-- Q0: sname ed eta' di tutti i marinai
+select s.sname, s.age
+from sailors s;
+
+-- Q0.1: sname ed eta' dei marinai con piu' di 50 anni
+select s.sname, s.age
+from sailors s
+where s.age > 50;
+\end{verbatim}
+Risultato di Q0.1 sull'istanza S3: $\{\langle\text{Lubber},55.5\rangle, \langle\text{Bob},63.5\rangle\}$ — le uniche due tuple con \textit{age > 50}.
+
+\subsection{Operatori di Confronto}
+
+\begin{itemize}
+    \item aritmetici: \texttt{=, <, >, >=, <=, <>};
+    \item \texttt{BETWEEN}: valore compreso in un intervallo;
+    \item \texttt{IN}: valore compreso in una lista;
+    \item \texttt{LIKE}: confronto fra stringhe con caratteri jolly (\texttt{\%} e \texttt{\_});
+    \item \texttt{IS [NOT] NULL}: verifica se un valore ha (o non ha) valore \texttt{NULL}.
+\end{itemize}
+\textbf{Attenzione}: \texttt{WHERE x = NULL} è \textbf{sempre sbagliato} — va usato \texttt{WHERE x IS NULL}.
+
+% Fonte: provetta_11-23, domanda 10
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Quale dei seguenti operatori è usato per verificare se il valore di un attributo è uguale a \texttt{NULL} in SQL? (nessuna delle opzioni / \texttt{IS} / \texttt{IN} / \texttt{=})
+\end{tcolorbox}
+\textbf{Soluzione:} \texttt{IS} (cioè \texttt{IS NULL}) — l'operatore \texttt{=} non funziona mai con \texttt{NULL}, per via della logica a tre valori di SQL (vedi Esercizio 2).
+
+\subsection{Operatori di Aggregazione}
+
+SQL supporta 5 operatori di aggregazione, che vanno oltre gli operatori dell'algebra relazionale:
+\begin{itemize}
+    \item \texttt{count(*)}: numero di tuple restituite da una query;
+    \item \texttt{count([DISTINCT] A)}: numero di valori (unici) di A;
+    \item \texttt{sum([DISTINCT] A)}: somma dei valori (unici) di A;
+    \item \texttt{avg([DISTINCT] A)}: media dei valori (unici) di A;
+    \item \texttt{MAX(A)} / \texttt{MIN(A)}: valore più alto / più basso della colonna A.
+\end{itemize}
+\textbf{Nota}: gli operatori di aggregazione ignorano i valori \texttt{NULL} nella colonna aggregata (eccetto \texttt{count(*)}, che conta le tuple indipendentemente dai NULL).
+
+\subsection{GROUP BY e HAVING}
+
+Quando serve applicare l'aggregazione non a tutte le tuple ma a \textbf{gruppi} di tuple (es. "quante volte è stata noleggiata ogni barca", "età media dei marinai per ogni rating"), si estende la struttura base:
+
+\begin{verbatim}
+SELECT   [DISTINCT] select-list
+FROM     from-list
+WHERE    qualification
+GROUP BY grouping-list
+HAVING   group-qualification
+\end{verbatim}
+
+\begin{itemize}
+    \item la \textbf{select-list} è composta da (1) nomi di colonne e (2) termini \texttt{agg-op(colonna) AS nuovo\_nome};
+    \item ogni colonna in (1) \textbf{deve} comparire anche nella grouping-list (altrimenti potrebbe avere valori diversi nello stesso gruppo);
+    \item le espressioni nella group-qualification devono avere un solo valore per gruppo;
+    \item senza GROUP BY, l'intera tabella è considerata un singolo gruppo.
+\end{itemize}
+
+\textbf{Valutazione (concettuale):}
+\begin{enumerate}
+    \item prodotto cartesiano delle tabelle nel FROM;
+    \item applicazione del WHERE;
+    \item eliminazione delle colonne non richieste (non in select-list/grouping-list/group-qualification);
+    \item riordino in base al GROUP BY, per identificare i gruppi;
+    \item applicazione della group-qualification nella clausola HAVING;
+    \item generazione di una riga di risposta per ogni gruppo rimanente.
+\end{enumerate}
+
+\subsubsection{Esempio (Q32)}
+\textit{Trovare, per ogni livello di rating con almeno due marinai maggiorenni (age $\geq$ 18), l'età del più giovane tra questi.}
+\begin{verbatim}
+SELECT   S.rating, MIN(S.age) AS minage
+FROM     Sailors S
+WHERE    S.age >= 18
+GROUP BY S.rating
+HAVING   COUNT(*) > 1
+\end{verbatim}
+Sull'istanza S3: il WHERE esclude Zorba (16.0, minorenne). Raggruppando per rating: rating 1 (Brutus, 1 sailor), rating 3 (Art 25.5, Bob 63.5 — 2 sailor), rating 7 (Dustin 45.0, Horatio 35.0 — 2 sailor), rating 8 (Lubber 55.5, Andy 25.5 — 2 sailor), rating 9 (Horatio 35.0, 1 sailor), rating 10 (Rusty 35.0, 1 sailor). L'HAVING scarta i gruppi con un solo sailor. \textbf{Risultato}: $\{\langle 3,25.5\rangle, \langle 7,35.0\rangle, \langle 8,25.5\rangle\}$.
+
+\subsection{Interrogazioni Annidate (Nested Queries)}
+
+Una \textbf{query annidata} (o \textit{nested}) è una query (\textit{interna}) che compare dentro un'altra (\textit{esterna}). Semanticamente è simile a un \textit{nested loop}: per ogni tupla della query esterna, si valuta il WHERE eseguendo la query interna. Una query annidata può restituire:
+\begin{itemize}
+    \item un \textbf{singolo valore}, da confrontare con un attributo della query esterna;
+    \item un \textbf{insieme di valori}, tipicamente con \texttt{IN}, \texttt{EXISTS}, \texttt{ANY} o \texttt{ALL}.
+\end{itemize}
+
+\subsubsection{Query Indipendenti e Correlate}
+\begin{itemize}
+    \item \textbf{Indipendente}: eseguibile da sola, senza riferimenti a colonne/valori della query esterna; viene eseguita \textbf{una sola volta}.
+    \item \textbf{Correlata}: la query interna fa riferimento a colonne della query esterna; deve essere \textbf{rieseguita per ogni riga} della query esterna.
+\end{itemize}
+
+\subsubsection{Casi d'Uso}
+\begin{itemize}
+    \item filtrare con un valore calcolato dinamicamente (es. marinai con rating minore del rating medio);
+    \item confrontare con un risultato derivato (es. il marinaio con il rating più alto);
+    \item verificare l'esistenza (o assenza) di certi valori (\texttt{EXISTS}; es. marinai che non hanno mai prenotato);
+    \item aggregazione condizionale (es. rating dei marinai con meno di 2 prenotazioni);
+    \item unire il risultato di una subquery con altre tabelle via JOIN.
+\end{itemize}
+
+\subsubsection{Annidamento a Più Livelli e Operatori ANY/ALL}
+È possibile annidare più di un livello. Con \texttt{ANY}: la condizione è vera se vale per \textbf{almeno una} tupla del risultato della subquery (se la subquery è vuota, \texttt{ANY} restituisce FALSE). Con \texttt{ALL}: la condizione deve valere per \textbf{tutte} le tuple (se la subquery è vuota, \texttt{ALL} restituisce TRUE — vacuous truth).
+
+\subsection{Operatori Insiemistici}
+\begin{itemize}
+    \item \texttt{UNION} (o \texttt{UNION ALL}): unione di due insiemi di tuple compatibili; \texttt{UNION} elimina i duplicati, \texttt{UNION ALL} no;
+    \item \texttt{INTERSECT}: tuple comuni a entrambi gli insiemi;
+    \item \texttt{EXCEPT}: tuple del primo insieme che non compaiono nel secondo (differenza insiemistica).
+\end{itemize}
+
+Le subquery possono comparire in diversi punti di una query: nel \texttt{FROM} (per costruire una tabella temporanea), o nel \texttt{WHERE} (per calcolare al volo un valore o un insieme con cui confrontare).
+
+\subsection{JOIN}
+
+Le 4 forme principali:
+\begin{enumerate}
+    \item \textbf{(INNER) JOIN}: solo le tuple che soddisfano la condizione in \textbf{entrambe} le tabelle;
+    \item \textbf{LEFT (OUTER) JOIN}: tutte le tuple della tabella di sinistra, più quelle di destra che soddisfano la condizione (NULL altrimenti);
+    \item \textbf{RIGHT (OUTER) JOIN}: simmetrico, tutte le tuple della tabella di destra;
+    \item \textbf{FULL (OUTER) JOIN}: tutte le tuple di entrambe le tabelle a fronte di un match in almeno una\footnotemark.
+\end{enumerate}
+\footnotetext{MariaDB (come molti altri DBMS) \textbf{non supporta} il FULL OUTER JOIN.}
+
+\subsubsection{INNER JOIN vs. Prodotto Cartesiano + WHERE}
+Un INNER JOIN si può scrivere in due modi equivalenti: con l'operatore esplicito \texttt{JOIN ... ON}, oppure mettendo le tabelle nel FROM e la condizione nel WHERE — restituiscono \textbf{esattamente lo stesso risultato}. La forma \texttt{JOIN...ON} è raccomandata per chiarezza (separa la condizione di join dagli altri filtri), ma nella pratica sono intercambiabili. \textbf{Non} lo sono, invece, quando serve un OUTER JOIN.
+
+\subsubsection{Esempio di LEFT JOIN}
+\label{sec:leftjoin-esempio}
+\textit{Quante prenotazioni ha fatto ogni marinaio (inclusi quelli con zero prenotazioni)?}
+\begin{verbatim}
+select s.sid, count(r.sid)
+from sailors s left join reserves r
+on s.sid = r.sid
+group by s.sid;
+\end{verbatim}
+Con un INNER JOIN o un prodotto cartesiano, i marinai senza prenotazioni (dangling) sparirebbero dal risultato: serve il LEFT JOIN per conservarli con conteggio 0. \textbf{Risultato} su S3/R2: $\langle 22,4\rangle, \langle 29,0\rangle, \langle 31,3\rangle, \langle 32,0\rangle, \langle 58,0\rangle, \langle 64,2\rangle, \langle 71,0\rangle, \langle 74,1\rangle, \langle 85,0\rangle, \langle 95,0\rangle$.
+
+\subsubsection{ANTI JOIN}
+I casi che restituiscono solo le tuple \textbf{senza} corrispondenza nell'altra relazione si chiamano LEFT/RIGHT/FULL \textbf{ANTI JOIN}. Poco usati nello sviluppo applicativo, ma utili in business intelligence/data science (es. "tutti i marinai che non hanno mai noleggiato una barca").
+
+\subsection{Linee Guida Pratiche per Scrivere Query SQL}
+
+\begin{enumerate}
+    \item \textbf{Studia lo schema}: comprendi tabelle/attributi, domini, vincoli di integrità referenziale (serviranno per i JOIN);
+    \item \textbf{Leggi bene la richiesta}: individua gli attributi in output (→ target-list), la tabella di provenienza di ciascuno (→ relation-list), i filtri necessari;
+    \item \textbf{Cerca le aggregazioni}: parole come "valore medio" ($\to$ AVG), "il totale" ($\to$ SUM), "il numero di" ($\to$ COUNT) suggeriscono operatori di aggregazione, eventualmente con GROUP BY/HAVING;
+    \item \textbf{Comprendi i vincoli di integrità referenziale}: individua gli attributi per il JOIN (tipicamente PK$\to$FK) e il tipo di JOIN semanticamente corretto (INNER, OUTER, ANTI, \ldots) — ricorda che il WHERE opera tupla per tupla;
+    \item \textbf{Cerca le query annidate}: confronto con valore dinamico, appartenenza a un insieme ($\to$ IN), confronto con insieme di valori ($\to$ ANY/ALL), verifica di esistenza ($\to$ EXISTS);
+    \item \textbf{Individua eventuali operazioni insiemistiche}: unione di tuple con stesso schema da tabelle diverse ($\to$ UNION), tuple comuni ($\to$ INTERSECT), tuple in un insieme ma non nell'altro ($\to$ EXCEPT);
+    \item \textbf{Verifica la coerenza semantica del risultato}: scomponi la query in parti più semplici, controlla filtri/cardinalità/colonne restituite, non dimenticare DISTINCT o l'ordinamento se richiesti.
+\end{enumerate}
+
+% Fonte: provetta_11-23, domanda 5
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+Si assuma che la relazione $R(A,B)$ abbia le dichiarazioni \texttt{PRIMARY KEY (A)} e \texttt{UNIQUE (B)}. Quale delle seguenti affermazioni è vera? (A può essere NULL, B no / Sia A che B possono essere NULL / A e B non possono essere NULL / A non può essere NULL, B sì)
+\end{tcolorbox}
+\textbf{Soluzione:} A non può essere NULL, B sì — il vincolo \texttt{PRIMARY KEY} implica sempre \texttt{NOT NULL} (integrità dell'entità), mentre \texttt{UNIQUE} vieta solo i duplicati tra valori non-NULL: la maggior parte dei DBMS ammette (tipicamente) un valore NULL in una colonna UNIQUE, proprio perché NULL non è mai considerato uguale a un altro NULL.
+
+% Fonte: provetta_11-23, domanda 6
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 3}]
+Data la tabella $R$:
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+A & B & C \\
+\midrule
+1 & 2 & 6 \\
+NULL & NULL & 3 \\
+4 & NULL & NULL \\
+5 & 6 & NULL \\
+NULL & NULL & NULL \\
+\bottomrule
+\end{tabular}
+\end{center}
+Qual è il risultato di \texttt{select C from R where A=B}? (l'insieme vuoto / NULL / 3, NULL / 3)
+\end{tcolorbox}
+\textbf{Soluzione:} l'insieme vuoto. Per la logica a tre valori di SQL, \texttt{A=B} è vero solo se \textbf{entrambi} non sono NULL \textbf{e} uguali. Riga 1: $1=2$ falso. Righe 2 e 5: NULL$=$NULL $\to$ \texttt{UNKNOWN} (non vero). Riga 3: $4=$NULL $\to$ \texttt{UNKNOWN}. Riga 4: $5=6$ falso. Nessuna riga soddisfa la condizione: il WHERE non include mai le righe con esito \texttt{UNKNOWN}, solo quelle con esito \texttt{TRUE}.
+
+
+
+
+\section{Progettazione Concettuale: il Modello Entity-Relationship (ER)}
+
+\subsection{La Progettazione di una Base di Dati}
+
+Le fasi principali della progettazione di una BdD sono:
+\begin{enumerate}
+    \item Analisi dei requisiti;
+    \item Progettazione concettuale;
+    \item Progettazione logica;
+    \item Raffinamento dello schema logico (\textbf{normalizzazione});
+    \item Progettazione del livello fisico;
+    \item Progettazione applicativa e sicurezza.
+\end{enumerate}
+Per le fasi 1-3 ci si chiede \textit{quali dati} devono essere raccolti; per le fasi 4-6, \textit{quali applicazioni} useranno questi dati e quali saranno le operazioni più frequenti/costose.
+
+Un \textbf{modello} è una rappresentazione semplificata di una porzione di mondo (\textit{mini-mondo}); è \textit{epistemologicamente adeguato} se permette di esprimere concretamente i fatti noti del mini-mondo di interesse (McCarthy \& Hayes, 1969). Per le basi di dati, il modello più usato per la progettazione concettuale è il modello \textcolor{tocsec}{\textbf{Entity-Relationship (ER)}}.
+
+\subsection{Concetti Fondamentali: Entità e Attributi}
+
+\begin{itemize}
+    \item \textbf{Entità} (\textit{entity}): un oggetto del mondo reale (o del mini-mondo), distinguibile dagli altri, che vogliamo rappresentare nella BD (es. il dipendente John Smith).
+    \item \textbf{Insieme di entità} (\textit{entity set}): a livello estensionale, un insieme di entità simili (stessi attributi).
+    \item \textbf{Tipo di entità} (\textit{entity type}): la definizione a livello intensionale delle entità che possono appartenere a un entity set di quel tipo.
+    \item \textbf{Attributi} (\textit{attributes}): le proprietà usate per descrivere un'entità (es. nome, SSN, indirizzo). Ogni attributo è associato a un dominio (\textit{value set}).
+\end{itemize}
+
+\subsubsection{Tipi di Attributo}
+\begin{itemize}
+    \item \textbf{Semplice} (\textit{simple}): un singolo valore atomico (es. \texttt{'M'} per Sesso);
+    \item \textbf{Composto} (\textit{composite}): più componenti (es. Indirizzo $\to$ Via, Città, CAP, \ldots); un componente di un attributo composto può a sua volta essere composto;
+    \item \textbf{Multi-valore} (\textit{multi-valued}): un'entità può avere più valori per lo stesso attributo (es. CERTIFICAZIONI di un dipendente).
+\end{itemize}
+% Nota: nel seguito si useranno solo attributi semplici; le rappresentazioni di attributi composti e multi-valore vengono discusse più avanti nel corso.
+
+\subsubsection{Attributi Chiave}
+Ogni entity type ha un attributo (o insieme di attributi) che identifica univocamente ogni entità: l'\textbf{attributo chiave}. Può essere:
+\begin{itemize}
+    \item \textbf{composto} (es. per un'AZIENDA: RAGIONE\_SOCIALE + PROVINCIA);
+    \item \textbf{non unico}: un entity type può avere più \textbf{chiavi candidate} (es. AUTOMOBILE: NumeroTelaio/VIN oppure Targa); una viene scelta come \textbf{chiave primaria}.
+\end{itemize}
+In ER, la chiave primaria è sempre \underline{sottolineata}.
+
+\subsubsection{Rappresentazione Grafica}
+\begin{itemize}
+    \item un \textbf{entity type} è un \textbf{rettangolo} con il nome del tipo;
+    \item gli \textbf{attributi} sono \textbf{ovali}, collegati al loro entity type; gli attributi chiave sono sottolineati.
+\end{itemize}
+
+\subsection{Relazioni (Relationships)}
+
+Una \textbf{relazione} (\textit{relationship}) è un'associazione tra due o più entità (es. la relazione tra un IMPIEGATO e il DIPARTIMENTO per cui lavora). Relazioni dello stesso tipo sono raggruppate in un \textbf{relationship type}.
+
+\subsubsection{Grado di una Relazione}
+Il numero di entity types che partecipano a un relationship type è il suo \textbf{grado}: una relazione tra 2 entity types è \textbf{binaria} (grado 2); tra 3, \textbf{ternaria} (grado 3) — es. IMPIEGATO-DIPARTIMENTO-SEDE, quando un impiegato lavora per un dipartimento che ha più sedi.
+
+\subsubsection{Attributi della Relazione}
+Una relazione può avere attributi descrittivi propri (es. \texttt{since} su LAVORA\_PER), che descrivono la relazione stessa, non le entità partecipanti. \textbf{Attenzione}: una relazione è identificata unicamente dalle entità che vi partecipano, \textbf{non} dai suoi attributi descrittivi — quindi per ogni coppia $\langle ssn,did\rangle$ di WORKS\_IN non può esistere più di un valore per \texttt{since} (se serve registrare più periodi, serve un modello diverso — vedi Sez.~\ref{sec:entita-o-relazione}).
+
+\subsubsection{Relationship Type vs. Relationship Set}
+\begin{itemize}
+    \item \textbf{Relationship Type}: lo schema che descrive la relazione — nome, entity types partecipanti, vincoli;
+    \item \textbf{Relationship Set}: l'insieme di istanze della relazione rappresentate nella BD in un certo istante (lo stato attuale del relationship type).
+\end{itemize}
+
+\subsection{Vincoli sulle Relazioni}
+
+Tre tipi principali: vincoli di \textbf{chiave}, di \textbf{cardinalità}, di \textbf{partecipazione (o esistenza)}.
+
+\subsubsection{Vincolo di Chiave (key constraint)}
+Esprime che un'entità può partecipare al \textbf{massimo una volta} in una relazione (es. un Dipartimento può avere al massimo un manager, ma non viceversa). Si generalizza a relazioni di grado $>2$: una certa entità non può comparire più di una volta nel relationship set. \textbf{Notazione}: freccia semplice dall'entità vincolata verso la relazione.
+
+\subsubsection{Vincoli di Cardinalità (cardinality ratio)}
+Specificano il numero massimo di volte in cui un'entità può comparire in un relationship set:
+\begin{itemize}
+    \item \textbf{One-to-one (1:1)} — es. PERSONA \textit{commissario\_tecnico} NAZIONALE;
+    \item \textbf{One-to-many / Many-to-one (1:N / N:1)} — es. STUDENTE \textit{iscritto} SCUOLA\_DI\_DOTTORATO;
+    \item \textbf{Many-to-many (M:N)} — es. STUDENTE \textit{frequenta} CORSO.
+\end{itemize}
+
+\subsubsection{Vincolo di Partecipazione (participation constraint)}
+Specifica quante volte un'entità deve comparire \textbf{al minimo} in una relazione (da cui anche il nome \textit{Existence Dependency Constraint}):
+\begin{itemize}
+    \item \textbf{partecipazione parziale}: l'entità può non comparire $\to$ \textbf{linea semplice};
+    \item \textbf{partecipazione totale}: l'entità deve comparire almeno una volta $\to$ \textbf{linea in grassetto}.
+\end{itemize}
+\textit{Esempio}: DEPARTMENTS ha partecipazione totale in MANAGES (ogni dipartimento ha necessariamente un manager); DEPARTMENTS ed EMPLOYEES hanno entrambi partecipazione totale in WORKS\_IN (ogni impiegato afferisce ad almeno un dipartimento, e viceversa).
+
+\subsubsection{Notazione (min, max)}
+Alternativa più precisa: ogni entità in $E$ partecipa in almeno \texttt{min} e al massimo \texttt{max} istanze di $R$. Il default (assenza di vincoli espliciti) è \texttt{min=0, max=N} e non va indicato; si usa la notazione esplicita quando \texttt{min}$>1$ o \texttt{max} è diverso da 1 o N (es. 5).
+
+\subsection{Relazioni Ricorsive}
+Una relazione può legare entità dello \textbf{stesso tipo} ma in \textbf{ruoli distinti}: es. REPORTS\_TO, dove EMPLOYEE partecipa due volte con ruoli diversi (Supervisore e Subordinato).
+
+\subsection{Entity Types Deboli}
+Un'\textbf{entità debole} non ha un proprio attributo chiave sufficiente all'identificazione univoca, e dipende da un'altra entità (\textbf{identificante}) tramite una \textbf{relazione identificante}. È identificata dalla combinazione di:
+\begin{itemize}
+    \item una \textbf{chiave parziale} (propria dell'entità debole);
+    \item la chiave dell'entità identificante.
+\end{itemize}
+
+\paragraph{Esempio 1.} DEPENDENT (familiare a carico) è identificato dal proprio nome (chiave parziale) + l'EMPLOYEE a cui è associato tramite la relazione identificante POLICY.
+
+\paragraph{Esempio 2.} ORDER\_DETAILS (righe di un ordine, con prodotto e quantità) è identificato da \texttt{OrderID} (dell'ORDER a cui appartiene, tramite la relazione identificante INCLUDE) + \texttt{ProductID}.
+
+\subsection{Gerarchie di Classi (ISA)}
+
+Talvolta è utile organizzare entity types in gerarchie, per:
+\begin{itemize}
+    \item \textbf{Generalizzazione}: due entity types vengono ricompresi in uno più generale;
+    \item \textbf{Specializzazione}: un entity type viene suddiviso in sottoinsiemi con caratteristiche comuni (può avvenire su più dimensioni, creando gerarchie multilivello).
+\end{itemize}
+\textit{Esempio}: EMPLOYEE specializzato in HOURLY\_EMPS e CONTRACT\_EMPS (generalizzati in EMPLOYEES).
+
+\textbf{Perché introdurre gerarchie ISA:}
+\begin{itemize}
+    \item per aggiungere attributi specifici di una sottoclasse (es. costo orario per impiegati a ore);
+    \item per identificare il sottoinsieme di entità che partecipa a una certa relazione (es. solo i dipendenti a contratto in un circolo ricreativo aziendale).
+\end{itemize}
+
+\subsubsection{Vincoli: Overlap e Coverage}
+\begin{itemize}
+    \item \textbf{Overlap}: possono due sottoclassi avere entità in comune? Es. CONTRACT\_EMPS e HOURLY\_EMPS \textbf{non} possono sovrapporsi; CONTRACT\_EMPS e SENIOR\_EMPS sì (si scrive \texttt{CONTRACT\_EMPS OVERLAPS SENIOR\_EMPS}). \textbf{Default: nessun overlap}.
+    \item \textbf{Coverage} (completezza): le sottoclassi coprono tutta la superclasse? Es. TIGRI e PANTERE \textbf{non} coprono tutti i FELINI; JUNIOR\_EMPS e SENIOR\_EMPS presumibilmente coprono EMPLOYEES (si scrive \texttt{JUNIOR\_EMPS AND SENIOR\_EMPS COVER EMPLOYEES}). \textbf{Default: coverage non vale}.
+\end{itemize}
+Si hanno quindi 4 combinazioni: (no overlap, copertura totale), (no overlap, copertura parziale), (overlap, copertura totale), (overlap, copertura parziale). \textbf{Nota}: la generalizzazione è di solito (ma non necessariamente) totale, poiché le superclassi sono derivate dalle sottoclassi.
+
+\subsection{Aggregazione}
+Un relationship set normalmente associa entity set. L'\textbf{aggregazione} permette di associare un entity set con un \textbf{intero relationship set} (che a sua volta associa 2 o più entity set), trattandolo come un'entità unica ai fini di un'ulteriore relazione.
+
+\paragraph{Esempio.} Un impiegato (EMPLOYEE) può MONITORARE un PROGETTO (PROJECT) che è SPONSORIZZATO da uno o più DIPARTIMENTI (DEPARTMENT): MONITORS aggrega la relazione SPONSORS (tra PROJECT e DEPARTMENT).
+
+\subsection{Dai Requisiti al Modello: Regole Empiriche}
+\begin{enumerate}
+    \item \textbf{Analisi del linguaggio naturale}: nomi $\to$ entità candidate; verbi $\to$ relazioni candidate; aggettivi/frasi descrittive $\to$ attributi candidati;
+    \item \textbf{Chiedere chiarimenti al cliente}: \textbf{non inventare} — se un attributo o vincolo non è esplicitato, va discusso col cliente prima di aggiungerlo;
+    \item \textbf{Identificazione delle entità}: nomi concreti (Cliente, Prodotto, Ordine); generalizzare sostantivi simili/correlati in una categoria comune;
+    \item \textbf{Individuazione delle relazioni}: frasi come "un cliente effettua un ordine"; la \textbf{cardinalità} emerge da frasi come "ogni cliente può effettuare più ordini"; la \textbf{partecipazione} da frasi come "ogni dipartimento deve avere un manager" (totale);
+    \item \textbf{Identificazione degli attributi}: descrittori delle entità; le chiavi primarie da frasi come "ogni cliente è identificato con un ID", o dedotte dalla semantica;
+    \item \textbf{Validazione}: completezza (tutte le entità/relazioni richieste sono presenti) e assenza di \textbf{ridondanza} ingiustificata (es. duplicare il nome del cliente sia nell'anagrafica sia negli ordini);
+    \item \textbf{Iterazione e raffinamento}: presentare il diagramma ER al cliente, raccogliere feedback, iterare.
+\end{enumerate}
+
+\subsection{Scelte di Progettazione Concettuale con ER}
+
+Definire un modello ER non è un processo lineare: lo stesso insieme di requisiti può essere modellato in modi diversi, e non tutti i vincoli di dominio sono esprimibili in ER (limiti di espressività).
+
+\subsubsection{Entità vs. Attributo}
+Quando la scelta non è vincolante, si preferisce l'attributo per semplicità. Serve un \textbf{entity type} quando:
+\begin{enumerate}
+    \item potremmo dover registrare \textbf{più valori} per la stessa entità (es. più indirizzi per lo stesso dipendente);
+    \item vogliamo \textbf{scomporre} ulteriormente l'informazione (es. indirizzo in via/comune/provincia per query mirate).
+\end{enumerate}
+Stesso ragionamento per un attributo su una \emph{relazione}: se \texttt{from}/\texttt{to} sono attributi di WORKS\_IN, si può registrare un solo periodo per coppia impiegato-dipartimento; per registrarne più di uno serve un nuovo entity type.
+
+\subsubsection{Entità vs. Relazione}
+\label{sec:entita-o-relazione}
+\textit{Esempio}: un impiegato che gestisce un dipartimento ha anche un budget. Se il budget è associato alla relazione MANAGES, e un impiegato può gestire più dipartimenti con un budget \textbf{complessivo} (non per dipartimento), si presentano due problemi:
+\begin{itemize}
+    \item \textbf{ridondanza}: il valore di DBUDGET si ripeterebbe identico per ogni istanza che lega l'impiegato ai vari dipartimenti (si riprenderà nella normalizzazione);
+    \item \textbf{semantica scorretta}: si suggerisce che il budget appartenga alla relazione, mentre appartiene al manager.
+\end{itemize}
+\textbf{Soluzione}: specializzare EMPLOYEES con una sottoclasse MANAGERS, e assegnare a quest'ultima gli attributi SINCE e DBUDGET (se SINCE deve invece variare per dipartimento gestito, va lasciato sulla relazione).
+
+\subsubsection{Relazioni Binarie o Ternarie}
+Quando 3 entity types sono coinvolti in un requisito, bisogna chiedersi se si tratta davvero di un'unica relazione a 3 vie o di due relazioni binarie distinte.
+
+\paragraph{Esempio.} EMPLOYEE può possedere più POLICY (polizze), ognuna posseduta da un solo EMPLOYEE; ogni DEPENDENT può avere più POLICY. Vincoli aggiuntivi: una polizza non può essere posseduta congiuntamente da più impiegati; ogni polizza deve essere posseduta da un impiegato.
+\begin{itemize}
+    \item \textbf{Ipotesi 1 (relazione ternaria con vincoli)}: un vincolo di chiave da POLICIES verso la relazione ternaria implicherebbe (erroneamente) che una polizza copra un solo DEPENDENT; un vincolo di partecipazione totale su POLICY funzionerebbe solo se ogni polizza copre almeno un DEPENDENT.
+    \item \textbf{Ipotesi 2 (due relazioni binarie)}: soluzione preferibile — evidenzia le due relazioni distinte a cui partecipa POLICIES, e usa una relazione binaria come identificante per l'entità debole (richiesto in alcune varianti di ER).
+\end{itemize}
+\textbf{Non c'è una risposta univoca}: dipende dalla semantica dei requisiti (nell'esempio dei manager con budget visto sopra, invece, la scelta corretta era la relazione ternaria).
+
+\subsubsection{Aggregazione o Relazione Ternaria?}
+Riprendendo l'esempio MONITORS/SPONSORS: una relazione ternaria unica (SPONSORS2, tra EMPLOYEE-PROJECT-DEPARTMENT) sarebbe stata sufficiente solo se non fosse stato necessario un attributo \texttt{until} specifico su MONITORS; inoltre, non avrebbe permesso di esprimere facilmente il vincolo "ogni sponsorizzazione è monitorata al massimo da un impiegato", che con l'aggregazione (vincolo di chiave da MONITORS verso SPONSORS) si esprime naturalmente.
+
+% Fonte: provetta_11-23, domanda 2 (teorica)
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+In ER un'aggregazione è definita come: (un operatore per aggregare entità in relazione gerarchica IS-A / un attributo dinamico ottenuto da operatori di aggregazione come somma o media / un modo per rappresentare una relazione tra un'entità e un gruppo di entità correlate, trattando questo gruppo come un'unica entità / nessuna delle opzioni)
+\end{tcolorbox}
+\textbf{Soluzione:} un modo per rappresentare una relazione tra un'entità e un gruppo di entità correlate, trattando questo gruppo come un'unica entità — è la definizione esatta vista sopra (associare un entity set a un intero relationship set).
+
+
+
+\section{Mapping dal Modello ER al Modello Relazionale}
+
+\subsection{Obiettivi del Mapping}
+\begin{itemize}
+    \item preservare il più possibile la conoscenza rappresentata nel modello concettuale;
+    \item mantenere i vincoli, per quanto possibile: \textbf{alcuni vincoli non sono esprimibili} nel modello relazionale — cardinalità diverse da 1 e N, vincoli di partecipazione per relazioni di grado $>2$;
+    \item minimizzare i valori \texttt{NULL}.
+\end{itemize}
+Le procedure qui presentate sono quelle implementate nella maggior parte dei tool commerciali.
+
+\subsection{Da Entity Type a Tabelle}
+Per ogni entity type $E$ dello schema ER:
+\begin{enumerate}
+    \item creare una tabella $R$ con \textbf{tutti} gli attributi di $E$;
+    \item porre uno degli attributi chiave di $E$ come chiave primaria di $R$ (se la chiave di $E$ è composta, la chiave di $R$ è l'insieme dei corrispondenti attributi).
+\end{enumerate}
+
+\paragraph{Esempio.}
+\begin{verbatim}
+CREATE TABLE Employees (
+    ssn   CHAR(11),
+    name  CHAR(30),
+    lot   INTEGER,
+    PRIMARY KEY (ssn)
+);
+\end{verbatim}
+
+\subsection{Mapping delle Relazioni (Relationship Types)}
+
+\subsubsection{Caso Base (senza vincoli)}
+Data una relazione ER tra due entity types, si crea una nuova tabella con:
+\begin{itemize}
+    \item la \textbf{chiave primaria di ciascuna entità partecipante} (come chiave esterna);
+    \item gli \textbf{attributi descrittivi} della relazione.
+\end{itemize}
+Gli attributi non descrittivi di questa nuova tabella formano una \textbf{superchiave} (o \textbf{chiave candidata}, se non ci sono vincoli di chiave in ER).
+
+\paragraph{Esempio.} Employees – Works\_In2 (con attributo \texttt{since}) – Departments, dove Works\_In2 coinvolge anche una terza entità Locations:
+\begin{verbatim}
+CREATE TABLE Works_In2 (
+    ssn      CHAR(11),
+    did      INTEGER,
+    address  CHAR(20),
+    since    DATE,
+    PRIMARY KEY (ssn, did, address),
+    FOREIGN KEY (address) REFERENCES Locations,
+    FOREIGN KEY (did) REFERENCES Departments
+);
+\end{verbatim}
+
+\subsubsection{Relazioni Ricorsive}
+\begin{verbatim}
+CREATE TABLE Reports_To (
+    supervisor_ssn  CHAR(11),
+    subordinate_ssn CHAR(11),
+    PRIMARY KEY (supervisor_ssn, subordinate_ssn),
+    FOREIGN KEY (supervisor_ssn)  REFERENCES Employees(ssn),
+    FOREIGN KEY (subordinate_ssn) REFERENCES Employees(ssn)
+);
+\end{verbatim}
+
+\subsubsection{Vincolo di Chiave}
+Se su una delle due entità (es. $E_2$) esiste un vincolo di chiave, il mapping di base non va bene: la coppia $\langle PK_1,PK_2\rangle$ sarebbe una superchiave ma \textbf{non} una chiave candidata (solo $PK_2$ non può ripetersi). Due soluzioni:
+\begin{itemize}
+    \item[\textbf{A.}] nuova relazione $R_A$ con $PK_1, PK_2$ come chiavi esterne, ma \textbf{solo $PK_2$} come chiave primaria, più eventuali attributi descrittivi;
+    \item[\textbf{B.}] aggiungere a $E_2$ un nuovo attributo (chiave esterna) che referenzia $PK_1$ — sfruttando il fatto che $PK_2$ non può comunque ripetersi, per il vincolo di chiave — più eventuali attributi descrittivi.
+\end{itemize}
+
+\paragraph{Esempio (Employees --Manages--> Departments, vincolo di chiave su Departments).}
+\begin{verbatim}
+-- Soluzione A
+CREATE TABLE Manages (
+    ssn    CHAR(11),
+    did    INTEGER,
+    since  DATE,
+    PRIMARY KEY (did),
+    FOREIGN KEY (ssn) REFERENCES Employees,
+    FOREIGN KEY (did) REFERENCES Departments
+);
+
+-- Soluzione B
+CREATE TABLE Dept_Mgr (
+    did     INTEGER,
+    dname   CHAR(20),
+    budget  REAL,
+    ssn     CHAR(11),
+    since   DATE,
+    PRIMARY KEY (did),
+    FOREIGN KEY (ssn) REFERENCES Employees
+);
+\end{verbatim}
+
+\textbf{Confronto:}
+\begin{itemize}
+    \item \textbf{B}: \textit{pro} — evita una tabella MANAGES a sé stante, associa direttamente un dipartimento al suo manager senza join; \textit{contro} — molti \texttt{NULL} in \texttt{ssn} se ci sono molti dipartimenti senza manager.
+    \item \textbf{A}: \textit{pro} — elimina il problema dei NULL; \textit{contro} — molte operazioni richiedono un join tra le due tabelle.
+\end{itemize}
+Entrambi gli approcci si estendono a relazioni di grado $>2$.
+
+\subsubsection{Vincolo di Partecipazione}
+\begin{itemize}
+    \item \textbf{partecipazione parziale}: non richiede alcuna specifica particolare — corrisponde all'assenza di vincoli;
+    \item \textbf{partecipazione totale}: \textbf{non} rappresentabile in modo completo senza perdita di informazione rispetto al modello ER; si può catturare solo combinando specifiche del modello relazionale con strumenti SQL aggiuntivi (\textit{table constraints}, \textit{assertions} — approfonditi con SQL).
+\end{itemize}
+\textbf{Esempio parziale}: aggiungere \texttt{NOT NULL} su \texttt{ssn} in \texttt{Dept\_Mgr} implica che non possa esistere un dipartimento senza manager specificato — cattura \textbf{un aspetto} della partecipazione totale di Departments in Manages, non l'intero vincolo.
+
+% Fonte: provetta_11-23, domanda 3
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Nel mapping tra modello ER e modello relazionale, il vincolo di partecipazione parziale non richiede alcuna specifica particolare e corrisponde all'assenza di vincoli. (Falso / È falso, va rappresentato con una linea in grassetto che connette l'entità con partecipazione totale con la relazione / Vero / È vero solo nel caso in cui per l'entità sull'altro lato della relazione viene specificato un vincolo di chiave)
+\end{tcolorbox}
+\textbf{Soluzione:} Vero — è esattamente la definizione data sopra: la partecipazione parziale è il caso di default, senza bisogno di alcuna specifica aggiuntiva nel modello relazionale (a differenza della partecipazione totale, che invece richiede accorgimenti extra e comunque non è pienamente rappresentabile).
+
+\subsection{Weak Entities}
+Le entità deboli: partecipano sempre a una relazione \textbf{1:N} con l'entità identificante; hanno un \textbf{vincolo di chiave}; hanno \textbf{partecipazione totale}. Due caratteristiche aggiuntive da gestire nel mapping:
+\begin{itemize}
+    \item hanno solo una \textbf{chiave parziale};
+    \item devono essere \textbf{cancellate} se viene cancellata l'entità da cui dipendono (\texttt{ON DELETE CASCADE}).
+\end{itemize}
+
+\paragraph{Esempio.} Employees --Policy--> Dependents (entità debole, chiave parziale \texttt{pname}):
+\begin{verbatim}
+CREATE TABLE Dep_Policy (
+    pname  CHAR(20),
+    age    INTEGER,
+    cost   REAL,
+    ssn    CHAR(11) NOT NULL,
+    PRIMARY KEY (pname, ssn),
+    FOREIGN KEY (ssn) REFERENCES Employees,
+        ON DELETE CASCADE
+);
+\end{verbatim}
+La chiave primaria combina la chiave parziale dell'entità debole con la chiave dell'entità identificante; \texttt{NOT NULL} rinforza la partecipazione totale (vedi sopra).
+
+% Fonte: trascrizione fornita, Esercizio 3 = provetta_11-23, domanda 1
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+Data la specifica in ER dell'entità debole Dependents (chiave parziale \texttt{pname}, entità identificante Employees con chiave \texttt{ssn}, relazione identificante Policy), qual è il suo corretto mapping nel modello relazionale?
+\begin{itemize}
+    \item[a)] \texttt{CREATE TABLE Dependents (pname CHAR(20), age INT, cost REAL, PRIMARY KEY (pname), FOREIGN KEY pname REFERENCES Employees (ssn) ON DELETE CASCADE)}
+    \item[b)] \texttt{CREATE TABLE Dependents (pname CHAR(20), age INT, cost REAL, ssn CHAR(11), PRIMARY KEY (ssn, pname), FOREIGN KEY (ssn) REFERENCES Employees(ssn) ON DELETE CASCADE)}
+    \item[c)] Tutte le opzioni sono valide
+\end{itemize}
+\end{tcolorbox}
+\textbf{Soluzione:} b) — coerente con quanto appena visto: la chiave primaria dev'essere \texttt{(ssn, pname)}, non la sola chiave parziale \texttt{pname} (opzione a), che da sola non identifica univocamente un Dependent tra impiegati diversi.
+
+\subsection{Gerarchie IS-A}
+
+Due approcci principali per mappare una gerarchia (es. Employee $\to$ ISA $\to$ Hourly\_Emps, Contract\_Emps):
+
+\subsubsection{Metodo Generale}
+Si crea una tabella per \textbf{ogni} classe della gerarchia, incluse le sottoclassi con solo la chiave (ereditata) più gli attributi specifici:
+\begin{verbatim}
+CREATE TABLE Employees (ssn CHAR(11), name CHAR(30), lot INTEGER,
+    PRIMARY KEY (ssn));
+
+CREATE TABLE Hourly_Emps (
+    ssn CHAR(11), hourly_wages REAL, hours_worked INTEGER,
+    PRIMARY KEY (ssn),
+    FOREIGN KEY (ssn) REFERENCES Employees ON DELETE CASCADE
+);
+
+CREATE TABLE Contract_Emps (
+    ssn CHAR(11), contract_id INTEGER,
+    PRIMARY KEY (ssn),
+    FOREIGN KEY (ssn) REFERENCES Employees ON DELETE CASCADE
+);
+\end{verbatim}
+\texttt{ON DELETE CASCADE} assicura che le tuple che referenziano un dipendente vengano cancellate insieme al dipendente stesso.
+
+\subsubsection{Metodo di Riduzione}
+Si eliminano la classe generale e si mappano \textbf{solo} le sottoclassi, ciascuna con \textbf{tutti} gli attributi ereditati:
+\begin{verbatim}
+Hourly_Emps(ssn, name, lot, hourly_wages, hours_worked)
+Contract_Emps(ssn, name, lot, contract_id)
+\end{verbatim}
+Richiede che \textbf{ogni} impiegato appartenga ad almeno una delle sottoclassi (copertura totale).
+
+\subsubsection{Confronto tra i Due Metodi}
+\begin{itemize}
+    \item \textbf{Metodo generale}: si applica sempre; le query sugli attributi di Employees non richiedono di esaminare le altre tabelle; le query su attributi specifici di una sottoclasse possono richiedere un join.
+    \item \textbf{Metodo di riduzione}: \textbf{non} si applica se esistono impiegati che non appartengono a nessuna sottoclasse; se c'è \textbf{overlap}, le informazioni ereditate (name, lot) sono \textbf{duplicate} tra le tabelle; le query su \textbf{tutti} gli impiegati devono esaminare entrambe le tabelle.
+\end{itemize}
+La scelta dipende dalla semantica dei dati e dalla frequenza con cui vengono eseguite specifiche query.
+
+\subsection{Aggregazioni}
+
+\paragraph{Esempio.} Employees --Monitors(\texttt{until})--> [Projects --Sponsors(\texttt{since})--> Departments], dove Monitors aggrega Sponsors.
+
+\textbf{Approccio generale}: Employees, Projects, Departments mappate come di consueto; Sponsors mappata come una relazione normale; per Monitors si crea una nuova tabella con le chiavi delle entità coinvolte + gli attributi descrittivi:
+\begin{verbatim}
+CREATE TABLE Monitors (
+    ssn CHAR(11), did INTEGER, pid INTEGER, until DATE,
+    PRIMARY KEY (ssn, did, pid),
+    FOREIGN KEY (ssn) REFERENCES Employees,
+    FOREIGN KEY (did, pid) REFERENCES Sponsors(did, pid)
+);
+\end{verbatim}
+
+\textbf{Caso speciale (semplificazione)}: se \textbf{entrambe} le condizioni seguenti valgono:
+\begin{enumerate}
+    \item la relazione esterna all'aggregazione (Sponsors) \textbf{non ha attributi descrittivi};
+    \item l'aggregazione ha \textbf{partecipazione totale} in Monitors (ogni coppia progetto-dipartimento deve avere un impiegato che la monitora);
+\end{enumerate}
+allora \textbf{Sponsors può essere rimossa} dal mapping: tutte le sue istanze sono ricavabili dalle colonne $\langle pid, did\rangle$ di Monitors.
+
+
+\section{Dipendenze Funzionali e Chiavi}
+
+\subsection{Motivazione: Anomalie nella Base di Dati}
+
+Una relazione mal progettata può presentare \textbf{anomalie}. Esempio: una tabella che unisce impiegati, progetti a cui partecipano (con relativa funzione) e informazioni di stipendio/bilancio, dove per ogni impiegato lo stipendio è unico (indipendente dai progetti) e per ogni progetto il bilancio è unico (indipendente dagli impiegati). Questo causa:
+\begin{itemize}
+    \item \textbf{Ridondanza}: lo stipendio di un impiegato si ripete in ogni tupla in cui l'impiegato compare;
+    \item \textbf{Anomalia di aggiornamento}: se cambia lo stipendio, vanno aggiornate tutte le tuple in cui compare quell'impiegato;
+    \item \textbf{Anomalia di inserimento}: non si può inserire un nuovo impiegato senza assegnargli anche un progetto;
+    \item \textbf{Anomalia di cancellazione}: se un impiegato smette di partecipare a qualsiasi progetto, va cancellato dalla tabella insieme alle sue informazioni.
+\end{itemize}
+\textbf{Causa}: la tabella mescola informazioni eterogenee (impiegati e stipendi; progetti e bilanci; il legame impiegato-progetto-funzione) in un'unica relazione. Per studiare sistematicamente il problema si introduce il concetto di \textcolor{tocsec}{\textbf{dipendenza funzionale}} (DF).
+
+\subsection{Definizione Formale di Dipendenza Funzionale}
+
+Sia $r$ una relazione sullo schema $R(X)$, e siano $Y,Z$ due sottoinsiemi non vuoti di $X$. $Z$ \textbf{dipende funzionalmente} da $Y$ ($Y \rightarrow Z$) se, per ogni coppia di tuple $t_1,t_2 \in r$:
+$$t_1[Y] = t_2[Y] \implies t_1[Z] = t_2[Z]$$
+(cioè: se $t_1$ e $t_2$ concordano su $Y$, allora concordano anche su $Z$).
+
+\subsection{Come si Identificano le DF}
+
+Le DF derivano in genere da vincoli del mondo reale sul significato degli attributi, \textbf{non} solo dai dati:
+\begin{itemize}
+    \item da un'\textbf{istanza} di $R$ si può solo \textbf{inferire} che una DF \textit{potrebbe} sussistere (potrebbe non valere su un'altra istanza);
+    \item viceversa, se un'istanza contiene tuple che \textbf{violano} una DF, si può concludere con \textbf{certezza} che quella DF \textbf{non} sussiste.
+\end{itemize}
+
+\subsection{DF Banali}
+
+Una DF $Y \rightarrow A$ è \textbf{banale} se $A \in Y$ (es. $\text{Impiegato, Stipendio} \rightarrow \text{Stipendio}$ è sempre soddisfatta). Una DF $Y \rightarrow Z$ è \textbf{non banale} se nessun attributo di $Z$ appartiene a $Y$. D'ora in poi si considerano solo DF non banali.
+
+\subsection{DF e Chiavi}
+
+Data una chiave $K$ di $R$, esiste sempre una DF tra $K$ e ogni altro attributo di $R$ (per definizione di chiave, non possono esistere due tuple con lo stesso valore su $K$). Il concetto di DF \textbf{generalizza} quindi il vincolo di chiave: una DF $Y \rightarrow Z$ su $R(X)$ \textbf{degenera in un vincolo di chiave} se $Y \cup Z = X$ (in tal caso $Y$ è una (super)chiave per $R(X)$).
+
+\subsection{DF e Anomalie}
+
+Nell'esempio iniziale, $\text{Impiegato} \rightarrow \text{Stipendio}$ e $\text{Progetto} \rightarrow \text{Bilancio}$ \textbf{non} contengono una chiave nella parte sinistra (la chiave è $\langle$Impiegato, Progetto$\rangle$), mentre $\text{Impiegato, Progetto} \rightarrow \text{Funzione}$ sì. \textbf{Una DF che contiene una chiave a sinistra non può generare ridondanza} per definizione: le anomalie sono causate esclusivamente dalle DF $Y \rightarrow Z$ in cui $Y$ \textbf{non} contiene una chiave.
+
+\subsection{Chiusura di un Insieme di Dipendenze Funzionali}
+
+Dato un insieme $F$ di DF, è possibile derivare altre DF logicamente implicate da $F$ (es. se $X \rightarrow Y$ e $Y \rightarrow Z$, allora $X \rightarrow Z$). $F$ implica logicamente $X \rightarrow Y$ se ogni istanza che soddisfa $F$ soddisfa anche $X \rightarrow Y$. L'insieme di \textbf{tutte} le DF logicamente implicate da $F$ è la \textbf{chiusura} di $F$, indicata $F^+$.
+
+\subsubsection{Assiomi di Armstrong}
+
+$F^+$ si calcola con gli \textbf{Assiomi di Armstrong (AA)}:
+\begin{itemize}
+    \item \textbf{Riflessività}: se $Y \subseteq X$, allora $X \rightarrow Y$;
+    \item \textbf{Aumento}: se $X \rightarrow Y$, allora $XZ \rightarrow YZ$;
+    \item \textbf{Transitività}: se $X \rightarrow Y$ e $Y \rightarrow Z$, allora $X \rightarrow Z$.
+\end{itemize}
+Regole derivate: \textbf{Unione} (se $X\rightarrow Y$ e $X\rightarrow Z$, allora $X\rightarrow YZ$); \textbf{Scomposizione} (se $X \rightarrow YZ$, allora $X\rightarrow Y$ e $X \rightarrow Z$).
+
+Gli AA sono \textbf{corretti} (\textit{sound}: ogni DF derivata è logicamente implicata da $F$) e \textbf{completi} (\textit{complete}: ogni DF logicamente implicata da $F$ può essere derivata) — generano quindi \textbf{tutte e sole} le DF di $F^+$.
+
+\paragraph{Esempio.} $R(A,B,C,G,H,I)$, $F=\{A\to B, A\to C, CG\to H, CG\to I, B\to H\}$. Alcuni membri di $F^+$:
+\begin{itemize}
+    \item $A \to H$: per transitività da $A\to B$ e $B \to H$;
+    \item $AG \to I$: aumentando $A\to C$ con $G$ ($AG\to CG$), poi transitività con $CG\to I$;
+    \item $CG \to HI$: aumentando $CG\to I$ con $CG$ si ottiene $CG \to CGI$; aumentando $CG\to H$ con $I$ si ottiene $CGI \to HI$; infine transitività tra le due.
+\end{itemize}
+
+\subsection{Chiusura di un Insieme di Attributi}
+
+Calcolare $F^+$ per intero è dispendioso (può richiedere un numero esponenziale di DF). Per verificare se $X \to Y$, basta invece calcolare la \textbf{chiusura di un insieme di attributi} $X$, indicata $(X)^+$:
+
+\begin{enumerate}
+    \item si pone $(X)^+ = X$;
+    \item se esiste una DF $Z \to W$ in $F$ con $Z \subseteq (X)^+$, si aggiunge $W$ a $(X)^+$;
+    \item si ripete finché non è più possibile aggiungere nulla.
+\end{enumerate}
+
+\paragraph{Esempio.} $F = \{A\to B,\ B\to C,\ AC\to D\}$. Chiusura di $A$: $(A)^+=A \to AB$ (usando $A\to B$) $\to ABC$ (usando $B\to C$) $\to ABCD$ (usando $AC\to D$). Quindi $(A)^+=ABCD$.
+
+\subsection{Individuazione delle Superchiavi}
+
+Dato $\langle R(U), F\rangle$ e $X \subseteq U$: si calcola $(X)^+$; se $(X)^+ = U$ (cioè $X \to U$), allora $X$ è una \textbf{superchiave} di $R$, altrimenti no. \textbf{Attenzione}: $X$ potrebbe essere una superchiave non minimale (non una chiave).
+
+\paragraph{Esempio.} $R(A,B,C,D)$, $F=\{A\to B,\ B\to C,\ AC\to D\}$: $(A)^+=ABCD$ $\Rightarrow$ $A$ è superchiave (ed è una chiave, essendo un singolo attributo); $(AC)^+=ACBD=ABCD$ $\Rightarrow$ $AC$ è superchiave ma \textbf{non} è minimale (quindi non è una chiave, basta $A$); $(B)^+=BC$ $\Rightarrow$ $B$ \textbf{non} è superchiave.
+
+\subsubsection{Algoritmo per le Chiavi Candidate}
+\begin{enumerate}
+    \item \textbf{Isolati} ($I$): attributi né a sinistra né a destra di alcuna DF;
+    \item \textbf{Left} ($L$): attributi solo a sinistra di qualche DF;
+    \item \textbf{Right} ($R$): attributi solo a destra di qualche DF;
+    \item si combinano $I \cup L$;
+    \item si calcola la chiusura di $I\cup L$: se coincide con $U$, è l'\textbf{unica} chiave candidata e l'algoritmo termina;
+    \item altrimenti, si individuano gli attributi non ancora considerati (quelli che compaiono sia a sinistra sia a destra, più quelli solo a destra);
+    \item si combina la chiusura di $I \cup L$ con ciascun sottoinsieme degli attributi dello Step 6, uno alla volta, cercando quali chiusure danno $U$: sono le chiavi candidate (aggiungere ulteriori attributi produce solo superchiavi non minimali).
+\end{enumerate}
+Per aiutarsi si può disegnare il \textbf{grafo delle dipendenze} (nodi = attributi, archi = DF): un nodo senza archi entranti (isolato incluso) appartiene necessariamente a \textbf{ogni} chiave candidata.
+
+\paragraph{Esempio.} $R(A,B,C,D,E)$, $F=\{A\to B,\ BC \to E,\ ED\to A\}$.
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Step 1 (Isolati) & $\{\}$ \\
+Step 2 (Left) & $\{C, D\}$ \\
+Step 3 (Right) & $\{\}$ \\
+Step 4 (unione $I,L$) & $\{C, D\}$ \\
+Step 5 (chiusura) & $(CD)^+ = CD$ (non è chiave) \\
+Step 6 (restanti) & $\{A, B, E\}$ \\
+Step 7 & $(CDA)^+{=}(CDB)^+{=}(CDE)^+{=}ABCDE$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Aggiungere ulteriori attributi produce solo superchiavi: \textbf{ACD, BCD e CDE} sono le sole chiavi candidate di $R$ ($C$ e $D$ non hanno archi entranti nel grafo delle dipendenze, quindi appartengono a ogni chiave candidata).
+
+% Fonte: trascrizione fornita, Esercizio 14
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio}]
+Dato $\langle R(A,B,C,D), \{AB\to C,\ C\to D,\ C\to A\}\rangle$, elencare tutte le chiavi candidate.
+\end{tcolorbox}
+\textbf{Soluzione}: applicando l'algoritmo — Isolati$=\{\}$, Left$=\{B\}$, Right$=\{D\}$; $(B)^+=B$ (non basta). Restanti $=\{A,C\}$: $(AB)^+$: $AB\to C$ (ho A,B) dà $ABC$; $C\to D$ dà $ABCD$ $\Rightarrow$ \textbf{AB è chiave candidata}. $(BC)^+$: $C\to D$ dà $BCD$; $C\to A$ dà $ABCD$ $\Rightarrow$ \textbf{BC è chiave candidata}. Chiavi candidate: \textbf{AB, BC}.
+
+\subsection{Copertura Minimale}
+
+Una \textbf{copertura minimale} $F_{min}$ di $F$ è un insieme di DF logicamente equivalente a $F$ ($F_{min}^+ = F^+$) tale che: (1) ogni DF in $F_{min}$ ha un \textbf{solo} attributo a destra; (2) rimuovendo una DF o un attributo dal lato sinistro di una DF in $F_{min}$, l'insieme non è più equivalente a $F$. \textbf{Nota}: può esistere più di una copertura minimale per $F$. È dimostrabile che uno schema è in BCNF se e solo se lo è rispetto a $F_{min}$: per questo ci si può limitare a considerare $F_{min}$.
+
+\textbf{Calcolo (3 step):}
+\begin{enumerate}
+    \item \textbf{Normalizzazione}: ogni DF con più attributi a destra ($X\to ABC\ldots$) si scompone in DF con un solo attributo a destra ($X\to A$, $X\to B$, $X\to C$, \ldots);
+    \item \textbf{Attributi estranei}: per ogni DF $XA \to B$, si verifica se $B \in (X)^+$ (calcolata SENZA usare $A$): se sì, $A$ è ridondante e si sostituisce $XA\to B$ con $X \to B$;
+    \item \textbf{DF ridondanti}: per ogni DF $X \to A$, si rimuove temporaneamente da $M$ ottenendo $M'$; se $A \in (X)^+$ calcolata su $M'$, la DF è ridondante e resta rimossa.
+\end{enumerate}
+
+\paragraph{Esempio.} $R(A,B,C,D,E)$, $F = \{A\to BCE,\ CDB \to A,\ CD \to E,\ E \to B\}$.
+\begin{enumerate}
+    \item Normalizzazione: $A\to BCE$ diventa $A\to B, A\to C, A\to E$. Insieme: $\{A\to B, A\to C, A\to E, CDB\to A, CD\to E, E\to B\}$;
+    \item Attributi estranei: $(CD)^+ = CDAEB$ (usando le altre DF) $\Rightarrow$ $B$ è estraneo in $CDB\to A$, che si riduce a $CD \to A$. Verificando $C$ e $D$ singolarmente: $(C)^+=C$, $(D)^+=D$ — nessuno dei due è ridondante, $CD\to A$ resta;
+    \item DF ridondanti: da $A$ si può derivare $B$ senza usare $A\to B$ (via $A\to E$, $E\to B$) $\Rightarrow$ $A\to B$ è ridondante; da $CD$ si può derivare $E$ senza usare $CD\to E$ (via $CD\to A$, $A\to E$) $\Rightarrow$ $CD\to E$ è ridondante.
+\end{enumerate}
+$$F_{min} = \{A\to C,\ A\to E,\ CD\to A,\ E\to B\}$$
+
+
+
+
+
+
+
+\section{Normalizzazione}
+
+\subsection{Normalizzazione via Decomposizione}
+
+Le \textbf{forme normali} sono condizioni che garantiscono che certe anomalie non possano presentarsi in una relazione. Il processo con cui una relazione che non soddisfa una forma normale viene scomposta in due o più relazioni si chiama \textcolor{tocsec}{\textbf{normalizzazione}}. L'intuizione: le anomalie si risolvono \textbf{decomponendo} la relazione originale in relazioni più piccole. $R_1$ e $R_2$ sono una decomposizione di $R$ se:
+\begin{itemize}
+    \item $R_1$ e $R_2$ contengono ciascuna un sottoinsieme degli attributi di $R$;
+    \item $R_1 \cup R_2$ contiene tutti gli attributi di $R$.
+\end{itemize}
+In generale, una decomposizione rappresenta l'informazione di $R$ tramite due \textbf{proiezioni} di $R$.
+
+\subsection{Proprietà Desiderabili di una Decomposizione}
+\begin{itemize}
+    \item \textbf{Decomposizione senza perdita di informazione} (\textit{lossless join}): ricomponendo con un join la decomposizione, non si devono ottenere tuple \textbf{spurie} (non appartenenti alla relazione iniziale) — questa proprietà \textbf{deve sempre} essere garantita;
+    \item \textbf{Conservazione delle DF}: la decomposizione deve preservare le DF della relazione originale — questa proprietà, in certi casi, può essere \textbf{sacrificata}.
+\end{itemize}
+
+\subsubsection{Perdita di Informazione: Esempio}
+$R(\text{Impiegato},\text{Progetto},\text{Sede})$ decomposta in $R_1(\text{Impiegato},\text{Sede})$ e $R_2(\text{Progetto},\text{Sede})$: il natural join su \texttt{Sede} produce tuple \textbf{spurie} (es. un impiegato associato a un progetto a cui non ha mai partecipato, solo perché condividono la sede). \textbf{Perché}: \texttt{Sede} è l'unico attributo comune, ma non è (e non può essere) chiave di nessuna delle due relazioni — più impiegati e più progetti possono condividere la stessa sede — quindi il join genera tutte le combinazioni possibili, perdendo l'associazione originale impiegato-progetto.
+
+\subsubsection{Condizione Formale per la Decomposizione Senza Perdita}
+Sia $R$ su $X$, con $X = X_1 \cup X_2$ e $X_0 = X_1 \cap X_2$. $R$ si decompone \textbf{senza perdita} su $X_1, X_2$ se soddisfa $X_0 \to X_1$ \textbf{oppure} $X_0 \to X_2$. In altre parole: \textbf{gli attributi comuni tra le relazioni decomposte devono contenere una (super)chiave di almeno una delle due}. Nell'esempio sopra: \texttt{Sede} non contiene una chiave né per $R_1$ né per $R_2$ $\Rightarrow$ la decomposizione \textbf{non} è senza perdita.
+
+\subsubsection{Conservazione delle DF}
+Condizione: ciascuna DF dello schema originario deve coinvolgere attributi che compaiono tutti insieme in \textbf{uno} degli schemi decomposti (le DF originali devono essere ottenibili per proiezione dagli schemi decomposti).
+
+\paragraph{Esempio.} Le DF di $R(\text{Impiegato},\text{Progetto},\text{Sede})$ sono $\text{Impiegato}\to\text{Sede}$ e $\text{Progetto}\to\text{Sede}$. La decomposizione $R_1(\text{Impiegato},\text{Sede})$, $R_2(\text{Impiegato},\text{Progetto})$ \textbf{non} conserva $\text{Progetto}\to\text{Sede}$: si potrebbero inserire $\langle$Neri,Milano$\rangle$ in $R_1$ e $\langle$Neri,Marte$\rangle$ in $R_2$ senza violare alcuna DF nelle tabelle decomposte, pur violando concettualmente $\text{Progetto}\to\text{Sede}$ nella relazione originale.
+
+% Fonte: trascrizione fornita, Esercizio 7
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Una decomposizione di $R(A,B,C)$ nelle relazioni $S(A,B)$ e $T(B,C)$ è senza perdita di informazione se: (tutte le tuple di R sono nel join di S e T / il join di S e T contiene tutte e sole le tuple che sono nella relazione originale R / se soddisfa la DF A$\to$B / la DF C$\to$A è soddisfatta)
+\end{tcolorbox}
+\textbf{Soluzione:} il join di S e T contiene tutte e sole le tuple che sono nella relazione originale R — è la definizione formale di decomposizione lossless: $R \bowtie S = R$ (né tuple mancanti né tuple spurie).
+
+\subsection{Prima Forma Normale (1NF)}
+Una relazione è in 1NF se \textbf{non} ha: tuple ripetute (deve esistere una chiave); attributi composti e/o multi-valore. Molti DBMS non accettano nemmeno relazioni che violano la 1NF.
+
+\paragraph{Esempio.} \texttt{DEPARTMENT(Dname, Dnumber, Dmgr\_ssn, Dlocations)} non è in 1NF perché \texttt{Dlocations} ha più valori per la stessa entità (es. Research: \{Bellaire, Sugarland, Houston\}). Si normalizza ripetendo una riga per ogni località:
+\begin{verbatim}
+Research        5   333445555   Bellaire
+Research        5   333445555   Sugarland
+Research        5   333445555   Houston
+Administration  4   987654321   Stafford
+Headquarters    1   888665555   Houston
+\end{verbatim}
+
+\subsection{Richiami: Attributi Primi e Non-Primi}
+\begin{itemize}
+    \item \textbf{attributo primo} (\textit{prime}): appartiene ad \textbf{almeno una} chiave candidata;
+    \item \textbf{attributo non-primo} (\textit{non-prime}): non appartiene ad \textbf{alcuna} chiave candidata.
+\end{itemize}
+
+\subsection{Seconda Forma Normale (2NF)}
+$R$ è in 2NF se è in 1NF e \textbf{ogni attributo non-primo dipende dall'intera chiave primaria} (nessuna dipendenza parziale da un sottoinsieme proprio della chiave). \textbf{Osservazione}: una relazione con chiave primaria \textbf{non composta} non può mai violare la 2NF (non può esistere una dipendenza da "parte" di un solo attributo). \textbf{Violare la 2NF} causa principalmente \textbf{ridondanza} (e le conseguenti anomalie di inserimento/cancellazione/aggiornamento).
+
+\subsection{Terza Forma Normale (3NF)}
+$R$ è in 3NF se è in 2NF e \textbf{nessun attributo non-primo dipende transitivamente da una chiave candidata} (non deve valere $X\to Y$, $Y \to Z \Rightarrow X \to Z$ con $X$ chiave candidata, a meno che $Y$ non sia esso stesso una chiave candidata). \textbf{Formulazione equivalente}: per ogni DF non banale $X \to A$, vale almeno una delle:
+\begin{itemize}
+    \item $X$ è una superchiave di $R$, oppure
+    \item $A$ è un attributo primo di $R$.
+\end{itemize}
+
+\paragraph{Esempio.} \texttt{(CodImpiegato, Nome, Reparto, TelReparto)}, chiave \texttt{CodImpiegato}, DF: $\text{CodImpiegato}\to\text{Reparto}$, $\text{Reparto}\to\text{TelReparto}$. Anomalie: il telefono del reparto si ripete per ogni impiegato (ridondanza); un reparto senza impiegati non può avere un telefono registrato. Si normalizza in \texttt{(CodImpiegato,Nome,Reparto)} + \texttt{(Reparto,TelReparto)}: entrambe in 3NF, DF conservate, \textbf{nessuna perdita} (Reparto, l'attributo comune, determina funzionalmente TelReparto nella seconda tabella).
+
+\subsection{3NF e Ridondanza Residua}
+La 3NF non elimina \textbf{tutte} le ridondanze. Esempio: \texttt{(Prefisso, Numero, Località, Abbonato, Indirizzo)} con $\langle\text{Prefisso},\text{Numero}\rangle$ chiave e $\text{Località}\to\text{Prefisso}$ (dove Prefisso è un attributo \textbf{primo}, essendo parte della chiave): la relazione È in 3NF (la condizione "A è primo" è soddisfatta), ma il prefisso si ripete comunque per ogni abbonato della stessa località — \textbf{ridondanza}. Per escludere anche $Y \to Z$ con $Y$ non-primo e $Z$ primo, si definisce una forma normale più restrittiva.
+
+\subsection{Forma Normale di Boyce-Codd (BCNF)}
+$R$ è in BCNF se è in 2NF e, per \textbf{ogni} DF non banale $X \to Y$ su $R$, $X$ è una \textbf{superchiave} di $R$. Intuitivamente: ogni attributo descrive un'entità "identificata dalla chiave, dall'intera chiave, e da nient'altro che dalla chiave" (W. Kent, 1978). \textbf{È più restrittiva della 3NF} ed è teoricamente la forma migliore, ma \textbf{non sempre raggiungibile} preservando tutte le DF — in tal caso ci si "accontenta" della 3NF (sempre ottenibile).
+
+\subsubsection{Procedura di Decomposizione in BCNF}
+Data $R(U)$ e una DF $X \to A$ che viola la BCNF ($X$ non superchiave): decomporre in $R_1(U-A)$ e $R_2(XA)$; ripetere ricorsivamente su $R_1$/$R_2$ finché non sono entrambe in BCNF.
+
+\paragraph{Esempio.} \texttt{(Prefisso,Numero,Località,Abbonato,Indirizzo)}: $\text{Località}\to\text{Prefisso}$ viola la BCNF (Località non è chiave). Decomposizione in BCNF: \texttt{(Numero,Località,Abbonato,Indirizzo)} + \texttt{(Prefisso,Località)}.
+
+\subsubsection{Quando la BCNF Non È Raggiungibile Preservando le DF}
+\paragraph{Esempio.} DF: $\text{Dirigente} \to \text{Sede}$ (ogni dirigente opera in una sola sede); $\text{Progetto},\text{Sede} \to \text{Dirigente}$ (per ogni sede, un progetto ha un solo dirigente). La relazione \textbf{non} è in BCNF (nella prima DF, Dirigente non è superchiave). \textbf{Nessuna decomposizione può preservare entrambe le DF} (la seconda coinvolge tutti gli attributi): non esiste modo di raggiungere la BCNF per questo schema — ci si accontenta della 3NF.
+
+% Fonte: trascrizione fornita, Esercizio 17
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+$\text{INSEGNA(STUDENTE, INSEGNAMENTO, DOCENTE)}$ con DF: $(\text{STUDENTE},\text{INSEGNAMENTO})\to\text{DOCENTE}$, $\text{DOCENTE}\to\text{INSEGNAMENTO}$. Decomposizione: $\text{INSEGNA}_1(\text{DOCENTE},\text{INSEGNAMENTO})$, $\text{INSEGNA}_2(\text{DOCENTE},\text{STUDENTE})$. Quale affermazione è vera? (non esiste modo di decomporre INSEGNA in BCNF / la decomposizione non è in BCNF / la decomposizione è in BCNF / la decomposizione è in BCNF e preserva tutte le DF originali)
+\end{tcolorbox}
+\textbf{Soluzione:} la decomposizione è in BCNF (\textbf{ma non} preserva tutte le DF) — è esattamente il fenomeno appena visto: in $\text{INSEGNA}_1$ la chiave è DOCENTE (che determina tutto); in $\text{INSEGNA}_2$ la chiave è DOCENTE (idem). Entrambe in BCNF, ma la decomposizione perde $(\text{STUDENTE},\text{INSEGNAMENTO})\to\text{DOCENTE}$.
+
+% Fonte: trascrizione fornita, Esercizio 15
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 3}]
+$\langle R(A,B,C,D,E,F), F=\{AB\to CD, C\to EF\}\rangle$, decomposta in $R_1(A,B,C,D)$ e $R_2(C,E,F)$. Quale affermazione è vera? (in BCNF e conserva tutte le DF / in 3NF ma non in BCNF / in BCNF ma non conserva le DF)
+\end{tcolorbox}
+\textbf{Soluzione:} in BCNF e conserva tutte le DF — in $R_1$ la chiave è $AB$ (che con $AB\to CD$ determina tutto lo schema $R_1$); in $R_2$ la chiave è $C$ (che con $C\to EF$ determina tutto $R_2$). Entrambe in BCNF, e le DF di partenza sono interamente coperte dai due nuovi schemi.
+
+% Fonte: trascrizione fornita, Esercizio 5
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 4}]
+$R(A,B,C,D)$ è in BCNF. Sapendo che su $R$ sussiste la DF $D \to B$, è vero che anche $D \to C$ sussiste? (No / Solo se anche B$\to$D sussiste / Sì / Dipende, non è possibile saperlo con certezza)
+\end{tcolorbox}
+\textbf{Soluzione:} Sì — poiché $R$ è in BCNF, ogni DF non banale come $D\to B$ implica che il determinante $D$ sia una \textbf{superchiave}. Se $D$ è superchiave, determina \textbf{tutti} gli altri attributi di $R$, incluso $C$.
+
+\subsection{Verificare una DF su un'Istanza}
+Data un'istanza $r$ di $R$, \textbf{è possibile} stabilire con certezza che $r$ \textbf{viola} una DF $A\to B$ (basta trovare due tuple con stesso $A$ e diverso $B$); non è invece possibile dimostrare che una DF \textbf{vale}, dato che una violazione potrebbe comparire in un'istanza futura.
+
+% Fonte: trascrizione fornita, Esercizio 6
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 5}]
+Data un'istanza di una relazione S, è possibile determinare se S \textbf{non} soddisfa una DF analizzando le tuple presenti nell'istanza. (Vero / Falso)
+\end{tcolorbox}
+\textbf{Soluzione:} Vero — se si trovano due tuple con gli stessi valori per gli attributi determinanti ma valori diversi per gli attributi determinati, si ha la prova che la DF è violata.
+
+% Fonte: trascrizione fornita, Esercizio 13
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 6}]
+Sia data $R(A,B,C,D)$. La seguente query verifica se la DF $A\to B$ è soddisfatta da una qualunque istanza di R (0 righe = nessuna violazione; altrimenti una o più tuple violano la DF)?
+\begin{verbatim}
+SELECT COUNT(*)
+FROM R AS R1, R AS R2
+WHERE (R1.B != R2.B) AND (R1.A = R2.A)
+\end{verbatim}
+(Vero / Falso)
+\end{tcolorbox}
+\textbf{Soluzione:} Vero — la query cerca esattamente le violazioni della definizione di DF: coppie di tuple con lo stesso valore di A ma valori diversi di B.
+
+\subsection{Esempio Completo: dalle Chiavi alla BCNF}
+\textit{(Ramakrishnan \& Gehrke, Exercise 19.2 — stesso schema usato per l'algoritmo delle chiavi candidate nella sezione precedente.)}
+
+% Fonte: Ramakrishnan & Gehrke, Exercise 19.2
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 7}]
+$R(A,B,C,D,E)$ con $F=\{A\to B,\ BC\to E,\ ED\to A\}$. (1) Elencare tutte le chiavi di R. (2) R è in 3NF? (3) R è in BCNF?
+\end{tcolorbox}
+\textbf{Soluzione:} (1) Chiavi candidate: \textbf{ACD, BCD, CDE} (già calcolate con l'algoritmo delle chiavi candidate — Sez. precedente). Dato che la loro unione copre $\{A,B,C,D,E\}$, \textbf{ogni} attributo di R è primo — non esistono attributi non-primi. (2) \textbf{È in 3NF}: per ogni DF non banale $X\to A$ basta che $A$ sia primo, condizione qui sempre soddisfatta. (3) \textbf{Non è in BCNF}: la DF $A\to B$ viola la condizione, perché $(A)^+=AB \neq ABCDE$ — $A$ non è una superchiave.
 
 
 \end{document}
