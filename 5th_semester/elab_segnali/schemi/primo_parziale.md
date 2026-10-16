@@ -1,3 +1,4 @@
+
 # FONDAMENTI DI ELABORAZIONE DEI SEGNALI — GUIDA COMPLETA PER IL PARZIALE DEL 5 NOVEMBRE
 
 **Corso:** Fondamenti di Comunicazione – Mod.1 / Fondamenti di Elaborazione del Segnale  
@@ -64,36 +65,36 @@
 ## 3.1 Segnali elementari (FElS-2)
 
 ### Funzione rettangolo simmetrico
-\[
+$$
 \Pi\left(\frac{t}{T}\right)=
 \begin{cases}
 1 & |t|\le T/2\\
 0 & \text{altrove}
 \end{cases}
-\]
+$$
 Funzione reale a simmetria pari. Ampiezza unitaria, durata \(T\).
 
 ### Funzione triangolo simmetrico
-\[
+$$
 \Lambda\left(\frac{t}{T}\right)=
 \begin{cases}
 1-\frac{|t|}{T/2} & |t|\le T/2\\
 0 & \text{altrove}
 \end{cases}
-\]
+$$
 Triangolo isoscele, simmetria pari, picco 1 in \(t=0\), durata \(T\).
 
 ### Funzione gradino unitario
-\[
+$$
 u(t)=
 \begin{cases}
 1 & t\ge 0\\
 0 & t<0
 \end{cases}
-\]
+$$
 
 ### Funzione segno
-\[
+$$
 \operatorname{sgn}(t)=
 \begin{cases}
 +1 & t>0\\
@@ -101,39 +102,39 @@ u(t)=
 \end{cases}
 \qquad
 \operatorname{sgn}(0)=\pm 1 \text{ (convenzione)}
-\]
+$$
 
 ### Funzione sinc
-\[
+$$
 \operatorname{sinc}(x)=\frac{\sin(\pi x)}{\pi x}
-\]
+$$
 Reale, pari, \(\operatorname{sinc}(0)=1\) (per limite), si annulla per \(x=k\in\mathbb{Z}\setminus\{0\}\).
 
 ### Delta di Dirac
 Funzione generalizzata definita da:
-\[
+$$
 \int_{-\infty}^{+\infty}f(t)\delta(t)\,dt=f(0)
-\]
+$$
 Rappresentazione come limite:
-\[
+$$
 \delta(t)=\lim_{T\to 0}\frac{1}{T}\Pi\left(\frac{t}{T}\right)
-\]
+$$
 Area unitaria, ampiezza infinita in 0.
 
 **Proprietà utili:**
-\[
+$$
 \int_{-\infty}^{t}\delta(\tau)\,d\tau=u(t)
 \qquad
 \frac{d}{dt}u(t)=\delta(t)
-\]
-\[
+$$
+$$
 \delta(t-t_0): \text{ impulso centrato in } t_0
-\]
+$$
 
 ### Impulso traslato e doppietto
-\[
+$$
 \delta(t-t_0)\leftrightarrow e^{-j2\pi f t_0}
-\]
+$$
 Derivando un impulso si ottiene un **doppietto** (coppia di impulsi opposti centrati in 0).
 
 ---
@@ -141,14 +142,14 @@ Derivando un impulso si ottiene un **doppietto** (coppia di impulsi opposti cent
 ## 3.2 Energia, potenza, valor medio, varianza (FElS-2)
 
 ### Energia
-\[
+$$
 E_x=\int_{-\infty}^{+\infty}|x(t)|^2\,dt \quad [\text{J}]
-\]
+$$
 
 ### Potenza media
-\[
+$$
 P_x=\lim_{T\to\infty}\frac{1}{T}\int_{-T/2}^{T/2}|x(t)|^2\,dt \quad [\text{W}]
-\]
+$$
 
 ### Classificazione
 - **Segnale di energia:** \(E_x<\infty\), \(P_x=0\). Esempi: segnali a durata finita, esponenziali finestrati.
@@ -156,33 +157,33 @@ P_x=\lim_{T\to\infty}\frac{1}{T}\int_{-T/2}^{T/2}|x(t)|^2\,dt \quad [\text{W}]
 - Le due categorie sono mutuamente esclusive.
 
 ### Valor medio
-\[
+$$
 \bar{x}=\lim_{T\to\infty}\frac{1}{T}\int_{-T/2}^{T/2}x(t)\,dt
-\]
+$$
 Per segnali periodici di periodo \(T_0\):
-\[
+$$
 \bar{x}=\frac{1}{T_0}\int_{-T_0/2}^{T_0/2}x(t)\,dt
-\]
+$$
 
 ### Valore quadratico medio
-\[
+$$
 \overline{x^2}=\lim_{T\to\infty}\frac{1}{T}\int_{-T/2}^{T/2}x^2(t)\,dt=P_x
-\]
+$$
 
 ### Varianza
-\[
+$$
 \sigma_x^2=\overline{x^2}-\bar{x}^2
-\]
+$$
 Se \(\bar{x}=0\), \(\sigma_x^2=\overline{x^2}\).
 
 ### Segnali periodici
-\[
+$$
 P_x=\frac{1}{T_0}\int_{-T_0/2}^{T_0/2}x^2(t)\,dt
-\]
+$$
 Energia in un periodo:
-\[
+$$
 E_{sp}=\int_{-T_0/2}^{T_0/2}x^2(t)\,dt
-\]
+$$
 
 ---
 
@@ -206,36 +207,36 @@ E_{sp}=\int_{-T_0/2}^{T_0/2}x^2(t)\,dt
 ## 3.4 Simmetrie, causalità, correlazione (FElS-2)
 
 ### Simmetria pari
-\[
+$$
 x(t)=x(-t)\quad\forall t
-\]
+$$
 La trasformata di Fourier è **reale**.
 
 ### Simmetria dispari
-\[
+$$
 x(-t)=-x(t)\quad\forall t
-\]
+$$
 La trasformata di Fourier è **immaginaria pura**. Il valor medio è nullo.
 
 ### Segnali alternati
 Segnali periodici in cui area positiva = area negativa (valor medio nullo). Hanno coefficienti di Fourier nulli per le armoniche pari.
 
 ### Causalità
-\[
+$$
 x(t)=0\quad\forall t<t_0
-\]
+$$
 Tipicamente \(t_0=0\): \(x(t)=x_s(t)u(t)\).
 
 ### Correlazione (cross-correlazione)
-\[
+$$
 R_{xy}(\tau)=\int_{-\infty}^{+\infty}x(t)y(t+\tau)\,dt
-\]
+$$
 Indice di somiglianza tra \(x\) e \(y\) in funzione dello shift \(\tau\).
 
 ### Autocorrelazione
-\[
+$$
 R_x(\tau)=\int_{-\infty}^{+\infty}x(t)x(t+\tau)\,dt
-\]
+$$
 Massimo in \(\tau=0\), \(R_x(0)=\overline{x^2}\).
 
 ---
@@ -246,25 +247,25 @@ Massimo in \(\tau=0\), \(R_x(0)=\overline{x^2}\).
 Un sistema è **LTI** se gode di:
 
 **Linearità (sovrapposizione degli effetti):**
-\[
+$$
 f(\alpha x_1+\beta x_2)=\alpha f(x_1)+\beta f(x_2)
-\]
+$$
 
 **Tempo-invarianza:**
-\[
+$$
 f(x(t-t_0))=y(t-t_0)
-\]
+$$
 
 ### Risposta impulsiva
-\[
+$$
 h(t)=f(\delta(t))
-\]
+$$
 
 ### Convoluzione
 Per un sistema LTI:
-\[
+$$
 y(t)=x(t)*h(t)=\int_{-\infty}^{+\infty}x(\tau)h(t-\tau)\,d\tau
-\]
+$$
 
 **Proprietà:**
 - Commutativa: \(x*y=y*x\)
@@ -274,21 +275,21 @@ y(t)=x(t)*h(t)=\int_{-\infty}^{+\infty}x(\tau)h(t-\tau)\,d\tau
 - Durata risultato = somma durate
 
 ### Convoluzioni notevoli
-\[
+$$
 \Pi\left(\frac{t}{T}\right)*\Pi\left(\frac{t}{T}\right)=T\Lambda\left(\frac{t}{T}\right)
-\]
-\[
+$$
+$$
 \Pi\left(\frac{t}{T_1}\right)*\Pi\left(\frac{t}{T_2}\right)=\text{trapezio}
-\]
-\[
+$$
+$$
 \text{gaussiana}*\text{gaussiana}=\text{gaussiana}
-\]
+$$
 con \(\mu=\mu_1+\mu_2\), \(\sigma^2=\sigma_1^2+\sigma_2^2\).
 
 ### Causalità di un sistema LTI
-\[
+$$
 h(t)=0\quad\forall t<0
-\]
+$$
 
 ### Composizione di sistemi
 - **Cascata:** \(H(f)=H_1(f)H_2(f)\)
@@ -301,16 +302,16 @@ h(t)=0\quad\forall t<0
 
 ### Definizione
 Per un segnale periodico di periodo \(T_0\):
-\[
+$$
 x(t)=a_0+\sum_{k=1}^{\infty}a_k\cos\left(\frac{2\pi kt}{T_0}+\vartheta_k\right)
-\]
+$$
 Forma complessa:
-\[
+$$
 x(t)=\sum_{n=-\infty}^{+\infty}X_n e^{j2\pi nf_0t},\qquad f_0=\frac{1}{T_0}
-\]
-\[
+$$
+$$
 X_n=\frac{1}{T_0}\int_{-T_0/2}^{T_0/2}x(t)e^{-j2\pi nf_0t}\,dt
-\]
+$$
 
 \(X_0\) = valor medio = componente continua.
 
@@ -325,9 +326,9 @@ X_n=\frac{1}{T_0}\int_{-T_0/2}^{T_0/2}x(t)e^{-j2\pi nf_0t}\,dt
 - Segnale alternato → solo armoniche dispari
 
 ### Parseval
-\[
+$$
 P_x=\frac{1}{T_0}\int_{-T_0/2}^{T_0/2}|x(t)|^2dt=\sum_{k=-\infty}^{+\infty}|X_k|^2
-\]
+$$
 
 ### Fenomeno di Gibbs
 Troncando la serie si hanno oscillazioni (ripple) e sovraelongazioni (overshoot) in prossimità delle discontinuità.
@@ -337,14 +338,14 @@ Troncando la serie si hanno oscillazioni (ripple) e sovraelongazioni (overshoot)
 ## 3.7 Trasformata di Fourier (FElS-5)
 
 ### Definizione
-\[
+$$
 X(f)=\int_{-\infty}^{+\infty}x(t)e^{-j2\pi ft}\,dt
 \qquad\text{(FT diretta)}
-\]
-\[
+$$
+$$
 x(t)=\int_{-\infty}^{+\infty}X(f)e^{j2\pi ft}\,df
 \qquad\text{(IFT)}
-\]
+$$
 
 ### Proprietà
 
@@ -361,39 +362,39 @@ x(t)=\int_{-\infty}^{+\infty}X(f)e^{j2\pi ft}\,df
 | Modulazione | \(m(t)\cos(2\pi f_0t)\) | \(\frac{1}{2}[M(f-f_0)+M(f+f_0)]\) |
 
 ### Trasformate notevoli
-\[
+$$
 \Pi\left(\frac{t}{T}\right)\leftrightarrow T\operatorname{sinc}(fT)
-\]
-\[
+$$
+$$
 \Lambda\left(\frac{t}{T}\right)\leftrightarrow T\operatorname{sinc}^2(fT)
-\]
-\[
+$$
+$$
 \delta(t)\leftrightarrow 1
 \qquad
 \delta(t-t_0)\leftrightarrow e^{-j2\pi ft_0}
-\]
-\[
+$$
+$$
 1\leftrightarrow\delta(f)
 \qquad
 e^{j2\pi f_0t}\leftrightarrow\delta(f-f_0)
-\]
-\[
+$$
+$$
 u(t)\leftrightarrow\frac{1}{j2\pi f}+\frac{1}{2}\delta(f)
-\]
-\[
+$$
+$$
 \cos(2\pi f_0t)\leftrightarrow\frac{1}{2}[\delta(f-f_0)+\delta(f+f_0)]
-\]
-\[
+$$
+$$
 \sin(2\pi f_0t)\leftrightarrow\frac{j}{2}[\delta(f+f_0)-\delta(f-f_0)]
-\]
-\[
+$$
+$$
 e^{-\alpha t}u(t)\leftrightarrow\frac{1}{\alpha+j2\pi f},\quad\alpha>0
-\]
+$$
 
 ### Parseval / Rayleigh
-\[
+$$
 E_x=\int_{-\infty}^{+\infty}|x(t)|^2dt=\int_{-\infty}^{+\infty}|X(f)|^2df
-\]
+$$
 \(|X(f)|^2\) = densità spettrale di energia.
 
 ### Banda
@@ -436,51 +437,51 @@ Larghezza di banda = intervallo di frequenze in cui lo spettro è non nullo (o c
 
 **Svolgimento completo:**
 
-\[
+$$
 x(t)=
 \begin{cases}
 e^{-2t}, & 0\le t\le 4\\
 0, & \text{altrove}
 \end{cases}
-\]
+$$
 
 **Energia:**
-\[
+$$
 E_x=\int_0^4 (e^{-2t})^2dt=\int_0^4 e^{-4t}dt
-\]
-\[
+$$
+$$
 =\left[-\frac14 e^{-4t}\right]_0^4=-\frac14(e^{-16}-1)=\frac{1-e^{-16}}{4}
-\]
-\[
+$$
+$$
 e^{-16}\approx 1{,}125\cdot 10^{-7}\Rightarrow E_x\approx 0{,}25\text{ J}
-\]
+$$
 
 **Potenza:** \(P_x=0\) (segnale di energia, durata finita).
 
 **\(y(t)=-x(-t)\):**
-\[
+$$
 x(-t)=
 \begin{cases}
 e^{2t}, & -4\le t\le 0\\
 0, & \text{altrove}
 \end{cases}
-\]
-\[
+$$
+$$
 y(t)=
 \begin{cases}
 -e^{2t}, & -4\le t\le 0\\
 0, & \text{altrove}
 \end{cases}
-\]
+$$
 
 **\(z(t)=x(t+4)\):**
-\[
+$$
 z(t)=
 \begin{cases}
 e^{-2(t+4)}, & -4\le t\le 0\\
 0, & \text{altrove}
 \end{cases}
-\]
+$$
 
 **Grafici:**
 - \(x(t)\): 0 per \(t<0\); salto a 1 in \(t=0\); decade a \(e^{-8}\approx 0{,}000335\) in \(t=4\); 0 per \(t>4\).
@@ -512,26 +513,26 @@ e^{-2(t+4)}, & -4\le t\le 0\\
 **Teoria:** FElS-2, funzione segno; segnali periodici → potenza.
 
 **Svolgimento:**
-\[
+$$
 \cos\left(\frac{2\pi t}{4}\right)=\cos\left(\frac{\pi t}{2}\right)\ge 0
 \iff -\frac{\pi}{2}+2k\pi\le\frac{\pi t}{2}\le\frac{\pi}{2}+2k\pi
-\]
-\[
+$$
+$$
 \iff 4k-1\le t\le 4k+1
-\]
+$$
 Altrove \(\cos<0\) → \(s(t)=-1\).
 
 Quindi \(s(t)\) è un'onda quadra di periodo 4 s, con \(+1\) su \([4k-1,4k+1]\) e \(-1\) altrove.
 
 **Energia in un periodo \(T_0=4\):**
-\[
+$$
 E_{sp}=\int_{-2}^{2}s^2(t)dt=\int_{-2}^{2}1\,dt=4\text{ J}
-\]
+$$
 
 **Potenza media:**
-\[
+$$
 P_s=\frac{1}{T_0}E_{sp}=\frac{4}{4}=1\text{ W}
-\]
+$$
 
 **Segnale di potenza** (periodico, energia infinita).
 
@@ -558,26 +559,26 @@ P_s=\frac{1}{T_0}E_{sp}=\frac{4}{4}=1\text{ W}
 
 **Svolgimento:**
 \(x(t)=2\Lambda(t/4)\): triangolo pari, picco 2 in \(t=0\), durata totale 4 (da \(-2\) a \(2\)).
-\[
+$$
 x(t)=
 \begin{cases}
 2\left(1-\frac{|t|}{2}\right), & |t|\le 2\\
 0, & \text{altrove}
 \end{cases}
-\]
+$$
 
 **Energia:**
-\[
+$$
 E_x=2\int_0^2\left[2\left(1-\frac{t}{2}\right)\right]^2dt
 =2\int_0^2 4\left(1-\frac{t}{2}\right)^2dt
-\]
-\[
+$$
+$$
 =8\int_0^2\left(1-t+\frac{t^2}{4}\right)dt
 =8\left[t-\frac{t^2}{2}+\frac{t^3}{12}\right]_0^2
-\]
-\[
+$$
+$$
 =8\left(2-2+\frac{8}{12}\right)=8\cdot\frac{2}{3}=\frac{16}{3}\approx 5{,}33\text{ J}
-\]
+$$
 
 **Potenza:** \(P_x=0\) (segnale di energia).
 
@@ -632,43 +633,43 @@ E_x=2\int_0^2\left[2\left(1-\frac{t}{2}\right)\right]^2dt
 - \(\Lambda(t/T)\): triangolo ampiezza 1, durata \(2T\) (da \(-T\) a \(T\)).
 - Prodotto: triangolo finestrato in \([-T/2,T/2]\), guadagno 2.
 
-\[
+$$
 x(t)=
 \begin{cases}
 2\left(1-\frac{|t|}{T}\right), & |t|\le T/2\\
 0, & \text{altrove}
 \end{cases}
-\]
+$$
 
 **Energia:**
-\[
+$$
 E_x=2\int_0^{T/2}4\left(1-\frac{t}{T}\right)^2dt
 =8\int_0^{T/2}\left(1-\frac{2t}{T}+\frac{t^2}{T^2}\right)dt
-\]
-\[
+$$
+$$
 =8\left[t-\frac{t^2}{T}+\frac{t^3}{3T^2}\right]_0^{T/2}
 =8\left(\frac{T}{2}-\frac{T}{4}+\frac{T}{24}\right)
-\]
-\[
+$$
+$$
 =8\left(\frac{12T-6T+T}{24}\right)=8\cdot\frac{7T}{24}=\frac{7T}{3}\text{ J}
-\]
+$$
 
 **Potenza:** \(P_x=0\) (segnale di energia).
 
 **Rappresentazione alternativa come somma:**
-\[
+$$
 x(t)=\Pi\left(\frac{t}{T}\right)+\Lambda\left(\frac{t}{T}\right)
-\]
+$$
 Attenzione: \(E_x\neq E_{x_1}+E_{x_2}\) per il termine di doppio prodotto:
-\[
+$$
 E_x=E_{x_1}+E_{x_2}+2\int x_1x_2\,dt
-\]
-\[
+$$
+$$
 E_{x_1}=T,\quad E_{x_2}=\frac{T}{3},\quad 2\int x_1x_2=T
-\]
-\[
+$$
+$$
 E_x=T+\frac{T}{3}+T=\frac{7T}{3}\ \checkmark
-\]
+$$
 
 **Grafici:**
 - \(x_1(t)=\Pi(t/T)\): rettangolo ampiezza 1, durata T.
@@ -696,27 +697,27 @@ E_x=T+\frac{T}{3}+T=\frac{7T}{3}\ \checkmark
 Segnale periodico di periodo \(3T_0\): impulso rettangolare di ampiezza \(A\), durata \(T_0\), ogni \(3T_0\).
 
 **Valor medio:**
-\[
+$$
 m_x=\frac{1}{3T_0}\int_{-3T_0/2}^{3T_0/2}x(t)dt
 =\frac{1}{3T_0}\int_{-T_0/2}^{T_0/2}A\,dt
 =\frac{A T_0}{3T_0}=\frac{A}{3}
-\]
+$$
 
 **Varianza:**
-\[
+$$
 m_{x^2}=\frac{1}{3T_0}\int_{-T_0/2}^{T_0/2}A^2dt=\frac{A^2}{3}
-\]
-\[
+$$
+$$
 \sigma_x^2=m_{x^2}-m_x^2=\frac{A^2}{3}-\frac{A^2}{9}=\frac{2A^2}{9}
-\]
+$$
 
 **Con \(y=x+B\):**
-\[
+$$
 m_y=m_x+B=\frac{A}{3}+B
-\]
-\[
+$$
+$$
 \sigma_y^2=\sigma_x^2=\frac{2A^2}{9}
-\]
+$$
 La varianza non cambia: l'aggiunta di una costante non altera le variazioni.
 
 **Collegamenti:** varianza = misura delle fluttuazioni; costante additiva non influenza.
@@ -739,9 +740,9 @@ La varianza non cambia: l'aggiunta di una costante non altera le variazioni.
 **Teoria:** FElS-2, correlazione.
 
 **Svolgimento:**
-\[
+$$
 R_{xy}(\tau)=\int_{-\infty}^{+\infty}\Lambda\left(\frac{t}{T}\right)\Pi\left(\frac{t+\tau-2T}{T}\right)dt
-\]
+$$
 
 Il triangolo è in \([-T/2,T/2]\), il rettangolo in \([2T-\tau-T/2,\ 2T-\tau+T/2]\).
 
@@ -749,20 +750,20 @@ Il triangolo è in \([-T/2,T/2]\), il rettangolo in \([2T-\tau-T/2,\ 2T-\tau+T/2
 
 **Tratto \(T<\tau<3T/2\):**
 Il rettangolo finestra la rampa decrescente del triangolo.
-\[
+$$
 R_{xy}(\tau-T)=\int_{T/2-\tau}^{T/2}\left(1-\frac{2t}{T}\right)dt=\frac{\tau^2}{T}
-\]
+$$
 Parabola con concavità verso l'alto, 0 in \(\tau=0\), \(T/4\) in \(\tau=T/2\) (shiftata di \(T\)).
 
 **Tratto \(3T/2<\tau<2T\):**
 Si aggiunge il contributo del semi-triangolo di sinistra.
-\[
+$$
 R_{xy}\left(\tau-\frac{3T}{2}\right)=\int_{-\tau}^{0}\left(\frac{2t}{T}+1\right)dt=-\frac{\tau^2}{T}+\tau
-\]
+$$
 Sommando il termine precedente:
-\[
+$$
 R_{xy}\left(\tau-\frac{3T}{2}\right)=-\frac{\tau^2}{T}+\tau+\frac{T}{4}
-\]
+$$
 Parabola con concavità verso il basso, \(T/4\) in \(\tau=0\), \(T/2\) in \(\tau=T/2\).
 
 **Simmetria:** gli ultimi due tratti sono simmetrici ai primi due.
@@ -794,19 +795,19 @@ Parabola con concavità verso il basso, \(T/4\) in \(\tau=0\), \(T/2\) in \(\tau
 **Testo:** \(x(t)=\Lambda(t/T)\), \(y(t)=\Pi((t-2T)/T)\). Calcolare \(R_{xy}(0)\), \(R_{xy}(3T/2)\), \(R_{xy}(2T)\).
 
 **Svolgimento:**
-\[
+$$
 R_{xy}(0)=\int\Lambda\left(\frac{t}{T}\right)\Pi\left(\frac{t-2T}{T}\right)dt=0
-\]
+$$
 (non si incontrano)
 
-\[
+$$
 R_{xy}(3T/2)=\int_0^{T/2}\Lambda\left(\frac{t}{T}\right)dt=\frac{T}{4}
-\]
+$$
 (metà del triangolo)
 
-\[
+$$
 R_{xy}(2T)=\int_{-T/2}^{T/2}\Lambda\left(\frac{t}{T}\right)dt=\frac{T}{2}
-\]
+$$
 (intero triangolo)
 
 **Interpretazione:** \(R_{xy}(0)=0\) → nessuna somiglianza; \(R_{xy}(3T/2)=T/4\) → somiglianza parziale; \(R_{xy}(2T)=T/2\) → massima somiglianza (allineamento).
@@ -825,20 +826,20 @@ R_{xy}(2T)=\int_{-T/2}^{T/2}\Lambda\left(\frac{t}{T}\right)dt=\frac{T}{2}
 **Schema:** \(x(t)\) → ritardo \(\Delta T\) → somma con \(-\gamma x(t)\) → derivata → \(y(t)\).
 
 **Svolgimento:**
-\[
+$$
 y(t)=x'(t-\Delta T)-\gamma x'(t)
-\]
+$$
 
 **Linearità:** \(x_3=\alpha x_1+\beta x_2\):
-\[
+$$
 y_3=\alpha x_1'(t-\Delta T)+\beta x_2'(t-\Delta T)-\gamma[\alpha x_1'(t)+\beta x_2'(t)]=\alpha y_1+\beta y_2
-\]
+$$
 ✓ Lineare.
 
 **Tempo-invarianza:** \(x(t-T)\):
-\[
+$$
 y=x'(t-T-\Delta T)-\gamma x'(t-T)=y(t-T)
-\]
+$$
 ✓ Tempo-invariante.
 
 **Conclusione:** LTI (combinazione di blocchi LTI).
@@ -894,9 +895,9 @@ y=x'(t-T-\Delta T)-\gamma x'(t-T)=y(t-T)
 ### ESERCIZIO LTI 4 — Schema ln, ΔT1, ΔT2, exp
 
 **Svolgimento:**
-\[
+$$
 y(t)=e^{\ln(x(t-\Delta T_1))+\ln(x(t-\Delta T_2))}=x(t-\Delta T_1)x(t-\Delta T_2)
-\]
+$$
 Prodotto di segnali → non lineare.
 
 **Conclusione:** non LTI (non lineare).
@@ -914,18 +915,18 @@ Prodotto di segnali → non lineare.
 
 **Svolgimento:**
 Blocco 2 (parallelo):
-\[
+$$
 w(t)=v(t-\Delta T_3)-\alpha v(t-\Delta T_2)
-\]
+$$
 Blocco 1: \(v(t)=x(t-\Delta T_1)\).
 
-\[
+$$
 w(t)=x(t-[\Delta T_1+\Delta T_3])-\alpha x(t-[\Delta T_1+\Delta T_2])
-\]
+$$
 Blocco 3 (derivata):
-\[
+$$
 y(t)=x'(t-[\Delta T_1+\Delta T_3])-\alpha x'(t-[\Delta T_1+\Delta T_2])
-\]
+$$
 
 **Errori comuni:** non sommare i ritardi in cascata.  
 **Trucchi:** sostituire progressivamente i blocchi.
@@ -941,27 +942,27 @@ y(t)=x'(t-[\Delta T_1+\Delta T_3])-\alpha x'(t-[\Delta T_1+\Delta T_2])
 **Svolgimento:**
 \(y(t)\) è un rettangolo di durata \(T\), da 0 a \(T\).
 
-\[
+$$
 z(t)=x(t)*y(t)=\int_{-\infty}^{+\infty}e^{-\beta|\tau|}\Pi\left(\frac{t-\tau-T/2}{T}\right)d\tau
-\]
+$$
 
 Il rettangolo è attivo per \(t-T<\tau<t\).
 
 **Caso 1: \(t\le 0\)** — solo ramo sinistro:
-\[
+$$
 z(t)=\int_{t-T}^{t}e^{\beta\tau}d\tau=\frac{1}{\beta}e^{\beta t}(1-e^{\beta T})
-\]
+$$
 
 **Caso 3: \(t>T\)** — solo ramo destro:
-\[
+$$
 z(t)=\int_{t-T}^{t}e^{-\beta\tau}d\tau=\frac{1}{\beta}e^{-\beta t}(e^{\beta T}-1)
-\]
+$$
 
 **Caso 2: \(0<t\le T\)** — entrambi i rami:
-\[
+$$
 z(t)=\int_{t-T}^{0}e^{\beta\tau}d\tau+\int_0^{t}e^{-\beta\tau}d\tau
 =\frac{1}{\beta}\left(2-e^{-\beta t}-e^{\beta(t-T)}\right)
-\]
+$$
 
 **Grafico:** picco in \(t=T/2\), valore \(\frac{2}{\beta}(1-e^{-\beta T/2})\).
 
@@ -979,12 +980,12 @@ z(t)=\int_{t-T}^{0}e^{\beta\tau}d\tau+\int_0^{t}e^{-\beta\tau}d\tau
 
 **Svolgimento:**
 Isolare ritardi e guadagni:
-\[
+$$
 x=\Pi\left(\frac{t}{2}\right)*A\delta(t-5),\quad y=\Lambda\left(\frac{t}{4}\right)*B\delta(t-2)
-\]
-\[
+$$
+$$
 z=\Pi\left(\frac{t}{2}\right)*\Lambda\left(\frac{t}{4}\right)*AB\delta(t-7)
-\]
+$$
 
 Convoluzione base \(\Pi(t/2)*\Lambda(t/4)\): rettangolo (durata 2) con triangolo (durata 4) → trapezio (durata 6).
 
@@ -1005,13 +1006,13 @@ Convoluzione base \(\Pi(t/2)*\Lambda(t/4)\): rettangolo (durata 2) con triangolo
 ### ESERCIZIO CONVOLUZIONE 3 — \(x=A\Pi\left(\frac{t-5}{2}\right)\), \(y=\cos(2\pi t)\)
 
 **Svolgimento:**
-\[
+$$
 z(t)=\cos(2\pi t)*\Pi\left(\frac{t}{2}\right)*A\delta(t-5)
-\]
-\[
+$$
+$$
 \cos(2\pi t)*\Pi\left(\frac{t}{2}\right)=\int_{t-1}^{t+1}\cos(2\pi\tau)d\tau
 =\frac{1}{2\pi}[\sin(2\pi(t+1))-\sin(2\pi(t-1))]=0
-\]
+$$
 perché si integrano 2 cicli interi.
 
 **Conclusione:** \(z(t)=0\) ovunque.
@@ -1031,19 +1032,19 @@ perché si integrano 2 cicli interi.
 \(x\) = rampa in \([0,T]\), \(y\) = rettangolo ampiezza 2, durata \(2T\), in \([0,2T]\).
 
 **Caso \(0\le t\le T\):**
-\[
+$$
 z(t)=\int_0^t\frac{\tau}{T}d\tau=\frac{t^2}{2T}
-\]
+$$
 
 **Caso \(T<t\le 2T\):**
-\[
+$$
 z(t)=\int_0^T\frac{\tau}{T}d\tau=\frac{T}{2}
-\]
+$$
 
 **Caso \(2T<t\le 3T\):**
-\[
+$$
 z(t)=\int_{t-2T}^{T}\frac{\tau}{T}d\tau=\frac{1}{2T}[T^2-(t-2T)^2]=-\frac{t^2}{2T}+2t-\frac{3T}{2}
-\]
+$$
 
 **Grafico:** ramo di parabola crescente, plateau a \(T/2\), ramo decrescente.
 
@@ -1061,13 +1062,13 @@ z(t)=\int_{t-2T}^{T}\frac{\tau}{T}d\tau=\frac{1}{2T}[T^2-(t-2T)^2]=-\frac{t^2}{2
 
 **Schema:** integratore → parallelo ΔT1 (+), ΔT2 (−) → amplificatore α.
 
-\[
+$$
 y(t)=\alpha\left[\int x(t-\Delta T_1)-\int x(t-\Delta T_2)\right]
-\]
+$$
 Con \(x=\delta(t)\):
-\[
+$$
 h(t)=\alpha[u(t-\Delta T_1)-u(t-\Delta T_2)]=\alpha\Pi\left(\frac{t-\frac{\Delta T_1+\Delta T_2}{2}}{\Delta T_2-\Delta T_1}\right)
-\]
+$$
 
 **Errori comuni:** non riconoscere la differenza di gradini come rettangolo.  
 **Trucchi:** \(u(t-a)-u(t-b)=\Pi((t-(a+b)/2)/(b-a))\) per \(b>a\).
@@ -1081,9 +1082,9 @@ h(t)=\alpha[u(t-\Delta T_1)-u(t-\Delta T_2)]=\alpha\Pi\left(\frac{t-\frac{\Delta
 ### ESERCIZIO CONVOLUZIONE 6 — \(y=Ax(t-T_0)+B\frac{dx}{dt}\)
 
 **Svolgimento:**
-\[
+$$
 h(t)=A\delta(t-T_0)+B\delta'(t)
-\]
+$$
 Schema: parallelo con ramo ritardo+guadagno A e ramo derivata+guadagno B.
 
 **Mini-domande:**
@@ -1095,9 +1096,9 @@ Schema: parallelo con ramo ritardo+guadagno A e ramo derivata+guadagno B.
 ### ESERCIZIO CONVOLUZIONE 7 — \(h=\delta(t)+2\delta(t-T)\), \(x=\Lambda\left(\frac{t}{2T}\right)\)
 
 **Svolgimento:**
-\[
+$$
 y=x*\delta(t)+x*2\delta(t-T)=\Lambda\left(\frac{t}{2T}\right)+2\Lambda\left(\frac{t-T}{2T}\right)
-\]
+$$
 
 **Grafico:** somma di due triangoli, uno centrato in 0, uno in \(T\) amplificato di 2. Picco in \(T\) pari a 2.
 
@@ -1113,9 +1114,9 @@ y=x*\delta(t)+x*2\delta(t-T)=\Lambda\left(\frac{t}{2T}\right)+2\Lambda\left(\fra
 **Causale?** Sì, entrambi i termini nulli per \(t<2\) (e quindi per \(t<0\)).
 
 **Risposta al gradino \(x=u(t)\):**
-\[
+$$
 y=2u(t-2)+(t-2)u(t-2)
-\]
+$$
 
 **Grafico:** 0 fino a \(t=2\), salto a 2, poi rampa lineare.
 
@@ -1130,25 +1131,25 @@ y=2u(t-2)+(t-2)u(t-2)
 
 **Svolgimento:**
 \(x=2\Pi((t-3)/2)\): rettangolo ampiezza 2, durata 2, da 2 a 4.
-\[
+$$
 x=\Pi\left(\frac{t}{2}\right)*2\delta(t-3)
-\]
+$$
 Calcolo \(y_1=h*\Pi(t/2)\):
-\[
+$$
 y_1(t)=\int_0^{t+1}e^{-\tau}d\tau=1-e^{-(t+1)},\quad -1\le t<1
-\]
-\[
+$$
+$$
 y_1(t)=\int_{t-1}^{t+1}e^{-\tau}d\tau=e^{-(t-1)}-e^{-(t+1)},\quad t\ge 1
-\]
+$$
 Poi \(y(t)=2y_1(t-3)\):
-\[
+$$
 y(t)=
 \begin{cases}
 0 & t<2\\
 2[1-e^{-(t-2)}] & 2\le t<4\\
 2e^{-t}(e^4-e^2) & t\ge 4
 \end{cases}
-\]
+$$
 
 **Grafico:** 0 fino a 2, sale a \(2(1-e^{-2})\) in 4, poi decade esponenzialmente.
 
@@ -1167,27 +1168,27 @@ y(t)=
 
 **Svolgimento:**
 Triangolo centrato in 2, picco 3, durata 6 (da \(-1\) a 5).
-\[
+$$
 x(t)=
 \begin{cases}
 3\left(1-\frac{|t-2|}{3}\right), & -1\le t\le 5\\
 0, & \text{altrove}
 \end{cases}
-\]
+$$
 
 **Energia:**
-\[
+$$
 E_x=2\int_2^5 9\left(1-\frac{t-2}{3}\right)^2dt
 =18\int_2^5\left(1-\frac{2(t-2)}{3}+\frac{(t-2)^2}{9}\right)dt
-\]
+$$
 Con \(u=t-2\), \(du=dt\), da 0 a 3:
-\[
+$$
 =18\int_0^3\left(1-\frac{2u}{3}+\frac{u^2}{9}\right)du
 =18\left[u-\frac{u^2}{3}+\frac{u^3}{27}\right]_0^3
-\]
-\[
+$$
+$$
 =18(3-3+1)=18\text{ J}
-\]
+$$
 
 **Potenza:** \(P=0\).
 
@@ -1221,13 +1222,13 @@ Con \(u=t-2\), \(du=dt\), da 0 a 3:
 **Testo:** \(x(t)=A\Pi(t/T)\). Calcolare \(h(t)\) e \(y(t)\).
 
 **Svolgimento:**
-\[
+$$
 h(t)=\alpha[\delta(t-T)+u(t)]
-\]
+$$
 
-\[
+$$
 y(t)=A\Pi\left(\frac{t}{T}\right)*\alpha\delta(t-T)+A\Pi\left(\frac{t}{T}\right)*\alpha u(t)
-\]
+$$
 
 **Primo termine:** \(A\alpha\Pi((t-T)/T)\) → rettangolo tra \(T/2\) e \(3T/2\).
 
@@ -1253,15 +1254,15 @@ y(t)=A\Pi\left(\frac{t}{T}\right)*\alpha\delta(t-T)+A\Pi\left(\frac{t}{T}\right)
 ### PROVETTA ESERCIZIO 4 — \(x=u(t)-u(t-T_0)\), \(H(f)=A\Pi(f/(2f_0))\), \(f_0=1/T_0\)
 
 **Svolgimento:**
-\[
+$$
 x(t)=\Pi\left(\frac{t-T_0/2}{T_0}\right)
-\]
-\[
+$$
+$$
 X(f)=T_0\operatorname{sinc}(fT_0)e^{-j\pi fT_0}
-\]
-\[
+$$
+$$
 Y(f)=X(f)H(f)=AT_0\operatorname{sinc}(fT_0)\Pi\left(\frac{f}{2f_0}\right)e^{-j\pi fT_0}
-\]
+$$
 
 **Modulo:** \(|Y(f)|=AT_0|\operatorname{sinc}(fT_0)|\) per \(|f|<f_0\), 0 altrove.
 
@@ -1288,7 +1289,7 @@ Y(f)=X(f)H(f)=AT_0\operatorname{sinc}(fT_0)\Pi\left(\frac{f}{2f_0}\right)e^{-j\p
 
 ## Mappa 1 — Segnali e loro proprietà
 
-```
+
 SEGNALI
 ├── Elementari
 │   ├── Π(t/T): rettangolo
@@ -1314,11 +1315,11 @@ SEGNALI
     ├── Ribaltamento
     ├── Scala
     └── Guadagno
-```
+
 
 ## Mappa 2 — Sistemi LTI e convoluzione
 
-```
+
 SISTEMI LTI
 ├── Proprietà
 │   ├── Linearità (sovrapposizione)
@@ -1337,11 +1338,11 @@ SISTEMI LTI
     ├── Cascata: H=H1·H2
     ├── Parallelo: H=H1±H2
     └── Retroazione: H=H1/(1+H1H2)
-```
+
 
 ## Mappa 3 — Serie e Trasformata di Fourier
 
-```
+
 ANALISI IN FREQUENZA
 ├── Serie di Fourier (periodici)
 │   ├── X_n = (1/T0)∫x(t)e^{-j2πnf0t}dt
@@ -1372,140 +1373,140 @@ ANALISI IN FREQUENZA
     ├── LPF, HPF, BPF
     ├── Banda a 3dB
     └── Filtri ideali non causali
-```
+
 
 ---
 
 # 6. FORMULARIO ESSENZIALE
 
 ## Segnali elementari
-\[
+$$
 \Pi(t/T)=1 \text{ per } |t|\le T/2
-\]
-\[
+$$
+$$
 \Lambda(t/T)=1-|t|/(T/2) \text{ per } |t|\le T/2
-\]
-\[
+$$
+$$
 u(t)=1 \text{ per } t\ge 0
-\]
-\[
+$$
+$$
 \delta(t): \int f(t)\delta(t)dt=f(0)
-\]
-\[
+$$
+$$
 \operatorname{sinc}(x)=\sin(\pi x)/(\pi x)
-\]
-\[
+$$
+$$
 \operatorname{sgn}(t)=\pm 1
-\]
+$$
 
 ## Energia e potenza
-\[
+$$
 E_x=\int|x(t)|^2dt
-\]
-\[
+$$
+$$
 P_x=\lim_{T\to\infty}\frac{1}{T}\int_{-T/2}^{T/2}|x(t)|^2dt
-\]
-\[
+$$
+$$
 \bar{x}=\lim_{T\to\infty}\frac{1}{T}\int x(t)dt
-\]
-\[
+$$
+$$
 \sigma_x^2=\overline{x^2}-\bar{x}^2
-\]
+$$
 
 ## Trasformazioni
-\[
+$$
 x(t-t_0): \text{ ritardo}
-\]
-\[
+$$
+$$
 x(t+t_0): \text{ anticipo}
-\]
-\[
+$$
+$$
 x(-t): \text{ ribaltamento}
-\]
-\[
+$$
+$$
 x(at): \text{ scala}
-\]
+$$
 
 ## Convoluzione
-\[
+$$
 y(t)=x(t)*h(t)=\int x(\tau)h(t-\tau)d\tau
-\]
-\[
+$$
+$$
 x*\delta(t-t_0)=x(t-t_0)
-\]
-\[
+$$
+$$
 \Pi*\Pi=T\Lambda
-\]
+$$
 
 ## Serie di Fourier
-\[
+$$
 X_n=\frac{1}{T_0}\int_{-T_0/2}^{T_0/2}x(t)e^{-j2\pi nf_0t}dt
-\]
-\[
+$$
+$$
 P=\sum|X_n|^2
-\]
+$$
 
 ## Trasformata di Fourier
-\[
+$$
 X(f)=\int x(t)e^{-j2\pi ft}dt
-\]
-\[
+$$
+$$
 x(t)=\int X(f)e^{j2\pi ft}df
-\]
-\[
+$$
+$$
 x(t-t_0)\leftrightarrow X(f)e^{-j2\pi ft_0}
-\]
-\[
+$$
+$$
 x(at)\leftrightarrow \frac{1}{|a|}X(f/a)
-\]
-\[
+$$
+$$
 x*y\leftrightarrow X\cdot Y
-\]
-\[
+$$
+$$
 x\cdot y\leftrightarrow X*Y
-\]
-\[
+$$
+$$
 \frac{dx}{dt}\leftrightarrow j2\pi f X(f)
-\]
-\[
+$$
+$$
 \int x\leftrightarrow \frac{X(f)}{j2\pi f}+\frac{X(0)}{2}\delta(f)
-\]
+$$
 
 ## Trasformate notevoli
-\[
+$$
 \Pi(t/T)\leftrightarrow T\operatorname{sinc}(fT)
-\]
-\[
+$$
+$$
 \Lambda(t/T)\leftrightarrow T\operatorname{sinc}^2(fT)
-\]
-\[
+$$
+$$
 \delta(t)\leftrightarrow 1
-\]
-\[
+$$
+$$
 1\leftrightarrow\delta(f)
-\]
-\[
+$$
+$$
 e^{-\alpha t}u(t)\leftrightarrow\frac{1}{\alpha+j2\pi f}
-\]
-\[
+$$
+$$
 \cos(2\pi f_0t)\leftrightarrow\frac{1}{2}[\delta(f-f_0)+\delta(f+f_0)]
-\]
+$$
 
 ## Parseval
-\[
+$$
 E_x=\int|x(t)|^2dt=\int|X(f)|^2df
-\]
+$$
 
 ## Filtri
-\[
+$$
 G(f)=|H(f)|^2
-\]
-\[
+$$
+$$
 G_{dB}=10\log_{10}G
-\]
-\[
+$$
+$$
 B: G_{dB}\ge -3\text{ dB}
-\]
+$$
 
 ---
 
