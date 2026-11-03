@@ -1,7 +1,7 @@
 \documentclass[12pt, a4paper]{article}
 \newcounter{esercizio}[section]
 
-%\def\islight{true} 
+\def\islight{true} 
 
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
@@ -1660,5 +1660,1542 @@ $R(A,B,C,D,E)$ con $F=\{A\to B,\ BC\to E,\ ED\to A\}$. (1) Elencare tutte le chi
 \end{tcolorbox}
 \textbf{Soluzione:} (1) Chiavi candidate: \textbf{ACD, BCD, CDE} (già calcolate con l'algoritmo delle chiavi candidate — Sez. precedente). Dato che la loro unione copre $\{A,B,C,D,E\}$, \textbf{ogni} attributo di R è primo — non esistono attributi non-primi. (2) \textbf{È in 3NF}: per ogni DF non banale $X\to A$ basta che $A$ sia primo, condizione qui sempre soddisfatta. (3) \textbf{Non è in BCNF}: la DF $A\to B$ viola la condizione, perché $(A)^+=AB \neq ABCDE$ — $A$ non è una superchiave.
 
+\section{Metodi di Storage e Modello di Costo}
+
+\subsection{Introduzione}
+
+Le basi di dati sono normalmente memorizzate su \textbf{dischi magnetici}. Gerarchia di memorizzazione:
+\begin{itemize}
+    \item \textbf{primaria}: CPU, memoria principale, cache;
+    \item \textbf{secondaria}: dischi magnetici, memoria flash, dischi a stato solido;
+    \item \textbf{terziaria}: media rimovibili.
+\end{itemize}
+L'\textbf{organizzazione dei file} determina come le tuple sono fisicamente memorizzate sul disco e come vi si accede.
+
+\subsection{Record e Blocchi del Disco}
+
+Un \textbf{record} è una collezione di valori collegati tra loro (numerico, stringa, booleano, data/ora, o BLOB — \textit{Binary Large Object}, per dati non strutturati). La lunghezza di un record può variare (campi opzionali o di lunghezza variabile).
+
+I file sono allocati in \textbf{blocchi} del disco (dette \textbf{pagine} in ambito DB):
+\begin{itemize}
+    \item \textbf{record esteso} (\textit{spanned}): più grande di un singolo blocco — un puntatore alla fine del primo blocco rimanda al blocco col resto del record;
+    \item \textbf{record non esteso} (\textit{unspanned}): non supera le dimensioni di una pagina.
+\end{itemize}
+
+\subsection{Operazioni su File}
+\begin{itemize}
+    \item di \textbf{sola lettura} (R): \texttt{Open, Find, Read, FindNext, Close, Scan} — nessun cambiamento ai dati;
+    \item di \textbf{aggiornamento} (U): \texttt{Delete, Insert} — modificano il file.
+\end{itemize}
+Tipicamente i record sono selezionati mediante condizioni di selezione.
+
+\subsection{Tuple, Tabelle, Pagine}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}cccc@{}}
+\toprule
+id & name & city & age \\
+\midrule
+1 & Marco & Trento & 33 \\
+2 & Andrea & Cosenza & 24 \\
+3 & Giuseppe & Milano & 27 \\
+4 & Federica & Trento & 20 \\
+5 & Rossana & Cosenza & 18 \\
+6 & Laura & Trento & 25 \\
+\bottomrule
+\end{tabular}
+\caption{Relazione R usata come riferimento per gli esempi di costo}
+\end{table}
+
+La prima tupla occupa 19 byte ($4+5+6+4$). Per semplicità si assume che \textbf{ogni tupla occupi lo stesso spazio} (quello della tupla più lunga); si indica con $t_R$ la dimensione di una tupla di $R$. Il DBMS raggruppa più settori del disco in una \textbf{pagina} (es. 16KB di default in MySQL); per ogni operazione (lettura o scrittura), il DBMS carica sempre pagine intere.
+
+\subsection{Il Modello di Costo}
+
+Si introduce un modello di costo basato sul \textbf{numero di pagine} che il DBMS deve leggere/scrivere per eseguire un'operazione. Le operazioni in memoria centrale sono molto più veloci di quelle su disco: il modello \textbf{ignora} il costo in memoria centrale e si concentra solo sulla memoria secondaria. Si indica con $P_R$ il numero di pagine che contengono le tuple di $R$.
+
+\subsection{Metodi di Memorizzazione di una Relazione}
+\begin{itemize}
+    \item \textbf{Heap file} (o \textit{pile}): le tuple sono scritte una dopo l'altra nell'ordine di inserimento;
+    \item \textbf{Sorted file}: le tuple sono ordinate in base al valore di un attributo (o insieme di attributi);
+    \item \textbf{Indexed file}: un indice separato accompagna il file che contiene le tuple (vedi prossima sezione).
+\end{itemize}
+
+\subsection{Heap File: Costo delle Operazioni Principali}
+
+\textbf{Inserimento}: molto facile e veloce — le tuple si memorizzano nell'ordine di arrivo; quando una pagina è piena si passa alla successiva (eventualmente lasciando spazio vuoto in fondo alla pagina precedente, per evitare di dover leggere due pagine per una singola tupla a cavallo).
+
+\begin{itemize}
+    \item \textbf{SCAN} (\texttt{SELECT * FROM R;}): $Costo_{Scan} = P_R$ — bisogna leggere tutte le pagine che contengono le tuple di R.
+    \item \textbf{EQUALITY SEARCH} (\texttt{SELECT * FROM R WHERE city = 'Trento';}): $Costo_{EqSearch} = P_R$ — stesso costo dello scan: senza indice né ordinamento, bisogna leggere \textbf{tutte} le pagine per essere sicuri di aver trovato tutte le tuple che soddisfano il filtro.
+    \item \textbf{INSERT}: $Costo_{Insert} = 2$ — si legge l'ultima pagina del file (creandone una nuova se non c'è spazio) e si riscrive la pagina modificata. \textit{Nota}: per trovare l'ultima pagina basta $P_R = S/P$ (dimensione del file $S$ diviso dimensione di una pagina $P$) e leggere la pagina $P_R{-}1$.
+    \item \textbf{DELETE} (\texttt{DELETE FROM R WHERE city='Trento';}): se $|R_{A=c}|$ è il numero di tuple in cui l'attributo $A$ vale $c$:
+    $$Costo_{Delete} = P_R + |R_{A=c}|$$
+\end{itemize}
+
+\subsubsection{Stimare $|R_{A=c}|$: il Selectivity Factor}
+Se $|R_{A=c}|$ non è noto a priori, si approssima assumendo una \textbf{distribuzione uniforme} dei valori: sia $|R|$ il numero di tuple e $|R.A|$ il numero di valori \textbf{distinti} dell'attributo $A$,
+$$|R_{A=c}| \approx \left\lceil \frac{|R|}{|R.A|} \right\rceil$$
+Il rapporto $f = \dfrac{1}{|R.A|}$ è il \textbf{selectivity factor} di $A$; quindi:
+$$Costo_{Delete} = P_R + |R_{A=c}| = P_R + \lceil f \cdot |R| \rceil$$
+\textbf{Attenzione}: è solo un'approssimazione — assume una distribuzione uniforme dei valori, che non sempre è garantita.
+
+\paragraph{Esempio.} Sulla tabella R sopra: $|R.city| = 3$ (Trento, Cosenza, Milano sono i 3 valori distinti). $\dfrac{|R|}{|R.city|} = \dfrac{6}{3} = 2$: ci si aspettano cioè 2 tuple per ogni valore di \texttt{city} (in questo caso, coincide esattamente col dato reale: 3 tuple con \texttt{city='Trento'}).
+
+\subsection{Sorted File: Costo delle Operazioni Principali}
+
+\begin{itemize}
+    \item \textbf{SCAN}: identico all'heap file, $Costo_{Scan}=P_R$.
+    \item \textbf{EQUALITY SEARCH}: si usa la \textbf{ricerca binaria} (si legge la pagina centrale; se il valore cercato segue/precede alfabeticamente, si esclude metà delle pagine rimanenti, e si ripete):
+    $$Costo_{EqSearch} = \lceil \log_2(P_R) \rceil + \left\lceil \frac{|R_{city='Trento'}|}{\lceil P/t_R \rceil} \right\rceil$$
+    Il primo termine è il costo della ricerca binaria per trovare la prima pagina con \texttt{'Trento'}; il secondo è il numero di pagine aggiuntive da leggere per ottenere tutte le tuple corrispondenti ($P/t_R$ = tuple per pagina).
+    \item \textbf{RICERCA PER INTERVALLO} (es. \texttt{WHERE age BETWEEN 18 AND 30}): stessa idea — ricerca binaria per il primo valore, poi si leggono tutte le pagine successive contenenti valori nell'intervallo. La formula non cambia concettualmente, una volta note le tuple/pagine coinvolte.
+    \item \textbf{DELETE}: ricerca binaria (costo $\lceil\log_2(P_R)\rceil$) + \textbf{riscrittura} delle pagine modificate (si trascura il costo di "compattare" lo spazio liberato):
+    $$Costo_{Delete} = \lceil \log_2(P_R) \rceil + 2 \cdot \left\lceil \frac{|R_{city='Trento'}|}{\lceil P/t_R \rceil} \right\rceil$$
+    (il fattore 2 è perché le pagine coinvolte vanno sia \textbf{lette} sia \textbf{riscritte}).
+    \item \textbf{INSERT}: si cerca il punto d'inserimento con ricerca binaria, poi si riscrive la pagina modificata:
+    $$Costo_{Insert} = \lceil \log_2(P_R) \rceil + 1$$
+    Nel \textbf{caso peggiore} (pagina piena, serve spostare tutte le tuple successive) l'INSERT può richiedere di leggere e riscrivere tutte le $P_R$ pagine. In ogni caso, \textbf{l'INSERT in un sorted file è sempre più costoso} che in un heap file.
+\end{itemize}
+
+\section{Indici}
+
+\subsection{Indicizzazione dei File}
+Un \textbf{indice} è una struttura ausiliaria che rende più efficienti le operazioni su un file di dati, indipendentemente dal fatto che quest'ultimo sia ordinato o meno:
+\begin{itemize}
+    \item \textbf{data file}: il file che contiene i dati veri e propri;
+    \item \textbf{index file}: il file che contiene l'indice (può essercene più di uno per relazione).
+\end{itemize}
+I due tipi più usati dai DBMS più comuni: \textbf{B+-tree} e \textbf{Hash}.
+
+\subsubsection{Indici Primari, Secondari, Unici}
+\begin{itemize}
+    \item \textbf{Primario}: contiene la chiave primaria della relazione — nessun duplicato;
+    \item \textbf{Secondario}: la chiave di ricerca è diversa dalla chiave primaria — può contenere duplicati;
+    \item \textbf{Unico}: la chiave di ricerca è una chiave candidata — nessun duplicato.
+\end{itemize}
+
+\subsection{B+-Trees}
+Indice dinamico ad \textbf{albero}, dove i puntatori ai dati sono memorizzati \textbf{solo nei nodi foglia}:
+\begin{itemize}
+    \item i \textbf{nodi interni} contengono \textit{index entries} e guidano la ricerca;
+    \item i \textbf{nodi foglia} contengono i puntatori ai dati nel data file;
+    \item i nodi foglia sono collegati tra loro (\textit{sequence set}) — permette scansioni ordinate e ricerche per intervallo.
+\end{itemize}
+
+\textbf{Proprietà principali}:
+\begin{itemize}
+    \item inserimento/cancellazione mantengono l'albero \textbf{bilanciato} (tutte le foglie alla stessa profondità);
+    \item occupazione garantita di \textbf{almeno il 50\%} di ogni nodo (eccetto la radice);
+    \item la ricerca richiede solo di \textbf{discendere} l'albero fino al nodo foglia appropriato;
+    \item l'\textbf{altezza} (lunghezza di un qualunque cammino radice-foglia) raramente supera 3 o 4.
+\end{itemize}
+
+\subsubsection{Costo del Lookup}
+Il \textbf{costo di lookup} è il numero di pagine da aprire per trovare il nodo foglia con i puntatori cercati. Sia $B$ il numero massimo di figli di un nodo interno e $|R.A|$ il numero di valori distinti della chiave di ricerca $A$: a ogni passo si divide per $B$ il numero di elementi rimanenti, quindi:
+$$L_b = \lceil \log_B(|R.A|) \rceil$$
+\textbf{Se $B$ e $|R.A|$ non sono noti}, si assume per convenzione un costo di lookup di \textbf{default pari a 3}.
+
+\paragraph{Esempio (B+tree vs. sorted file).} Con $P_R = 1.000.000/100 = 10.000$: $\log_2(10.000)\approx 13$ (ricerca binaria su sorted file); con $B=100$ e $|R.A|=400$: $\log_{100}(400)\approx 1{,}3$ (lookup B+tree) — molto più efficiente, perché (a) non ci sono i costi di mantenimento dell'ordinamento del file dati, e (b) il logaritmo è in base $B$ (tipicamente grande) invece che in base 2.
+
+\subsubsection{Costo delle Operazioni}
+\begin{itemize}
+    \item \textbf{SCAN}: $Costo_{Scan} = P_R$ (uguale a heap/sorted file — si aprono comunque tutte le pagine del data file);
+    \item \textbf{EQUALITY SEARCH, file \underline{unclustered}} (dati non ordinati secondo la chiave indicizzata): $$Costo_{EqSearch} = L_b + |R_{A=c}|$$ un accesso a disco \textbf{per ogni} tupla trovata, dato che le tuple corrispondenti possono trovarsi su pagine qualsiasi;
+    \item \textbf{EQUALITY SEARCH, file \underline{clustered}} (dati fisicamente ordinati secondo la chiave indicizzata): $$Costo_{EqSearch} = L_b + \left\lceil \frac{|R_{A=c}|}{\lceil P/t_R\rceil} \right\rceil$$ le tuple corrispondenti sono \textbf{fisicamente vicine}, quindi bastano poche pagine aggiuntive (tuple-per-pagina) invece di una per tupla;
+    \item \textbf{INSERT}: $Costo_{Insert} = L_b + 1 + 1$ (lookup, più eventuale creazione di una nuova pagina, più scrittura della pagina modificata — \textbf{non} si considera qui il costo di aggiornare l'indice stesso).
+\end{itemize}
+
+\subsection{Hash Indexes}
+Si sceglie una \textbf{funzione di hash} $h$ (es. per interi, $h(x)=x \bmod N$) e si allocano i valori dell'attributo indicizzato in \textbf{bucket} in base al valore di $h$. Se un bucket riceve troppi puntatori, il DBMS crea una \textbf{pagina di overflow} collegata al bucket principale.
+
+Per trovare una tupla con \texttt{age}$=x$: si applica $h$ a $x$ (costo 0, in memoria centrale) per trovare il bucket, poi si legge la pagina (o le pagine) di quel bucket nell'index file.
+
+\subsubsection{Costo delle Operazioni}
+Sia $L_h$ il costo di lookup nel file di indice (il calcolo di $h$ è gratuito; il costo è nella lettura della pagina del bucket — comprese eventuali pagine di overflow, per cui si assume di default un valore medio di $1{,}2$):
+\begin{itemize}
+    \item \textbf{EQUALITY SEARCH}: $Costo_{EqSearch} = L_h + |R_{A=c}|$ — \textbf{molto efficiente};
+    \item \textbf{RICERCA PER INTERVALLI}: \textbf{non efficiente} — non è garantito che valori vicini finiscano nello stesso bucket, quindi serve un lookup per ciascun valore dell'intervallo; un hash index non permette di leggere le tuple in ordine rispetto alla chiave;
+    \item \textbf{INSERT}: $Costo_{Insert} = L_h + 1 + 1$ (si apre l'ultima pagina del file dati e si appende la tupla, costo $1{+}1$; più il lookup per trovare il bucket in cui inserire il puntatore, costo $L_h$ — anche qui si ignora il costo di aggiornare l'indice);
+    \item \textbf{DELETE}: $Costo_{Delete} = L_h + 2\cdot|R_{A=c}|$ (lookup per trovare il bucket, poi si apre una alla volta ogni pagina con tuple da cancellare, le si modifica e riscrive: fattore 2 per lettura+scrittura);
+    \item \textbf{SCAN}: $Costo_{Scan} = P_R$ — si ignora l'index file e si accede direttamente al data file.
+\end{itemize}
+
+\textbf{Considerazioni generali}: l'hash index è molto efficiente, tranne che per ricerche per intervallo. Nel tempo i bucket accumulano sempre più pagine di overflow (aumentando il costo di lookup): il DBMS deve periodicamente riorganizzare l'index file con più bucket (\textbf{Extendible Hash Index}), spostando i puntatori esistenti nei nuovi bucket.
+
+\subsection{Index Matching}
+Con più condizioni nella clausola WHERE (es. \texttt{city='Trento' AND age=30}), un indice \textbf{soddisfa} (\textit{matcha}) un predicato di selezione se può essere usato per valutarlo.
+
+\begin{itemize}
+    \item \textbf{Indice hash} su $(A,B,\ldots)$: soddisfa \texttt{pred1 AND pred2 AND \ldots} se e solo se \textbf{tutti} gli attributi della chiave di ricerca compaiono in un predicato di \textbf{uguaglianza} ($=$). Es. con indice hash su $(A,B)$: \texttt{WHERE A=10 AND B=5} $\to$ MATCH; \texttt{WHERE A=5} (da solo) $\to$ NO MATCH (manca B).
+    \item \textbf{Indice B+tree} su $(A,B,\ldots)$: soddisfa la selezione se e solo se gli attributi nei predicati costituiscono un \textbf{prefisso} della chiave di ricerca (i predicati possono usare un operatore qualsiasi: $=,<,>,\ldots$, non solo l'uguaglianza).
+\end{itemize}
+
+\textbf{Selezioni che matchano più indici} (es. hash su $A$, B+tree su $(B,C)$, selezione $A{=}7 \wedge B{=}5 \wedge C{=}4$): possibilità — (a) usare l'hash su $A$ e poi filtrare $B,C$ sulle tuple recuperate; (b) usare il B+tree su $(B,C)$ e poi filtrare $A$; (c) usare \textbf{entrambi}, fare l'intersezione dei RID risultanti, e solo dopo recuperare le tuple.
+
+\textbf{Selezioni con disgiunzione} (\texttt{OR}): se \textbf{nessun} indice copre \textbf{tutti} i predicati in OR, l'unica soluzione è lo \textbf{SCAN} completo (es. hash su $A$ e su $B$, selezione $A{=}7 \vee B{>}5$: l'hash su $B$ non aiuta con $>$, quindi solo $A{=}7$ matcha — non basta, serve SCAN). Se invece \textbf{ogni} predicato in OR ha un indice che lo copre (es. hash su $A$, B+tree su $B$, stessa selezione $A{=}7 \vee B{>}5$): si può fare SCAN, \textbf{oppure} usare i due indici separatamente e fare l'\textbf{unione} dei RID.
+
+\subsection{Tabella Riassuntiva dei Costi}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}lllll@{}}
+\toprule
+ & \textbf{Scan} & \textbf{EqSearch} & \textbf{Insert} & \textbf{Delete} \\
+\midrule
+Heap file & $P_R$ & $P_R$ & $1+1$ & $P_R + |R_{A=c}|$ {\scriptsize[ma vedi nota]} \\
+Sorted file & $P_R$ & $\lceil\log_2 P_R\rceil + \lceil\frac{|R_{A=c}|}{\lceil P/t_R\rceil}\rceil$ & $\lceil\log_2 P_R\rceil+1$ & $\lceil\log_2 P_R\rceil + 2\lceil\frac{|R_{A=c}|}{\lceil P/t_R\rceil}\rceil$ \\
+B+tree unclustered & $P_R$ & $L_b + |R_{A=c}|$ & $L_b+1+1$ & $L_b + 2|R_{A=c}|$ \\
+B+tree clustered & $P_R$ & $L_b + \lceil\frac{|R_{A=c}|}{\lceil P/t_R\rceil}\rceil$ & $L_b+1+1$ & $L_b + 2\lceil\frac{|R_{A=c}|}{\lceil P/t_R\rceil}\rceil$ \\
+Hash index & $P_R$ & $L_h + |R_{A=c}|$ & $L_h+1+1$ & $L_h + 2|R_{A=c}|$ \\
+\bottomrule
+\end{tabular}
+\caption{Costi delle operazioni su singola relazione}
+\end{table}
+
+\textbf{Nota sulla discrepanza}: la tabella riassuntiva di queste slide riporta il DELETE su heap file come $P_R + 2\cdot|R_{A=c}|$ (stesso fattore 2 di sorted file/B+tree/hash); la derivazione esplicita nel deck sul modello di costo (Argomento 9) dà invece $P_R + |R_{A=c}|$, \textbf{senza} il fattore 2. Le due fonti dello stesso corso si contraddicono su questa singola cella — vale la pena chiarirlo con il materiale del docente prima di usarla in sede d'esame.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Algoritmo} & \textbf{Costo di $R \bowtie_{R.B=S.C} S$} \\
+\midrule
+Nested loop join & $P_R + P_R \cdot P_S$ \\
+Sort-merge join & $Costo_{OrdR} + Costo_{OrdS} + P_R + P_S$ \\
+Hash join & $(P_R+2|R|) + (P_S+2|S|) + (P_R+P_S)$ \\
+Index Nested Loop (indice su S.C) & $P_R + |R|\cdot Costo_{EqSearchS}$ \\
+\bottomrule
+\end{tabular}
+\caption{Costi degli algoritmi di join tra $R(A,B)$ e $S(C,D)$ — riportata così com'è nelle slide, senza derivazione: la trattazione dei costi di join non è coperta da nessuno slide-deck caricato finora}
+\end{table}
+
+% Fonte: trascrizione fornita, Esercizio 9
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Indice B+-tree \textbf{unclustered} sull'attributo CITY di una tabella PERSON, costo di lookup $=3$, selectivity factor $=0{,}1$, 1000 tuple nella tabella (ogni tupla 500KB, ogni pagina 600KB su disco). Qual è il costo di trovare, accedere e mostrare le tuple con \texttt{CITY='Trento'}? \\
+(a) $(3+1)\cdot 0{,}1\cdot 1000$ \quad (b) $3\cdot 0{,}1\cdot 1000$ \quad (c) $3+0{,}1\cdot 1000$ \quad (d) $3\cdot 0{,}1+1000$ \quad (e) $3\cdot(1+0{,}1\cdot1000)$
+\end{tcolorbox}
+\textbf{Soluzione:} (c) $3+0{,}1\cdot 1000$ — applicazione diretta della formula per B+tree \textbf{unclustered}: $Costo_{EqSearch}=L_b+|R_{A=c}|$. Il costo di lookup $L_b=3$ è dato direttamente. $|R_{A=c}| = f\cdot|R| = 0{,}1\cdot 1000=100$ (selectivity factor $\times$ tuple totali). Essendo l'indice \textbf{unclustered} e ogni tupla grande quasi quanto una pagina intera (500KB su 600KB), ogni tupla trovata richiede un accesso a disco separato — da qui il $+|R_{A=c}|$ invece della versione "clustered" con la divisione per tuple-per-pagina.
+
+% Fonte: trascrizione fornita, Esercizio 8
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+Tabella \texttt{Train(UserID, Gender, productID)}, 7.150.884 righe, senza indice, non ordinata. \texttt{SELECT * FROM Train WHERE productID LIKE '\%7085\%';} richiede tempo $T_1$. Creando un indice B+tree su \texttt{productID}, la stessa query richiede tempo $T_2$. Cosa si può concludere? ($T_2>T_1$ / non si può concludere nulla / $T_1>T_2$ / $T_1=T_2$)
+\end{tcolorbox}
+\textbf{Soluzione:} $T_1=T_2$ — per la regola di \textbf{index matching} dei B+tree, l'indice è utilizzabile solo se il predicato costituisce un \textbf{prefisso} della chiave di ricerca. Un \texttt{LIKE '\%7085\%'} con wildcard \textbf{iniziale} non fissa alcun prefisso (il valore cercato può comparire ovunque nella stringa): il B+tree, essendo ordinato per prefisso, non può restringere la ricerca. Il DBMS deve eseguire comunque una scansione completa (SCAN) in entrambi i casi.
+
+% Fonte: trascrizione fornita, Esercizio 6
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 3}]
+$R[A,B]$ con $P_R$ pagine e $|R|$ tuple; $S[B,C]$ con $P_S$ pagine e $|S|$ tuple; \textbf{hash index} su $S.B$ con costo di lookup $=2$. Costo di \texttt{update R,S set R.A=10 where R.A=S.B}? \\
+(a) $P_R+P_S+2|R|$ \quad (b) $P_R+P_R+2|R|$ \quad (c) $P_R+P_S+2|S|$ \quad (d) $P_R+|R|\cdot P_S\cdot 2$ \quad (e) $P_S+|S|\cdot P_R\cdot 2$
+\end{tcolorbox}
+\textbf{Soluzione:} (b) $P_R+P_R+2|R|$ — si leggono tutte le pagine di $R$ ($P_R$, obbligatorio per esaminare ogni tupla); per \textbf{ogni} tupla di $R$ si esegue un lookup sull'hash index di $S.B$ per trovare le tuple di $S$ che soddisfano la condizione di join ($|R|\cdot L_h = |R|\cdot 2$); infine si riscrivono le pagine di $R$ modificate (caso peggiore, un altro $P_R$). Si noti che $L_h=2$ qui gioca lo stesso ruolo del termine di lookup nella formula generale di EqSearch vista sopra, applicato tupla per tupla nel join.
+
+\section{Algoritmi di JOIN e Costi}
+
+\subsection{Il JOIN}
+Finora si sono considerate solo operazioni su una \textbf{singola} tabella; una delle operazioni più frequenti (e costose) in SQL è però il \textbf{JOIN} tra tabelle. Riferimento: $R(A,B) \bowtie S(C,D)$ con condizione $B=C$, dove $R$ è la \textbf{outer table} e $S$ la \textbf{inner table}.
+
+\textbf{Assunzioni}: il costo del JOIN è il numero di pagine che l'algoritmo deve leggere e/o scrivere; le tuple prodotte vengono mostrate a video via via che sono generate (non riscritte su disco) — quindi non c'è costo di scrittura per il risultato.
+
+\subsection{Nested Loop Join (NLJ)}
+L'algoritmo più semplice:
+\begin{verbatim}
+foreach tuple t in R do:
+    foreach tuple t' in S do:
+        if t.B = t'.C then output the tuple (t, t')
+\end{verbatim}
+(versione a tuple: $|R| + |R|\cdot|S|$ tuple lette). La versione \textbf{realistica} opera a livello di \textbf{pagine}: per ogni pagina di R, si scandisce ogni pagina di S, confrontando tutte le coppie di tuple al loro interno.
+
+$$Costo_{NestedLoopJoin} = P_R + P_R \cdot P_S$$
+
+\textbf{L'ordine delle tabelle conta}: conviene sempre usare come \textit{outer table} quella con \textbf{cardinalità (in pagine) minore}. Il costo del NLJ ingenuo è molto elevato: con $P_R=P_S=1000$, il costo è $1.001.000$ operazioni di I/O.
+
+\subsection{(Sort-)Merge Join}
+Assume che $R$ e $S$ siano già \textbf{ordinate} rispetto agli attributi di join ($B$ e $C$):
+\begin{enumerate}
+    \item si prende il primo valore di $B$ in $R$;
+    \item si scorrono i valori di $C$ in $S$: se si trova lo stesso valore (anche più volte), si genera la tupla di output; se si trova un valore \textbf{più alto}, si ripete il processo invertendo i ruoli di $R$ e $S$ (si scarta il valore più basso e si riparte da lì).
+\end{enumerate}
+\textbf{Nessuna tupla viene mai riletta}: si esaminano solo $|R|+|S|$ tuple in totale, cioè $P_R + P_S$ pagine — con $P_R=P_S=1000$: solo 2000 pagine, contro le 1.001.000 del NLJ!
+
+\subsubsection{Costo, se R e S \emph{non} sono già ordinate}
+Bisogna aggiungere il costo di ordinarle:
+$$Costo_{SortMergeJoin} = Costo_{OrdR} + Costo_{OrdS} + P_R + P_S$$
+\textbf{Nota}: in alcuni casi il NLJ resta preferibile — se $S$ è abbastanza piccola da stare tutta in RAM, il DBMS la mantiene in memoria e il costo del NLJ scende a $P_R + P_S$ (uguale al merge join, ma senza il costo di ordinamento).
+
+\subsubsection{Algoritmi di External Merge Sort}
+Si applicano quando i dati da ordinare non entrano in RAM e serve appoggiarsi a memoria esterna (disco). Sia $P_R$ il numero di pagine di $R$ e $B$ il numero di pagine caricabili in RAM (tipicamente centinaia): il costo di ordinare $R$ è
+$$Costo_{OrdR} = 2 \cdot P_R \cdot \left( \left\lceil \log_{B-1}\left\lceil \frac{P_R}{B} \right\rceil \right\rceil + 1 \right)$$
+
+\subsection{Hash Join}
+Usa tabelle hash per velocizzare il JOIN: una funzione di hash (es. $h(x)=x \bmod N$, con $N$ = numero di bucket) divide le tuple di $R$ e $S$ in bucket in base al valore dell'attributo di join. Se $t$ e $t'$ possono andare in join, allora $t.B=t'.C$, quindi hanno necessariamente lo \textbf{stesso hash} (il viceversa \textbf{non} vale: stesso hash non implica valori uguali).
+
+\textbf{Algoritmo}: il DBMS crea una copia di $R$ e $S$ con le tuple riorganizzate per bucket; poi, bucket per bucket: legge e carica in memoria il bucket $i$ di $R$ e di $S$, calcola in memoria il join tra i due, passa al bucket successivo. Le tuple in un bucket di $R$ possono fare match \textbf{solo} con tuple nel bucket corrispondente di $S$.
+
+$$Costo_{HashJoin} = (P_R + 2|R|) + (P_S + 2|S|) + (P_R + P_S)$$
+(costo di creare le due copie ripartizionate, più il costo di leggere i bucket per calcolare il join). Se le tuple sono \textbf{già} distribuite per bucket secondo la funzione di hash scelta, il costo si riduce a $P_R+P_S$. La scelta tra NLJ, merge join e hash join (in base a $P_R,P_S,|R|,|S|$) è compito dell'ottimizzatore del DBMS.
+
+\subsection{Index Nested Loop Join}
+Variante del NLJ che assume un \textbf{indice sulla inner table}: si leggono tutte le pagine della outer table ($R$) e, per ciascuna tupla, si cercano tramite indice le tuple di $S$ che soddisfano la condizione di join:
+$$Costo_{IndexNestedLoopJoin} = P_R + |R| \cdot Costo_{EqSearchS}$$
+dove $Costo_{EqSearchS}$ dipende dal tipo di indice presente su $S$ (le formule di EqSearch viste per B+tree/hash — Argomento 10). \textbf{Attenzione}: il vantaggio si ottiene solo se l'indice è sull'attributo della \textbf{inner table} — l'indice non aiuta lo scan della outer table.
+
+\subsection{Aggiustamento degli Indici}
+Obiettivi: valutare dinamicamente i requisiti e riorganizzare gli indici per la miglior performance. Motivi per rivedere le scelte iniziali:
+\begin{itemize}
+    \item alcune query richiedono troppo tempo per mancanza di un indice adatto;
+    \item alcuni indici risultano poco utilizzati;
+    \item alcuni indici sono soggetti ad aggiornamenti troppo frequenti (costo di mantenimento elevato).
+\end{itemize}
+
+\subsection{Decisioni Progettuali a Livello Fisico}
+\begin{itemize}
+    \item \textbf{Se indicizzare} un attributo: es. è chiave, oppure è usato in una o più query frequenti;
+    \item \textbf{Quali attributi} indicizzare: singolo attributo o combinazione (indice multi-colonna);
+    \item \textbf{Se prevedere un clustered index}: al \textbf{massimo uno} per tabella (i dati possono essere fisicamente ordinati in un solo modo);
+    \item \textbf{Hash o B+tree}: gli indici hash \textbf{non} supportano ricerche per intervallo;
+    \item \textbf{Hashing dinamico o meno}: l'\textit{Extendible Hash Index} è adatto quando i dati sono molto volatili (inserimenti/cancellazioni frequenti).
+\end{itemize}
+
+
+\section{Piani di Esecuzione delle Query}
+
+\subsection{Esecuzione di Query SQL}
+Per ogni query esistono almeno due livelli di pianificazione:
+\begin{itemize}
+    \item \textbf{pianificazione logica}: decidere \textbf{cosa} fare per produrre il risultato (selezione, proiezione, join, unione, \ldots);
+    \item \textbf{pianificazione fisica}: decidere \textbf{come} eseguire i singoli passi del piano logico (file scan, nested loop join, hash join, \ldots).
+\end{itemize}
+Piani diversi per la \textbf{stessa} query possono avere costi molto differenti. Qui ci si limita a due aspetti della stima del costo:
+\begin{itemize}
+    \item la stima della \textbf{cardinalità} di ogni passo intermedio;
+    \item il costo di ogni singolo passo in termini di \textbf{I/O} (visto nelle lezioni precedenti).
+\end{itemize}
+(Argomenti più avanzati non trattati: lo spazio di ricerca dei piani possibili, e gli algoritmi per esplorarlo — competenza dell'\textit{ottimizzatore} del DBMS.)
+
+\subsection{Cosa Serve per il Calcolo}
+\begin{itemize}
+    \item la \textbf{cardinalità} delle relazioni coinvolte;
+    \item la presenza (e il tipo) di \textbf{indici}, e il numero di chiavi nell'indice;
+    \item il numero di \textbf{pagine} usate per ogni relazione;
+    \item informazioni \textbf{statistiche} sugli attributi (valore minimo/massimo, numero di valori distinti, \ldots).
+\end{itemize}
+
+\subsection{Albero di Esecuzione della Query}
+Rappresentazione tipica dei passi di esecuzione:
+\begin{itemize}
+    \item le \textbf{foglie} sono le relazioni di partenza;
+    \item i \textbf{nodi intermedi} sono operazioni algebriche (con un costo associato a ciascuno);
+    \item la \textbf{radice} è l'output della query (anch'esso, concettualmente, una relazione).
+\end{itemize}
+
+\subsubsection{Esempio di Piano Fisico (illustrativo)}
+\textit{(Notazione ripresa da un corso esterno, solo per mostrare come si annota un piano fisico — non fa parte dell'esempio numerico principale che segue.)} Per la query \textit{"nomi dei marinai che hanno prenotato la barca di nome '100'"}, un piano fisico possibile:
+\begin{itemize}
+    \item $\pi_{sname}$ [\textbf{on-the-fly}, cioè calcolato al volo senza materializzare un risultato intermedio su disco]
+    \begin{itemize}
+        \item \textbf{Nested Loop Join} tra Sailors [\textbf{table scan}] e:
+        \begin{itemize}
+            \item \textbf{Nested Loop Join} tra Reserves [\textbf{table scan}] e $\sigma_{bname=100}$(Boats) [\textbf{table scan}]
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\subsection{Esempio Completo: Cardinalità e Costo}
+
+\textbf{Query}: \texttt{SELECT S.sid, R.rname FROM Sailors S, Boats B, Reserves R WHERE S.sid=R.sid AND B.bid=R.bid AND B.color=red}
+% Nota: la slide originale usa "R.rname", ma nello schema Reserves(sid,bid,day) visto altrove non esiste un attributo rname — probabile imprecisione della slide, riportata così com'è.
+
+\textbf{Albero logico}: $\text{Output} \leftarrow \sigma_{color=red} \leftarrow (\bowtie_{B.bid=R.bid}) \leftarrow \left[(\bowtie_{S.sid=R.sid} (\text{Sailors},\text{Reserves})),\ \text{Boats}\right]$
+
+\textbf{Assunzioni}: $|S|{=}12$ (Sailors), $|B|{=}4$ (Boats), $|R|{=}10$ (Reserves); $f(\text{color}){=}1/3$, $f(B.bid{=}R.bid){=}1/4$, $f(S.sid{=}R.sid){=}1/12$; $t_S{=}t_B{=}t_R{=}25$ byte, $P{=}50$ byte ($\Rightarrow P/t_x=2$ tuple/pagina); $P_S{=}6, P_B{=}2, P_R{=}5$.
+
+\subsubsection{Calcolo della Cardinalità dell'Output}
+La cardinalità si approssima \textbf{bottom-up} nell'albero. Limite superiore: $|Res| \leq |R|\cdot|S|\cdot|B| \leq 10\cdot12\cdot4 \leq 480$, ridotto progressivamente da ciascun \textit{selectivity factor} $f$:
+\begin{itemize}
+    \item $S.sid{=}R.sid$: $12\cdot10\cdot\frac{1}{12} = 10$;
+    \item $B.bid{=}R.bid$: $4\cdot10\cdot\frac{1}{4} = 10$;
+    \item $color{=}'red'$: $10\cdot\frac{1}{3} = 3{,}4$.
+\end{itemize}
+(Il selectivity factor è comunque sempre una \textbf{stima}, non un valore esatto.)
+
+\subsubsection{Calcolo del Costo (I/O)}
+\begin{itemize}
+    \item \textbf{Primo JOIN} (Reserves $\bowtie$ Sailors, Nested Loop con Reserves come outer — ha meno pagine): $Costo = P_R + P_S\cdot P_R = 5 + 6\cdot5 = 35$;
+    \item \textbf{Secondo JOIN} (risultato $\bowtie$ Boats): $Costo = P_B = 2$ — l'output del primo join è \textbf{già in memoria} (on-the-fly), quindi basta caricare Boats e verificare al volo la condizione;
+    \item \textbf{Selezione} $color{=}red$: costo \textbf{nullo} — eseguita in memoria sull'output delle operazioni precedenti, senza ulteriore I/O.
+\end{itemize}
+$$\textbf{Costo totale} = 35+2+0 = 37$$
+
+\subsubsection{Variante con Indice}
+Supponendo un \textbf{hash index} su \texttt{Sailors.sid} (con $L_h{=}1$): il costo del primo JOIN diventa un \textbf{Index Nested Loop Join} (Sez. Argomento 11): 
+$$Costo = P_R + |R|\cdot(L_h + |S_{S.sid=R.sid}|) = 5+10\cdot(1+1) = 25$$
+(contro i 35 della versione senza indice) — si scandisce Reserves ($P_R{=}5$) e, per ciascuna delle $|R|{=}10$ tuple, si fa un lookup sull'indice hash di Sailors ($L_h{=}1$) più l'accesso a ogni tupla trovata (qui, in media 1 per valore di sid, essendo sid la chiave primaria di Sailors).
+
+% Fonte: slide originale, Esercizio 1 di questo deck
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio}]
+Relazioni $R(\underline{A},B)$, $S(\underline{B},C)$, $U(\underline{G},H)$ (chiavi primarie sottolineate). Su $S.B$ esiste un B+-tree con costo di lookup $L_b=3$. Calcolare il costo di esecuzione della query secondo il piano fisico raffigurato nella slide (foglie $R(A,B)$ e $S(B,C)$ unite con un \textbf{Index Nested Loop Join} sfruttando l'indice su $S.B$; il risultato combinato ulteriormente con $U(G,H)$ e con una selezione intermedia).
+\end{tcolorbox}
+\textbf{Nota mia}: l'albero esatto (quali attributi nella selezione intermedia, come esattamente si combina con $U(G,H)$) è disegnato a mano nella slide originale e non sono riuscito a trascriverlo con sicurezza sufficiente da qui — piuttosto che inventare condizioni plausibili, ti rimando alla slide stessa per completare l'esercizio. Lo schema generale però è chiaro: il join $R \bowtie S$ va calcolato come Index Nested Loop ($Costo = P_R + |R|\cdot(L_b + |S_{B=c}|)$, con $R$ come outer table e l'indice su $S.B$ usato per l'inner), esattamente come nella variante indicizzata appena vista sopra.
+
+\section{Esercizi Supplementari da Appelli Precedenti}
+\textit{Provenienza: appelli del 20/01/2023, in lingua originale inglese, di un'edizione del corso con un docente diverso da quello attuale. Tradotti qui in italiano; usare con cautela dove la terminologia o le convenzioni differiscono da quelle di Bouquet (segnalato caso per caso).}
+
+\subsection{Dipendenze Funzionali e Normalizzazione}
+
+% Fonte: appello 2023-01-20, Domanda 1
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1}]
+Dato $\langle R(A,B,C,D), \{AB\to C,\ C\to D,\ C\to A\}\rangle$ — lo stesso schema usato per l'esercizio sulle chiavi candidate (Argomento 7: chiavi candidate $AB$, $BC$) — dire se $R$ è in 3NF, e in caso negativo fornire una decomposizione lossless in 3NF.
+\end{tcolorbox}
+\textbf{Soluzione:} \textbf{non è in 3NF}. Attributi primi: $A,B,C$ (appartengono alle chiavi $AB$/$BC$); $D$ è l'unico non-primo. La DF $C\to D$ viola la 3NF: $C$ non è superchiave ($(C)^+=ACD\neq ABCD$) e $D$ non è primo — nessuna delle due condizioni della 3NF è soddisfatta. Decomposizione: $R_1(A,B,C)$ con $\{AB\to C, C\to A\}$ (chiave $AB$, in 3NF) e $R_2(C,D)$ con $\{C\to D\}$ (chiave $C$, in 3NF). \textbf{Lossless}: l'attributo comune $C$ determina interamente $R_2$ ($C\to D$).
+
+% Fonte: appello 2023-01-20, Domanda 2
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2}]
+Due insiemi di DF $F_1$ e $F_2$ su uno schema $S$ sono equivalenti se: (applicando la chiusura transitiva a entrambi si ottiene lo stesso insieme di DF / sono esattamente lo stesso insieme di DF / hanno la stessa chiusura / non abbiamo abbastanza informazioni)
+\end{tcolorbox}
+\textbf{Soluzione:} hanno la stessa chiusura ($F_1^+ = F_2^+$) — è la definizione di equivalenza logica tra insiemi di DF; non serve che siano letteralmente lo stesso insieme, basta che implichino le stesse DF.
+
+% Fonte: appello 2023-01-20, Domanda 3
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 3}]
+Dato $R(A,B,C,D)$, quale dei seguenti insiemi di DF è una copertura minimale? ($AB\to C, B\to D, B\to A$ / $AB\to C, D\to BC$ / $AB\to C, C\to D, D\to C$ / $AB\to A, C\to BD$)
+\end{tcolorbox}
+\textbf{Soluzione:} $AB\to C,\ D\to BC$ — \textit{nota sulla notazione}: qui $D\to BC$ è scritto in forma compatta invece che come $D\to B, D\to C$ (la forma a singolo attributo richiesta esplicitamente da Bouquet); sono equivalenti, ma se ti viene chiesto di scrivere una copertura minimale all'esame di Bouquet, scomponi comunque in DF a un solo attributo a destra.
+
+% Fonte: appello 2023-01-20, Domanda 5
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 4}]
+Dato $\langle R(A,B,C,D), \{AB\to C, C\to D, C\to A\}\rangle$ e la decomposizione $R_1(A,B,C)$, $R_2(C,D)$: è in 3NF? (non ci sono abbastanza informazioni / Sì / No)
+\end{tcolorbox}
+\textbf{Soluzione:} Sì — è esattamente la decomposizione corretta ricavata nell'Esercizio 1 sopra: entrambi gli schemi risultanti sono in 3NF.
+
+% Fonte: appello 2023-01-20, Domanda 6
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 5}]
+L'insieme di DF $\{AB\to C, C\to D, C\to A\}$ implica logicamente: ($AC\to D, C\to B$ / $AB\to D, C\to B$ / nessuna delle altre risposte è corretta / $AC\to D, AB\to D$)
+\end{tcolorbox}
+\textbf{Soluzione:} $AC\to D,\ AB\to D$ — verifica diretta: $(AC)^+=ACD \ni D$ (via $C\to D$) $\Rightarrow AC\to D$; $(AB)^+=ABCD \ni D$ (via $AB\to C$, poi $C\to D$) $\Rightarrow AB\to D$. Le altre opzioni includono $C\to B$, falsa: $(C)^+=ACD$ non contiene $B$.
+
+\subsection{Vincoli di Integrità e Chiavi Esterne}
+
+% Fonte: appello 2023-01-20, Domanda 4
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 6}]
+Cos'è una chiave esterna (\textit{foreign key})? (un vincolo di integrità / una query SQL / un trigger / nessuna delle altre opzioni)
+\end{tcolorbox}
+\textbf{Soluzione:} un vincolo di integrità.
+
+% Fonte: appello 2023-01-20, Domanda 13
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 7}]
+\texttt{Student(Sid,Name,Login,Age,GPA)}: (53666,Kayne,A@ca,28,4.2), (53655,Tupac,B@ca,26,3.5), (53688,Bieber,C@ca,22,3.9). \texttt{Enrolled.Sid} è chiave esterna verso \texttt{Student.Sid}. Quali dei seguenti INSERT in \texttt{ENROLLED(Sid,Cid,Grade)} vanno a buon fine?
+\begin{enumerate}
+    \item[1.] \texttt{INSERT INTO ENROLLED VALUES(53667, '15-420', 'C');}
+    \item[2.] \texttt{INSERT INTO ENROLLED VALUES(53666, '15-421', 'C');}
+    \item[3.] \texttt{INSERT INTO ENROLLED VALUES(53667, '15-415', 'C');}
+    \item[4.] \texttt{INSERT INTO ENROLLED VALUES(53666, '15-415', 'C');}
+\end{enumerate}
+(solo 1 e 3 / solo 2 e 4 / solo 3 / solo 4)
+\end{tcolorbox}
+\textbf{Soluzione:} solo 2 e 4 — entrambi usano \texttt{Sid=53666}, presente in \texttt{Student}; gli inserimenti 1 e 3 usano \texttt{Sid=53667}, che \textbf{non} esiste in \texttt{Student} — violano l'integrità referenziale.
+
+% Fonte: appello 2023-01-20, Domanda 8
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 8}]
+Date le tabelle $S(A,B,C)$ (4 righe, tutte $\langle 1,a,e\rangle$), $T(D,E,F)$ (righe $\langle a,e,1\rangle,\langle a,e,2\rangle,\langle a,e,3\rangle,\langle a,e,4\rangle$) e $R(A,B,C)$ (righe con $B$ variabile, incluso un \texttt{NULL}): senza altre assunzioni, si può dire che $(B,C,A)$ è chiave esterna di $S$ verso $T$? (potrebbe esserlo, ma non possiamo saperlo con certezza / no, non può esserlo / sì, di sicuro)
+\end{tcolorbox}
+\textbf{Soluzione:} sì, di sicuro — ogni riga di $S$ proiettata su $(B,C,A)$ dà $\langle a,e,1\rangle$, che compare come riga di $T$ (posizionalmente su $D,E,F$): il vincolo di integrità referenziale è soddisfatto da \textbf{tutte} le righe mostrate di $S$.
+
+\subsection{SQL}
+
+% Fonte: appello 2023-01-20, Domanda 7
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 9}]
+Dati $R(A,B)$ e $S(B,C)$, quale delle seguenti è SQL legale? (\texttt{select A, AVG(C) as AV from R,S where R.B=S.B group by C} / \texttt{... group by A} / \texttt{... group by B})
+\end{tcolorbox}
+\textbf{Soluzione:} \texttt{... group by A} — regola generale (Argomento SQL): ogni colonna nella \texttt{select-list} che non sia un'aggregazione deve comparire anche nella \texttt{GROUP BY}. Qui l'unica colonna non aggregata nel \texttt{SELECT} è $A$: deve quindi essere lei l'oggetto del \texttt{GROUP BY} (raggruppare per $B$ o per $C$ lascerebbe $A$ senza un valore univoco per gruppo).
+
+\subsection{Indici}
+
+% Fonte: appello 2023-01-20, Domanda 11
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 10}]
+Qual è lo scopo di un indice in un motore di basi di dati SQL? (solo velocizzare le ricerche / solo migliorare le performance delle query / tutte le ragioni menzionate / solo fornire un indice a un record)
+\end{tcolorbox}
+\textbf{Soluzione:} tutte le ragioni menzionate.
+
+\subsection{Ottimizzazione delle Query}
+
+% Fonte: appello 2023-01-20, Domanda 12
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 11}]
+Il costo di $\sigma_{A=1}(R\bowtie S)$ è sempre uguale al costo di $\sigma_{A=1}(R)\bowtie S$? (No / Sì / vero solo se A è chiave esterna verso S / solo se A è chiave in R o S / vero solo se A è attributo di entrambe)
+\end{tcolorbox}
+\textbf{Soluzione:} No — è un classico esempio di \textbf{selection pushdown}: anticipare la selezione prima del join (filtrando $R$ per $A=1$ quando possibile) riduce drasticamente il numero di tuple coinvolte nel join, abbassando il costo; le due espressioni sono equivalenti dal punto di vista del \textbf{risultato} (per questo l'ottimizzatore le considera intercambiabili), ma \textbf{non} del costo — è esattamente il tipo di riscrittura che un ottimizzatore di query applica automaticamente.
+
+\subsection{Algebra Relazionale}
+
+% Fonte: appello 2023-01-20, Domanda 14
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 12}]
+Due relazioni $A$ e $B$ con lo stesso schema, chiave $C$. In un diagramma di Venn con i due cerchi $A$ e $B$ che si sovrappongono, quale query restituisce solo la parte blu (la porzione di $A$ che \textbf{non} si sovrappone a $B$)? ($B-A$ / $A-(A\cup B)$ / $A-(A\bowtie B)$ / nessuna è corretta / $A-(A\cap B)$)
+\end{tcolorbox}
+\textbf{Soluzione:} $A-(A\bowtie B)$ — dato che $A$ e $B$ hanno lo \textbf{stesso schema} (inclusa la chiave $C$), il join naturale $A\bowtie B$ coincide con l'intersezione $A\cap B$ (fa match su tutti gli attributi in comune, cioè tutti); quindi $A-(A\bowtie B)$ equivale a $A-(A\cap B)$, le tuple di $A$ che non sono anche in $B$ — esattamente la porzione di $A$ non sovrapposta. (Nota: $A-(A\cap B)$, l'ultima opzione, sarebbe equivalente ma \textbf{non} è quella segnata come corretta nella griglia originale — probabilmente perché la domanda mette alla prova proprio l'equivalenza $A\bowtie B \equiv A\cap B$ su schemi identici.)
+
+% Fonte: appello 2023-01-20, Domanda 15
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 13}]
+Dati $R(A,B)$ e $S(B)$, la divisione $R/S$ in algebra relazionale equivale a: ($\pi_B(R)-\pi_B(S-(\pi_B(R)\times S))$ / $\pi_A(R)-\pi_A(R-(\pi_A(R)\times S))$ / $\pi_A(R)-\pi_A((\pi_A(R)\times S)-R)$ / $\pi_B(R)-\pi_A((\pi_B(R)\times S)-R)$)
+\end{tcolorbox}
+\textbf{Soluzione:} $\pi_A(R)-\pi_A((\pi_A(R)\times S)-R)$ — è la formula standard per esprimere la divisione tramite gli operatori base: si parte da tutti i possibili valori di $A$ ($\pi_A(R)$), si sottraggono quelli per cui \textbf{esiste almeno un} valore di $B$ in $S$ non accoppiato in $R$ (cioè quelli che \textbf{non} soddisfano la divisione), ottenendo solo i valori di $A$ associati a \textbf{tutti} i valori di $B$ in $S$.
+
+\subsection{Modello ER}
+
+% Fonte: appello 2023-01-20, Domanda 16
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 14}]
+Un'entità debole... (non partecipa a nessuna relazione / ha la chiave composta da attributi di un'altra entità / è collegata da una relazione ISA a un'altra entità / non ha una chiave)
+\end{tcolorbox}
+\textbf{Soluzione:} ha la chiave composta da attributi di un'altra entità — coerente con quanto visto nel Mapping ER→relazionale: la chiave di un'entità debole combina la propria chiave parziale con la chiave dell'entità identificante.
+
+\subsection{Viste}
+
+% Fonte: appello 2023-02-03, Domanda 1
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 15}]
+Quale delle seguenti affermazioni sulle viste è \textbf{sbagliata}? Se sono tutte corrette, scegliere "sono tutte corrette".
+\begin{itemize}
+    \item[A.] Le viste possono rappresentare un sottoinsieme dei dati di una tabella, limitando l'esposizione delle tabelle di base (un utente può avere accesso alla vista ma non alla tabella).
+    \item[B.] Le viste possono unire (join) e semplificare più tabelle in un'unica tabella virtuale.
+    \item[C.] Le viste possono aggregare dati (SUM, AVG, \ldots) e presentare i risultati calcolati come parte dei dati.
+    \item[D.] Le viste possono nascondere la complessità dei dati (es. Vendite2000/Vendite2001 come partizioni trasparenti di una tabella).
+    \item[E.] Sono tutte corrette.
+\end{itemize}
+\end{tcolorbox}
+\textbf{Soluzione:} E — A, B, C, D descrivono tutte proprietà reali e comuni delle viste (controllo degli accessi, semplificazione via join, aggregazione, trasparenza); nessuna è falsa.
+
+\subsection{Vincoli di Integrità e Chiavi}
+
+% Fonte: appello 2023-02-03, Domanda 5
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 16}]
+Quale delle seguenti \textbf{non} è una proprietà di un DBMS relazionale? (ogni colonna ha un nome univoco / le relazioni possono essere vuote / tutti i valori di una colonna sono dello stesso tipo / gli attributi di chiave e chiave esterna devono avere lo stesso nome / l'ordine delle righe non conta / l'ordine delle colonne non conta)
+\end{tcolorbox}
+\textbf{Soluzione:} gli attributi di chiave e chiave esterna devono avere lo stesso nome — \textbf{falso}: come visto nel Modello Relazionale, "gli attributi appartenenti alla FK non necessariamente hanno lo stesso nome dei corrispondenti attributi della PK".
+
+% Fonte: appello 2023-02-03, Domanda 6
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 17}]
+Quale affermazione su chiavi/chiavi esterne \textbf{non} è vera? (la PK identifica univocamente le righe / la PK è unica e non può essere NULL / una tabella può avere una sola PK / la superchiave minimale è una chiave candidata / la chiave candidata è la chiave primaria)
+\end{tcolorbox}
+\textbf{Soluzione:} "la chiave candidata è la chiave primaria" — falso: una relazione può avere \textbf{più} chiavi candidate (es. STUDENT aveva sia \{sid\} sia \{login\} — vedi Modello Relazionale), ma \textbf{una sola} viene scelta come primaria; le altre restano candidate ma non sono "la" primaria.
+
+% Fonte: appello 2023-02-03, Domanda 10 (= appello 2023-01-20, Esercizio 8)
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 18} (ripetuta identica in entrambi gli appelli)]
+Date le tabelle $S(A,B,C)$ (4 righe $\langle1,a,e\rangle$), $T(D,E,F)$ (righe $\langle a,e,1..4\rangle$): $(B,C,A)$ è chiave esterna di $S$ verso $T$? 
+\end{tcolorbox}
+\textbf{Soluzione:} Sì, di sicuro — vedi Esercizio 8, identico.
+
+\subsection{SQL}
+
+% Fonte: appello 2023-02-03, Domanda 4
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 19}]
+Quale dei seguenti comandi \textbf{non} fa parte del DDL SQL? (CREATE / SELECT / DROP / ALTER)
+\end{tcolorbox}
+\textbf{Soluzione:} SELECT — è DML (interrogazione), non DDL (definizione dello schema).
+
+% Fonte: appello 2023-02-03, Domanda 7
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 20}]
+Qual è la differenza tra HAVING e WHERE?
+\end{tcolorbox}
+\textbf{Soluzione:} WHERE si applica a ogni tupla dopo il prodotto cartesiano (il FROM); HAVING si applica a ogni \textbf{gruppo}, dopo l'aggregazione. Se non ci sono gruppi (niente GROUP BY), WHERE e HAVING si comportano allo stesso modo.
+
+% Fonte: appello 2023-02-03, Domanda 8
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 21}]
+La normalizzazione è il processo di... (definire le tabelle / rendere le tuple della stessa dimensione / organizzare le informazioni rimuovendo le ridondanze / mantenere le tuple ordinate / definire le chiavi primarie)
+\end{tcolorbox}
+\textbf{Soluzione:} organizzare le informazioni rimuovendo le ridondanze.
+
+% Fonte: appello 2023-02-03, Domanda 18
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 22}]
+Dato \texttt{Product(maker,model)}, \texttt{PC(model,speed,hd,price)} (model chiave per entrambe): scrivere una query SQL che trovi tutti i \texttt{model} con \texttt{maker='Apple'}.
+\end{tcolorbox}
+\textbf{Soluzione:}
+\begin{verbatim}
+SELECT model
+FROM Product
+WHERE maker = 'Apple';
+\end{verbatim}
+
+% Fonte: appello 2023-02-03, Domanda 19
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 23}]
+\texttt{Suppliers(sid,sname,address)}, \texttt{Parts(pid,pname,color)}, \texttt{Catalog(sid,pid,cost)}.
+\begin{verbatim}
+SELECT C.sid
+FROM Catalog C
+WHERE NOT EXISTS (SELECT P.pid FROM Parts P
+    WHERE NOT EXISTS (SELECT C1.sid FROM Catalog C1
+        WHERE C1.sid=C.sid AND C1.pid=P.pid));
+\end{verbatim}
+Descrivere in una frase (max 25 parole, senza termini tecnici) cosa fa la query.
+\end{tcolorbox}
+\textbf{Soluzione:} è il classico pattern della \textbf{divisione} tramite doppia negazione ("per ogni... esiste"): trova i fornitori che riforniscono \textbf{ogni} parte esistente nel catalogo, senza eccezioni.
+
+\subsection{Dipendenze Funzionali e Normalizzazione (cont.)}
+
+% Fonte: appello 2023-02-03, Domanda 11 — risolve la trascrizione corrotta dell'inizio conversazione
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 24}]
+$R(A,B,C,D,E,F)$ con $F=\{AB\to C,\ BC\to AD,\ D\to E,\ CF\to B\}$. Quanto vale $(DA)^+$? (DA / ABCDEF / ABCD / DAE)
+\end{tcolorbox}
+\textbf{Soluzione:} DAE — $(DA)^+$ parte da $\{D,A\}$; l'unica DF applicabile è $D\to E$ (nessuna delle altre ha il lato sinistro contenuto in \{D,A\}); si aggiunge $E$: $\{D,A,E\}$, e l'algoritmo si ferma.
+
+% Fonte: appello 2023-02-03, Domanda 20
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 25}]
+Uno schema $\langle R(X),F\rangle$ è in 3NF se, per ogni DF non banale $X\to Y$ in $F^+$: (X superchiave, oppure ogni attributo di Y-X è in una chiave candidata / X superchiave E ogni attributo di Y-X è in una chiave candidata / X superchiave, oppure ogni attributo di Y-X è in una \textbf{super}chiave / nessuna, perché la 3NF considera tutte le DF non solo quelle non banali)
+\end{tcolorbox}
+\textbf{Soluzione:} X superchiave, \textbf{oppure} ogni attributo di Y-X è in una chiave candidata (attributo primo) — è l'"oppure", non l'"e" — esattamente come definito nella sezione Normalizzazione.
+
+\subsection{Indici e Costi}
+
+% Fonte: appello 2023-02-03, Domanda 2
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 26} (risposta da verificare sull'originale)]
+Quale affermazione sugli indici \textbf{non} è corretta? (non si possono avere 2 indici sullo stesso attributo, ma sì più indici sulla stessa tabella / gli indici occupano spazio / un indice velocizza le ricerche al costo di scritture extra e più spazio / gli indici unclustered non definiscono l'ordine fisico ma quello logico / un indice clustered determina l'ordine fisico su disco, quindi ce n'è al massimo uno per tabella)
+\end{tcolorbox}
+\textbf{Nota mia:} non sono riuscito a leggere con certezza quale opzione sia segnata. Il candidato più probabile è la quarta ("unclustered... ordine logico") — un indice unclustered non impone di per sé nessun ordinamento sui dati, logico o fisico, quindi l'affermazione suona sospetta — ma non ne sono certo: verifica sull'originale.
+
+% Fonte: appello 2023-02-03, Domanda 12 (= appello 2023-01-20, Esercizio 3 nella sezione Indici)
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 27} (identica a quella già in Argomento 10)]
+$R[A,B]$, $S[B,C]$, hash index su $S.B$ (lookup=2). Costo di \texttt{update R,S set R.A=10 where R.A=S.B}?
+\end{tcolorbox}
+\textbf{Soluzione:} $P_R+P_R+|R|\cdot 2$ — identica all'Esercizio 3 di Argomento 10.
+
+\subsection{Ottimizzazione delle Query (cont.)}
+
+% Fonte: appello 2023-02-03, Domanda 17 (= appello 2023-01-20, Esercizio 11)
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 28} (identica all'Esercizio 11 sopra)]
+Il costo di $\sigma_{A=1}(R\bowtie S)$ è sempre uguale al costo di $\sigma_{A=1}(R)\bowtie S$?
+\end{tcolorbox}
+\textbf{Soluzione:} No — vedi Esercizio 11 (selection pushdown).
+
+\subsection{Algebra Relazionale (cont.)}
+
+% Fonte: appello 2023-02-03, Domanda 3
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 29}]
+Due tabelle con un attributo omonimo. L'operazione che prende le tuple della prima che hanno match nella seconda, quelle della seconda che hanno match nella prima, \textbf{e anche} quelle senza alcun match da entrambe le parti, si chiama: (Semi-Join / prodotto cartesiano / Full Outer Join / Equi-join / Theta-join)
+\end{tcolorbox}
+\textbf{Soluzione:} Full Outer Join — per definizione (Argomento SQL: "FULL (OUTER) JOIN: tutte le tuple di entrambe le tabelle a fronte di un match in almeno una").
+
+% Fonte: appello 2023-02-03, Domanda 9 — stessa tabella già incontrata nel corso principale (SQL, senza opzioni)
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 30}]
+Data $R(A,B,C)$: (1,NULL,2),(1,NULL,3),(NULL,NULL,NULL),(NULL,1,2),(3,4,5),(1,2,NULL). Risultato di \texttt{select SUM(B),C from R group by C}?
+\end{tcolorbox}
+\textbf{Soluzione:} $(1,2), (NULL,3), (2,NULL), (4,5)$ — gruppo $C{=}2$: righe con $B{=}$NULL,1 $\Rightarrow$ SUM$=1$; gruppo $C{=}3$: solo $B{=}$NULL $\Rightarrow$ SUM$=$NULL; gruppo $C{=}$NULL (le due righe con $C$ nullo si raggruppano insieme, a differenza del WHERE): $B{=}$NULL,2 $\Rightarrow$ SUM$=2$; gruppo $C{=}5$: $B{=}4\Rightarrow$SUM$=4$.
+
+% Fonte: appello 2023-02-03, Domanda 13
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 31}]
+$R[\underline{A},\underline{B}]$ e $S[\underline{B},C]$ (B chiave in \textbf{entrambe}), B+tree su S.B (lookup=3). Piano: $\sigma_{B=10}(\pi_{BC}(R \bowtie_{\text{Index Nested Loops}} S))$. Qual è il numero \textbf{massimo} di tuple restituite? ($|R|\cdot|S|$ / 1 / $|R|$ / $|S|$ / $P_S+|S|\cdot(3{+}1)$)
+\end{tcolorbox}
+\textbf{Soluzione:} 1 — dato che $B$ è chiave (quindi unica) sia in $R$ sia in $S$, il join produce al più una tupla per ciascun valore di $B$; la selezione finale $\sigma_{B=10}$ filtra ulteriormente su un \textbf{singolo} valore di quella stessa chiave, quindi può sopravvivere al massimo \textbf{una} tupla, indipendentemente da $|R|$ e $|S|$.
+
+% Fonte: appello 2023-02-03, Domanda 14 (variante della Domanda 14 dell'appello 2023-01-20)
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 32}]
+$A$, $B$ stesso schema, chiave $C$. Quale query restituisce la parte \textbf{rossa} (solo $A$, non sovrapposta a $B$)? ($A-(A\bowtie B)$ / $B-A$ / $A-(A\cup B)$ / $B-(A\cap B)$ / nessuna corretta)
+\end{tcolorbox}
+\textbf{Soluzione:} nessuna delle formule elencate è marcata come "nessuna corretta" in questo caso — la risposta segnata è \textcolor{tocsec}{$A-(A\cap B)$}, formula non tra quelle di questa lista di opzioni ma equivalente a $A-(A\bowtie B)$ (dato lo stesso schema, join naturale = intersezione — vedi Esercizio 12 sopra).
+
+% Fonte: appello 2023-02-03, Domanda 15
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 33}]
+$R[A,B]$, $S[B,C]$ entrambe non vuote. \texttt{SELECT DISTINCT A FROM R} e \texttt{SELECT DISTINCT A FROM R,S} restituiscono sempre lo stesso numero di tuple, indipendentemente dal contenuto? (Sì, sempre / No, dipende dal contenuto)
+\end{tcolorbox}
+\textbf{Soluzione:} Sì, sempre — il prodotto cartesiano con $S$ (non vuota) associa a ogni valore di $A$ almeno una (e potenzialmente più) combinazione con $S$, ma \textbf{non introduce mai nuovi valori di $A$}; il \texttt{DISTINCT} finale collassa tutte le combinazioni allo stesso insieme di valori distinti di $A$ già presente in $R$ da sola.
+
+
+\subsection{Note e Chiarimenti da Spiegazioni Tutor (2023)}
+
+% Fonte: 2023-01-20_explanation, Domanda 2 — chiarimento su una domanda ambigua
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Nota: cosa significa "chiusura transitiva" di un insieme di DF}]
+La domanda "due insiemi di DF $F_1,F_2$ sono equivalenti se, applicando la chiusura transitiva a entrambi, si ottiene lo stesso insieme di DF" ammette \textbf{due letture}:
+\begin{itemize}
+    \item in senso \textbf{stretto}: "chiusura transitiva" = applicare \textbf{solo} l'assioma di transitività;
+    \item in senso \textbf{ampio}: applicare \textbf{tutti} gli assiomi di Armstrong fino a un punto fisso (cioè calcolare $F^+$ per intero).
+\end{itemize}
+Nel secondo senso, la frase diventa semplicemente la definizione di equivalenza vista in Argomento 7 ($F_1^+=F_2^+$), ed è per questo che il tutor ha accettato \textbf{entrambe} le opzioni "dopo aver applicato la chiusura transitiva otteniamo lo stesso insieme di DF" e "la loro chiusura è la stessa" come corrette — sono la stessa cosa, letta nel senso ampio.
+\end{tcolorbox}
+
+% Conferma senza novità sostanziale: Domande 1, 3, 4 di questa spiegazione confermano quanto già stabilito (decomposizione 3NF di R(A,B,C,D){AB->C,C->D,C->A}; step dell'algoritmo di copertura minimale — qui il tutor scrive esplicitamente la forma D->B, D->C anziché D->BC, confermando che la notazione a singolo attributo è quella "propria"; definizione di chiave esterna).
+
+
+\section{II Esercitazione sull'Algebra Relazionale}
+
+% Fonte: esercitazione_AR (II Esercitazione sull'algebra relazionale), testo controllato sul PDF originale
+Esercitazione di \textbf{algebra relazionale (AR)} su uno schema \textit{Impiegati--Dipartimenti--Progetti}:
+\begin{itemize}
+\item \textbf{Esercizio 1}: formulare in AR 14 interrogazioni, dalle più semplici (selezione e proiezione) fino a negazione e quantificazione universale;
+\item \textbf{Esercizio 2}: descrivere in linguaggio naturale il significato di 2 espressioni di AR.
+\end{itemize}
+Per ogni quesito: \textbf{testo}, \textbf{ragionamento}, \textbf{soluzione} e \textbf{fondamento teorico}.
+
+\subsection{Schema di riferimento e convenzioni}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Schema relazionale (chiavi primarie sottolineate)}]
+\begin{itemize}
+\item \textbf{IMPIEGATO}(\underline{Matricola}, Cognome, Stipendio, Dipartimento)
+\item \textbf{DIPARTIMENTO}(\underline{Codice}, Nome, Sede, Direttore)
+\item \textbf{PROGETTO}(\underline{Sigla}, Nome, Bilancio, Responsabile)
+\item \textbf{PARTECIPAZIONE}(\underline{Impiegato}, \underline{Progetto})
+\end{itemize}
+\end{tcolorbox}
+
+\textbf{Vincoli di riferimento} (ogni chiave esterna punta alla chiave primaria della relazione indicata):
+\begin{itemize}
+\item IMPIEGATO.\textbf{Dipartimento} $\rightarrow$ DIPARTIMENTO: dove l'impiegato lavora;
+\item DIPARTIMENTO.\textbf{Direttore} $\rightarrow$ IMPIEGATO: chi dirige il dipartimento;
+\item PROGETTO.\textbf{Responsabile} $\rightarrow$ IMPIEGATO: chi è responsabile del progetto;
+\item PARTECIPAZIONE.\textbf{Impiegato} $\rightarrow$ IMPIEGATO: chi partecipa;
+\item PARTECIPAZIONE.\textbf{Progetto} $\rightarrow$ PROGETTO: a quale progetto partecipa (le due chiavi esterne realizzano l'associazione molti-a-molti tra impiegati e progetti).
+\end{itemize}
+
+\textcolor{teal}{\textbf{Idea chiave:}} tra IMPIEGATO e DIPARTIMENTO esistono \textbf{due} collegamenti distinti, \emph{lavora in} ($\text{Dipartimento}\to\text{Codice}$) e \emph{dirige} ($\text{Direttore}\to\text{Matricola}$): scegliere quello giusto è metà della soluzione nelle interrogazioni 1.2--1.4, 1.7, 1.9--1.10 e nell'Es.~2.2.
+
+\textbf{Convenzioni usate nelle soluzioni}
+\begin{itemize}
+\item \textbf{Ridenominazione}: $\rho_{N\leftarrow V}(E)$ cambia il nome dell'attributo $V$ in $N$ (notazione dell'esercitazione); equivale alla notazione delle slide $\rho(R(V\to N),E)$. Con più attributi la corrispondenza è posizionale: $\rho_{N_1,N_2\leftarrow V_1,V_2}(E)$.
+\item \textbf{Join}: $R\bowtie_c S=\sigma_c(R\times S)$ richiede schemi disgiunti; $R\bowtie S$ è il \textbf{join naturale}, cioè uguaglianza su \emph{tutti} gli attributi con lo stesso nome (senza attributi comuni degenera nel prodotto cartesiano). Dopo un equi-join non riuso mai l'attributo di destra della condizione: così il risultato non dipende dal fatto che quella colonna sia mantenuta o eliminata (nelle slide compare una sola volta).
+\item \textbf{Semantica a insiemi}: $\pi$ e $\cup$ eliminano i duplicati; per distinguere impiegati omonimi bisogna proiettare anche Matricola.
+\item \textbf{Algebra di base}: solo $\sigma$, $\pi$, $\rho$, $\cup$, $\cap$, $-$, $\times$, $\bowtie$, senza funzioni aggregate (SUM, COUNT, MAX, \dots), che le slide citano tra le «altre operazioni, che vedremo solo in parte»: massimi e conteggi si ottengono con self-join e differenza.
+\item \textbf{Costanti}: il testo usa unità diverse (milioni, K); le soglie sono scritte come numeri assoluti ($50\,000\,000$, $100\,000$, $60\,000$) e vanno adattate all'unità effettiva degli attributi.
+\item \textbf{Chiavi esterne non nulle}: ogni chiave esterna ha un valore, quindi un join dal lato della chiave esterna verso la chiave referenziata associa a ogni tupla \emph{esattamente una} tupla.
+\end{itemize}
+\textbf{Nota:} l'esercitazione non riporta soluzioni ufficiali; quelle proposte sono svolgimenti non ufficiali, controllati eseguendoli su database di prova.
+
+\subsection{Richiami teorici sugli operatori}
+\begin{itemize}
+\item \textbf{Selezione} $\sigma_c(R)$: le tuple di $R$ che soddisfano $c$; lo schema non cambia e $|\sigma_c(R)|\le|R|$. Selezioni in cascata $=$ una selezione con la congiunzione delle condizioni.
+\item \textbf{Proiezione} $\pi_L(R)$: mantiene solo gli attributi in $L$ ed \textbf{elimina i duplicati}; se $L$ contiene una chiave di $R$ allora $|\pi_L(R)|=|R|$.
+\item \textbf{Ridenominazione} $\rho$: cambia i nomi degli attributi, non le tuple; evita i conflitti di nomi e \emph{crea} gli attributi comuni su cui agisce il join naturale.
+\item \textbf{Operatori insiemistici} $\cup,\cap,-$: richiedono relazioni \textbf{compatibili} (stesso numero di attributi, domini compatibili); $-$ non è commutativo; se i nomi differiscono il risultato usa quelli del primo operando (convenzione delle slide).
+\item \textbf{Prodotto cartesiano} $R\times S$: tutte le coppie di tuple, $|R\times S|=|R|\cdot|S|$, schema unione degli schemi (che devono essere disgiunti).
+\item \textbf{Join}: commutativo e associativo; $|R\bowtie_c S|\le|R\times S|$.
+\item \textbf{Monotonia}: $\sigma$, $\pi$, $\times$, $\bowtie$, $\cup$, $\cap$ sono monotoni (aggiungere tuple in ingresso non fa sparire tuple dal risultato); solo la \textbf{differenza} è non monotona, ed è quindi l'unico operatore con cui si esprimono «non esiste», «nessuno», «tutti».
+\item \textbf{Ottimizzazione algebrica} (slide): anticipare le selezioni, anticipare le proiezioni, riordinare i join.
+\end{itemize}
+
+\subsection{Esercizio 1: formulare le interrogazioni in algebra relazionale}
+
+\subsubsection{Selezione, proiezione e join lungo le chiavi esterne (1.1--1.6)}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 1
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.1}]
+Trovare matricola e cognome degli impiegati che guadagnano più di 50 milioni.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item Basta la relazione IMPIEGATO: contiene sia lo stipendio sia gli attributi richiesti.
+\item Prima si \textbf{selezionano} le tuple con $\text{Stipendio}>50\,000\,000$, poi si \textbf{proiettano} Matricola e Cognome.
+\item L'ordine è obbligato: la proiezione elimina Stipendio, che serve alla selezione ($\sigma$ prima di $\pi$).
+\end{itemize}
+
+\textbf{Soluzione:}
+$$\pi_{\text{Matricola},\text{Cognome}}\big(\sigma_{\text{Stipendio}>50\,000\,000}(\text{IMPIEGATO})\big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item $\sigma$ filtra le tuple senza cambiare lo schema; $\pi$ restringe lo schema ed elimina i duplicati.
+\item La lista di proiezione contiene la chiave Matricola, quindi $|\pi_L(R)|=|R|$ (con $R$ le tuple selezionate): nessuna tupla va persa. Con il solo Cognome due omonimi collasserebbero in una tupla.
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 2
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.2}]
+Trovare cognome e stipendio degli impiegati che lavorano a Roma.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item La sede è un attributo di DIPARTIMENTO, non di IMPIEGATO: «lavorare a Roma» significa appartenere a un dipartimento con $\text{Sede}=\text{Roma}$.
+\item Il collegamento è la chiave esterna $\text{Dipartimento}\to\text{Codice}$ (\emph{lavora in}): equi-join con condizione $\text{Dipartimento}=\text{Codice}$.
+\item Si seleziona la sede \emph{prima} del join (meno tuple da combinare) e alla fine si proiettano Cognome e Stipendio.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{align*}
+&\pi_{\text{Cognome},\text{Stipendio}}\Big(\text{IMPIEGATO}\bowtie_{\text{Dipartimento}=\text{Codice}}\sigma_{\text{Sede}=\text{``Roma''}}(\text{DIPARTIMENTO})\Big)
+\end{align*}
+Variante con join naturale (la ridenominazione crea l'attributo comune):
+\begin{align*}
+&\pi_{\text{Cognome},\text{Stipendio}}\Big(\text{IMPIEGATO}\bowtie\\
+&\qquad\rho_{\text{Dipartimento}\leftarrow\text{Codice}}\big(\sigma_{\text{Sede}=\text{``Roma''}}(\text{DIPARTIMENTO})\big)\Big)
+\end{align*}
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Join lungo una chiave esterna}: ogni impiegato si combina con l'unico dipartimento il cui Codice coincide con il suo Dipartimento (chiave $\Rightarrow$ corrispondenza unica; integrità referenziale $\Rightarrow$ corrispondenza esistente).
+\item \textbf{Anticipazione della selezione} (ottimizzazione algebrica): la condizione usa solo attributi di DIPARTIMENTO, quindi $\sigma_c(R\bowtie S)=R\bowtie\sigma_c(S)$.
+\item Il join naturale richiede attributi omonimi: $\rho_{\text{Dipartimento}\leftarrow\text{Codice}}$ lo rende equivalente all'equi-join (la colonna di join compare una sola volta).
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 3
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.3}]
+Trovare cognome degli impiegati e nome del dipartimento in cui lavorano.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item Il cognome è in IMPIEGATO, il nome del dipartimento in DIPARTIMENTO: serve il join sulla chiave esterna \emph{lavora in}, $\text{Dipartimento}=\text{Codice}$.
+\item Nessuna selezione: si proiettano Cognome e Nome. Qui Nome è l'attributo di DIPARTIMENTO (IMPIEGATO non ha un attributo omonimo, quindi non c'è ambiguità).
+\item Il risultato è un insieme di coppie (cognome, nome del dipartimento): due impiegati omonimi dello stesso dipartimento danno una sola coppia.
+\end{itemize}
+
+\textbf{Soluzione:}
+$$\pi_{\text{Cognome},\text{Nome}}\big(\text{IMPIEGATO}\bowtie_{\text{Dipartimento}=\text{Codice}}\text{DIPARTIMENTO}\big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item $\theta$-join $R\bowtie_c S=\sigma_c(R\times S)$: i due schemi sono disgiunti, quindi non serve alcuna ridenominazione.
+\item Dal lato della chiave esterna il join non moltiplica le tuple (ogni impiegato ha esattamente un dipartimento):
+$$|\text{IMPIEGATO}\bowtie_{\text{Dipartimento}=\text{Codice}}\text{DIPARTIMENTO}|=|\text{IMPIEGATO}|$$
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 4
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.4}]
+Trovare cognome degli impiegati che sono direttori di dipartimento.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item «Essere direttore» è espresso da DIPARTIMENTO.Direttore (chiave esterna verso IMPIEGATO): è il collegamento \emph{dirige}, non $\text{Dipartimento}\to\text{Codice}$.
+\item Equi-join con $\text{Matricola}=\text{Direttore}$: restano gli impiegati che compaiono come direttore di almeno un dipartimento; poi $\pi_{\text{Cognome}}$.
+\item Chi dirige più dipartimenti compare più volte nel join ma una sola volta nel risultato (la proiezione elimina i duplicati).
+\end{itemize}
+
+\textbf{Soluzione:}
+$$\pi_{\text{Cognome}}\big(\text{IMPIEGATO}\bowtie_{\text{Matricola}=\text{Direttore}}\text{DIPARTIMENTO}\big)$$
+Variante con ridenominazione e join naturale (stessa struttura dell'Es.~2.1):
+$$\pi_{\text{Cognome}}\big(\text{IMPIEGATO}\bowtie\rho_{\text{Matricola}\leftarrow\text{Direttore}}(\text{DIPARTIMENTO})\big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item Due relazioni possono essere legate da \textbf{più chiavi esterne}: la condizione di join va scelta in base al \emph{significato} richiesto. \textcolor{red}{\textbf{Errore tipico:}} usare $\text{Dipartimento}=\text{Codice}$, che restituisce gli impiegati che \emph{lavorano in} un dipartimento (tutti), non quelli che lo dirigono.
+\item Le due formulazioni sono equivalenti: differiscono solo perché con $\rho$ e join naturale la colonna di join compare una volta sola.
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 5
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.5}]
+Trovare i nomi dei progetti e i cognomi dei responsabili.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item Il nome del progetto è in PROGETTO, il cognome in IMPIEGATO: si collegano con la chiave esterna $\text{Responsabile}\to\text{Matricola}$.
+\item Equi-join $\text{Responsabile}=\text{Matricola}$ e proiezione su Nome e Cognome.
+\item Nome è l'attributo di PROGETTO (IMPIEGATO non ha un attributo Nome): nessun conflitto.
+\end{itemize}
+
+\textbf{Soluzione:}
+$$\pi_{\text{Nome},\text{Cognome}}\big(\text{PROGETTO}\bowtie_{\text{Responsabile}=\text{Matricola}}\text{IMPIEGATO}\big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item Join dal lato della chiave esterna: ogni progetto ha esattamente un responsabile, quindi prima della proiezione c'è una tupla per progetto.
+\item Nome non è chiave: due progetti con lo stesso nome e lo stesso responsabile collassano in una tupla. Per distinguerli basterebbe proiettare anche Sigla (la chiave).
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 6
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.6}]
+Trovare i nomi dei progetti con bilancio maggiore di 100K e i cognomi degli impiegati che lavorano su di essi.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item Servono tre relazioni: PROGETTO (nome e bilancio), IMPIEGATO (cognome) e PARTECIPAZIONE, che lega impiegati e progetti.
+\item Percorso di join: PROGETTO, con $\text{Sigla}=\text{Progetto}$, PARTECIPAZIONE, con $\text{Impiegato}=\text{Matricola}$, IMPIEGATO.
+\item Si seleziona subito il bilancio su PROGETTO ($\text{Bilancio}>100\,000$) e alla fine si proiettano Nome e Cognome.
+\item \textcolor{red}{\textbf{Attenzione:}} Responsabile non significa «lavora su»: l'attributo Responsabile dice chi è a capo del progetto, mentre gli impiegati che \emph{lavorano} sul progetto sono quelli di PARTECIPAZIONE.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{align*}
+&\pi_{\text{Nome},\text{Cognome}}\Big(\sigma_{\text{Bilancio}>100\,000}(\text{PROGETTO})\\
+&\qquad\bowtie_{\text{Sigla}=\text{Progetto}}\text{PARTECIPAZIONE}\\
+&\qquad\bowtie_{\text{Impiegato}=\text{Matricola}}\text{IMPIEGATO}\Big)
+\end{align*}
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Relazione ponte}: PARTECIPAZIONE ha come chiave la coppia (Impiegato, Progetto) e due chiavi esterne; per collegare IMPIEGATO e PROGETTO (associazione molti-a-molti) servono due join consecutivi.
+\item Il join è associativo e commutativo: l'ordine non cambia il risultato, ma cambia il costo (per questo si anticipa la selezione e si riordinano i join).
+\item Nome non è chiave: progetti omonimi con gli stessi partecipanti collassano in una sola coppia.
+\end{itemize}
+
+\subsubsection{Confronto tra tuple e unione (1.7--1.8)}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 7
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.7}]
+Trovare il cognome degli impiegati che guadagnano più del loro direttore di dipartimento.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item Per ogni impiegato servono \emph{due} stipendi: il suo e quello del direttore del proprio dipartimento. IMPIEGATO deve quindi comparire due volte, con due ruoli (impiegato e direttore).
+\item \textbf{ImpDip}: ogni impiegato affiancato ai dati del proprio dipartimento, compreso Direttore (la matricola del direttore).
+\item \textbf{Dir}: copia ridotta di IMPIEGATO con solo matricola e stipendio, ridenominati MatDir e StipDir (evita il conflitto di nomi con la prima copia).
+\item Join $\text{Direttore}=\text{MatDir}$: ogni impiegato è affiancato allo stipendio del proprio direttore; poi $\sigma_{\text{Stipendio}>\text{StipDir}}$ e $\pi_{\text{Cognome}}$.
+\item Se l'impiegato è lui stesso il direttore, $\text{StipDir}=\text{Stipendio}$ e la condizione $>$ è falsa: non compare.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{align*}
+\text{Dir} &= \rho_{\text{MatDir},\text{StipDir}\leftarrow\text{Matricola},\text{Stipendio}}\big(\pi_{\text{Matricola},\text{Stipendio}}(\text{IMPIEGATO})\big)\\
+\text{ImpDip} &= \text{IMPIEGATO}\bowtie_{\text{Dipartimento}=\text{Codice}}\text{DIPARTIMENTO}
+\end{align*}
+$$\pi_{\text{Cognome}}\Big(\sigma_{\text{Stipendio}>\text{StipDir}}\big(\text{ImpDip}\bowtie_{\text{Direttore}=\text{MatDir}}\text{Dir}\big)\Big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Ridenominazione}: se la stessa relazione compare due volte servono nomi diversi, altrimenti prodotto cartesiano e $\theta$-join non sono definiti (schemi non disgiunti).
+\item Confrontare valori di due tuple (stipendio $>$ stipendio del direttore) richiede una condizione di disuguaglianza in una selezione o in un $\theta$-join, non un equi-join.
+\item Cammino di chiavi esterne $\text{IMPIEGATO}\to\text{DIPARTIMENTO}\to\text{IMPIEGATO}$ (prima \emph{lavora in}, poi \emph{dirige}): due join con IMPIEGATO in due ruoli.
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 8
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.8}]
+Trovare cognome dei direttori di dipartimento e dei responsabili di progetto.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item Due insiemi di impiegati: i direttori (come in 1.4) e i responsabili di progetto (come nell'Es.~2.1). La congiunzione «e» va letta come \textbf{unione}: i cognomi di chi ricopre almeno uno dei due ruoli. L'intersezione (chi li ricopre entrambi) sarebbe un'altra interrogazione.
+\item Si costruisce ciascun insieme come $\pi_{\text{Cognome}}(\text{join})$ e si fa l'unione: i due operandi hanno lo stesso schema (il solo attributo Cognome), quindi sono compatibili.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{align*}
+&\pi_{\text{Cognome}}\big(\text{IMPIEGATO}\bowtie_{\text{Matricola}=\text{Direttore}}\text{DIPARTIMENTO}\big)\\
+&\qquad\cup\;\pi_{\text{Cognome}}\big(\text{IMPIEGATO}\bowtie_{\text{Matricola}=\text{Responsabile}}\text{PROGETTO}\big)
+\end{align*}
+Variante: unione delle matricole e un solo join (le matricole vanno ridenominate nello stesso attributo prima dell'unione):
+\begin{align*}
+&\pi_{\text{Cognome}}\Big(\text{IMPIEGATO}\bowtie\big(\rho_{\text{Matricola}\leftarrow\text{Direttore}}(\pi_{\text{Direttore}}(\text{DIPARTIMENTO}))\\
+&\qquad\cup\rho_{\text{Matricola}\leftarrow\text{Responsabile}}(\pi_{\text{Responsabile}}(\text{PROGETTO}))\big)\Big)
+\end{align*}
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item $\cup$ richiede relazioni \textbf{compatibili} (stesso numero di attributi, domini compatibili) ed elimina i duplicati: chi è sia direttore sia responsabile compare una volta sola.
+\item $\pi$ e join si distribuiscono sull'unione: $\pi_L(A\bowtie X)\cup\pi_L(A\bowtie Y)=\pi_L\big(A\bowtie(X\cup Y)\big)$; per questo la variante con un solo join è equivalente.
+\item \textcolor{red}{\textbf{Errore tipico:}} scrivere $\cap$ al posto di $\cup$: si otterrebbero solo i cognomi di chi è contemporaneamente direttore e responsabile.
+\end{itemize}
+
+\subsubsection{Quantificazioni e negazione (1.9--1.14)}
+
+L'AR di base non ha COUNT, MAX né «non esiste»: si usano \textbf{differenza} e \textbf{self-join} (tabella dei pattern a fine sezione).
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 9
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.9}]
+Trovare nomi dei dipartimenti in cui lavorano impiegati che guadagnano più di 60K.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item Condizione \textbf{esistenziale}: basta che nel dipartimento esista un solo impiegato sopra soglia ($\text{Stipendio}>60\,000$); si filtrano gli impiegati e si fa il join.
+\item Selezione su IMPIEGATO, join con DIPARTIMENTO su $\text{Dipartimento}=\text{Codice}$, proiezione su Nome.
+\item Un dipartimento con più impiegati ben pagati compare più volte nel join ma una sola volta nel risultato.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{align*}
+&\pi_{\text{Nome}}\Big(\sigma_{\text{Stipendio}>60\,000}(\text{IMPIEGATO})\\
+&\qquad\bowtie_{\text{Dipartimento}=\text{Codice}}\text{DIPARTIMENTO}\Big)
+\end{align*}
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item Quantificatore \textbf{esistenziale} $=$ join $+$ proiezione: la proiezione «dimentica» quale impiegato soddisfa la condizione ed elimina i duplicati.
+\item Da confrontare con 1.10: stessa relazione e stessa soglia, ma con il quantificatore universale serve la differenza.
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 10
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.10}]
+Trovare nomi dei dipartimenti in cui tutti gli impiegati guadagnano più di 60K.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item «Tutti guadagnano più di 60K» equivale a «\textbf{non esiste} un impiegato del dipartimento con stipendio $\le 60\,000$»: il quantificatore universale è la negazione di un'esistenziale sul controesempio.
+\item \textbf{Bassi}: gli impiegati con $\text{Stipendio}\le 60\,000$ (i controesempi).
+\item \textbf{DipBassi}: i codici dei dipartimenti con almeno un controesempio, ridenominati in Codice per poter fare la differenza.
+\item \textbf{DipOk} $=$ tutti i codici $-$ DipBassi; infine si recupera il Nome con un join naturale su Codice.
+\item Si sottrae sul \textbf{Codice} (chiave), non sul Nome: due dipartimenti possono avere lo stesso nome, e sottrarre i nomi eliminerebbe per errore anche un dipartimento «buono» omonimo di uno «cattivo».
+\item I dipartimenti \emph{senza impiegati} soddisfano «tutti» in modo vacuo e compaiono nel risultato; la variante qui sotto li esclude.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{align*}
+\text{Bassi} &= \sigma_{\text{Stipendio}\leq 60\,000}(\text{IMPIEGATO})\\
+\text{DipBassi} &= \rho_{\text{Codice}\leftarrow\text{Dipartimento}}\big(\pi_{\text{Dipartimento}}(\text{Bassi})\big)\\
+\text{DipOk} &= \pi_{\text{Codice}}(\text{DIPARTIMENTO})-\text{DipBassi}
+\end{align*}
+$$\pi_{\text{Nome}}(\text{DIPARTIMENTO}\bowtie\text{DipOk})$$
+Variante: solo dipartimenti con almeno un impiegato.
+$$\text{DipConImp}=\rho_{\text{Codice}\leftarrow\text{Dipartimento}}\big(\pi_{\text{Dipartimento}}(\text{IMPIEGATO})\big)$$
+$$\pi_{\text{Nome}}\big(\text{DIPARTIMENTO}\bowtie(\text{DipConImp}-\text{DipBassi})\big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Quantificatore universale}: $\forall x\,P(x)\equiv\neg\exists x\,\neg P(x)$. In AR: insieme universo $-$ insieme dei controesempi (differenza insiemistica).
+\item $R-S$ richiede relazioni compatibili: per questo Dipartimento viene ridenominato in Codice (entrambi gli operandi hanno un solo attributo, Codice).
+\item \textbf{Non è una divisione}: $R\div S$ esprime «per tutti gli elementi di un insieme $S$ \emph{dato}» (es.\ i marinai che hanno prenotato tutte le barche); qui «tutti» riguarda un predicato (stipendio $>60\,000$) sulle tuple di ciascun dipartimento.
+\item \textcolor{red}{\textbf{Errori tipici:}} usare la soluzione di 1.9 (esistenziale al posto di universale); sottrarre i nomi invece dei codici.
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 11
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.11}]
+Trovare cognome degli impiegati di stipendio massimo.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item L'AR di base non ha MAX: il massimo si ottiene \emph{per esclusione}, come l'unico stipendio per cui non esiste uno stipendio più alto.
+\item \textbf{Stip}: l'insieme degli stipendi presenti.
+\item \textbf{NonMax}: gli stipendi per cui ne esiste uno più grande. Si fa il prodotto cartesiano di Stip con una sua copia ridenominata (tutte le coppie di stipendi), si seleziona $\text{Stipendio}<\text{Stipendio2}$ e si proietta su Stipendio.
+\item \textbf{Max} $=\text{Stip}-\text{NonMax}$: un solo valore (se IMPIEGATO non è vuota).
+\item Join naturale con IMPIEGATO sullo stipendio: recupera \emph{tutti} gli impiegati con lo stipendio massimo, anche a pari merito; infine $\pi_{\text{Cognome}}$.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{align*}
+\text{Stip} &= \pi_{\text{Stipendio}}(\text{IMPIEGATO})\\
+\text{NonMax} &= \pi_{\text{Stipendio}}\Big(\sigma_{\text{Stipendio}<\text{Stipendio2}}\\
+&\qquad\big(\text{Stip}\times\rho_{\text{Stipendio2}\leftarrow\text{Stipendio}}(\text{Stip})\big)\Big)\\
+\text{Max} &= \text{Stip}-\text{NonMax}
+\end{align*}
+$$\pi_{\text{Cognome}}(\text{IMPIEGATO}\bowtie\text{Max})$$
+Variante diretta, con la differenza sugli impiegati (matricola e cognome) e non sui soli cognomi:
+\begin{align*}
+\text{Dominati} &= \pi_{\text{Matricola},\text{Cognome}}\Big(\sigma_{\text{Stipendio}<\text{Stipendio2}}\\
+&\qquad\big(\text{IMPIEGATO}\times\rho_{\text{Stipendio2}\leftarrow\text{Stipendio}}(\text{Stip})\big)\Big)
+\end{align*}
+$$\pi_{\text{Cognome}}\big(\pi_{\text{Matricola},\text{Cognome}}(\text{IMPIEGATO})-\text{Dominati}\big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Massimo come complemento dei dominati}: $\max X=X-\{x\in X\mid\exists y\in X,\ y>x\}$.
+\item Prodotto cartesiano $+$ $\rho$ permettono di confrontare tutte le coppie di valori della stessa relazione (schemi disgiunti grazie alla ridenominazione).
+\item \textcolor{red}{\textbf{Errore tipico:}} sottrarre i cognomi. Se un omonimo del massimo non è massimo, il cognome viene scartato anche per il massimo: si sottrae su uno stipendio o sulla chiave (Matricola) e il cognome si recupera alla fine.
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 12
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.12}]
+Trovare matricola e cognome degli impiegati che non lavorano a nessun progetto.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item «Nessun progetto» è la negazione di «almeno un progetto»: tutti gli impiegati $-$ quelli che compaiono in PARTECIPAZIONE.
+\item \textbf{Lavoranti}: matricola e cognome degli impiegati con almeno una tupla in PARTECIPAZIONE (join $\text{Matricola}=\text{Impiegato}$).
+\item Risultato: matricola e cognome di tutti gli impiegati $-$ Lavoranti. I due operandi hanno lo stesso schema (Matricola, Cognome) e, includendo la chiave, gli omonimi non danno problemi.
+\end{itemize}
+
+\textbf{Soluzione:}
+$$\text{Lavoranti}=\pi_{\text{Matricola},\text{Cognome}}\big(\text{IMPIEGATO}\bowtie_{\text{Matricola}=\text{Impiegato}}\text{PARTECIPAZIONE}\big)$$
+$$\pi_{\text{Matricola},\text{Cognome}}(\text{IMPIEGATO})-\text{Lavoranti}$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Negazione $=$ differenza}: $\sigma$, $\pi$, $\times$, $\bowtie$, $\cup$ sono monotoni, ma «non lavora a nessun progetto» no (aggiungere una partecipazione fa sparire l'impiegato dal risultato), quindi serve $-$.
+\item Si sottrae all'\emph{universo} (tutti gli impiegati) l'insieme di chi soddisfa la condizione positiva.
+\item \textcolor{red}{\textbf{Errore tipico:}} esprimere la negazione con un join con $\neq$ ($\text{Matricola}\neq\text{Impiegato}$): restituisce quasi tutti gli impiegati, perché basta che in PARTECIPAZIONE ci sia una tupla di un altro impiegato.
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 13
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.13}]
+Trovare matricola e cognome degli impiegati che lavorano a più di un progetto.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item Senza COUNT: «più di un progetto» significa che esistono \emph{due} tuple di PARTECIPAZIONE con lo stesso impiegato e progetti diversi. Serve un confronto tra due copie della stessa relazione (self-join).
+\item \textbf{PA2}: copia ridenominata di PARTECIPAZIONE, con schema (Impiegato2, Progetto2); \textbf{Coppie}: tutte le coppie di partecipazioni.
+\item \textbf{Multi}: matricole di chi compare in due tuple con lo stesso impiegato e progetti diversi (condizione $\text{Impiegato}=\text{Impiegato2}\ \land\ \text{Progetto}\neq\text{Progetto2}$).
+\item Join con IMPIEGATO su $\text{Matricola}=\text{Impiegato}$ per recuperare il cognome.
+\item \textcolor{red}{\textbf{Attenzione:}} la condizione $\text{Progetto}\neq\text{Progetto2}$ è essenziale: senza di essa ogni tupla si accoppia con se stessa e si ottengono tutti gli impiegati con almeno un progetto.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{align*}
+\text{PA2} &= \rho_{\text{Impiegato2},\text{Progetto2}\leftarrow\text{Impiegato},\text{Progetto}}(\text{PARTECIPAZIONE})\\
+\text{Coppie} &= \text{PARTECIPAZIONE}\times\text{PA2}\\
+\text{Multi} &= \pi_{\text{Impiegato}}\big(\sigma_{\text{Impiegato}=\text{Impiegato2}\,\land\,\text{Progetto}\neq\text{Progetto2}}(\text{Coppie})\big)
+\end{align*}
+$$\pi_{\text{Matricola},\text{Cognome}}\big(\text{IMPIEGATO}\bowtie_{\text{Matricola}=\text{Impiegato}}\text{Multi}\big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Self-join}: ridenominazione $+$ prodotto cartesiano $+$ selezione (equivalente a un $\theta$-join con la stessa condizione, perché $R\bowtie_c S=\sigma_c(R\times S)$).
+\item L'AR di base non sa contare: «almeno $k$» si esprime con $k$ copie della relazione e disuguaglianze (qui $k=2$).
+\item Il risultato è un insieme: chi lavora a tre progetti compare in più coppie ma una sola volta in Multi.
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 1, interrogazione 14
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1.14}]
+Trovare matricola e cognome degli impiegati che lavorano a un solo progetto.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item «Esattamente uno» $=$ «almeno uno» e non «almeno due»: \textbf{AlmenoUno} $-$ \textbf{Multi} (con Multi definita in 1.13).
+\item \textbf{AlmenoUno}: le matricole che compaiono in PARTECIPAZIONE; \textbf{UnSolo} $=\text{AlmenoUno}-\text{Multi}$ (entrambe hanno l'unico attributo Impiegato).
+\item Join con IMPIEGATO per recuperare matricola e cognome.
+\item \textcolor{red}{\textbf{Errore tipico:}} calcolare IMPIEGATO $-$ (risultato di 1.13): include anche chi non lavora a nessun progetto, che non ne ha \emph{uno}, ma zero.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{align*}
+\text{AlmenoUno} &= \pi_{\text{Impiegato}}(\text{PARTECIPAZIONE})\\
+\text{UnSolo} &= \text{AlmenoUno}-\text{Multi}
+\end{align*}
+$$\pi_{\text{Matricola},\text{Cognome}}\big(\text{IMPIEGATO}\bowtie_{\text{Matricola}=\text{Impiegato}}\text{UnSolo}\big)$$
+Variante: sottrarre i risultati finali (Lavoranti è definita in 1.12).
+$$\text{Lavoranti}-\pi_{\text{Matricola},\text{Cognome}}\big(\text{IMPIEGATO}\bowtie_{\text{Matricola}=\text{Impiegato}}\text{Multi}\big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Composizione di tecniche}: «almeno uno» (proiezione) $-$ «almeno due» (self-join con $\neq$).
+\item In generale «esattamente $k$» $=$ «almeno $k$» $-$ «almeno $k+1$».
+\end{itemize}
+
+\subsection{Esercizio 2: descrivere in linguaggio naturale}
+
+\textbf{Metodo:} si legge l'espressione dall'\emph{interno verso l'esterno}, scrivendo a ogni passo lo schema del risultato; gli attributi con lo stesso nome sono le condizioni di join dei join naturali.
+
+% Fonte: esercitazione_AR, Esercizio 2, espressione 1
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2.1}]
+Con riferimento allo schema dell'esercizio precedente, descrivere in linguaggio naturale il significato della seguente interrogazione espressa in algebra relazionale.
+$$\pi_{\text{Cognome}}\big(\rho_{\text{Matricola}\leftarrow\text{Responsabile}}(\text{PROGETTO})\bowtie\text{IMPIEGATO}\big)$$
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item $\rho_{\text{Matricola}\leftarrow\text{Responsabile}}(\text{PROGETTO})$ ha schema (Sigla, Nome, Bilancio, Matricola), dove Matricola è la matricola del responsabile del progetto.
+\item Join naturale con IMPIEGATO (Matricola, Cognome, Stipendio, Dipartimento): l'unico attributo comune è Matricola, quindi ogni progetto è affiancato ai dati del suo responsabile.
+\item $\pi_{\text{Cognome}}$: si tengono solo i cognomi.
+\end{itemize}
+
+\textbf{Soluzione:} \textbf{i cognomi degli impiegati che sono responsabili di (almeno) un progetto.} Un impiegato responsabile di più progetti compare una volta sola.
+
+Formulazione equivalente con equi-join (stessa struttura di 1.4, con PROGETTO al posto di DIPARTIMENTO): $\pi_{\text{Cognome}}(\text{IMPIEGATO}\bowtie_{\text{Matricola}=\text{Responsabile}}\text{PROGETTO})$.
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item Il \textbf{join naturale} è un equi-join su tutti gli attributi con lo stesso nome: $\rho$ serve a creare (o a evitare) attributi comuni, e $\rho+\bowtie$ equivale a un equi-join.
+\item Il risultato è un insieme: nessun cognome compare due volte, anche se l'impiegato ha più progetti.
+\end{itemize}
+
+% Fonte: esercitazione_AR, Esercizio 2, espressione 2
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2.2}]
+Con riferimento allo schema dell'esercizio precedente, descrivere in linguaggio naturale il significato della seguente interrogazione espressa in algebra relazionale.
+\begin{align*}
+&\pi_{\text{Cognome}}\Big(\rho_{\text{Matricola}\leftarrow\text{Direttore}}(\text{DIPARTIMENTO})\\
+&\qquad\bowtie\big(\text{IMPIEGATO}\bowtie\rho_{\text{Dipartimento}\leftarrow\text{Codice}}(\text{DIPARTIMENTO})\big)\Big)
+\end{align*}
+\end{tcolorbox}
+
+\textbf{Ragionamento} (schemi dei risultati intermedi):
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{7.7cm}>{\raggedright\arraybackslash}p{7.0cm}}
+\toprule
+\textbf{Sottoespressione} & \textbf{Schema del risultato}\\
+\midrule
+$A=\rho_{\text{Matricola}\leftarrow\text{Direttore}}(\text{DIPARTIMENTO})$ & Codice, Nome, Sede, Matricola\\
+$B=\rho_{\text{Dipartimento}\leftarrow\text{Codice}}(\text{DIPARTIMENTO})$ & Dipartimento, Nome, Sede, Direttore\\
+$C=\text{IMPIEGATO}\bowtie B$, comune: \textbf{Dipartimento} & Matricola, Cognome, Stipendio, Dipartimento, Nome, Sede, Direttore\\
+$A\bowtie C$, comuni: \textbf{Matricola, Nome, Sede} & Codice, Nome, Sede, Matricola, Cognome, Stipendio, Dipartimento, Direttore\\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{itemize}
+\item In $A$ la Matricola è quella del \emph{direttore} del dipartimento; in $C$ è quella dell'\emph{impiegato}, affiancato ai dati del dipartimento in cui lavora.
+\item Il join $A\bowtie C$ impone l'uguaglianza su \textbf{tre} attributi comuni, non solo su Matricola:
+\begin{itemize}
+\item $\text{Matricola}=\text{Matricola}$: l'impiegato è il direttore del dipartimento di $A$;
+\item $\text{Nome}=\text{Nome}$ e $\text{Sede}=\text{Sede}$: il dipartimento in cui l'impiegato lavora ha lo stesso nome e la stessa sede del dipartimento di $A$.
+\end{itemize}
+\item Codice (in $A$) e Dipartimento (in $C$) hanno nomi diversi e \textbf{non} vengono confrontati.
+\end{itemize}
+
+\textbf{Soluzione:} \textbf{i cognomi dei direttori di dipartimento che lavorano in un dipartimento con lo stesso nome e la stessa sede del dipartimento che dirigono.} Se la coppia (Nome, Sede) identifica un dipartimento (assunzione plausibile ma \emph{non} garantita dallo schema, dove l'unica chiave è Codice), significa: \textbf{i cognomi dei direttori che lavorano nel dipartimento che dirigono}.
+
+Formulazione equivalente, che usa la chiave invece di Nome e Sede (equivalente se (Nome, Sede) è univoco):
+$$\pi_{\text{Cognome}}\big(\text{IMPIEGATO}\bowtie_{\text{Matricola}=\text{Direttore}\,\land\,\text{Dipartimento}=\text{Codice}}\text{DIPARTIMENTO}\big)$$
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Il join naturale uguaglia tutti gli attributi con lo stesso nome}, anche quelli non voluti: Nome e Sede compaiono sia in $A$ sia in $C$ perché provengono entrambi da DIPARTIMENTO, e quindi vengono confrontati.
+\item Le ridenominazioni cambiano le condizioni di join implicite: Codice e Dipartimento restano diversi, quindi nulla impone che il dipartimento in cui l'impiegato lavora sia \emph{proprio} quello che dirige, se non l'uguaglianza di Nome e Sede.
+\item Per imporre l'identità del dipartimento si usa un $\theta$-join sulla chiave (formulazione sopra): è più robusta di un join naturale che dipende dai nomi degli attributi.
+\end{itemize}
+
+\subsection{Riepilogo dei pattern ricorrenti}
+
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{7.6cm}>{\raggedright\arraybackslash}p{2.2cm}}
+\toprule
+\textbf{Tipo di richiesta} & \textbf{Schema risolutivo in AR} & \textbf{Quesiti}\\
+\midrule
+Filtro su una relazione & $\sigma$ poi $\pi$ & 1.1\\
+Dati in relazioni legate da chiavi esterne & join lungo la chiave esterna con selezione anticipata; due join se c'è una relazione ponte & 1.2--1.6, 1.9\\
+Confronto tra tuple, anche della stessa relazione & $\rho$ $+$ $\times$ (o $\theta$-join) $+$ $\sigma$ con $<,>,\neq$ & 1.7, 1.11, 1.13\\
+«A oppure B» & $\cup$ di relazioni compatibili & 1.8\\
+«nessuno», «non esiste» & universo $-$ chi soddisfa la condizione & 1.12\\
+«tutti» ($\forall$) & universo $-$ chi ha un controesempio & 1.10\\
+massimo, minimo & valori $-$ valori «dominati» da uno migliore & 1.11\\
+«più di uno» & self-join: stesso impiegato, progetti diversi ($\neq$) & 1.13\\
+«uno solo» & «almeno uno» $-$ «più di uno» & 1.14\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Controlli prima di consegnare una soluzione:}
+\begin{itemize}
+\item \textbf{Schemi}: per $\cup$, $\cap$, $-$ gli operandi hanno gli stessi attributi; per $\times$ e $\theta$-join gli attributi sono disgiunti; nei join naturali controllare \emph{tutti} gli attributi omonimi (Es.~2.2).
+\item \textbf{Chiave esterna giusta}: \emph{lavora in} ($\text{Dipartimento}\to\text{Codice}$) $\neq$ \emph{dirige} ($\text{Direttore}\to\text{Matricola}$); \emph{lavora su} (PARTECIPAZIONE) $\neq$ \emph{è responsabile di} (Responsabile).
+\item \textbf{Differenze su chiavi}: sottrarre insiemi di chiavi (Codice, Matricola) o di valori che identificano la condizione, e recuperare gli attributi descrittivi (Nome, Cognome) con un join finale.
+\item \textbf{Duplicati e omonimi}: $\pi$ elimina i duplicati; includere la chiave se serve distinguerli.
+\item \textbf{Casi limite}: dipartimenti senza impiegati (1.10), impiegati senza progetti (1.12, 1.14), stipendi a pari merito (1.11).
+\end{itemize}
+
+\section{Esercizi SQL: GROUP BY e HAVING su Marinai, Barche e Prenotazioni}
+
+% Fonte: testo fornito dall'utente («Progettare le query SQL che rispondono a queste domande», 5 quesiti); schema e istanza: Argomento04 (SQL, p. 8) e libro di testo (cap. 5, «About the Examples»)
+Esercitazione di \textbf{SQL} sul database \textit{Sailors} (marinai, barche, prenotazioni), cioè lo schema usato dal corso nelle slide di SQL e nel libro di testo. Consegna: \emph{progettare le query SQL che rispondono a queste domande}. I 5 quesiti combinano tre ingredienti:
+\begin{itemize}
+\item \textbf{raggruppamento} (\texttt{group by}) e \textbf{funzioni di aggregazione} (\texttt{sum}, \texttt{avg}, \texttt{count}, \texttt{max}, \texttt{min});
+\item \textbf{filtri sulle righe} (\texttt{where}) e \textbf{filtri sui gruppi} (\texttt{having});
+\item \textbf{join} lungo le chiavi esterne (quesiti 1, 2 e 5).
+\end{itemize}
+Per ogni quesito: \textbf{testo}, \textbf{ragionamento}, \textbf{soluzione} e \textbf{fondamento teorico}.
+
+\subsection{Schema di riferimento, istanza e convenzioni}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Schema relazionale (chiavi primarie sottolineate)}]
+\begin{itemize}
+\item \textbf{Sailors}(\underline{sid}, sname, rating, age): i marinai (\texttt{sid} e \texttt{rating} interi, \texttt{age} reale);
+\item \textbf{Boats}(\underline{bid}, bname, color): le barche;
+\item \textbf{Reserves}(\underline{sid}, \underline{bid}, \underline{day}): le prenotazioni, una riga per ogni marinaio che prenota una barca in un giorno (\texttt{day} è una data).
+\end{itemize}
+\end{tcolorbox}
+
+\textbf{Vincoli di riferimento:}
+\begin{itemize}
+\item Reserves.\textbf{sid} $\rightarrow$ Sailors: il marinaio che prenota;
+\item Reserves.\textbf{bid} $\rightarrow$ Boats: la barca prenotata. Reserves è la \textbf{relazione ponte} tra marinai e barche: le sue due chiavi esterne realizzano l'associazione molti-a-molti.
+\end{itemize}
+\textbf{Nota:} il testo dei quesiti non riporta lo schema; si assume quello del corso, cioè di Argomento04 (p.~8, istanza) e del libro di testo (cap.~5, «About the Examples»), i cui nomi (\texttt{bid}, \texttt{bname}, \texttt{day}, \texttt{rating}) coincidono con quelli del testo. La chiave composta di Reserves è quella sottolineata nel libro.
+
+\textbf{Istanza usata nelle slide} (Argomento04, p.~8; Figure 5.1--5.3 del libro; date come scritte nella Figura 5.2): serve per controllare a mano i risultati.
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}[t]{rlrr}
+\toprule
+\textbf{sid} & \textbf{sname} & \textbf{rating} & \textbf{age}\\
+\midrule
+22 & Dustin & 7 & 45.0\\
+29 & Brutus & 1 & 33.0\\
+31 & Lubber & 8 & 55.5\\
+32 & Andy & 8 & 25.5\\
+58 & Rusty & 10 & 35.0\\
+64 & Horatio & 7 & 35.0\\
+71 & Zorba & 10 & 16.0\\
+74 & Horatio & 9 & 35.0\\
+85 & Art & 3 & 25.5\\
+95 & Bob & 3 & 63.5\\
+\bottomrule
+\end{tabular}
+\hspace{1.2em}
+\begin{tabular}[t]{rrl}
+\toprule
+\textbf{sid} & \textbf{bid} & \textbf{day}\\
+\midrule
+22 & 101 & 10/10/98\\
+22 & 102 & 10/10/98\\
+22 & 103 & 10/8/98\\
+22 & 104 & 10/7/98\\
+31 & 102 & 11/10/98\\
+31 & 103 & 11/6/98\\
+31 & 104 & 11/12/98\\
+64 & 101 & 9/5/98\\
+64 & 102 & 9/8/98\\
+74 & 103 & 9/8/98\\
+\bottomrule
+\end{tabular}
+\hspace{1.2em}
+\begin{tabular}[t]{rll}
+\toprule
+\textbf{bid} & \textbf{bname} & \textbf{color}\\
+\midrule
+101 & Interlake & blue\\
+102 & Interlake & red\\
+103 & Clipper & green\\
+104 & Marine & red\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Convenzioni usate nelle soluzioni}
+\begin{itemize}
+\item \textbf{DBMS}: MariaDB/MySQL, come nelle slide; parole chiave in minuscolo e alias di tabella (\texttt{s}, \texttt{r}, \texttt{b}) come negli esempi del corso.
+\item \textbf{Join}: \texttt{join ... on} per le condizioni di join (forma raccomandata nelle slide) e \texttt{where} per i filtri; la forma con relation-list e condizioni di join nel \texttt{where} è equivalente (variante del quesito~1).
+\item \textbf{Select-list}: solo i campi richiesti dal testo; le colonne non aggregate compaiono sempre nel \texttt{group by}. Se la regola è violata, MariaDB (senza \texttt{ONLY\_FULL\_GROUP\_BY}) esegue comunque la query con un valore arbitrario per quella colonna: è l'«Errore!!» mostrato nelle slide.
+\item \textbf{having}: l'aggregato è ripetuto nella condizione. Le slide usano anche l'alias della select-list nel \texttt{having}: MySQL/MariaDB lo accettano, ma non è SQL standard.
+\item \textbf{Soglie}: «superiore a 7» $=$ \texttt{> 7}; «almeno 2» $=$ \texttt{>= 2}; «più di uno» $=$ \texttt{> 1}.
+\item \textbf{Conteggi}: Reserves ha chiave (sid, bid, day), quindi ogni riga è una prenotazione distinta; dopo un join le aggregazioni lavorano su una riga per prenotazione.
+\end{itemize}
+\textbf{Nota:} l'esercitazione non riporta soluzioni ufficiali; quelle proposte sono svolgimenti non ufficiali, controllati eseguendoli su database di prova.
+
+\subsection{Richiami teorici: aggregazione, GROUP BY e HAVING}
+
+Struttura estesa di una query (Argomento04):
+\begin{verbatim}
+select [distinct] select-list
+from   from-list
+where  qualification
+group by grouping-list
+having group-qualification
+\end{verbatim}
+\begin{itemize}
+\item \textbf{Funzioni di aggregazione}: \texttt{count(*)} (numero di righe), \texttt{count}, \texttt{sum} e \texttt{avg} (anche con \texttt{distinct}: i valori uguali contano una volta sola), \texttt{max}, \texttt{min}. Riassumono un insieme di righe in un solo valore.
+\item \textbf{group by}: partiziona le righe in gruppi con gli stessi valori degli attributi di raggruppamento e produce \emph{una riga di risultato per gruppo}. Senza \texttt{group by} l'intera tabella è un unico gruppo.
+\item \textbf{Regola della select-list}: ogni colonna non aggregata della select-list deve comparire anche nel \texttt{group by} (altrimenti nel gruppo avrebbe valori diversi); le espressioni del \texttt{having} devono avere un solo valore per gruppo.
+\item \textbf{where e having}: il \texttt{where} si applica riga per riga \emph{prima} del raggruppamento e non può contenere funzioni di aggregazione; il \texttt{having} si applica ai gruppi \emph{dopo} l'aggregazione. Una condizione su un attributo di raggruppamento può stare in entrambi, ma nel \texttt{where} scarta le righe prima di raggruppare.
+\item \textbf{Ordine logico di valutazione} (slide): (1) join o prodotto cartesiano delle tabelle del \texttt{from}; (2) \texttt{where}; (3) eliminazione delle colonne non necessarie; (4) \texttt{group by}; (5) \texttt{having}; (6) generazione delle righe di risposta (select-list).
+\item \textbf{Duplicati}: SQL non li elimina per default. Un join produce una riga per ogni combinazione di tuple corrispondenti, quindi le aggregazioni contano \emph{righe}, non entità (marinai, barche).
+\item \textbf{Linee guida delle slide}: elencare gli attributi richiesti (R2); riconoscere le parole che suggeriscono un'aggregazione, ad esempio «media» $\to$ \texttt{avg}, «totale» $\to$ \texttt{sum}, «numero» $\to$ \texttt{count}, «per ogni» $\to$ \texttt{group by}, «solo i \dots\ con \dots» $\to$ \texttt{having} (R3); il \texttt{where} è una funzione che si applica tupla per tupla (R4); verificare la coerenza dei risultati e l'uso di \texttt{distinct} (R6).
+\end{itemize}
+
+\subsection{Quesiti}
+
+% Fonte: testo fornito dall'utente, quesito 1
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio SQL 1}]
+Per ogni colore di barca, trova la somma totale dei rating dei marinai che l'hanno prenotata, ma considera solo i colori con un rating medio superiore a 7.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item \textbf{Raggruppamento}: «per ogni colore» $\to$ \texttt{group by b.color}; il risultato ha una riga per colore.
+\item \textbf{Tabelle}: il colore è in Boats, il rating in Sailors; Reserves collega marinai e barche (relazione ponte). Servono due join lungo le chiavi esterne: \mbox{\texttt{r.sid = s.sid}} e \mbox{\texttt{r.bid = b.bid}}.
+\item \textbf{Select-list}: il colore (attributo di raggruppamento) e \texttt{sum(s.rating)}, la «somma totale dei rating».
+\item \textbf{Filtro sui gruppi}: «solo i colori con rating medio superiore a 7» è una condizione su un aggregato, quindi va nel \texttt{having}: \mbox{\texttt{avg(s.rating) > 7}}, con disuguaglianza stretta. L'aggregato del \texttt{having} (\texttt{avg}) è diverso da quello della select-list (\texttt{sum}): è lecito.
+\item \textbf{Cosa è una riga}: dopo il join c'è una riga per \emph{prenotazione}; un marinaio che ha prenotato due barche dello stesso colore contribuisce due volte alla somma e alla media. Il testo non chiarisce se ogni marinaio debba contare una sola volta per colore: la soluzione principale usa una riga per prenotazione (lettura più diretta), l'ultima variante conta ogni marinaio una volta per colore.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{verbatim}
+select b.color, sum(s.rating) as SommaRating
+from sailors s
+     join reserves r on r.sid = s.sid
+     join boats b on b.bid = r.bid
+group by b.color
+having avg(s.rating) > 7;
+\end{verbatim}
+Variante con relation-list e condizioni di join nel \texttt{where} (equivalente):
+\begin{verbatim}
+select b.color, sum(s.rating) as SommaRating
+from sailors s, reserves r, boats b
+where s.sid = r.sid and r.bid = b.bid
+group by b.color
+having avg(s.rating) > 7;
+\end{verbatim}
+Variante: ogni marinaio conta una sola volta per colore (sottoquery con \texttt{distinct}):
+\begin{verbatim}
+select t.color, sum(t.rating) as SommaRating
+from (select distinct b.color, s.sid, s.rating
+      from sailors s
+           join reserves r on r.sid = s.sid
+           join boats b on b.bid = r.bid) t
+group by t.color
+having avg(t.rating) > 7;
+\end{verbatim}
+\textbf{Controllo sull'istanza delle slide:} la soluzione principale restituisce $(\text{green},24)$ e $(\text{red},37)$. Il colore blue è escluso: le sue prenotazioni (marinai 22 e 64, entrambi con rating 7) hanno media esattamente 7, non $>7$. La variante con \texttt{distinct} restituisce $(\text{green},24)$ e $(\text{red},22)$: i marinai 22 e 31 hanno prenotato due barche rosse ciascuno e contano una volta sola.
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Ordine logico di valutazione}: join del \texttt{from}, poi \texttt{where} (qui assente), poi \texttt{group by}, poi \texttt{having}, infine la select-list. \texttt{sum} e \texttt{avg} sono calcolati sulle righe di ciascun gruppo.
+\item Le condizioni sui gruppi possono usare aggregati che \emph{non} compaiono nella select-list: devono solo avere un valore per gruppo.
+\item \textbf{Righe, non entità}: un join produce una riga per combinazione di tuple e le funzioni di aggregazione lavorano su queste righe. Per contare ogni marinaio una volta occorre eliminare i duplicati \emph{prima} di aggregare (sottoquery con \texttt{distinct} su colore e marinaio).
+\item \textcolor{red}{\textbf{Errore tipico:}} \texttt{sum(distinct s.rating)} elimina i \emph{valori} uguali del rating, non i marinai ripetuti. Sull'istanza delle slide darebbe $(\text{red},15)$ invece di $(\text{red},37)$: i marinai 22 e 64 hanno entrambi rating 7, che verrebbe sommato una volta sola.
+\item \textcolor{red}{\textbf{Errore tipico:}} \texttt{where avg(s.rating) > 7} è un errore: le funzioni di aggregazione non sono ammesse nel \texttt{where}, che si applica riga per riga prima del raggruppamento.
+\item La soglia è stretta: con \texttt{>= 7} comparirebbe anche blue (media 7).
+\end{itemize}
+
+% Fonte: testo fornito dall'utente, quesito 2
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio SQL 2}]
+Trova i giorni (day) in cui sono state effettuate almeno 2 prenotazioni complessive, considerando solo marinai con almeno 18 anni.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item \textbf{Raggruppamento}: il risultato è un insieme di giorni, quindi \texttt{group by r.day}: una riga per giorno.
+\item \textbf{Tabelle}: il giorno è in Reserves, l'età in Sailors: serve il join \mbox{\texttt{r.sid = s.sid}}.
+\item \textbf{Filtro sulle righe}: «considerando solo marinai con almeno 18 anni» seleziona le prenotazioni dei marinai adulti ed è applicato \emph{prima} di contare: va nel \texttt{where} (\mbox{\texttt{s.age >= 18}}), non nel \texttt{having}.
+\item \textbf{Filtro sui gruppi}: «almeno 2 prenotazioni complessive» $\to$ \texttt{having count(*) >= 2}. \texttt{count(*)} conta le righe del gruppo, cioè le prenotazioni di quel giorno fatte da marinai adulti; «complessive» significa tutte insieme, senza distinguere marinaio o barca.
+\item \textbf{Select-list}: solo \texttt{r.day}, il campo richiesto; il conteggio serve solo nel \texttt{having}.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{verbatim}
+select r.day
+from reserves r
+     join sailors s on s.sid = r.sid
+where s.age >= 18
+group by r.day
+having count(*) >= 2;
+\end{verbatim}
+Variante senza join (sottoquery con \texttt{in}):
+\begin{verbatim}
+select r.day
+from reserves r
+where r.sid in (select s.sid from sailors s where s.age >= 18)
+group by r.day
+having count(*) >= 2;
+\end{verbatim}
+\textbf{Controllo sull'istanza delle slide:} i giorni 10/10/98 e 9/8/98. Il 10/10/98 il marinaio 22 ha prenotato due barche (101 e 102); il 9/8/98 hanno prenotato 64 e 74. Gli altri giorni hanno una sola prenotazione.
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{where e having}: il \texttt{where} agisce sulle singole righe prima del raggruppamento, il \texttt{having} sui gruppi dopo l'aggregazione. Il filtro sull'età riguarda la singola prenotazione, quindi va nel \texttt{where}; il conteggio riguarda il gruppo, quindi va nel \texttt{having}.
+\item \textcolor{red}{\textbf{Errore tipico:}} \texttt{having count(*) >= 2 and s.age >= 18}. L'età non è un attributo di raggruppamento né un aggregato: nel gruppo ha valori diversi, quindi la condizione non ha un valore per gruppo. MariaDB la rifiuta (\texttt{Unknown column 's.age' in 'HAVING'}); un DBMS permissivo come SQLite la esegue prendendo l'età di una riga qualsiasi del gruppo e restituisce un risultato sbagliato.
+\item \textcolor{red}{\textbf{Errore tipico:}} \texttt{where count(*) >= 2}: errore, aggregato nel \texttt{where}.
+\item \texttt{count(*)} conta \emph{prenotazioni} (righe), non marinai: lo stesso marinaio con due barche nello stesso giorno vale 2. Per contare i marinai diversi servirebbe \texttt{count(distinct r.sid)}.
+\item «Almeno 18 anni» include chi ha esattamente 18 anni: \texttt{>= 18}, non \texttt{> 18}.
+\end{itemize}
+
+% Fonte: testo fornito dall'utente, quesito 3
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio SQL 3}]
+Trova i nomi dei marinai condivisi da più persone (omonimi) il cui divario tra età massima ed età minima sia inferiore a 10 anni.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item \textbf{Raggruppamento}: gli omonimi si trovano raggruppando per nome, \texttt{group by s.sname}. \texttt{sname} non è una chiave: più marinai possono avere lo stesso nome ed è proprio ciò che si cerca. Basta la tabella Sailors, senza join.
+\item \textbf{Nome condiviso da più persone}: il gruppo ha più di un marinaio, cioè \texttt{count(*) > 1} (\texttt{sid} è la chiave: una riga è una persona).
+\item \textbf{Divario tra età massima e minima inferiore a 10}: \texttt{max(s.age) - min(s.age) < 10}. È un'espressione di aggregati, quindi sta nel \texttt{having}, in \texttt{and} con la condizione precedente.
+\item \textbf{Select-list}: solo il nome, che è l'attributo di raggruppamento.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{verbatim}
+select s.sname
+from sailors s
+group by s.sname
+having count(*) > 1
+   and max(s.age) - min(s.age) < 10;
+\end{verbatim}
+\textbf{Controllo sull'istanza delle slide:} solo Horatio (marinai 64 e 74, entrambi di 35.0 anni: divario 0). Tutti gli altri nomi compaiono una volta sola.
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item Raggruppare per un attributo \emph{non chiave} crea gruppi di tuple con lo stesso valore: \texttt{count(*) > 1} seleziona i gruppi con più di una tupla (pattern «omonimi» o «duplicati»). È la stessa differenza della slide «Che differenza c'è?»: sull'istanza \texttt{count(s.sname)} vale 10 e \texttt{count(distinct s.sname)} vale 9, perché Horatio compare due volte.
+\item Nel \texttt{having} si possono combinare più aggregati ed espressioni aritmetiche tra aggregati, purché abbiano un solo valore per gruppo.
+\item \textcolor{red}{\textbf{Errore tipico:}} dimenticare \texttt{count(*) > 1}: un nome unico ha divario $0<10$, quindi comparirebbero tutti i nomi.
+\item \textcolor{red}{\textbf{Errore tipico:}} scrivere il divario nel \texttt{where}: \texttt{max} e \texttt{min} sono aggregati sul gruppo, non proprietà della singola riga.
+\item «Inferiore a 10» è stretto: un divario esattamente uguale a 10 non soddisfa la condizione.
+\end{itemize}
+
+% Fonte: testo fornito dall'utente, quesito 4
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio SQL 4}]
+Trova l'età media e il numero di marinai per ogni livello di rating, considerando solo i marinai con rating superiore a 5, ma mostra solo i livelli di rating che contengono almeno 2 marinai.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item \textbf{Raggruppamento}: «per ogni livello di rating» $\to$ \texttt{group by s.rating}. Basta la tabella Sailors.
+\item \textbf{Select-list}: l'attributo di raggruppamento \texttt{s.rating} e due aggregati: \texttt{avg(s.age)} (età media) e \texttt{count(*)} (numero di marinai: \texttt{sid} è la chiave, quindi una riga è un marinaio).
+\item \textbf{Filtro sulle righe}: «considerando solo i marinai con rating superiore a 5» $\to$ \mbox{\texttt{where s.rating > 5}}, applicato prima di raggruppare.
+\item \textbf{Filtro sui gruppi}: «solo i livelli che contengono almeno 2 marinai» $\to$ \texttt{having} \mbox{\texttt{count(*) >= 2}}; il conteggio riguarda i marinai che hanno superato il \texttt{where}.
+\item La condizione su \texttt{rating} riguarda l'attributo di raggruppamento, quindi potrebbe stare anche nel \texttt{having} (variante), ma nel \texttt{where} scarta le righe prima di raggruppare ed è più chiara.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{verbatim}
+select s.rating, avg(s.age) as EtaMedia, count(*) as NumMarinai
+from sailors s
+where s.rating > 5
+group by s.rating
+having count(*) >= 2;
+\end{verbatim}
+Variante equivalente, con il filtro sul rating nel \texttt{having} (meno efficiente: raggruppa anche i livelli da scartare):
+\begin{verbatim}
+select s.rating, avg(s.age) as EtaMedia, count(*) as NumMarinai
+from sailors s
+group by s.rating
+having s.rating > 5 and count(*) >= 2;
+\end{verbatim}
+\textbf{Controllo sull'istanza delle slide:} i livelli 7, 8 e 10, rispettivamente con età media 40, 40.5 e 25.5 e 2 marinai ciascuno. Il livello 9 ha un solo marinaio (74); il livello 3 ha 2 marinai (85 e 95) ma è scartato dal \texttt{where}.
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Più aggregati} nella stessa select-list (\texttt{avg} e \texttt{count}) sono calcolati sullo stesso gruppo.
+\item \textbf{where, group by, having} sono applicati in quest'ordine (slide): le condizioni su un aggregato (\texttt{count}) possono stare solo nel \texttt{having}; quelle su attributi di raggruppamento possono stare in entrambi.
+\item \textbf{Modello}: l'esempio «GROUP BY e HAVING: esempio» delle slide (Q32 del libro) ha la stessa struttura, con \texttt{where S.age >= 18}, poi \texttt{group by S.rating} e \texttt{having count(*) > 1}.
+\item \textcolor{red}{\textbf{Errore tipico:}} dimenticare il \texttt{where}: compaiono anche i livelli con rating $\le5$ (sull'istanza, il livello 3).
+\item \textcolor{red}{\textbf{Errore tipico:}} contare con \texttt{count(distinct s.age)}: conta le età distinte, non i marinai (due marinai coetanei darebbero 1).
+\item «Almeno 2» è \texttt{>= 2} (non \texttt{> 2}); «superiore a 5» è \texttt{> 5} (non \texttt{>= 5}).
+\end{itemize}
+
+% Fonte: testo fornito dall'utente, quesito 5
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio SQL 5}]
+Identifica le barche (con bid e bname) prenotate da marinai la cui età media è superiore a 40 anni, considerando solo barche prenotate almeno 2 volte.
+\end{tcolorbox}
+
+\textbf{Ragionamento:}
+\begin{itemize}
+\item \textbf{Raggruppamento}: una riga per barca, con bid e bname, quindi \texttt{group by b.bid, b.bname}: le due colonne non aggregate della select-list devono comparire entrambe nel \texttt{group by}.
+\item \textbf{Chiave e nome}: \texttt{bid} è la chiave e distingue le barche; \texttt{bname} no. Sull'istanza 101 e 102 si chiamano entrambe Interlake, quindi raggruppare solo per nome fonderebbe due barche.
+\item \textbf{Tabelle}: Boats (bid, bname), Reserves (le prenotazioni) e Sailors (age); join \texttt{b.bid = r.bid} e \texttt{r.sid = s.sid}.
+\item \textbf{Filtri sui gruppi}: «prenotate almeno 2 volte» $\to$ \texttt{count(*) >= 2} (numero di prenotazioni della barca); «età media dei marinai superiore a 40» $\to$ \texttt{avg(s.age) > 40}. Entrambe sono condizioni su aggregati: stanno nel \texttt{having}, in \texttt{and}.
+\item \textbf{Select-list}: solo \texttt{b.bid, b.bname}; gli aggregati servono solo nel \texttt{having}.
+\item \textbf{Cosa è una riga}: media e conteggio sono per prenotazione. Se lo stesso marinaio ha prenotato la stessa barca in due giorni diversi, la sua età pesa due volte nella media.
+\end{itemize}
+
+\textbf{Soluzione:}
+\begin{verbatim}
+select b.bid, b.bname
+from boats b
+     join reserves r on r.bid = b.bid
+     join sailors s on s.sid = r.sid
+group by b.bid, b.bname
+having count(*) >= 2
+   and avg(s.age) > 40;
+\end{verbatim}
+\textbf{Controllo sull'istanza delle slide:} le barche 102 (Interlake), 103 (Clipper) e 104 (Marine). La barca 101, prenotata da 22 e 64 (età 45 e 35), ha età media esattamente 40 ed è esclusa dalla disuguaglianza stretta.
+
+\textbf{Fondamento teorico:}
+\begin{itemize}
+\item \textbf{Regola della select-list}: ogni colonna non aggregata (\texttt{b.bid}, \texttt{b.bname}) compare nel \texttt{group by}. Si raggruppa per la chiave, e \texttt{bname} si aggiunge solo per poterlo mostrare (è determinato da \texttt{bid}, quindi non cambia i gruppi).
+\item Il \texttt{having} può combinare condizioni su aggregati diversi (\texttt{count}, \texttt{avg}) con \texttt{and}/\texttt{or}.
+\item \textbf{Relazione ponte}: Reserves collega Boats e Sailors; le aggregazioni lavorano sulle righe del join (una per prenotazione).
+\item \textcolor{red}{\textbf{Errore tipico:}} \texttt{group by b.bname}: \texttt{bname} non è una chiave e fonde barche omonime. Con \texttt{ONLY\_FULL\_GROUP\_BY} la query è rifiutata (\texttt{b.bid} non è nel \texttt{group by}); senza, viene eseguita con un \texttt{bid} arbitrario per gruppo. Sull'istanza, Interlake (101 e 102) formerebbe un unico gruppo con 5 prenotazioni ed età media 43.1, quindi soddisferebbe le condizioni, mentre la barca 101 da sola no (media 40).
+\item \textcolor{red}{\textbf{Errore tipico:}} \texttt{where avg(s.age) > 40}: aggregato nel \texttt{where}, errore.
+\item Soglie: «almeno 2 volte» è \texttt{>= 2}, «superiore a 40» è \texttt{> 40}.
+\end{itemize}
+
+\subsection{Riepilogo dei pattern ricorrenti}
+
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{7.6cm}>{\raggedright\arraybackslash}p{2.2cm}}
+\toprule
+\textbf{Tipo di richiesta} & \textbf{Schema risolutivo in SQL} & \textbf{Quesiti}\\
+\midrule
+Un risultato per ogni gruppo («per ogni \dots», «i giorni», «le barche») & \texttt{group by} sull'attributo che identifica il gruppo: una riga per gruppo & 1--5\\
+Filtro sulle righe («considerando solo \dots») & \texttt{where}, applicato prima del raggruppamento & 2, 4\\
+Filtro sui gruppi («solo i \dots\ con \dots») & \texttt{having} con funzioni di aggregazione & 1--5\\
+Somma, media, numero, massimo, minimo & \texttt{sum}, \texttt{avg}, \texttt{count(*)}, \texttt{max}, \texttt{min} & 1--5\\
+«almeno 2», «più di uno» & \texttt{count(*) >= 2}, \texttt{count(*) > 1} & 2--5\\
+Omonimi, duplicati & \texttt{group by} su un attributo non chiave e \texttt{count(*) > 1} & 3\\
+Dati in più tabelle (relazione ponte) & \texttt{join ... on} lungo le chiavi esterne & 1, 2, 5\\
+Contare entità e non righe del join & \texttt{distinct} in una sottoquery, prima di aggregare & 1 (variante)\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Controlli prima di consegnare una query:}
+\begin{itemize}
+\item \textbf{Raggruppamento}: gli attributi del \texttt{group by} sono quelli dei «per ogni»; preferire la chiave (\texttt{bid}) all'attributo descrittivo (\texttt{bname}), che si aggiunge solo per mostrarlo.
+\item \textbf{where o having}: filtro sulle righe $\to$ \texttt{where}; condizione su un aggregato $\to$ \texttt{having}; mai aggregati nel \texttt{where}.
+\item \textbf{Select-list}: tutti e soli i campi richiesti; ogni colonna non aggregata compare nel \texttt{group by}.
+\item \textbf{Cosa conta ogni riga}: dopo un join una riga è una prenotazione, non un marinaio o una barca; usare \texttt{distinct} (in una sottoquery) solo se il testo parla di entità distinte.
+\item \textbf{Soglie}: «superiore a» $\to$ \texttt{>}, «almeno» $\to$ \texttt{>=}; provare i casi limite sull'istanza delle slide (media esattamente 7 o 40).
+\item \textbf{Controllo finale}: eseguire la query sull'istanza delle slide e confrontare il risultato a mano.
+\end{itemize}
 
 \end{document}
