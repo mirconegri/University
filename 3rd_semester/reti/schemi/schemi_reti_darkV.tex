@@ -2432,6 +2432,301 @@ Frequenze ricavate da 24 testimonianze di studenti. L'orale dura 10--15 minuti: 
 \textbf{2. Il docente riprende gli errori dello scritto.} Almeno due testimonianze riportano di essersi visti chiedere all'orale esattamente l'argomento sbagliato allo scritto (cookie, CSMA p-persistente). \textbf{Rivedi il tuo scritto prima dell'orale}: è lì che sai già quali saranno le domande.
 \end{tcolorbox}
 
+\section{Appendice D: Esempio di Prova d'Esame Completa con Soluzioni (AA 2018/19)}
 
+Prova d'esame completa con soluzioni ufficiali (fonte: \textit{Esame-con-tracce-di-soluzione.pdf}). Utile per capire il livello di dettaglio atteso nelle risposte scritte.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 1 (Configurazione di una rete locale) --- AA 2018/19}]
+Un'università deve configurare la rete di un nuovo edificio contenente aule didattiche, laboratori, sala server e uffici. La rete permette ai computer presenti nell'edificio di comunicare tra di loro e con Internet. L'Università ha acquistato un link cablato a 10 Gbps più un link di backup wireless a 1 Gbps per garantire la connettività ad Internet anche in caso di guasto del link cablato. Il link wireless ha un costo di utilizzo molto alto, quindi non deve essere utilizzato quando il link cablato è attivo.
+
+\begin{enumerate}
+    \item Supponendo che entrambi i router R1 ed R2 notifichino agli altri router la loro capacità di raggiungere Internet, come posso assicurare che il link wireless venga usato solo in caso di necessità?
+    \item Configurare le sottoreti STUDENTI, LABORATORI e DIPENDENTI utilizzando pool di IP privati a scelta, sapendo che l'edificio può ospitare circa 1000 studenti, 120 computer per i laboratori e 40 dipendenti. Assegnare gli indirizzi IP alle interfacce dei router.
+    \item Configurare due sottoreti per la sala SERVER: una per i 20 server con servizi pubblici (web, mail, storage) e una per 40 macchine con IP privato usate come cluster di calcolo. Pool pubblico disponibile: \texttt{193.205.112.128/25}. È possibile collegare la singola interfaccia fisica \texttt{e3} di R4 a entrambe le sottoreti server? Perché?
+    \item Configurare le reti punto-a-punto fra i router, assegnando gli indirizzi IP alle interfacce (le interfacce di R1 ed R2 verso Internet sono già configurate dal provider).
+    \item Per far comunicare i dispositivi nelle sottoreti private (STUDENTI, LABORATORI, DIPENDENTI, cluster di calcolo) con i server ad IP pubblico, serve un meccanismo particolare?
+\end{enumerate}
+\end{tcolorbox}
+
+\textbf{Soluzione (ufficiale):}
+
+\textbf{Punto 1.} È sufficiente che R2 annunci un costo del link wireless tale per cui, indipendentemente dalla sottorete in cui si trova l'host, il costo per raggiungere Internet attraverso R2 sia sempre superiore a quello attraverso R1. Con una metrica hop-count (come OSPF o RIP), basta assegnare costo 4 al link wireless e costo 1 a tutti gli altri link: in questo modo anche un pacchetto generato direttamente da R2 preferisce transitare da R1 per uscire su Internet, finché il link cablato è disponibile. \textbf{Idea chiave}: il routing a stato di collegamento sceglie sempre il percorso di costo minimo, quindi "penalizzare" pesantemente il link di backup nella metrica è sufficiente a renderlo inutilizzato a meno che non sia l'unico cammino disponibile (link cablato guasto).
+
+\textbf{Punto 2.} Pool privato scelto: \texttt{10.10.0.0/16}.
+\begin{itemize}
+    \item \textbf{STUDENTI} (serve una sottorete da almeno 1024, meglio 2048 indirizzi): \texttt{10.10.128.0/21}
+    \item \textbf{LABORATORI}: \texttt{10.10.192.0/24}
+    \item \textbf{DIPENDENTI}: \texttt{10.10.160.0/24}
+\end{itemize}
+Le due sottoreti \texttt{/24} sono volutamente sovradimensionate rispetto al minimo stretto: con indirizzi privati, che sono una risorsa "rinnovabile" (non scarsa come i pubblici), è prassi non assegnare sottoreti più piccole del necessario se non per ragioni specifiche.
+
+Indirizzi delle interfacce dei router verso queste sottoreti:
+\begin{itemize}
+    \item R3 eth3: \texttt{10.10.192.1} (verso LABORATORI)
+    \item R3 eth4: \texttt{10.10.128.1} (verso STUDENTI)
+    \item R2 eth2: \texttt{10.10.160.1} (verso DIPENDENTI)
+\end{itemize}
+
+\textbf{Punto 3.} Bastano 32 indirizzi pubblici e 64 privati:
+\begin{itemize}
+    \item \textbf{SERVER PUBBLICI}: \texttt{193.205.112.160/27}
+    \item \textbf{SERVER PRIVATI} (cluster di calcolo): \texttt{10.10.161.0/26}
+\end{itemize}
+Anche qui si sarebbe potuto assegnare un \texttt{/24} al cluster privato, ma trattandosi di macchine quasi certamente a indirizzo statico in un sistema "chiuso", è altrettanto valida la scelta di assegnare il minimo indispensabile.
+
+Sì, \textbf{è possibile} assegnare due indirizzi IP (uno per sottorete) alla stessa interfaccia fisica \texttt{e3}: il vincolo IP è che un indirizzo unicast appartenga ad una e una sola interfaccia, non il viceversa --- un'interfaccia può avere più indirizzi. Non serve nessun accorgimento particolare a livello IP, anche se spesso si preferisce definire interfacce virtuali distinte sulla stessa interfaccia fisica a livello di sistema operativo.
+
+\textbf{Punto 4.} Si assegnano sottoreti \texttt{/30} alle interconnessioni punto-a-punto, ad esempio:
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Link} & \textbf{Subnet} & \textbf{Indirizzi assegnati} \\
+\hline
+R1e0 -- R3e0 & \texttt{10.10.0.4/30} & R1e0: \texttt{10.10.0.5}, R3e0: \texttt{10.10.0.6} \\
+R3e1 -- R2e1 & \texttt{10.10.0.8/30} & R3e1: \texttt{10.10.0.9}, R2e1: \texttt{10.10.0.10} \\
+R3e2 -- R4e2 & \texttt{10.10.0.12/30} & R3e2: \texttt{10.10.0.13}, R4e2: \texttt{10.10.0.14} \\
+R4e0 -- R2e0 & \texttt{10.10.0.16/30} & R4e0: \texttt{10.10.0.17}, R2e0: \texttt{10.10.0.18} \\
+\hline
+\end{tabular}
+\end{center}
+In alternativa, se le interconnessioni fra router sono realizzate su una rete broadcast (es. Ethernet commutata, plausibile in una rete di campus), si può assegnare un'unica sottorete a tutte le interfacce di interconnessione: in tal caso serve un \texttt{/28} per avere gli 8 indirizzi unicast necessari (un \texttt{/29} ne darebbe solo 6), ad esempio \texttt{10.10.0.0/28}.
+
+\textbf{Punto 5.} No, non serve alcun meccanismo particolare: basta che i router annuncino correttamente le sottoreti via routing interno. Un indirizzo IP privato non può essere instradato su Internet, ma \textbf{all'interno di un'Intranet sì} --- e qui tutta la comunicazione (sottoreti private verso i server, anche quelli con IP pubblico) avviene internamente alla rete dell'università, non attraversa mai Internet.
+\end{enumerate}
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio 2 (Progetto di un Protocollo) --- AA 2018/19}]
+Si deve progettare un protocollo di livello applicativo per l'interrogazione e la configurazione di sensori remoti. Il protocollo si appoggia su UDP, con il server sulla porta 5555. Vincoli: i pacchetti IP non devono superare i 128 byte (header inclusi), e comandi/risposte devono sempre stare in un singolo datagramma UDP. Progettare un protocollo che supporti la lettura dei valori dei sensori e operazioni semplici (reset di una periferica, riavvio, ecc.).
+\end{tcolorbox}
+
+\textbf{Soluzione (ufficiale):}
+
+Dato il vincolo di dimensione, conviene un protocollo a \textbf{campi di dimensione fissa} piuttosto che testuale (stile HTTP): un protocollo basato su tag/testo sarebbe troppo inefficiente e rischierebbe di non stare in un solo datagramma.
+
+Calcolo dello spazio disponibile: header IP (20 byte) + header UDP (8 byte) = 28 byte, quindi il payload applicativo massimo è $M = 128 - 28 = 100$ byte.
+
+Architettura: protocollo \textbf{client/server transazionale} --- il server gira sul sensore, il client (es. un PC) interroga in qualsiasi momento. Non serve preoccuparsi di indirizzi IP o porte client (effimere, assegnate dal SO).
+
+\textbf{Formato del messaggio (100 byte totali):}
+\begin{center}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Campo} & \textbf{Dim.} & \textbf{Scopo} \\
+\hline
+Protocol Version & 4 bit & versione del protocollo \\
+Transaction Id & 12 bit & numero casuale identificativo della richiesta (evita confusione con pacchetti persi/risposte ritardate); copiato nella risposta; \texttt{0x000} e \texttt{0xFFF} riservati \\
+Message Type & 16 bit & tipo di operazione (richiesta/risposta codificata nel bit più significativo) \\
+CRC & 16 bit & ridondanza ciclica (stessa idea di TCP) per verificare l'integrità; utile perché il checksum UDP sul payload è opzionale \\
+Payload Length & 8 bit & basterebbero 7 bit, ma disallineare i byte sarebbe controproducente \\
+Payload & 0--93 byte & dati applicativi \\
+Padding & 0--93 byte & completa il messaggio a dimensione fissa (valore fisso \texttt{0xCC}) \\
+\hline
+\end{tabular}
+\end{center}
+
+\textit{Nota:} si è assunta dimensione del pacchetto \textbf{fissa} (non solo "al massimo" 128 byte); è una scelta arbitraria ma permette di motivare il campo di padding. Un pacchetto a dimensione variabile senza padding sarebbe altrettanto corretto (e renderebbe superfluo anche Payload Length, dato che il payload terminerebbe alla fine del segmento UDP).
+
+\textbf{Codici di comando (Message Type, 2 byte meno significativi, i 2 più significativi a 0 = comandi standard):}
+\begin{center}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\texttt{0000 0000} & riservato \\
+\texttt{1111 1111} & riservato \\
+\texttt{0xxx xxxx} & richieste \\
+\texttt{1xxx xxxx} & risposte (stesso Transaction Id della richiesta) \\
+\texttt{0000 0001} / \texttt{1000 0001} / \texttt{1000 0010} & reboot: richiesta / ack inizio reboot / reboot completato (richiede una EPROM per persistere il Tr.\ Id attraverso il riavvio) \\
+\texttt{0000 0011} / \texttt{1000 0011} & reset di un sensore / esito del reset \\
+\texttt{0001 0000} / \texttt{1001 0000} & richiesta elenco sensori / risposta con l'elenco \\
+\texttt{0001 0001} / \texttt{1001 0001} & richiesta ultima misura di un sensore / risposta \\
+\texttt{0001 0010} / \texttt{1001 0010} & richiesta ultime $n$ misure / risposta (può non stare in un solo pacchetto se $n$ è grande: da gestire con frammentazione applicativa) \\
+\texttt{1111 1110} & comando non supportato \\
+\texttt{1111 1101} & errore di sistema \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Appendice E: Esercizio "Company" --- Configurazione di Rete (traccia d'esame, soluzione proposta)}
+
+\textbf{[Guessing/Likely — sezione senza soluzione ufficiale nel materiale]} Questo esercizio (fonte: \textit{08\_Esercizi-20-12.pdf}) non include una soluzione nel materiale fornito. Quella che segue è una soluzione che ho costruito io applicando le stesse regole viste a lezione (subnetting, routing, Dijkstra, MST): utile per esercitarsi, ma non trattarla come una chiave ufficiale.
+
+\begin{tcolorbox}[colback=lightergray!10, colframe=tocsec, title=\textbf{Esercizio: Configurazione di una Rete (Company)}]
+Un'azienda "Company" ha due sedi S1 ed S2 in città diverse. In ciascuna sede la rete interna è divisa in due sottoreti connesse a un router (R1 in S1, R2 in S2): una pubblica (LAN1/LAN2, postazioni fisse) e una privata (WLAN1/WLAN2, wireless). L'azienda accede a Internet tramite un ISP con pool pubblico \texttt{172.172.0.0/16}. L'azienda dispone del pool pubblico \texttt{130.192.64.0/23} per le due reti pubbliche. Tutte le reti private sono \texttt{/21}, con indirizzi \texttt{192.168.x.x}. Tutti i router usano OSPF.
+
+\begin{enumerate}
+    \item Assegnare gli indirizzi IP a LAN1 e LAN2 massimizzando il numero di postazioni fisse, con lo stesso numero in entrambe le sedi (net-id, mask, range, \# host).
+    \item Assegnare gli indirizzi IP a WLAN1 e WLAN2 analogamente (net-id, mask, range, \# utenti max).
+    \item Assegnare gli indirizzi alle interfacce di R1 e definirne la tabella di routing. L'interfaccia eth0 di R3 è \texttt{172.172.0.2/30}.
+    \item Serve NAT per far comunicare gli host delle quattro sottoreti tra loro?
+    \item Calcolare con Dijkstra i cammini minimi da R1 verso tutti gli altri router, mostrando l'evoluzione in tabella.
+    \item Disegnare il minimum spanning tree con radice in R1.
+\end{enumerate}
+\end{tcolorbox}
+
+\textbf{Topologia (dalla figura):} R1 e R2 sono i router di accesso delle due sedi; la rete dell'ISP/backbone aziendale collega R3--R9.
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0, every node/.style={font=\small}]
+  \node[circle,draw,minimum size=7mm] (R1) at (-3,3) {R1};
+  \node[circle,draw,minimum size=7mm] (R2) at (7,3) {R2};
+  \node[circle,draw,minimum size=7mm] (R3) at (-2,1) {R3};
+  \node[circle,draw,minimum size=7mm] (R4) at (1.5,1.4) {R4};
+  \node[circle,draw,minimum size=7mm] (R5) at (4.5,1) {R5};
+  \node[circle,draw,minimum size=7mm] (R6) at (4.5,-0.8) {R6};
+  \node[circle,draw,minimum size=7mm] (R7) at (1,-0.5) {R7};
+  \node[circle,draw,minimum size=7mm] (R8) at (2.8,-1.6) {R8};
+  \node[circle,draw,minimum size=7mm] (R9) at (-1.3,-1.6) {R9};
+
+  \draw (R1)--(R3) node[midway,above left]{1};
+  \draw (R2)--(R5) node[midway,above right]{1};
+  \draw (R3)--(R4) node[midway,above]{5};
+  \draw (R4)--(R5) node[midway,above]{1};
+  \draw (R3)--(R9) node[midway,left]{2};
+  \draw (R9)--(R7) node[midway,below]{1};
+  \draw (R7)--(R8) node[midway,below]{2};
+  \draw (R4)--(R8) node[midway,right]{2};
+  \draw (R8)--(R6) node[midway,right]{1};
+  \draw (R6)--(R5) node[midway,right]{1};
+  \draw (R9) to[bend right=25] node[midway,below]{5} (R5);
+\end{tikzpicture}
+\end{center}
+
+\textbf{Soluzione proposta:}
+
+\textbf{Punto 1 --- LAN1 e LAN2.} Il pool \texttt{130.192.64.0/23} copre 512 indirizzi (\texttt{130.192.64.0}--\texttt{130.192.65.255}). L'unico modo di dividerlo in \textbf{due parti uguali} è in due blocchi \texttt{/24}:
+\begin{itemize}
+    \item \textbf{LAN1}: net-id \texttt{130.192.64.0/24}, range utilizzabile \texttt{130.192.64.1 -- 130.192.64.254}, 254 postazioni fisse.
+    \item \textbf{LAN2}: net-id \texttt{130.192.65.0/24}, range utilizzabile \texttt{130.192.65.1 -- 130.192.65.254}, 254 postazioni fisse.
+\end{itemize}
+
+\textbf{Punto 2 --- WLAN1 e WLAN2.} Dimensione fissata dal testo a \texttt{/21} ($2^{11}=2048$ indirizzi, 2046 utilizzabili):
+\begin{itemize}
+    \item \textbf{WLAN1}: net-id \texttt{192.168.0.0/21}, range \texttt{192.168.0.1 -- 192.168.7.254}, max 2046 utenti simultanei.
+    \item \textbf{WLAN2}: net-id \texttt{192.168.8.0/21}, range \texttt{192.168.8.1 -- 192.168.15.254}, max 2046 utenti simultanei.
+\end{itemize}
+
+\textbf{Punto 3 --- Interfacce e routing table di R1.} R1 ha tre interfacce: eth0 verso R3 (backbone), eth1 verso LAN1, eth2 verso WLAN1.
+
+Il testo fissa l'eth0 di R3 a \texttt{172.172.0.2/30}: la sottorete \texttt{/30} che la contiene è \texttt{172.172.0.0/30} (network \texttt{.0}, host utilizzabili \texttt{.1} e \texttt{.2}, broadcast \texttt{.3}). Quindi:
+\begin{itemize}
+    \item R1 eth0: \texttt{172.172.0.1/30}
+    \item R1 eth1: \texttt{130.192.64.1/24} (primo indirizzo utile di LAN1, gateway)
+    \item R1 eth2: \texttt{192.168.0.1/21} (primo indirizzo utile di WLAN1, gateway)
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Destinazione} & \textbf{Next hop} & \textbf{Interfaccia} \\
+\hline
+\texttt{130.192.64.0/24} (LAN1) & diretta & eth1 \\
+\texttt{192.168.0.0/21} (WLAN1) & diretta & eth2 \\
+\texttt{172.172.0.0/30} & diretta & eth0 \\
+\texttt{0.0.0.0/0} (default: LAN2, WLAN2, Internet) & \texttt{172.172.0.2} (R3) & eth0 \\
+\hline
+\end{tabular}
+\end{center}
+\textit{Nota:} R1 è un router di accesso (foglia): una default route verso R3 è sufficiente, perché ogni destinazione non locale (compresa LAN2) passa comunque dal backbone. OSPF tra i router del backbone potrebbe in alternativa propagare una rotta specifica per \texttt{130.192.65.0/24}, ma non cambia la sostanza della risposta.
+
+\textbf{Punto 4 --- Serve NAT?} \textbf{Dipende dalle sottoreti} (opzione corretta tra le tre proposte):
+\begin{itemize}
+    \item \textbf{WLAN1 $\leftrightarrow$ LAN1} (stessa sede): \textbf{no NAT}. È solo instradamento locale tra due interfacce dello stesso router R1; un indirizzo privato è perfettamente valido in un dominio di routing locale.
+    \item \textbf{LAN1 $\leftrightarrow$ LAN2} (sedi diverse, entrambe pubbliche): \textbf{no NAT}. Sono indirizzi pubblici, nativamente instradabili sul backbone OSPF e sulla rete dell'ISP.
+    \item \textbf{Qualsiasi comunicazione che coinvolge WLAN1 o WLAN2 verso l'altra sede} (WLAN1$\leftrightarrow$LAN2, WLAN1$\leftrightarrow$WLAN2, ecc.): \textbf{serve NAT}. Il traffico deve attraversare il backbone pubblico (R3--R9, instradato via OSPF solo su prefissi pubblici): un indirizzo sorgente privato non avrebbe un percorso di ritorno instradabile su quella rete, quindi va tradotto in un indirizzo pubblico prima di uscire da R1/R2.
+\end{itemize}
+
+\textbf{Punto 5 --- Dijkstra da R1.} Grafo completo (R1--R9) con i pesi del disegno. Evoluzione dell'algoritmo (notazione $D(v)$ = distanza corrente, $p(v)$ = predecessore; $N'$ = insieme dei nodi confermati):
+
+\begin{center}
+\scriptsize
+\begin{tabular}{|c|l|c|c|c|c|}
+\hline
+\textbf{Passo} & \textbf{$N'$} & \textbf{D(R3),p} & \textbf{D(R9),p} & \textbf{D(R7),p} & \textbf{D(R4),p} \\
+\hline
+0 & R1 & 1,R1 & $\infty$ & $\infty$ & $\infty$ \\
+1 & +R3 & -- & 3,R3 & $\infty$ & 6,R3 \\
+2 & +R9 & -- & -- & 4,R9 & 6,R3 \\
+3 & +R7 & -- & -- & -- & 6,R3 \\
+4 & +R4 & -- & -- & -- & -- \\
+\hline
+\end{tabular}
+
+\vspace{2mm}
+\begin{tabular}{|c|l|c|c|c|c|}
+\hline
+\textbf{Passo} & \textbf{$N'$} & \textbf{D(R8),p} & \textbf{D(R6),p} & \textbf{D(R5),p} & \textbf{D(R2),p} \\
+\hline
+0 & R1 & $\infty$ & $\infty$ & $\infty$ & $\infty$ \\
+1 & +R3 & $\infty$ & $\infty$ & $\infty$ & $\infty$ \\
+2 & +R9 & $\infty$ & $\infty$ & 8,R9 & $\infty$ \\
+3 & +R7 & 6,R7 & $\infty$ & 8,R9 & $\infty$ \\
+4 & +R4 & 6,R7 & $\infty$ & 7,R4 & $\infty$ \\
+5 & +R8 & -- & 7,R8 & 7,R4 & $\infty$ \\
+6 & +R5 & -- & 7,R8 & -- & 8,R5 \\
+7 & +R6 & -- & -- & -- & 8,R5 \\
+8 & +R2 & -- & -- & -- & -- \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Risultato finale (cammini minimi da R1):}
+\begin{itemize}
+    \item R3: 1 (R1--R3)
+    \item R9: 3 (R1--R3--R9)
+    \item R7: 4 (R1--R3--R9--R7)
+    \item R4: 6 (R1--R3--R4) \quad -- \textit{non} via R7--R8--R6--R5--R4, che costerebbe 9
+    \item R8: 6 (R1--R3--R9--R7--R8)
+    \item R5: 7 (R1--R3--R4--R5)
+    \item R6: 7 (R1--R3--R9--R7--R8--R6)
+    \item R2: 8 (R1--R3--R4--R5--R2)
+\end{itemize}
+
+\textbf{Punto 6 --- Minimum Spanning Tree radice R1.} \textbf{Attenzione}: non è lo stesso albero del punto 5! Con Kruskal (ordino gli archi per peso crescente e aggiungo solo se non creano cicli):
+
+Archi di peso 1 (tutti non creano cicli): R1--R3, R9--R7, R4--R5, R8--R6, R6--R5, R2--R5 $\Rightarrow$ si formano tre componenti: $\{R1,R3\}$, $\{R9,R7\}$, $\{R2,R4,R5,R8,R6\}$.
+
+Archi di peso 2: R3--R9 (unisce le prime due componenti), R7--R8 (unisce tutto in un'unica componente con 9 nodi e 8 archi $\Rightarrow$ MST completo). L'arco R4--R8 (peso 2) non serve più: creerebbe un ciclo.
+
+\begin{center}
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Arco MST} & \textbf{Peso} \\
+\hline
+R1--R3 & 1 \\
+R3--R9 & 2 \\
+R9--R7 & 1 \\
+R7--R8 & 2 \\
+R8--R6 & 1 \\
+R6--R5 & 1 \\
+R5--R4 & 1 \\
+R5--R2 & 1 \\
+\hline
+\textbf{Totale} & \textbf{10} \\
+\hline
+\end{tabular}
+\end{center}
+
+Gli archi \texttt{R3--R4} (peso 5) e \texttt{R9--R5} (peso 5) \textbf{non} entrano nell'MST: sono gli archi "costosi" che Dijkstra invece usa parzialmente (R3--R4) perché minimizza la distanza dalla sorgente, non il peso totale dell'albero. Il MST pesa 10, l'albero dei cammini minimi del punto 5 pesa 14 (somma dei suoi archi) ma garantisce invece le distanze minime da R1 verso ciascun nodo, cosa che il MST \textbf{non} garantisce (es. nel MST la distanza R1$\to$R4 sarebbe $1+2+1+2+1+1+1=9$, contro i 6 ottenuti da Dijkstra).
+
+\begin{center}
+\begin{tikzpicture}[scale=1.0, every node/.style={font=\small}]
+  \node[circle,draw,minimum size=7mm] (R1) at (-3,3) {R1};
+  \node[circle,draw,minimum size=7mm] (R2) at (7,3) {R2};
+  \node[circle,draw,minimum size=7mm] (R3) at (-2,1) {R3};
+  \node[circle,draw,minimum size=7mm] (R4) at (1.5,1.4) {R4};
+  \node[circle,draw,minimum size=7mm] (R5) at (4.5,1) {R5};
+  \node[circle,draw,minimum size=7mm] (R6) at (4.5,-0.8) {R6};
+  \node[circle,draw,minimum size=7mm] (R7) at (1,-0.5) {R7};
+  \node[circle,draw,minimum size=7mm] (R8) at (2.8,-1.6) {R8};
+  \node[circle,draw,minimum size=7mm] (R9) at (-1.3,-1.6) {R9};
+
+  \draw[very thick,tocsec] (R1)--(R3) node[midway,above left]{1};
+  \draw[very thick,tocsec] (R3)--(R9) node[midway,left]{2};
+  \draw[very thick,tocsec] (R9)--(R7) node[midway,below]{1};
+  \draw[very thick,tocsec] (R7)--(R8) node[midway,below]{2};
+  \draw[very thick,tocsec] (R8)--(R6) node[midway,right]{1};
+  \draw[very thick,tocsec] (R6)--(R5) node[midway,right]{1};
+  \draw[very thick,tocsec] (R5)--(R4) node[midway,above]{1};
+  \draw[very thick,tocsec] (R5)--(R2) node[midway,above right]{1};
+\end{tikzpicture}
+\end{center}
 
 \end{document}
